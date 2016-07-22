@@ -570,15 +570,15 @@ class Bending2d(Elaborate):
 
 
 
-class JoinCurves(Elaborate,BoundedByBox):
+class RuledSurface(Elaborate,BoundedByBox):
     """
     Constructs the mesh formed by the join of 2 parametrized curves C1,C2. By default, the discrete time t1  and t2 for the parametrization 
     is uniform on [0,1] but this is overridable by the parameters timeList. The mesh contains the triangles c1(t1(i)) c2(t2(i)) c2(t2(i+1))
     and  c1(t1(i)) c1(t1(i+1)) c2(t2(i+1))
 
     Constructors
-    JoinCurves(curve1,curve2,timeList1=[],timeList2=[])
-
+    RuledSurface(curve1,curve2,timeList1=[],timeList2=[])
+    RuledSurface.fromCurveFilling(curve1,stepNumber=6)
 
     markers
     box()
@@ -601,6 +601,13 @@ class JoinCurves(Elaborate,BoundedByBox):
         self.markers=Object()
         self.markers.box=FrameBox(listOfPoints=[curve1.point(t1) for t1 in timeList1]+[curve2.point(t2) for t2 in timeList2])
         self.markers_as_functions()
+    def fromCurveFilling(curve,stepNumber=6)   :
+        """
+        Creates a ruled Surface  from a Closed curve by "filling the hole" with lines. The curve is divided into the first half C1 
+        and the second halt C2. The ruled surface is the join between c1 and c2. 
+        """
+        
+        
     def __str__(self):
         return ("Mesh for the Join of the curves "+str(curve1)+" and "+str(curve2))
 
