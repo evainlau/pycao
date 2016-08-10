@@ -123,26 +123,26 @@ def object_string_but_CSG(self,camera):
         string+="lathe {\n"+latheType+" "+str(len(self.parts.curve))+"\n"
         for p in self.parts.curve: string+=","+point_to_povray2d(p,1,2)
         string+=modifier(self,camera)+"}\n"
-    elif isinstance(self,JoinCurves):
+    elif isinstance(self,RuledSurface):
         string+="mesh2 { vertex_vectors { "+str(2*len(self.parts.timeList1))+"\n"
         for t in self.parts.timeList1:
-            string+=","+povrayVector(self.parts.curve1.point(t))
+            string+=","+povrayVector(self.parts.curve1.atTime(t))
         string+="\n"
         for t in self.parts.timeList2:
-            string+=","+povrayVector(self.parts.curve2.point(t))
-            #print self.parts.curve1.point(t)
+            string+=","+povrayVector(self.parts.curve2.atTime(t))
+            #print self.parts.curve1.atTime(t)
         string+=" }\n   normal_vectors { "+str(2*len(self.parts.timeList1))
         for i in xrange(len(self.parts.timeList1) - 1):
-            xi,xip = self.parts.curve1.point(self.parts.timeList1[i]), self.parts.curve1.point(self.parts.timeList1[i + 1])
-            yi=self.parts.curve2.point(self.parts.timeList2[i])
+            xi,xip = self.parts.curve1.atTime(self.parts.timeList1[i]), self.parts.curve1.atTime(self.parts.timeList1[i + 1])
+            yi=self.parts.curve2.atTime(self.parts.timeList2[i])
             #print("xi,yi,xip...",xi,yi,xip,xi-yi,xip-xi)
             normal=(xi-yi).cross((xip-xi))
             string+=","+povrayVector(normal)
             if i==len(self.parts.timeList1) - 2: string+=","+povrayVector(normal)
         for i in xrange(len(self.parts.timeList1) - 1):
             # same code as above, changing curve2 and curve1
-            xi,xip = self.parts.curve2.point(self.parts.timeList1[i]), self.parts.curve2.point(self.parts.timeList1[i + 1])
-            yi=self.parts.curve1.point(self.parts.timeList2[i])
+            xi,xip = self.parts.curve2.atTime(self.parts.timeList1[i]), self.parts.curve2.atTime(self.parts.timeList1[i + 1])
+            yi=self.parts.curve1.atTime(self.parts.timeList2[i])
             normal=(xi-yi).cross((xip-xi))
             string+=","+povrayVector(normal)
             if i==len(self.parts.timeList1) - 2: string+=","+povrayVector(normal)

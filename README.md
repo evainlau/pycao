@@ -5,7 +5,7 @@
 This is the pycao modeller.
 In short, this is a tool to
 describe a 3D-scene using
-the povray language, with plenty
+the python language, with plenty
 of simplifying paradigms
 ( carrying objects in boxes,
 genealogy system, compact mathematical notations,
