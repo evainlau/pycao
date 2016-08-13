@@ -599,7 +599,7 @@ class RuledSurface(Elaborate,BoundedByBox):
 
         #self.markers
         self.markers=Object()
-        self.markers.box=FrameBox(listOfPoints=[curve1.atTime(t1) for t1 in timeList1]+[curve2.atTime(t2) for t2 in timeList2])
+        self.markers.box=FrameBox(listOfPoints=[curve1.__call__(t1) for t1 in timeList1]+[curve2.__call__(t2) for t2 in timeList2])
         self.markers_as_functions()
     def fromCurveFilling(curve,stepNumber=6)   :
         """

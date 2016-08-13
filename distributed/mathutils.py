@@ -454,7 +454,7 @@ class AffinePlaneWithEquation(AffinePlane,np.ndarray):
 
 class CurveMethods():
     """
-    A class to factorize the methods common to all types of curves ( polyline,BezierCurve...)
+    A class to factorize the methods common to all types of curves ( polyline,BezierCurve)
 
     """
     @staticmethod
@@ -480,6 +480,19 @@ class CurveMethods():
                 raise NameError('relativeList['+str(i)+'] must be a point or vector')
         return relativeList
 
+        
+    @staticmethod 
+    def  reparametrize(curve,g):
+        """
+        Replaces the parametrize curve C(t) by C(g(t))  where g is a function corresponding to the change of parameter
+        """
+        oldCall=curve.__call__
+        def composition(t):
+            return oldCall(g(t))
+        curve.__call__=types.MethodType(composition, curve)
+
+
+
     
 class Polyline(list,Primitive):
     """ A class for polylines p0,...,pn ie the curve which is the union of segments p_i,p_{i+1}
@@ -492,7 +505,7 @@ class Polyline(list,Primitive):
     Methods: 
     self.lengths: [distance(p0,p1),distance(p1,p2)...]
     self.angles:[angle(p0,p1,p2),angle(p1,p2,p3),...,angle(p_{n-2},p_{n-1},p_n)]
-    self.atTime(t): the parametrized point at time t. 
+    self.__call__(t): the parametrized point at time t. 
     """
     def pointAtTime(self,time):
         segmentDuration=1./(len(self)-1)
@@ -509,7 +522,7 @@ class Polyline(list,Primitive):
     def __init__(self,relativeList):
         self += CurveMethods.relativeToAbsolute(relativeList)
         ObjectInWorld.__init__(self)
-        self.atTime=self.pointAtTime
+        self.__call__=self.pointAtTime
     def lengths(self):
         lengthsList=[]
         for i in range(len(self)-1):
@@ -540,7 +553,7 @@ class BezierCurve(list,Primitive):
     Methods: 
     self.lengths: [distance(p0,p1),distance(p1,p2)...]
     self.angles:[angle(p0,p1,p2),angle(p1,p2,p3),...,angle(p_{n-2},p_{n-1},p_n)]
-    self.atTime(t): the parametrized point at time t. 
+    self.__call__(t): the parametrized point at time t. 
     """
     def __new__(cls,*args,**kwargs):
         return list.__new__(cls)
@@ -557,7 +570,7 @@ class BezierCurve(list,Primitive):
         for i in range(len(self)-2):
             anglesList.append(Triangle(self[i],self[i+1],self[i+2]).angle(1))
         return anglesList
-    def atTime(self,time):
+    def __call__(self,time):
         output=0*Z
         for i in range(len(self)):
             output+=scipy.special.binom(len(self)-1, i)*((time)**i)*((1-time)**(len(self)-1-i))*self[i]
@@ -586,7 +599,7 @@ class PiecewiseCurve(list,Primitive):
     listOfCurves: a list of polylines or bezier curvees
  
     Methods: 
-    self.atTime(time): returns the point parametrized by time t. 
+    self.__call__(time): returns the point parametrized by time t. 
     """
     def __new__(cls,*args,**kwargs):
         return list.__new__(cls)
@@ -655,10 +668,10 @@ class PiecewiseCurve(list,Primitive):
             raise NameError('Error In Piecewise Curve.Maybe two points p_i,p_{i+2} are equal, in which case the tangent at p_{i+1} is not defined')
         return PiecewiseCurve(listeCurve)
     
-    def  atTime(self,time):
+    def  __call__(self,time):
         if (time>=1):# if >,probably because of floating numbers and should be 1
             #print("ici")
-            return self[-1].atTime(1)
+            return self[-1].__call__(1)
         else:
             #print(self)
             #print(floor(len(self)*time))
@@ -666,31 +679,8 @@ class PiecewiseCurve(list,Primitive):
             timeInCurve=len(self)*time-curveNumber
             #print (curveNumber)
             #print (self[curveNumber])
-            return self[curveNumber].atTime(timeInCurve)
+            return self[curveNumber].__call__(timeInCurve)
 
-class Curve(Primitive):
-    """
-    A class for parametrized curves. 
-    """
-    def __init__(self,listOfCurves):
-        ObjectInWorld.__init__(self)
-    def __str__(self):
-        return "A parametrized curve"
-    def move_alone(self,M):
-        def newparam(t):
-            return M*self.atTime(t)
-        self.atTime=newparam
-        return self
-    @staticmethod 
-    def  fromReparametrization(curve,g):
-        """
-        Returns d=curve\circ g where g is a function corresponding to the change of parameter
-        """
-        d=curve.copy()
-        def atTime(t):
-            return curve(g(t))
-        d.atTime=atTime
-        return d
         
 class Circle(Primitive):
     """ 
