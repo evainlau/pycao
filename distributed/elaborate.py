@@ -393,7 +393,7 @@ class Sphere(Elaborate,BoundedByBox):
         self.parts=Object()
         self.markers=Object()
         if len(args)==2:
-            self.parts.center=args[0]
+            self.parts.center=args[0].copy()
             self.parts.radius=float(args[1])
         elif len(args)==4:
             self.parts.center=point(args[0],args[1],args[2])
@@ -611,4 +611,25 @@ class RuledSurface(Elaborate,BoundedByBox):
     def __str__(self):
         return ("Mesh for the Join of the curves "+str(curve1)+" and "+str(curve2))
 
-    
+
+def visualize(self,radius=0.1,steps=100,color="Yellow",color2="Green"):
+    """ 
+    constructs spheres along the curve to visualize it. 
+    Arguments:
+    steps: The number of spheres 
+    color: the color of the spheres 
+    radius: the radius of the spheres
+    color2: the color to mark the input points which are interpolated by the curve 
+    """
+    for time in range(0,steps,1):
+        p=self(1./steps*time)
+        s=Sphere(p,radius)
+        s.color=color
+        s.glued_on(self)
+    if self.__class__== Polyline or self.__class__== BezierCurve:
+        for point in self:
+            s=Sphere(point,2*radius)
+            s.color=color2
+            s.glued_on(self)
+
+ParametrizedCurve.visualize=visualize

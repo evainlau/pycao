@@ -452,9 +452,9 @@ class AffinePlaneWithEquation(AffinePlane,np.ndarray):
         else:
             return True
 
-class CurveMethods():
+class ParametrizedCurve():
     """
-    A class to factorize the methods common to all types of curves ( polyline,BezierCurve)
+    A class to factorize the methods common to all types of curves ( polyline,BezierCurve,PiecewiseCurve)
 
     """
     @staticmethod
@@ -491,10 +491,8 @@ class CurveMethods():
             return oldCall(g(t))
         curve.__call__=types.MethodType(composition, curve)
 
-
-
     
-class Polyline(list,Primitive):
+class Polyline(list,Primitive,ParametrizedCurve):
     """ A class for polylines p0,...,pn ie the curve which is the union of segments p_i,p_{i+1}
     The sequence p_i is defined as a relative list, ie. the user may enter points or vectors and data are cast to the expected type as usual. 
 
@@ -506,8 +504,9 @@ class Polyline(list,Primitive):
     self.lengths: [distance(p0,p1),distance(p1,p2)...]
     self.angles:[angle(p0,p1,p2),angle(p1,p2,p3),...,angle(p_{n-2},p_{n-1},p_n)]
     self.__call__(t): the parametrized point at time t. 
+    self.visualize(): builds spheres along the curve for visualization
     """
-    def pointAtTime(self,time):
+    def  __call__(self,time):
         segmentDuration=1./(len(self)-1)
         leftPointIndex=int(floor(time*(len(self)-1)))
         #print(leftPointIndex)
@@ -520,9 +519,8 @@ class Polyline(list,Primitive):
     def __new__(cls,*args,**kwargs):
         return list.__new__(cls)
     def __init__(self,relativeList):
-        self += CurveMethods.relativeToAbsolute(relativeList)
+        self += ParametrizedCurve.relativeToAbsolute(relativeList)
         ObjectInWorld.__init__(self)
-        self.__call__=self.pointAtTime
     def lengths(self):
         lengthsList=[]
         for i in range(len(self)-1):
@@ -541,7 +539,7 @@ class Polyline(list,Primitive):
     #@staticmethod
     #def linear(*args):
 
-class BezierCurve(list,Primitive):
+class BezierCurve(list,Primitive,ParametrizedCurve):
     """ A class for BezierCurve p0,...,pn ie this is the parametrized curve sum B^n_i(t) p_i with B^{n}_i(t)=(i choose n)(1-t)^i t^{n-i}
     In particular, this curve starts at p0 with tangent proportional to p1-p0 and ends at pn with tangent proportional to pn-p_{n-1} 
     The sequence p_i is defined as a relative list, ie. the user may enter points or vectors and data are cast to the expected type as usual. 
@@ -558,7 +556,7 @@ class BezierCurve(list,Primitive):
     def __new__(cls,*args,**kwargs):
         return list.__new__(cls)
     def __init__(self,relativeList):
-        self += CurveMethods.relativeToAbsolute(relativeList)
+        self += ParametrizedCurve.relativeToAbsolute(relativeList)
         ObjectInWorld.__init__(self)
     def lengths(self):
         lengthsList=[]
@@ -586,7 +584,7 @@ class BezierCurve(list,Primitive):
     #def linear(*args):
 
 
-class PiecewiseCurve(list,Primitive):
+class PiecewiseCurve(list,Primitive,parametrizedCurve):
     """ 
     A class for piecewise curves C=[C0,\dots,Cn-1]. Ci is a polyline or Bezier curve, 
     and the end point of Ci is the initial point of C_{i+1} so that the curve is connected. 
@@ -612,7 +610,7 @@ class PiecewiseCurve(list,Primitive):
         [point.move_alone(M) for point in self ]
         return self
     @staticmethod
-    def fromPointsList(points,closedCurve=False):
+    def fromInterpolation(points,closedCurve=False):
         """ 
         This is an interpolated curve through the points p_0,\dots,p_n in argument. 
         The tangent at pi is parallel to p_{i+1}-p_i. 
@@ -624,7 +622,7 @@ class PiecewiseCurve(list,Primitive):
         if (len(points)<3):
             raise NameError('Need At least 3 points for the compound Curve')
         #print(points)
-        CurveMethods.relativeToAbsolute(points)
+        ParametrizedCurve.relativeToAbsolute(points)
         #print(points)
         listeCurve=[]
         try:
