@@ -577,7 +577,7 @@ class RuledSurface(Elaborate,BoundedByBox):
     and  c1(t1(i)) c1(t1(i+1)) c2(t2(i+1))
 
     Constructors
-    RuledSurface(curve1,curve2,timeList1=[],timeList2=[])
+    RuledSurface(curve1,curve2,openHole1=True,openHole2=True)
     RuledSurface.fromCurveFilling(curve1,stepNumber=6)
 
     markers
@@ -585,12 +585,10 @@ class RuledSurface(Elaborate,BoundedByBox):
     """
 
 
-    def __init__(self,curve1,curve2,timeStepsPerSegment=5,timeList1=[],timeList2=[]):
-        numberOfIntervals=timeStepsPerSegment*(len(curve1)+len(curve2))
-        if timeList1==[]:
-            timeList1=[1.0*i/(numberOfIntervals) for i in range(numberOfIntervals+1)]
-        if timeList2==[]:
-            timeList2=[1.0*i/(numberOfIntervals) for i in range(numberOfIntervals+1)]
+    def __init__(self,curve1,curve2,quality=5):
+        numberOfIntervals=quality*(len(curve1)+len(curve2))
+        timeList1=[1.0*i/(numberOfIntervals) for i in range(numberOfIntervals+1)]
+        timeList2=[1.0*i/(numberOfIntervals) for i in range(numberOfIntervals+1)]
         self.parts=Object()
         self.parts.curve1=curve1
         self.parts.curve2=curve2
@@ -601,17 +599,34 @@ class RuledSurface(Elaborate,BoundedByBox):
         self.markers=Object()
         self.markers.box=FrameBox(listOfPoints=[curve1.__call__(t1) for t1 in timeList1]+[curve2.__call__(t2) for t2 in timeList2])
         self.markers_as_functions()
-    def fromCurveFilling(curve,stepNumber=6)   :
+
+            
+    @staticmethod
+    def fromCurveFilling(curve,quality=6)   :
         """
         Creates a ruled Surface  from a Closed curve by "filling the hole" with lines. The curve is divided into the first half C1 
         and the second halt C2. The ruled surface is the join between c1 and c2. 
         """
-        
-        
+        firstHalf=curve.copy().reparametrize(lambda x:0.5*x)
+        secondHalf=curve.copy().reparametrize(lambda x:0.5+0.5*x)
+        return RuledSurface(firstHalf,secondHalf,quality=quality)
+    
     def __str__(self):
         return ("Mesh for the Join of the curves "+str(curve1)+" and "+str(curve2))
 
+    @staticmethod
+    def fromJoinAndCaps(curve1,curve2,quality=5,cap1=True,cap2=True):
+        slaves=[RuledSurface(curve1,curve2,quality)]
+        if cap1:
+            slaves.append(RuledSurface.fromCurveFilling(curve1,quality))
+        if  cap2:
+            slaves.append(RuledSurface.fromCurveFilling(curve2,quality))
+        from compound import Compound
+        return Compound(slaves)
 
+            
+
+    
 def visualize(self,radius=0.1,steps=100,color="Yellow",color2="Green"):
     """ 
     constructs spheres along the curve to visualize it. 

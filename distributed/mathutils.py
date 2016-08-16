@@ -25,6 +25,7 @@ from math import *
 import sys
 import os
 import copy
+import types
 sys.path.append(os.getcwd()) # pour une raison inconnue, le path de python ne contient pas ce dir dans l'install de la fac
 
 from uservariables import *
@@ -479,18 +480,16 @@ class ParametrizedCurve():
             else:
                 raise NameError('relativeList['+str(i)+'] must be a point or vector')
         return relativeList
-
         
-    @staticmethod 
     def  reparametrize(curve,g):
         """
         Replaces the parametrize curve C(t) by C(g(t))  where g is a function corresponding to the change of parameter
         """
         oldCall=curve.__call__
-        def composition(t):
+        def composition(self,t):
             return oldCall(g(t))
         curve.__call__=types.MethodType(composition, curve)
-
+        return curve
     
 class Polyline(list,Primitive,ParametrizedCurve):
     """ A class for polylines p0,...,pn ie the curve which is the union of segments p_i,p_{i+1}
@@ -584,7 +583,7 @@ class BezierCurve(list,Primitive,ParametrizedCurve):
     #def linear(*args):
 
 
-class PiecewiseCurve(list,Primitive,parametrizedCurve):
+class PiecewiseCurve(list,Primitive,ParametrizedCurve):
     """ 
     A class for piecewise curves C=[C0,\dots,Cn-1]. Ci is a polyline or Bezier curve, 
     and the end point of Ci is the initial point of C_{i+1} so that the curve is connected. 
