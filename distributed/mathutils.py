@@ -503,7 +503,7 @@ class Polyline(list,Primitive,ParametrizedCurve):
     self.lengths: [distance(p0,p1),distance(p1,p2)...]
     self.angles:[angle(p0,p1,p2),angle(p1,p2,p3),...,angle(p_{n-2},p_{n-1},p_n)]
     self.__call__(t): the parametrized point at time t. 
-    self.visualize(): builds spheres along the curve for visualization
+    self.show(): builds spheres along the curve for visualization
     """
     def  __call__(self,time):
         segmentDuration=1./(len(self)-1)
@@ -611,6 +611,8 @@ class PiecewiseCurve(list,Primitive,ParametrizedCurve):
     @staticmethod
     def fromInterpolation(points,closedCurve=False):
         """ 
+        parameters:
+        points=list of points.
         This is an interpolated curve through the points p_0,\dots,p_n in argument. 
         The tangent at pi is parallel to p_{i+1}-p_i. 
         Technically, between pi and pi+1, 2 points qi and ri are inserted and 

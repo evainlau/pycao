@@ -259,7 +259,7 @@ def render(camera):
     if camera.filmAllActors:
         camera.actors=[]
         for obj in gc.get_objects():
-            if (isinstance(obj, ElaborateOrCompound) or isinstance(obj,AffinePlane)) and obj.parent==[]:
+            if (isinstance(obj, ElaborateOrCompound) or isinstance(obj,AffinePlane) or isinstance(obj,ParametrizedCurve) ) and obj.parent==[]:
                 camera.actors.append(obj)
               #  pass #some objecct have no parents
     #    for light in camera.lights:

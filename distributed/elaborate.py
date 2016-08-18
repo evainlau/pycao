@@ -627,7 +627,7 @@ class RuledSurface(Elaborate,BoundedByBox):
             
 
     
-def visualize(self,radius=0.1,steps=100,color="Yellow",color2="Green"):
+def to_visualize_curves(self,radius=0.1,steps=100,color="Yellow",color2="Green"):
     """ 
     constructs spheres along the curve to visualize it. 
     Arguments:
@@ -647,4 +647,4 @@ def visualize(self,radius=0.1,steps=100,color="Yellow",color2="Green"):
             s.color=color2
             s.glued_on(self)
 
-ParametrizedCurve.visualize=visualize
+ParametrizedCurve.show=to_visualize_curves
