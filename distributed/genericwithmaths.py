@@ -94,9 +94,12 @@ def _init_object(self,*args,**kwargs):
     self.csgOperations=[]
     #print (allObjects)
     #print(self)
-    #print ([self is object for object in listOfAllObjects])
-    if not any([self is object for object in listOfAllObjects]):
-        listOfAllObjects.append(self)
+    if  ((isinstance(self,ObjectInWorld) and not isinstance(self,Primitive)) \
+        or isinstance(self,AffinePlane) \
+        or isinstance(self, ParametrizedCurve)):
+        groupPhoto.append(self)
+    #   not isinstance(self,MassPoint):
+
 
 # def is_vector_object(self):
 #     return isinstance(self,MassPoint) and (self[3]==0)
@@ -129,11 +132,28 @@ def _move_at(self,*location):
     #print(location)
     #print(self.center)
     vector=location-self.center
-    #print("Translation de vecteur")
-    #print(vector)
-    #print(self)
-    #print(self.translate(vector))
     return self.translate(vector)
 
 
+
+
+
+def _show_box(self):
+    """
+    constructs a Polyhedral corresponding to the Framebox, glued_on self. The colors of the polyhedral corresponds to the axis. 
+    """
+    b=self.box()   
+    liste=[b.plane(-X,-.00001,"p"),b.plane(X,1.00001,"p"),b.plane(-Y,-.00001,"p"),b.plane(Y,1.00001,"p"),b.plane(-Z,-.00001,"p"),b.plane(Z,1.00001,"p")]
+    # the above planes are slightly moved from their real location to avoid a dirty display when self has a face on one of the planes.
+    colors=["Red","Scarlet","Green","ForestGreen","Cyan","Blue"]
+    for i in range(6):
+        #print(i)
+        #print(liste)
+        #print(liste[i])
+        #print(colors[i])
+        liste[i].color=colors[i]
+    cube=liste.pop().intersected_by(liste).glued_on(self)
+    return self
+
 BoundedByBox.move_at=_move_at
+BoundedByBox.show_box=_show_box

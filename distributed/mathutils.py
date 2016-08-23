@@ -45,6 +45,7 @@ from generic import *
 
 class Primitive(ObjectInWorld):
     def copy(self):
+        #print("in copy prim")
         #return super(ElaborateOrCompound).__deepcopy__(self).markers_as_functions()
         #print (self.csgOperations)
         a=copy.deepcopy(self)
@@ -80,23 +81,40 @@ class MassPoint(np.ndarray,Primitive):
     def __array_finalize__(self,*args,**kwargs):
         ObjectInWorld.__init__(self)
 
+    def copy(self):
+        memo=dict()
+        return self.__deepcopy__(memo)
+        
+    def __deepcopy__(self,memo):
+        # I have to rewrite this because ndarray.deepcopy applies and forgets to copy the arguments
+        cls = self.__class__
+        result = np.ndarray.__deepcopy__(self,memo) 
+        memo[id(self)] = result
+        for k, v in self.__dict__.items():
+            setattr(result, k, copy.deepcopy(v, memo))
+        return result
+        
     def roundResult(masspoint):
-        if math.fabs(masspoint[3])<0.000000001: masspoint[3]=0
-        if math.fabs(masspoint[3]-1)<0.000000001: masspoint[3]=1
+        if math.fabs(masspoint[3])<0.000000001: masspoint[3]=0.
+        if math.fabs(masspoint[3]-1)<0.000000001: masspoint[3]=1.
         return masspoint
 
     def __str__(self):
-        if (self[3]==0):
-            return("Vector  "+np.ndarray.__str__(self[0:3]))
-        elif (self[3]==1):
-            return("Affine Point  "+np.ndarray.__str__(self[0:3]))
-        else:
-            return "Mass Point  "+np.ndarray.__str__(self[0:4])
-
+        try:
+            if (self[3]==0):
+            #return("Vector  "+np.ndarray.__str__(self[0:3]))
+            # changed from the line above since it created a mass point with 3 entries
+                return("Vector  ["+str(self[0])+","+str(self[1])+","+str(self[2])+"]")
+            elif (self[3]==1):
+                return("Affine Point  ["+str(self[0])+","+str(self[1])+","+str(self[2])+"]")
+            else:
+                return "Mass Point  "+np.ndarray.__str__(self)
+        except:
+            return "A Mass point with less than 4 entries, probably an automatic creation of numpy internal"
+            
     def __eq__(self,other):
-        return isinstance(other,MassPoint) and all([self[i]==other[i] for i in range(3)])
-
-    # math functions 
+        return isinstance(other,MassPoint) and np.ndarray.all(np.equal(self,other))
+  
 
     def __add__(self,other):
         if isinstance(other, MassPoint ):
@@ -302,13 +320,13 @@ class Base(list,Primitive):
 class AffinePlane(Primitive):
     def __init__(self,*args,**kwargs):
         ObjectInWorld.__init__(self)
-        
+
 
 class AffinePlaneWithEquation(AffinePlane,np.ndarray):
     """ 
     An affine plane with equation ax_0+bx_1+cx_2+d=0.
     Equivalently, this is the equation  ax_0+bx_1+cx_2+dx_3=0 of a 3-dim linear space in the massic space.
-    What is drawn in the 3D view is the half space  ax_0+bx_1+cx_2+d<0.
+    What is drawn in the 3D view is the half space  ax_0+bx_1+cx_2+d<0, ie. the normal vector points outside the plane.
 
 
     Construction:
@@ -340,23 +358,15 @@ class AffinePlaneWithEquation(AffinePlane,np.ndarray):
             self.normal=args[0]
             self.markedPoint=args[1]
         elif len(args)==3:
-            #print("3 args")
             self.markedPoint=args[0]
             self.normal=(args[1]-args[0]).cross(args[2]-args[0])
-            #print("Normal")
-            #print(self.normal)
         else:
             raise NameError('Wrong number of arguments in the function AffinePlaneWithEquation')
-        #print ("normal")
-        #print(self.normal)
-        #print(self)
         self[0:4]=self.normal[0:4]
-        #print(self.normal[0])
-        #print(self[0])
         self[3]=-self[0:3].dot(self.markedPoint[0:3])
         self.distanceFromOrigin=math.fabs(self.normal.dot(self.markedPoint-point(0,0,0))/self.normal.norm)
         return self
-        #print self.__dict__
+
 
 
     def __init__(self,*args,**kwargs):
@@ -410,15 +420,24 @@ class AffinePlaneWithEquation(AffinePlane,np.ndarray):
         else:
             raise NameError('The normal of a plane is a non zero vector')
         return AffinePlaneWithEquation(vector(a,b,c),p)
-    def copy(self):
-        myCopy=copy.deepcopy(self)
+    #def copy(self):
+        #myCopy=copy.deepcopy(self)
+        #print("copie dans copy")
         # probably because of the inheritance from np.ndarray the attributes are not copied
         # so let's do this by hand. 
         #for name in self.__dict__:
             #print("Nom de l'attribut")
             #print(name)
-        #    setattr(myCopy,name,copy.deepcopy(getattr(self,name)))
-        return myCopy
+            #setattr(myCopy,name,copy.deepcopy(getattr(self,name)))
+        #return myCopy
+    def __deepcopy__(self,memo):
+        # I have to rewrite this because ndarray.deepcopy applies and forgets to copy the arguments
+        cls = self.__class__
+        result = np.ndarray.__deepcopy__(self,memo) 
+        memo[id(self)] = result
+        for k, v in self.__dict__.items():
+            setattr(result, k, copy.deepcopy(v, memo))
+        return result
     def move_alone(self,M):
         #print("entree move-alone")
         #print("normal")
@@ -819,7 +838,7 @@ class Polyhedral(AffinePlaneWithEquation):
     
     def __new__(cls,listOfPlanes):
         #print([plane.children for plane in listOfPlanes])
-        myList=[ plane.copy() for plane in listOfPlanes ]
+        myList=[ myPlane.copy() for myPlane in listOfPlanes ]
         #print([plane.children for plane in myList])
         poly=myList.pop()
         #print(poly.children)
@@ -1123,11 +1142,12 @@ class FrameBox(Base):
 
     def plane(self,face,coord,frame="a"):
         """
-        Returns the plane parallel to face, containing the point whose coordinate on the transversal line is frame. 
+        Returns the plane parallel to face, containing the point whose coordinate on the transversal line is coord. 
         """
-        x=coord*(face[0])
-        y=coord*(face[1])
-        z=coord*(face[2])
+        # Among x,y,z below, one of them is coord, and two of them vanish, ie we affect coord to the adequate axis.
+        x=coord*(fabs(face[0]))
+        y=coord*(fabs(face[1]))
+        z=coord*(fabs(face[2]))
         p=self.point(x,y,z,frame=frame+frame+frame)
         return AffinePlaneWithEquation(self._faceInformation(face).normal,p)
 
@@ -1536,4 +1556,5 @@ origin=T
 
 Base.canonical=Base(X,Y,Z,T)
 Map.identity=Map.affine(X,Y,Z,T)
+
 

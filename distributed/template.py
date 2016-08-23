@@ -18,8 +18,6 @@
 
 
 
-pycaoDir="/home/laurent/subversion/evain/articlesEtRechercheEnCours/pycao/distributed"
-pycaoDir="/users/evain/subversion/articlesEtRechercheEnCours/pycao/distributed"
 pycaoDir="/home/myName"
 
 """

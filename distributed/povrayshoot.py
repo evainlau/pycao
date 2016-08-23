@@ -168,7 +168,7 @@ def object_string_alone(self,camera):
     object_string_but_CSG is called. 
     """
     #print("before")
-    if self.visibility<camera.visibilityLevel:
+    if (not hasattr(self,"visibility")) or self.visibility<camera.visibilityLevel:
         #print(self.visibility)
         #print("invisible")
         #print(self)
@@ -232,9 +232,11 @@ def object_string_recursive(self,camera):
     #print(isinstance(self,Cylinder))
     string=object_string_alone(self,camera)
     string+="\n\n"
-    for child in self.children:
-        #print(child)
-        string+=object_string_recursive(child,camera)
+    try:
+        for child in self.children:
+            string+=object_string_recursive(child,camera)
+    except:
+        raise ErrorName("stringRecursiveProblem")
     return string
 
 def camera_string(camera):
@@ -257,15 +259,12 @@ def render(camera):
     booklet.write(camera.povraylights+"\n\n")
     import gc
     if camera.filmAllActors:
-        camera.actors=[]
-        for obj in gc.get_objects():
-            if (isinstance(obj, ElaborateOrCompound) or isinstance(obj,AffinePlane) or isinstance(obj,ParametrizedCurve) ) and obj.parent==[]:
-                camera.actors.append(obj)
-              #  pass #some objecct have no parents
-    #    for light in camera.lights:
-    #        booklet.write("light_source {"+ povrayVector(light.location)+ " color White " + "}\n\n")
+        camera.actors+=[p for p in groupPhoto if p.parent==[] ]
+    #for light in camera.lights:
+    #    booklet.write("light_source {"+ povrayVector(light.location)+ " color White " + "}\n\n")
     for component in camera.actors:
-        #print("chain for",component,povrayString(component))
+        #prnit("chain for",component,povrayString(component))
+        #print(component)
         booklet.write(object_string_recursive(component,camera))
     booklet.close()
 

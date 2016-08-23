@@ -35,40 +35,44 @@ import povrayshoot
 class Camera(Primitive):
     """
     """
+    activeCameras=True # if  False, camera.shoot does not take photo
+    showImage=True # if  False compute the image but dont show it on the screeen, if anything else, does not  even compue the image 
+    
+    
     def __init__(self):
         self.imageHeight=800 # in pixels
         self.imageWidth=900
-        self.angle=(20./180.*math.pi)
+        self.angle=(20./180.*math.pi)  #  use camera.zoom() to change
+		#the angle without computation headache involving tangents
         self.lookAt=point(0,0,0)
         self.sky=point(0,0,1)# the upper vector in the photo
         self.directFrame=True  # By default, direct frame with Z vertical,X on the right, Y in front of us
-        self.location=point(0,0,0)
+        self.location=point(0,-4,2)  # sensible for units in meters. the positive y are in front of us. 
         self.actors=[]
         self.filmAllActors=True
         self.file="/tmp/pycaoOutput.pov" # the place to store the photo
         self.visibilityLevel=1
         self.projection="perspective"
         self.technology="povray" #  only possibility at the moment
-        self.showImage=True # if  False compute the image but dont show it on the screeen 
         self.povraylights="light_source {<"+ str(self.location[0])+","+str(self.location[1])+","+str(self.location[2]+10)+ "> color White " + "}\n\n"
         self.povrayPreamble='#include "colors.inc" \n#include "metals.inc" \nbackground {Blue}\n\n'
     def move_alone(self,M):
         self.location=M*self.location
     @property
     def shoot(self):
-        if self.technology=="povray":
+        if self.technology=="povray" and Camera.activeCameras:
             povrayshoot.render(self)
         return self
     @property
     def show(self):
-        if self.technology=="povray" and self.showImage==True:
+        if self.technology=="povray" and Camera.showImage:
             subprocess.call(["povray", "+P +H"+str(self.imageHeight)+ " +W"+str(self.imageWidth),self.file])
-        if self.technology=="povray" and self.showImage==False:
+        if self.technology=="povray" and Camera.showImage==False :
             subprocess.call(["povray", "-D +H"+str(self.imageHeight)+ " +W"+str(self.imageWidth),self.file])
         return self
     def zoom(self,x):
         """
-        Zoom by a factor x. 
+        Resize the image by a factor x. 
         """
         cameraWidth=math.tan(self.angle/2)
         self.angle=2*math.atan((cameraWidth/x))

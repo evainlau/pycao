@@ -14,7 +14,7 @@ Then you can see your 3d objects
 using povray as a plugin. 
 
 
-The documentation  is availalble
+The documentation  is available
 on my home page
 at the university of Angers.
-http://math.univ-angers.fr/~evain/logiciels/pycao/distributed/documentation/
+http://math.univ-angers.fr/~evain/software/pycao/distributed/documentation/

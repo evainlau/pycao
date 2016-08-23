@@ -314,7 +314,12 @@ class Torus(Elaborate,BoundedByBox):
         if acute:
             self.intersected_by(cuttingTool)
         else:
+            #print(cuttingTool)
+            #print(Polyhedral(cuttingTool))
+            #print("fin")
             result= self.amputed_by(Polyhedral(cuttingTool))
+        plane1.disappears()
+        plane2.disappears()
         return self
 
     @staticmethod

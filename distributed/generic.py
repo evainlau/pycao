@@ -32,8 +32,8 @@ from uservariables import *
 #         self.__dict__ = self
 
 
-
-listOfAllObjects=[]
+# the list of people included if filmAllActors==True
+groupPhoto=[]
 
 
 class Object(object):
@@ -172,6 +172,9 @@ class ObjectInWorld(object):
             #print(c.__dict__)
             c.make_invisible()
 
+    def remove_from_group_photo(self):
+        groupPhoto.remove(self)
+            
     def disappears(self):
         """
         self.disappears() makes the object disappear ie invisible and with no
@@ -257,7 +260,9 @@ class ObjectInWorld(object):
         cylPercage.translate(vector= vec2 - vec1)
         return self.amputed_by(cylPercage,throwShapeAway=True)
 
-
+    def colored(self,color):
+        self.color=color
+        return self
 
 
 
