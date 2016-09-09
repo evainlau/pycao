@@ -41,7 +41,7 @@ class Camera(Primitive):
     
     def __init__(self):
         self.imageHeight=800 # in pixels
-        self.imageWidth=900
+        self.imageWidth=1500
         self.angle=(20./180.*math.pi)  #  use camera.zoom() to change
 		#the angle without computation headache involving tangents
         self.lookAt=point(0,0,0)

@@ -110,12 +110,15 @@ class ObjectInWorld(object):
         of the matrix and the call to move in a unique funcition : see for instance
         rotate,scale or translate, which use this principle. 
         """
-        #print("move")
-        #print(self)
+        #print("move",self.name)
         #print(map)
         self.move_alone(map)
+        #print("Less enfants a bouger maintenant")
+        #print([c.name for c in self.children])
         #print(self)
         #print("fin move")
+        #print(self)
+        #print("in move,generic")
         #print(self)
         for c in self.children:
             c.move(map)
@@ -134,7 +137,13 @@ class ObjectInWorld(object):
         makes self follow the parent in its movements. 
         """
         self.parent=parent
-        parent.children.append(self)
+        try:
+            parent.children.append(self)
+        except:
+            if hasattr(parent,"children") :
+                raise NameError('Erreur dans Glued  On')
+            else :
+                parent.children=[self]
         return self
 
     def remove_children(self):
@@ -250,14 +259,8 @@ class ObjectInWorld(object):
         return self
 
 
-    def drill(self,diameter=None,segment=None):
-        cylPercage=Cylinder(length=10*self.dim,radius=diameter/2.)
-        direction=holeDirection
-        map=matrix_for_parallelism(start=Z,end=direction)
-        cylPercage.move(map)
-        vec1=promote_to_vector(cylPercage,"ooo")
-        vec2=promote_to_vector(self,handleOnAxis)
-        cylPercage.translate(vector= vec2 - vec1)
+    def drilled_by_cylinder(self,segment=None,radius=None):
+        cylPercage=ICylinder(segment,radius)
         return self.amputed_by(cylPercage,throwShapeAway=True)
 
     def colored(self,color):
@@ -267,10 +270,10 @@ class ObjectInWorld(object):
 
 
 
-class BoundedByBox(ObjectInWorld):
-    """
-    A class for objects with a box marker 
-    """
+# class BoundedByBox(ObjectInWorld):
+#     """
+#     A class for objects with a box marker 
+#     """
     def point(self,*args,**kwargs):
         return self.box().point(*args,**kwargs)
 
@@ -306,8 +309,14 @@ class BoundedByBox(ObjectInWorld):
         """
         selfBox=self.box()
         otherBox=other.box()
-        M=selfBox._map_for_parallelism(otherBox,selfFace1,otherFace1,selfFace2,otherFace2)
-        #I have to be careful here because the argument adjustAxis, may be a child of self or not.
+        #print("in move_against,generic.py")
+        #print(selfBox)
+        #print(otherBox)
+        try:
+            M=selfBox._map_for_parallelism(otherBox,selfFace1,otherFace1,selfFace2,otherFace2)
+        except LinAlgError:
+            raise NameError("Non invertible matrix, probably got a box whose volume is zero")
+            #I have to be careful here because the argument adjustAxis, may be a child of self or not.
         # Thus I make a copy so that I am sure this is not a child
         if adjustAxis is not None:
             selfAxisCopy=adjustAxis[0].copy()
@@ -328,6 +337,108 @@ class BoundedByBox(ObjectInWorld):
         #print('FIN MOVE')
         return(self.move(N))
 
+        
+    def screw_on(self,other,adjustAlong=None,adjustAround=None):
+        """ 
+        other=a Segment
+        adjustAlong=[point1,point2]
+        adjustAround=[point3,point4]
+         Consider an isometry map M such that 
+        - M(self).vector et otherAxis.vector are positivly proportional
+        - M(self) et otherAxis have a point in common
+        - M(point1)-point2 is orthogonal to otherAxis.vector
+        -M(point3),point4 is a line coplanar to otherAxis and in the same half plane
+        Then self is transformed to self.move(M) 
+        """
+        M=self.axis().screw_map(other,adjustAlong,adjustAround)
+        self.move(M)
+        return self
+    
+    def add_box(self,framebox,name):
+        """
+        Add a new box to self and select it. The box 
+        is added to the dictionnary self.dicobox. 
+        The activebox is self.box()
+        """
+        # the added box must move with the object
+        gluedBox=framebox.copy().glued_on(self)
+        def box_function():
+            return gluedBox
+        # creates a dicobox if ncr and populates it if  ncr
+        if not hasattr(self,"dicobox"):
+            dicobox=Object() # The pair k,v with k a string and v a callable returning a framebox
+            if hasattr(self,"box"):
+                dicobox.initialBox=self.box
+            setattr(self,"dicobox",dicobox)
+        setattr(self.dicobox,name,box_function)
+        setattr(self,"box",box_function)
+        return self
+
+    def add_axis(self,name,line):
+        """
+        Add a new axis to self and select it. The line
+        is added to the dictionnary self.dicoaxis. 
+        The active axis is self.axis()
+        """
+        # the added line must move with the object
+        gluedLine=line.copy().glued_on(self)
+        def axis_function():
+            return gluedLine
+        # creates a dicoaxis if ncr and populates it if  ncr
+        if not hasattr(self,"dicoaxis"):
+            dicoaxis=Object() # The pair k,v with k a string and v a callable returning a line
+            if hasattr(self,"axis"):
+                dicoaxis.initialAxis=self.axis
+            setattr(self,"dicoaxis",dicoaxis)
+        setattr(self.dicoaxis,name,axis_function)
+        setattr(self,"axis",axis_function)
+        return self
+
+    
+    def print_boxes(self):
+        """
+        displays the list of boxes of self
+        """
+        try:
+            print ( self.dicobox.__dict__.keys())
+        except:
+            try:
+                print(self.box())
+                print("The above framebox is the  unique box")
+            except:
+                print("No box")
+        return self
+  
+    def select_box(self,name):
+        """ 
+        arguments: 
+        name: the name of the box we want to select
+        """
+        self.box=getattr(self.dicobox,name)
+        return self.box()
+
+
+    def print_axes(self):
+        """
+        displays the list of  axes of self
+        """
+        try:
+            print ( self.dicoaxis.__dict__.keys())
+        except:
+            try:
+                print(self.axis())
+                print("The above axis is the  unique axis")
+            except:
+                print("No axis")
+        return self
+  
+    def select_axis(self,name):
+        """ 
+        arguments: 
+        name: the name of the box we want to select
+        """
+        self.axis=getattr(self.dicoaxis,name)
+        return self.axis()
 
 
 

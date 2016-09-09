@@ -66,7 +66,7 @@ class ElaborateOrCompound(ObjectInWorld):
         for marker in self.markersList:
             #print(marker)
             setattr(self.__class__,marker,Elaborate.fixing_param(marker,Elaborate.marker_method))
-
+            #setattr(self,marker,self.marker)
 
 
             #return self
@@ -124,7 +124,7 @@ class Prism(ElaborateOrCompound):
 
 
     
-class Cylinder(Elaborate,BoundedByBox):
+class Cylinder(Elaborate):
     """
     Class for bounded cylinders
 
@@ -173,7 +173,11 @@ class Cylinder(Elaborate,BoundedByBox):
     def __str__(self):
         return ("Cylinder with extremal points "+str(self.start())+" and "+str(self.end()))
 
-
+    def _personnalDeepcopy(self):
+        """
+        This stupid name to avoir an autorecursive deepcopy
+        """
+        return copy.deepcopy(self)
 
 class ICylinder(Elaborate):
     """
@@ -187,9 +191,6 @@ class ICylinder(Elaborate):
     """
     def __init__(self,axis,radius):
         """
-        If start is not None, self is computed from start,end,radius.
-        If start is None, self is computed from length and radius : it is a cylinder with axis = Z
-        and centered on zero.
         """
         if radius is None:
             raise NameError('No default radius for a Cylinder')
@@ -210,7 +211,29 @@ class ICylinder(Elaborate):
     def __str__(self):
         return ("Infinite Cylinder with radius "+str(self.parts.radius)+ " and axis "+str(self.axis()))
 
+    @staticmethod
+    def from_point_vector_radius_amputation(p,v,r):
+        """
+        Constructs a half cylinder with half line p+tv, t>0
+        """
+        l=Segment(p,p+v)
+        return ICylinder(l,r).amputed_by(plane(v,p))
+        
 
+class HalfICylinder(ICylinder):
+    """
+    A class to produce half cylinders, aka ICylinders amputed by a plane
+    """
+
+    @staticmethod
+    def from_point_vector_radius(p,v,radius):
+        axis=Segment(p,p+v)
+        cyl=ICylinder(axis,radius)
+        toCut=plane.from_point_and_vector(axis.p1,axis.vector)
+        cyl.amputed_by(toCut)
+        return cyl
+
+                        
 class Washer(Cylinder):
     """
     A class for washers
@@ -241,6 +264,10 @@ class Washer(Cylinder):
         eCylinder.markers_as_functions()
        #print(type(eCylinder))
         return eCylinder
+
+    def __deepcopy__(self,memo):
+        return self._personnalDeepcopy()
+
     def __str__(self):
         return ("Washer with radius "+str(self.parts.radius)+" and "+str(self.internalRadius) + " and axis "+str(self.axis()))
 
@@ -248,7 +275,7 @@ class Washer(Cylinder):
 
 
 
-class Torus(Elaborate,BoundedByBox):
+class Torus(Elaborate):
     """
     Class for tori. 
 
@@ -327,7 +354,7 @@ class Torus(Elaborate,BoundedByBox):
         return Torus(circle.radius,internalRadius,circle.plane.normal,circle.center)
 
 
-class Cube(Elaborate,BoundedByBox):
+class Cube(Elaborate):
     """
     builds a cube, ie a box with orthgonal edges parallel to the axis X,Y,Z
     
@@ -377,12 +404,16 @@ class Cube(Elaborate,BoundedByBox):
             mini=point(xmin,ymin,zmin)
             maxi=point(xmax,ymax,zmax)
             self.__init__(mini,maxi)
+    @staticmethod
+    def fromDimensions(*args):
+        if len(args)==3: return Cube(*args)
+        if len(args)==1: return Cube(args(0),args(1),args(2))
     def __str__(self):
         string="Cube with corners "+str(self.start())+" and "+str(self.end())
         return string
 
 
-class Sphere(Elaborate,BoundedByBox):
+class Sphere(Elaborate):
     """
     Class for spheres
 
@@ -413,7 +444,7 @@ class Sphere(Elaborate,BoundedByBox):
 
         
 
-class Cone(Elaborate,BoundedByBox):
+class Cone(Elaborate):
     """
     Constructors
     Cone(start,end,radius1,radius2)
@@ -575,7 +606,7 @@ class Bending2d(Elaborate):
 
 
 
-class RuledSurface(Elaborate,BoundedByBox):
+class RuledSurface(Elaborate):
     """
     Constructs the mesh formed by the join of 2 parametrized curves C1,C2. By default, the discrete time t1  and t2 for the parametrization 
     is uniform on [0,1] but this is overridable by the parameters timeList. The mesh contains the triangles c1(t1(i)) c2(t2(i)) c2(t2(i+1))
@@ -591,7 +622,7 @@ class RuledSurface(Elaborate,BoundedByBox):
 
 
     def __init__(self,curve1,curve2,quality=5):
-        numberOfIntervals=quality*(len(curve1)+len(curve2))
+        numberOfIntervals=int(quality**3)+2
         timeList1=[1.0*i/(numberOfIntervals) for i in range(numberOfIntervals+1)]
         timeList2=[1.0*i/(numberOfIntervals) for i in range(numberOfIntervals+1)]
         self.parts=Object()

@@ -16,4 +16,5 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-screwPositiveRotations=True # ie rotation(axis,angle) "screws" when the angle is posiive, and unscrews when the angle is negative. 
+screwPositiveRotations=True # ie rotation(axis,angle) "screws" when one looks  towards the axis and 
+# the graphical representation in 3D has x on right, y in front and z up.  

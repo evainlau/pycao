@@ -27,7 +27,7 @@ from generic import *
 from mathutils import *
 from aliases import *
 #import aliases
-
+from elaborate import ICylinder
 
 
 ################################################################
@@ -135,6 +135,21 @@ def _move_at(self,*location):
     return self.translate(vector)
 
 
+def _move_below(self,other, offset=(0,0,0),adjustEdges=None,adjustAxis=None):
+    return self.move_against(other,Z,Z,X,X,offset,adjustEdges,adjustAxis)
+
+def _move_above(self,other, offset=(0,0,0),adjustEdges=None,adjustAxis=None):
+    return self.move_against(other,-Z,-Z,X,X,offset,adjustEdges,adjustAxis)
+
+def _move_on_left_of(self,other, offset=(0,0,0),adjustEdges=None,adjustAxis=None):
+    return self.move_against(other,X,X,Y,Y,offset,adjustEdges,adjustAxis)
+def _move_on_right_of(self,other, offset=(0,0,0),adjustEdges=None,adjustAxis=None):
+    return self.move_against(other,-X,-X,Y,Y,offset,adjustEdges,adjustAxis)
+def _move_in_front_of(self,other, offset=(0,0,0),adjustEdges=None,adjustAxis=None):
+    return self.move_against(other,Y,Y,X,X,offset,adjustEdges,adjustAxis)
+def _move_behind(self,other, offset=(0,0,0),adjustEdges=None,adjustAxis=None):
+    return self.move_against(other,-Y,-Y,X,X,offset,adjustEdges,adjustAxis)
+
 
 
 
@@ -153,7 +168,27 @@ def _show_box(self):
         #print(colors[i])
         liste[i].color=colors[i]
     cube=liste.pop().intersected_by(liste).glued_on(self)
+    for i in range(3):
+        center=b.point(0.5,0.5,0.5)
+        boxOrigin=b.point(0,0,0)
+        en=[0,0,0]
+        en[i]=1
+        end=b.point(*en)
+        myList=[0,1,2]
+        myList.remove(i)
+        en=[0,0,0];en[myList.pop()]=1
+        distance=(boxOrigin-b.point(*en)).norm
+        en=[0,0,0];en[myList.pop()]=1
+        distance=min(distance,(boxOrigin-b.point(*en)).norm)
+        cyl=ICylinder.from_point_vector_radius_amputation(center,end-boxOrigin,distance*.25).colored(colors[2*i+1])
+        cyl.glued_on(cube)
     return self
 
-BoundedByBox.move_at=_move_at
-BoundedByBox.show_box=_show_box
+ObjectInWorld.move_at=_move_at
+ObjectInWorld.below=_move_below
+ObjectInWorld.above=_move_above
+ObjectInWorld.in_front_of=_move_in_front_of
+ObjectInWorld.behind=_move_behind
+ObjectInWorld.on_left_of=_move_on_left_of
+ObjectInWorld.on_right_of=_move_on_right_of
+ObjectInWorld.show_box=_show_box

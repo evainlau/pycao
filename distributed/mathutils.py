@@ -218,6 +218,11 @@ class MassPoint(np.ndarray,Primitive):
         return self[0]==0 and self[1]==0 and self[2]==0
 
 
+    def projection_on_line(self,l):
+        if self[3]==1:
+            return Point.from_point_and_line(self,l)
+        else: raise NameError('The projection is a applied to a point')
+
 
 class Point(object):
     """
@@ -259,7 +264,17 @@ class Point(object):
         p=AffinePlaneWithEquation.from_2_vectors_and_point(l1.vector,l1.vector.cross(l2.vector),l1.p1)
         return Point.from_plane_and_line(p,l2)
 
+    @staticmethod
+    def from_point_and_line(p,l):
+        """ 
+        l=a Segment
+        p=a point
+        returns the projection of p on  l
+        """
+        pl=AffinePlaneWithEquation(l.vector,p)
+        return Point.from_plane_and_line(pl,l)
 
+    
 def is_vector(self):
     return isinstance(self,MassPoint) and (self[3]==0)
 
@@ -420,6 +435,14 @@ class AffinePlaneWithEquation(AffinePlane,np.ndarray):
         else:
             raise NameError('The normal of a plane is a non zero vector')
         return AffinePlaneWithEquation(vector(a,b,c),p)
+    @staticmethod
+    def from_point_and_vector(p,v):
+        return AffinePlaneWithEquation(v,p)
+    def from_vector_and_point(v,p):
+        return AffinePlaneWithEquation(v,p)
+
+
+    
     #def copy(self):
         #myCopy=copy.deepcopy(self)
         #print("copie dans copy")
@@ -478,6 +501,13 @@ class ParametrizedCurve():
 
     """
     @staticmethod
+    def from_function(f):
+        myCurve=ParametrizedCurve()
+        myCurve.__call__=f
+        return myCurve
+
+    
+    @staticmethod
     def relativeToAbsolute(relativeList):
         #print("0",relativeList)
         if is_vector(relativeList[0]):
@@ -509,7 +539,19 @@ class ParametrizedCurve():
             return oldCall(g(t))
         curve.__call__=types.MethodType(composition, curve)
         return curve
-    
+
+    def speed(curve,t,epsilon=0.00000001):
+        """
+        The speed vector at time t
+        """
+        if t>epsilon and t<1-epsilon:
+            return (curve(t+epsilon)-curve(t-epsilon))/2/epsilon
+        elif t>1-epsilon:
+            return (curve(t)-curve(t-epsilon))/epsilon
+        else:
+            return (curve(t+epsilon)-curve(t))/epsilon
+
+        
 class Polyline(list,Primitive,ParametrizedCurve):
     """ A class for polylines p0,...,pn ie the curve which is the union of segments p_i,p_{i+1}
     The sequence p_i is defined as a relative list, ie. the user may enter points or vectors and data are cast to the expected type as usual. 
@@ -895,6 +937,9 @@ class Segment(AffineLineWithVectorDirector):
         self.vector=self.p2-self.p1
         return self
     @staticmethod
+    def from_point_and_vector(p,v):
+        return Segment(p,v)
+    @staticmethod
     def from_2_planes(p1,p2):
         myVector=p1.normal.cross(p2.normal)
         myPlane=AffinePlaneWithEquation(myVector,origin)
@@ -907,8 +952,9 @@ class Segment(AffineLineWithVectorDirector):
         #print(triangle[2])
         return triangle.angle_bisector(i)
 
-
-
+    def  point(x,coordinateType):
+        pass
+    
     @property
     def norm(self):
         return self.vector.norm
@@ -1049,7 +1095,7 @@ class FrameBox(Base):
             return(coord)
         raise NameError("The letter in prop coord should be in 'anp', not"+str(letter))
 
-    def point(self,x=0,y=0,z=0,frame="aaa"):
+    def point(self,x=0,y=0,z=0,frame="ppp"):
         """
         Returns a point computed from local coordinates x,y,z in the frame.
         The parameter "frame" describes the convention for local coordinates:
@@ -1100,7 +1146,7 @@ class FrameBox(Base):
         Takes a face of self in input (ie in the form +-X,+-Y...)
         and returns the face of OtherBox parallel to it (as a vector too)
         """
-        normal=self._faceInformation(faceAsVector).normal
+        normal=self._face_information(faceAsVector).normal
         tableau=[normal.dot( otherBox[j] ) for j in range(3)]
         #print("tableau",tableau)
         tableauAbs=[math.fabs(normal.dot( otherBox[j])) for j in range(3)]
@@ -1149,9 +1195,9 @@ class FrameBox(Base):
         y=coord*(fabs(face[1]))
         z=coord*(fabs(face[2]))
         p=self.point(x,y,z,frame=frame+frame+frame)
-        return AffinePlaneWithEquation(self._faceInformation(face).normal,p)
+        return AffinePlaneWithEquation(self._face_information(face).normal,p)
 
-    def _faceInformation(self,vector):
+    def _face_information(self,vector):
         """
         returns the faceInformation of the box, its center, normal....
         """
@@ -1172,11 +1218,11 @@ class FrameBox(Base):
         account the sign of v, ie by parallel we mean that the normal of the faces
         are positivly proportional. 
         """
-        s1=self._faceInformation(selfFace1).normal
-        s2=self._faceInformation(selfFace2).normal
+        s1=self._face_information(selfFace1).normal
+        s2=self._face_information(selfFace2).normal
         s3=s1.cross(s2)
-        o1=otherBox._faceInformation(otherFace1).normal
-        o2=otherBox._faceInformation(otherFace2).normal
+        o1=otherBox._face_information(otherFace1).normal
+        o2=otherBox._face_information(otherFace2).normal
         o3=o1.cross(o2)
         S=Base.augmented(s1,s2,s3)
         O=Base.augmented(o1,o2,o3)
@@ -1448,7 +1494,7 @@ class Map(np.ndarray):
         THis default can be changed with the variable screwPositiveRotations
         """
                 
-        if not screwPositiveRotations:
+        if screwPositiveRotations :
             angle=-1*angle
         if isinstance(axis,AffineLine):
             myVector = np.asarray(axis.vector)
@@ -1482,6 +1528,8 @@ class Map(np.ndarray):
     @staticmethod
     def rotational_difference(start=None,end=None,point1=None,point2=None):
         """
+        start=vector
+        end=vector
         returns an affine map M. The linear part is the rotation sending the vector start to a positive multiple of the vector end.
         The axis of the rotation is given by the cross product of start with end, and it
         is chosen randomly when start and none are proportional. If point1 and point2 are not none, M(point1)=point(2), otherwise M(origin)=origin
@@ -1503,7 +1551,7 @@ class Map(np.ndarray):
         axis=Segment(point(0,0,0),rotationVector)
         cosine= np.dot(vector2,vector1)/np.linalg.norm(vector1)/np.linalg.norm(vector2) # -> cosine of the angle
         angle = np.arccos(np.clip(cosine, -1, 1))
-        if screwPositiveRotations:
+        if not screwPositiveRotations:
             angle=-angle
         M=Map.rotation(axis,angle)
         if point1 is not None and point2 is not None:
@@ -1521,9 +1569,54 @@ class Map(np.ndarray):
         M=base2.decompose_on(base1)
         return (M*self*np.linalg.inv(M).view(Map))
 
+class Rotation(Map):
+    """ 
+    A class  to generate rotations
+    """
+    @staticmethod
+    def from_axis_and_target_points(l,p1,p2):
+        """
+        returns a rotation R with axis l such that R(p1),R(p2),l.p1,l.p2 are coplanar in some plane P and 
+        R(p1) and R(p2) are in the same half plane of the punctured plane P-l
+        """
+        vector1=(p1-p1.projection_on_line(l)).normalize()
+        vector2=(p2-p2.projection_on_line(l)).normalize()
+        #print("les vecteurs",vector1,vector2)
+        cosangle=vector1.dot(vector2)
+        if  (vector1.cross(vector2)).dot(l.vector) >0:
+            angle=math.acos(cosangle)
+        else: angle=-math.acos(np.clip(cosangle, -1, 1))
+        #print("angle",angle/math.pi)
+        if not screwPositiveRotations:
+            angle=-angle
+        #print(angle)
+        #print("verif Rotation.from_axis","1 et 2 prop",p2,Map.rotation(l,angle)*p1)
+        #print("verif Rotation.from_axis","1 et 2 prop",vector2,Map.rotation(l,-angle)*vector1)
+        return Map.rotation(l,angle)
 
 
- 
+def _screw_map(self,other,adjustAlong=None,adjustAround=None):
+    """ 
+    self=a Segment
+    other=a Segment
+    adjustAlong=[point1,point2]
+    adjustAround=[point3,point4]
+    Retruns an isometry map M such that 
+    - M(self).vector et otherAxis.vector are positivly proportional
+    - M(self) et otherAxis have a point in common
+    - M(point1)-point2 is orthogonal to otherAxis.vector
+    -M(point3),point4 is a line coplanar to otherAxis and in the same half plane
+    """
+    M=Map.rotational_difference(self.vector,other.vector,self.p1,other.p1)
+    if adjustAlong is not None:
+        myVector=adjustAlong[1].projection_on_line(other)-(M*adjustAlong[0]).projection_on_line(other)
+        M=Map.translation(myVector)*M
+    if adjustAround is not None:
+        M=Rotation.from_axis_and_target_points(other,M*adjustAround[0],adjustAround[1])*M
+    return M
+
+Segment.screw_map=_screw_map
+    
 ################
 """
     global math objects
@@ -1544,11 +1637,16 @@ def vector(*args):
 def point(x,y,z):
     return (MassPoint(x,y,z,1))
 
-X=vector(1,0,0)
-Y=vector(0,1,0)
-Z=vector(0,0,1)
-T=point(0,0,0)
 
+X=vector(1,0,0)
+# Object In world is modified later, so I need to introduce children by hand
+X.children=[]
+Y=vector(0,1,0)
+Y.children=[]
+Z=vector(0,0,1)
+Z.children=[]
+T=point(0,0,0)
+T.children=[]
 origin=T
     
 

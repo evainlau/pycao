@@ -64,6 +64,9 @@ class Compound(ElaborateOrCompound):
                 builtList+=[slave]
         self.csgOperations[0].csgSlaves=builtList
 
+    def print_slaves(self):
+        print(self.csgOperations[0].csgSlaves)
+        
     def move_alone(self,mape):
         """
         the obect o is a compound iff o admits a union in its list of csg operations iff o has a unique union in its csg operations
@@ -87,7 +90,7 @@ class Compound(ElaborateOrCompound):
             slave.colored(string)
         return self
     
-class Lathe(Elaborate,BoundedByBox):
+class Lathe(Elaborate):
     """
     Class for Lathe objects
 

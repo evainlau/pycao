@@ -112,6 +112,13 @@ def object_string_but_CSG(self,camera):
         string+="sphere {\n"+povrayVector(self.parts.center)+","+str(self.parts.radius)+" "+modifier(self,camera)+"}\n"
     elif isinstance(self,AffinePlane) :
         string+="plane {\n"+povrayVector(self.normal)+","+str(-self[3]/self.normal.norm)+" "+modifier(self,camera)+"}\n"
+        # Orientation Checked with the following code
+        #s=Sphere(origin,.1).colored("Red")
+        #p1=plane(Z,origin+.05*Z)
+        #p1=plane(Z,origin-.05*Z)
+        #p1=plane(-Z,origin+.05*Z)
+        #p1=plane(-Z,origin-.05*Z)
+        #s.intersected_by(p1)
     elif isinstance(self,Cone) :
         #print(self)
         string+="cone {\n"+povrayVector(self.parts.start)+","+str(self.parts.radius1)+"\n"+ povrayVector(self.parts.end)+","+str(self.parts.radius2)+" "+modifier(self,camera)+"}\n"
@@ -136,14 +143,18 @@ def object_string_but_CSG(self,camera):
             xi,xip = self.parts.curve1.__call__(self.parts.timeList1[i]), self.parts.curve1.__call__(self.parts.timeList1[i + 1])
             yi=self.parts.curve2.__call__(self.parts.timeList2[i])
             #print("xi,yi,xip...",xi,yi,xip,xi-yi,xip-xi)
-            normal=(xi-yi).cross((xip-xi))
+            #normal=(xi-yi).cross((xip-xi))
+            normal=(xi-yi).cross((self.parts.curve1.speed(self.parts.timeList1[i])))
+            #print(normal,"normal")
+            #print(normal.normalized_copy())
+            #print(normal.normalized_copy())
             string+=","+povrayVector(normal)
             if i==len(self.parts.timeList1) - 2: string+=","+povrayVector(normal)
         for i in xrange(len(self.parts.timeList1) - 1):
             # same code as above, changing curve2 and curve1
             xi,xip = self.parts.curve2.__call__(self.parts.timeList1[i]), self.parts.curve2.__call__(self.parts.timeList1[i + 1])
-            yi=self.parts.curve1.__call__(self.parts.timeList2[i])
-            normal=(xi-yi).cross((xip-xi))
+            yi=self.parts.curve1.__call__(self.parts.timeList2[i+1])
+            normal=(-xi+yi).cross((self.parts.curve2.speed(self.parts.timeList2[i])))# if bad sign: artefact in the middle
             string+=","+povrayVector(normal)
             if i==len(self.parts.timeList1) - 2: string+=","+povrayVector(normal)
         string+="   }\n   face_indices {"+str(2*len(self.parts.timeList1)-2)
@@ -232,11 +243,13 @@ def object_string_recursive(self,camera):
     #print(isinstance(self,Cylinder))
     string=object_string_alone(self,camera)
     string+="\n\n"
-    try:
-        for child in self.children:
-            string+=object_string_recursive(child,camera)
-    except:
-        raise ErrorName("stringRecursiveProblem")
+ #   try:
+        #print(self.__class__)
+    #print(self.children)
+    for child in self.children:
+        string+=object_string_recursive(child,camera)
+#    except:
+#        raise ErrorName("stringRecursiveProblem")
     return string
 
 def camera_string(camera):

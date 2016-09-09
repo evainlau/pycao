@@ -1,10 +1,14 @@
 
 
 #__all__ = ["scadl","mathutils","compound"]
-from scadl import * 
-from mathutils  import *
+from uservariables import *
+from generic import *
+from mathutils import *
+from aliases import *
+from genericwithmaths import *
 from elaborate import *
 from compound import *
-from py2pov import *
-from  essai import *
+import povrayshoot 
+from cameras import *
+from lights import *
 print("enfin")
