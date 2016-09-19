@@ -18,6 +18,7 @@
 
 
 import numpy as np
+import scipy
 import scipy.special
 from scipy.special import binom
 import math
@@ -987,10 +988,10 @@ class FrameBox(Base):
     self[i], in range(4) is the base of the massic space Base [self.vectors]+[self.origin]
     self.segments[i], i in range(3) : the segment Segment(self.origin,self.origin+self.vectors[i])
     self.dimensions = an alias for the 4-tuple  ( self.vectors[i].norm, i in range(3),dimOfTheDiagonal )
-    self.point(x,y,z,frame="aaa") constructs a point whose coordinates are interpreted according to the frame string 
+    self.point(x,y,z,frame="ppp") constructs a point whose coordinates are interpreted according to the frame string 
     self.face_center(faceVector=0*X) returns the center of a face in global coordinates.
     self.segment(x=None,y=None,z=None,frame="aa"): Returns a segment obtained by intersection of a line parallel to an edge with self.
-    self.map_move_against(otherBox, selfFace1,otherFace1,selfFace2,otherFace2,offset=(0,0,0),
+    self.map_against(otherBox, selfFace1,otherFace1,selfFace2,otherFace2,offset=(0,0,0),
           adjustEdges=None,adjustAxis=None)  Returns a map to orientate self and translate it against otherBox. 
         
 
@@ -1361,7 +1362,7 @@ class FrameBox(Base):
 
 
     # seems buggy: if needed, see the function with the same name for objects, where the bugs have been corrected.
-    # def map_move_against(self,otherBox, selfFace1,otherFace1,selfFace2,otherFace2,offset=(0,0,0),adjustEdges=None,adjustAxis=None):
+    # def map_against(self,otherBox, selfFace1,otherFace1,selfFace2,otherFace2,offset=(0,0,0),adjustEdges=None,adjustAxis=None):
     #     """
     #     Returns a map to orientate self and translate it against otherBox. The face of contact between the two boxes is the face selfFace1.
     #     For further doc, look _map_for_parallelism and _map_translate_against as this function is just a wrapper. 

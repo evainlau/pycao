@@ -55,10 +55,10 @@ class BearingSupport(Compound):
         #print(leftWall.segment(.5,None,.5,"ppp"),cylinder.radius)
         toCut=ICylinder(leftWall.segment(0.5,0,None,"ppp"),cylinder.radius)
         leftWall.amputed_by(toCut)
-        leftWall.move_against(bearingSupport,X,X,Y,Y,adjustEdges=Y)
-        rightWall=leftWall.copy().move(Map.linear(-X,Y,Z)).move_against(bearingSupport,X,-X,Y,Y,adjustEdges=Y)
-        frontWall=Cube(width,height,metalThickness).move_against(bearingSupport,-Y,-Y,X,X)
-        #workshopCut=Cube(height,height,metalThickness).colored("Black").move_against(leftWall,-Y,-Y,X,X)
+        leftWall.against(bearingSupport,X,X,Y,Y,adjustEdges=Y)
+        rightWall=leftWall.copy().move(Map.linear(-X,Y,Z)).against(bearingSupport,X,-X,Y,Y,adjustEdges=Y)
+        frontWall=Cube(width,height,metalThickness).against(bearingSupport,-Y,-Y,X,X)
+        #workshopCut=Cube(height,height,metalThickness).colored("Black").against(leftWall,-Y,-Y,X,X)
         leftLine=bearingSupport.segment(0,None,1,"ppp")
         leftWall.rotate(leftLine,math.pi/2)
         rightLine=bearingSupport.segment(1,None,1,"ppp")
@@ -109,7 +109,7 @@ class Pedal(Compound):
         Compound.__init__(self,[["platform",ped],["screw",ax]])
         self.axis=ax.axis
 
-class Crankset(Compound):
+class Crankset(Compound,ObjectInWorld):
     def __init__(self,interCranksDistance=.15,bbAxisRadius=.01,bbAxisColor="Red",plateColor="Red"):
            crank=Crank()
            ped=Pedal()
@@ -124,7 +124,7 @@ class Crankset(Compound):
            plate=Sprocket(55).colored(plateColor)
            plate.screw_on(bbAxis,adjustAlong=[plate.point(0,.5,.5,"ppp"),crank2.cube.point(.5,1.2,.5,"ppp")])
            Compound.__init__(self,[crank,ped,crank2,ped2,["bracketAxis",c],plate])
-           self.add_box(c.box(),"crankset")
+           self.add_box("crankset",c.box())
            self.add_axis("axis",bbAxis)
 
            
@@ -178,46 +178,48 @@ class Cassette(Compound):
                                     toothTopLength=toothTopLength,
                                     radiusPerTooth=radiusPerTooth,color=color)
             if i==0: self.axis=sprocketObject.axis
-            if i>0:  sprocketObject.move_against(slaves[-1][1],-Y,-Y,X,X,offset=(spaceBetweenSprockets-sprocketThickness)*Y)
+            if i>0:  sprocketObject.against(slaves[-1][1],-Y,-Y,X,X,offset=(spaceBetweenSprockets-sprocketThickness)*Y)
             slaves.append(["sprocket"+str(i),sprocketObject])            
             i=i+1
         toCut=ICylinder(self.axis(),0.01)
         self.amputed_by(toCut)
-        self.box=slaves[-1][1].box
+        b=FrameBox([slaves[0][1].point(0,0,0),slaves[0][1].point(1,1,1),slaves[-1][1].point(0,0,0),slaves[-1][1].point(1,1,1)])
+        self.add_box("box",b)
         Compound.__init__(self,slavesList=slaves)
-
 
 class FrontWheel(Compound):
     """
-    A class for Front wheels with a rim, a hub, a tyre, and spokes. 
+    A class for Front wheels ie. with a rim, a hub, a tyre, and spokes, but no cassette 
 
     Constructor
     FrontWheel(tyreExteriorDiameter=0.70,tyreInternalRadius=0.02,wheelCenter=point(0,0,0)
-    ,tyreColor='Green',rimColor='Red',hubColor='White',hubWidth=0.3,hubInternalRadius=0.025
+    ,tyreColor='Green',rimColor='Red',hubColor='White',hubWidth=0.1,hubInternalRadius=0.025
     ,hubExternalRadius=0.05,numberOfSpokes=32,spokeRadius=0.0018,spokeColor='Black'
-    ,rimOuterRadius=0.345,rimInnerRadius=0.320)
+    ,rimOuterRadius=0.345,rimInnerRadius=0.320, axisRadius=.005)
     """
-    def __init__(self,cassette=[12,14,16,20,22,25,30],tyreExteriorDiameter=0.70,tyreInternalRadius=0.02,wheelCenter=point(0,0,0)
-    ,tyreColor='Green',rimColor='Red',hubColor='White',hubWidth=0.3,hubInternalRadius=0.025
+    def __init__(self,tyreExteriorDiameter=0.70,tyreInternalRadius=0.02,wheelCenter=point(0,0,0)
+    ,tyreColor='Green',rimColor='Red',hubColor='White',hubWidth=0.1,hubInternalRadius=0.025
     ,hubExternalRadius=0.05,numberOfSpokes=26,spokeRadius=0.0018,spokeColor='Black'
-    ,rimOuterRadius=0.345,rimInnerRadius=0.320):
+                 ,rimOuterRadius=0.345,rimInnerRadius=0.320,axisRadius=.005):
 
+        
         # tyre and rim
         tyre=Torus(tyreExteriorDiameter/2,tyreInternalRadius,Y,origin)
         rim=Washer(origin-0.015*Y,origin+0.015*Y,rimOuterRadius,rimInnerRadius)
         tyre.color=tyreColor
         rim.color=rimColor
 
+        # the axis
+        wheelPhysicalAxis=Cylinder(tyre.center-(hubWidth*.5+.02)*Y,tyre.center+(hubWidth*.5+.02)*Y,axisRadius).colored("Red")
         #hub
         hub=Cylinder(origin-hubWidth/2*Y,origin+hubWidth/2*Y,hubInternalRadius)
         hub.color=hubColor
         plaque1=Cylinder(origin,origin+0.0002*Y,hubExternalRadius)
         plaque1.color=hubColor
-        plaque1.move_against(hub,Y,Y,X,X)
+        plaque1.against(hub,Y,Y,X,X)
         plaque2=plaque1.copy()
-        plaque2.move_against(hub,-Y,-Y,X,X)
-        self.slaves=[["tyre",tyre],rim,plaque1,plaque2,["hub",hub]]
-        if cassette: self.slaves.append(["cassette",Cassette(cassette).move_against(plaque1,-Y,-Y,X,X)])
+        plaque2.against(hub,-Y,-Y,X,X)
+        self.slaves=[["tyre",tyre],rim,plaque1,plaque2,["hub",hub],["axis",wheelPhysicalAxis]]
 
         # firstLeftSpoke
         spokeInit=plaque1.point(0.5,0.5,0.01,"ppn")
@@ -240,4 +242,84 @@ class FrontWheel(Compound):
             spoke2=rightSpoke.copy()
             self.slaves.append(spoke2.rotate(tyre.axis(),4*math.pi/numberOfSpokes*(i+0.5)))
         Compound.__init__(self,self.slaves)
-        self.add_box(tyre.box(),"wheel")
+        b=FrameBox([tyre.point(0,0,0),tyre.point(1,1,1),hub.point(0,0,0),hub.point(1,1,1)])
+        self.add_box("wheel",b)
+        self.add_axis("wheelAxis",hub.axis())
+
+class RearWheel(Compound):
+    """
+    A class for Front wheels with a rim, a hub, a tyre, and spokes. 
+
+    Constructor
+    FrontWheel(tyreExteriorDiameter=0.70,tyreInternalRadius=0.02,wheelCenter=point(0,0,0)
+    ,tyreColor='Green',rimColor='Red',hubColor='White',hubWidth=0.3,hubInternalRadius=0.025
+    ,hubExternalRadius=0.05,numberOfSpokes=32,spokeRadius=0.0018,spokeColor='Black'
+    ,rimOuterRadius=0.345,rimInnerRadius=0.320,axisRadius=.005)
+    """
+    def __init__(self,cassette=[12,14,16,20,22,25,30],tyreExteriorDiameter=0.70,tyreInternalRadius=0.02,wheelCenter=point(0,0,0)
+    ,tyreColor='Green',rimColor='Red',hubColor='White',hubWidth=0.135,hubInternalRadius=0.025
+    ,hubExternalRadius=0.05,numberOfSpokes=26,spokeRadius=0.0018,spokeColor='Black'
+    ,rimOuterRadius=0.345,rimInnerRadius=0.320,axisRadius=.005):
+
+        # tyre and rim
+        tyre=Torus(tyreExteriorDiameter/2,tyreInternalRadius,Y,origin)
+        rim=Washer(origin-0.015*Y,origin+0.015*Y,rimOuterRadius,rimInnerRadius)
+        tyre.color=tyreColor
+        rim.color=rimColor
+
+        # the axis
+        wheelPhysicalAxis=Cylinder(tyre.center-(hubWidth*.5+.02)*Y,tyre.center+(hubWidth*.5+.02)*Y,axisRadius).colored("Red")
+        #hub
+        myCassette=Cassette(cassette)
+        hubWidth=hubWidth-myCassette.box().dimensions[1]
+        hub=Cylinder(origin-hubWidth/2*Y,origin+hubWidth/2*Y,hubInternalRadius)
+        hub.color=hubColor
+        plaque1=Cylinder(origin,origin+0.0002*Y,hubExternalRadius)
+        plaque1.color=hubColor
+        plaque1.against(hub,Y,Y,X,X)
+        plaque2=plaque1.copy()
+        plaque2.against(hub,-Y,-Y,X,X)
+        self.slaves=[["tyre",tyre],rim,plaque1,plaque2,["hub",hub],["axis",wheelPhysicalAxis]]
+        myCassette.against(plaque1,-Y,-Y,X,X)
+        self.slaves.append(["cassette",myCassette])
+
+        # firstLeftSpoke
+        spokeInit=plaque1.point(0.5,0.5,0.01,"ppn")
+        spokeEnd=tyre.point(0.5,0.5,0.02,"ppn")
+        spokeEnd.rotate(tyre.axis(),math.pi*4/numberOfSpokes)
+        leftSpoke=Cylinder(spokeInit,spokeEnd,spokeRadius)
+        leftSpoke.color=spokeColor
+
+        # firstRightspoke
+        spokeInit=plaque2.point(0.5,0.5,.01,"ppn")
+        spokeEnd=tyre.point(0.5,0.5,0.02,"ppn")
+        spokeEnd.rotate(tyre.axis(),-math.pi*4/numberOfSpokes)
+        rightSpoke=Cylinder(spokeInit,spokeEnd,spokeRadius)
+        rightSpoke.color=spokeColor
+
+        # otherSpokes via rotation.
+        for i in range(int(numberOfSpokes/2)):
+            spoke1=leftSpoke.copy()
+            self.slaves.append(spoke1.rotate(tyre.axis(),4*math.pi/numberOfSpokes*i))
+            spoke2=rightSpoke.copy()
+            self.slaves.append(spoke2.rotate(tyre.axis(),4*math.pi/numberOfSpokes*(i+0.5)))
+        Compound.__init__(self,self.slaves)
+        b=FrameBox([tyre.point(0,0,0),tyre.point(1,1,1),hub.point(0,0,0),hub.point(1,1,1),myCassette.point(0,0,0),myCassette.point(1,1,1)])
+        self.add_box("wheel",b)
+        self.add_axis("wheelAxis",hub.axis())
+
+
+class Fork(Compound):
+    def __init__(self,legLength=.3,upperTubeRadius=.02,lowerTubeRadius=.01,headLength=.1,headRadius=.02,entrax=.1):
+        upperLeftLeg=origin+legLength*Z
+        leftLeg=Cone(origin,upperLeftLeg,lowerTubeRadius,upperTubeRadius)
+        rightLeg=leftLeg.copy().translate(entrax *X)
+        upperRoundPart=Torus(entrax*.5,upperTubeRadius,Y,origin+legLength*Z+.5*entrax*X).amputed_by(plane(Z,upperLeftLeg))
+        lowerHead=upperLeftLeg+.5*entrax*X+.5*entrax*Z
+        slaves=[leftLeg,rightLeg,upperRoundPart]
+        if headLength>0:
+            head=Cylinder(lowerHead,lowerHead+headLength*Z,headRadius)
+            slaves.append(head)
+        Compound.__init__(self,slaves)
+        self.add_axis("axis",Segment(origin+.5*entrax*X,Z))
+        self.junction=lowerHead.glued_on(self)

@@ -232,7 +232,8 @@ class ObjectInWorld(object):
         cut self using the intersection with cuttingShape
         The cuttingShape is made invisible after the cutting operation if throwShapeAway=True
         """
-       # I make a copy so that I can move the cutting shape independently of self later on 
+        # I make a copy so that I can move the cutting shape independently of self later on
+        #print("in intersected by")
         if isinstance(cuttingShape,list):
            #print(cuttingShape)
            #print(type(cuttingShape[0]))
@@ -240,7 +241,13 @@ class ObjectInWorld(object):
            #print([tool.children for tool in cuttingShape])
            #print([tool.children for tool in copie])
            #print(self.visibility)
+        elif not isinstance(cuttingShape,ObjectInWorld):
+            #print("in elif")
+            raise NameError('In "Intersected_by", The cutting argument is an ObjectInWorld or a list of ObjectInWorld')
         else:
+            #print("in else")
+            #print(cuttingShape.__class__)
+            #print(cuttingShape)
             copie=[cuttingShape.copy()]
         #print(cuttingShape)
         #print(copie)
@@ -290,7 +297,7 @@ class ObjectInWorld(object):
     def center(self):
         return self.box().point(0.5,0.5,0.5,"ppp")
 
-    def move_against(self,other, selfFace1,otherFace1,selfFace2,otherFace2,offset=(0,0,0),adjustEdges=None,adjustAxis=None):
+    def against(self,other, selfFace1,otherFace1,selfFace2,otherFace2,offset=(0,0,0),adjustEdges=None,adjustAxis=None):
         """
         Moves self against other, using the faces of self.box() and other.box().
         More precisely, self is rotated such that selfFace1,selfFace2 are parallel respectivly to otherFace1,otherFace2.
@@ -309,7 +316,7 @@ class ObjectInWorld(object):
         """
         selfBox=self.box()
         otherBox=other.box()
-        #print("in move_against,generic.py")
+        #print("in against,generic.py")
         #print(selfBox)
         #print(otherBox)
         try:
@@ -354,7 +361,7 @@ class ObjectInWorld(object):
         self.move(M)
         return self
     
-    def add_box(self,framebox,name):
+    def add_box(self,name,framebox):
         """
         Add a new box to self and select it. The box 
         is added to the dictionnary self.dicobox. 

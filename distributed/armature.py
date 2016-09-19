@@ -28,42 +28,6 @@ from cameras import *
 from lights import *
 
 """ 
-A skeleton in real life is a set of bones 
-linked together by some joints. It is difficult 
-to prescribe the position of a skeleton because 
-we have to take care that each bone has to stays 
-linked to its joints. The "Skeleton" class 
-helps to achieve the description. 
- 
-
-To move a skeleton, we act with our muscles 
-on the joint, and this is what we mimic in Pycao. 
-For instance, using the shoulder 
-it is possible to move our arm relativly to the rest of the body. 
-In some exotic situation, it may happen the using the shoulder, 
-the arm stays fixed and the rest of the body moves (for instance 
-hanging rings in a gymnastice exercise). To indicate that 
-we should by default move the arm rather than the rest of the body,  
-we say that the bone in the arm is the child whether 
-the bone in the trunk is the parent. 
-
-In pycao, when a muscle acts on the joint of a Skeleton, 
-the child bone moves (together with its descendants, as usual). 
-Or to say it differently, all the bones and the joints which are 
-on the child side of the joint  move simultaneaously. For instance, 
-acting on a shoulder, the whole arm moves ( the humerus moves, and the radius and the
-hand follow the movement, because they are children).
-
-There is an ancestor in the genealogy, which is usually chosen to be 
-the heavier bone of the body.  The genealogy is determined by the ancestor 
-and the way the bones are connected. The order we meet the bones defines the 
-genealogy.  For instance, if we choose the trunk to be the ancestor of the 
-human body, then we first meet a leg, 
-which is a child of the trunk, then a foot, which is a child of the leg.
-
-If it happens that we want to move the parent side of the joint 
-instead of the child side, as in the gym exercise, an option 
-"toggleJoint" is offered. 
 
 
 
@@ -82,7 +46,7 @@ class Skeleton(ObjectInWorld):
         Describe the parameters here: the graphical representations are not copied but passed by reference
         Each joint in joints is a list [joinName,boneName0,boneName1,point,object,vector]
         where names are strings, point is a point which is the center of the joint, object is the graphical representation, vector is the rotation axis by Default
-        An entry of bones is ["nameOfThebone",graphicalObjectRepreseningBone]
+        An entry of bones is ["nameOfThebone",graphicalObjectRepresentingBone]
         """
         #Since each joint is linked to two bones exactly (whereas a bone 
         #like the trunk of body may be attached to many articulations)  
@@ -111,6 +75,7 @@ class Skeleton(ObjectInWorld):
         self.ancestor=getattr(bones,ancestor)
         self.ancestor.glued_on(self)
         #Constructing the tree from ancestor
+        # parentBone->joint->childBone and joint->joint.postion form the genealogy architecture
         bonesDiscovered=[ancestor]
         while len(jointsInput)>0:
             for j in jointsInput:
@@ -124,14 +89,14 @@ class Skeleton(ObjectInWorld):
                     j[2]=j[1]
                     j[1]=copie
                 if j[1] in bonesDiscovered:
-                    jointObject=getattr(joints,j[0])
+                    jointObject=getattr(joints,j[0]) # the graphical representaion of the joint
                     jointObject.parentBone=getattr(bones,j[1])
                     jointObject.childBone=getattr(bones,j[2])
                     jointObject.parentBone.joints.append(jointObject)
                     jointObject.childBone.joints.append(jointObject)
-                    jointObject.childBone.glued_on(jointObject.parentBone)
+                    jointObject.childBone.glued_on(jointObject)
                     #print(jointObject.childBone.name,"glued_on",jointObject.parentBone.name)
-                    jointObject.position.glued_on(jointObject.parentBone)
+                    jointObject.position.glued_on(jointObject)
                     jointObject.position.name="position"+jointObject.name
                     #print(jointObject.position.name,"glued_on",jointObject.parentBone.name)
                     jointObject.glued_on(jointObject.parentBone)
@@ -148,15 +113,28 @@ class Skeleton(ObjectInWorld):
                 #print(bonesDiscovered)
         self.bones=bones
         self.joints=joints
-
+        # Now we want to call the movent by self.bend.knee(angle,vector) and similar calls for the other ariticulations
+        self.bend=Object()
+        def fixing_joint_in_move(self,joint):
+            def move_with_join_fixed(angle,rotationVector=None,toggleJoint=False):
+                    return Skeleton.muscle_on_joint(self,joint,angle,rotationVector,toggleJoint)
+            return move_with_join_fixed
+        for jointName,jointValue in self.joints.__dict__.iteritems():
+            setattr(self.bend,jointName,fixing_joint_in_move(self,jointValue))
+#        listTmp=[]
+ #       i=0
+   #     for jointName,jointValue in self.joints.__dict__.iteritems():
+     #       listTmp.append(jointValue)
+       #     i=i+1
+         #   setattr(self.bend,jointName,lambda angle,rotationVector=None,toggleJoint=False: Skeleton.muscle_on_joint(self,listTmp[i-1],angle,rotationVector,toggleJoint))
     def _joint_move(self,joint,map,toggleJoint=False):
         """
         lowLevel function to move a joint
         """
         if toggleJoint:
             return Skeleton._joint_move_toggled(self,joint,map)
-        joint.childBone.move(map)
-
+        #joint.childBone.move(map)
+        joint.move(map)
             
     def _joint_move_toggled(self,joint,myMap):
         #print("toggled")
@@ -165,9 +143,9 @@ class Skeleton(ObjectInWorld):
         self.ancestor.move(myMap)
         Skeleton._joint_move(self,joint,myMap.inverse())
         
-    def muscle_on_joint(self,joint,angle,rotationVector=None,keepParallel=[],toggleJoint=False):
+    def muscle_on_joint(self,joint,angle,rotationVector=None,toggleJoint=False):
         """
-        keepParallel=a list of joints moved by the operations, no join being a descendant of an other
+        the high level function  to move a joint. Computes the map, then calls the low level function using the map. 
         """
         if hasattr(joint,"rotationVector") and rotationVector is None:
             rotationVector=joint.rotationVector
@@ -175,13 +153,14 @@ class Skeleton(ObjectInWorld):
         rotationLine=Segment(joint.position,rotationVector)
         myMap=Map.rotation(rotationLine,angle)
         self._joint_move(joint,myMap,toggleJoint=toggleJoint)
-        for myJoint in keepParallel:
-            if toggleJoint:
-               angle=-angle 
-            if not myJoint.rotationVector == rotationVector:
-                raise NameError("parallelel movement incompatible with the axis of the joint")
-            self.muscle_on_joint(myJoint,-angle,rotationVector=rotationVector,toggleJoint=False)
+        #for myJoint in keepParallel:
+         #   if toggleJoint:
+          #     angle=-angle 
+           # if not myJoint.rotationVector == rotationVector:
+            #    raise NameError("parallelel movement incompatible with the axis of the joint")
+            #self.muscle_on_joint(myJoint,-angle,rotationVector=rotationVector,toggleJoint=False)
 
+            
     def move_alone(self,*args,**kwargs):
         return self
     # we pass because the armature is just a container.  The ancestor is glued on self, so it will move.
@@ -250,7 +229,7 @@ class Body(Skeleton):
 
         #Geometric Objects
         neck=Cylinder(origin+(topShoulder-.0)*Z,origin+bottomMentonHeight*Z,neckCirconference/math.pi/2).colored("Red")
-        head=Cylinder(origin,origin+(headZSize-headCirconference/math.pi/2)*Z,headCirconference/math.pi/2).move_against(neck,-Z,-Z,X,X).colored("Green")
+        head=Cylinder(origin,origin+(headZSize-headCirconference/math.pi/2)*Z,headCirconference/math.pi/2).against(neck,-Z,-Z,X,X).colored("Green")
         upperHead=Sphere(origin,headCirconference/math.pi/2).above(head).translate(-headCirconference/math.pi/2*Z).glued_on(head).colored("Green")
         for word in ["ankle","knee","pelvis"]:
             exec("left"+word.title()+"=Sphere(origin,"+str(eval(word+"Radius"))+").move_at(origin+"+str(eval(word+"Height"))+"*Z-"
@@ -276,9 +255,9 @@ class Body(Skeleton):
         slaves=[ Cylinder(origin+i*.20*handWidth*Y,origin+i*.25*handWidth*Y+.5*hand*Z,handThickness*.5) for i in range(4)]
         fingers=Compound(slaves)
         leftHand=Cube(handWidth,handThickness,.5*hand).colored("Blue")
-        fingers.add_box(FrameBox([origin-0.5*handThickness*X,origin+handWidth*Y+0.5*handThickness*X+.5*hand*Z]),"initialBox")
+        fingers.add_box("initialBox",FrameBox([origin-0.5*handThickness*X,origin+handWidth*Y+0.5*handThickness*X+.5*hand*Z]))
         fingers.colored("Blue")
-        fingers.move_against(leftHand,Z,Z,X,Y).glued_on(leftHand)
+        fingers.against(leftHand,Z,Z,X,Y).glued_on(leftHand)
         fingers.rotate(Segment(leftHand.point(0,.5,0),leftHand.point(1,.5,0)),-math.pi/7)
         #lefthThumb=Cylinder(origin,origin+.3*hand*X,.5*handThickness).on_right_of(leftHand,adjustEdges=Z).colored("Blue").glued_on(leftHand)
         leftHand.below(leftWrist)
@@ -326,6 +305,7 @@ class Body(Skeleton):
         Skeleton.__init__(self,joints,bones,ancestor)
         self.muscle_on_joint(self.rightWrist,-math.pi/4,Z)
 
+        self.pelvisRadius=pelvisRadius
 
 #s.handle.translate(Z)
 #s.redJoint.rotationVector=Z.copy()

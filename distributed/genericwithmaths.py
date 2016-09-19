@@ -136,19 +136,19 @@ def _move_at(self,*location):
 
 
 def _move_below(self,other, offset=(0,0,0),adjustEdges=None,adjustAxis=None):
-    return self.move_against(other,Z,Z,X,X,offset,adjustEdges,adjustAxis)
+    return self.against(other,Z,Z,X,X,offset,adjustEdges,adjustAxis)
 
 def _move_above(self,other, offset=(0,0,0),adjustEdges=None,adjustAxis=None):
-    return self.move_against(other,-Z,-Z,X,X,offset,adjustEdges,adjustAxis)
+    return self.against(other,-Z,-Z,X,X,offset,adjustEdges,adjustAxis)
 
 def _move_on_left_of(self,other, offset=(0,0,0),adjustEdges=None,adjustAxis=None):
-    return self.move_against(other,X,X,Y,Y,offset,adjustEdges,adjustAxis)
+    return self.against(other,X,X,Y,Y,offset,adjustEdges,adjustAxis)
 def _move_on_right_of(self,other, offset=(0,0,0),adjustEdges=None,adjustAxis=None):
-    return self.move_against(other,-X,-X,Y,Y,offset,adjustEdges,adjustAxis)
+    return self.against(other,-X,-X,Y,Y,offset,adjustEdges,adjustAxis)
 def _move_in_front_of(self,other, offset=(0,0,0),adjustEdges=None,adjustAxis=None):
-    return self.move_against(other,Y,Y,X,X,offset,adjustEdges,adjustAxis)
+    return self.against(other,Y,Y,X,X,offset,adjustEdges,adjustAxis)
 def _move_behind(self,other, offset=(0,0,0),adjustEdges=None,adjustAxis=None):
-    return self.move_against(other,-Y,-Y,X,X,offset,adjustEdges,adjustAxis)
+    return self.against(other,-Y,-Y,X,X,offset,adjustEdges,adjustAxis)
 
 
 
