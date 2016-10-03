@@ -36,7 +36,7 @@ class Camera(Primitive):
     """
     """
     activeCameras=True # if  False, camera.shoot does not take photo
-    showImage=True # if  False compute the image but dont show it on the screeen, if anything else, does not  even compue the image 
+    showImage=True # if  False compute the image (with povray to png) but dont show it on the screeen, if anything else, does not  even compue the image 
     
     
     def __init__(self):
@@ -45,7 +45,7 @@ class Camera(Primitive):
         self.angle=(20./180.*math.pi)  #  use camera.zoom() to change
 		#the angle without computation headache involving tangents
         self.lookAt=point(0,0,0)
-        self.sky=point(0,0,1)# the upper vector in the photo
+        self.sky=vector(0,0,1)# the upper vector in the photo
         self.directFrame=True  # By default, direct frame with Z vertical,X on the right, Y in front of us
         self.location=point(0,-4,2)  # sensible for units in meters. the positive y are in front of us. 
         self.actors=[]
@@ -56,6 +56,9 @@ class Camera(Primitive):
         self.technology="povray" #  only possibility at the moment
         self.povraylights="light_source {<"+ str(self.location[0])+","+str(self.location[1])+","+str(self.location[2]+10)+ "> color White " + "}\n\n"
         self.povrayPreamble='#include "colors.inc" \n#include "metals.inc" \nbackground {Blue}\n\n'
+        self.quality=9 #
+        self.silent=True # to display or not a lot of information when self.show is called
+        self.defaultDistance=3 # The distance from the point looked at in left/right... views
     def move_alone(self,M):
         self.location=M*self.location
     @property
@@ -64,16 +67,57 @@ class Camera(Primitive):
             povrayshoot.render(self)
         return self
     @property
+    def show_without_viewer(self):
+        if self.technology=="povray":
+            command="povray"
+            options=""
+            if Camera.showImage:
+                options+="+P "
+            else :
+                options+="-D "
+            options+="+H"+str(self.imageHeight)+ " +W"+str(self.imageWidth) +" "
+            options+="+Q"+str(self.quality)+" "
+            if self.silent:
+                options+="-GD -GF -GR -GS -GW -GA "
+                subprocess.call([command,options,self.file])
+            else:
+                subprocess.call([command,options,self.file])
+            return self
+    def pov_to_png(self):
+        #same as show for string computation except always -D
+        if self.technology=="povray":
+            command="povray"
+            options=""
+            options+="-D "
+            options+="+H"+str(self.imageHeight)+ " +W"+str(self.imageWidth) +" "
+            options+="+Q"+str(self.quality)
+            if self.silent:
+                options+="-GD -GF -GR -GS -GW -GA "
+            subprocess.call([command,options,self.file])
+            return self
+    @property
     def show(self):
-        if self.technology=="povray" and Camera.showImage:
-            subprocess.call(["povray", "+P +H"+str(self.imageHeight)+ " +W"+str(self.imageWidth),self.file])
-        if self.technology=="povray" and Camera.showImage==False :
-            subprocess.call(["povray", "-D +H"+str(self.imageHeight)+ " +W"+str(self.imageWidth),self.file])
+        import viewer
+        viewer.ViewerWindow(self)
         return self
+    
     def zoom(self,x):
         """
         Resize the image by a factor x. 
         """
         cameraWidth=math.tan(self.angle/2)
         self.angle=2*math.atan((cameraWidth/x))
+
+    def compute_frame_vectors(self):
+        self.frontVector=(self.lookAt-self.location).normalized_copy()
+        self.rightVector=self.frontVector.cross(self.sky)
+        if  not self.rightVector == 0*X:
+            self.rightVector=self.rightVector.normalized_copy()
+        else:
+            self.rightVector=X
+            if  (self.frontVector.cross(self.frontVector) == 0*X):
+                self.rightVector=Y
+        self.upVector=- self.frontVector.cross(self.rightVector).normalized_copy()
+        if not self.directFrame:
+            self.rightVector=-self.rightVector
 

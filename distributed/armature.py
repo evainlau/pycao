@@ -43,10 +43,15 @@ class Skeleton(ObjectInWorld):
                  ancestor="bone1"):
 
         """
-        Describe the parameters here: the graphical representations are not copied but passed by reference
-        Each joint in joints is a list [joinName,boneName0,boneName1,point,object,vector]
-        where names are strings, point is a point which is the center of the joint, object is the graphical representation, vector is the rotation axis by Default
-        An entry of bones is ["nameOfThebone",graphicalObjectRepresentingBone]
+        init parameters:
+        joint=[joint_1,joint_2...]
+        joint_i=["jointName","bone1NameConnectedToJoint","bone2NameConnectedToJoint",pointCenterOfJoint,ObjectRepresentingJoint,defaultAxisVectorForRotatingTheJoint]
+        bones=[bone_1,bone_2...]
+        bone_i=["nameOfTHeBone",objectToRepresentTheBone]
+        ancestor="nameOfABone"
+        
+        From these data, Pycao builds the skeleton. In the initial position, the object is represented by the objects given in parameters. 
+        Then, rotations are made around the centers of the joints using mySkeleton.bend.myJointName(angleInRadians,vector=defaultAxisVector)
         """
         #Since each joint is linked to two bones exactly (whereas a bone 
         #like the trunk of body may be attached to many articulations)  
