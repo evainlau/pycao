@@ -14,9 +14,9 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
-pycaoDir=os.environ["dirsubversion"]+"/articlesEtRechercheEnCours/pycao/distributed/"
+
 from os.path import expanduser
-sys.path.append(pycaoDir)
+
 
 
 
