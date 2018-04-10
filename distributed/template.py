@@ -18,7 +18,7 @@
 
 
 
-pycaoDir="/home/myName"
+pycaoDir="/home/laurent/subversion/articlesEtRechercheEnCours/pycao/pycaogit"
 
 """
                 MODULES IMPORT

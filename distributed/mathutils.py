@@ -587,6 +587,11 @@ class Polyline(list,Primitive,ParametrizedCurve):
         for i in range(len(self)-1):
             lengthsList.append((self[i+1]-self[i]).norm)
         return lengthsList
+    def segments(self):
+        segmentsList=[]
+        for i in range(len(self)-1):
+            segmentsList.append(Segment(self[i],self[i+1]))
+        return segmentsList
     def angles(self):
         anglesList=[]
         for i in range(len(self)-2):
@@ -962,8 +967,14 @@ class Segment(AffineLineWithVectorDirector):
 
     def __str__(self):
         return( "Line through"+str(self.p1)+" and "+str(self.p2)+" direction: "+str(self.vector))
-
-
+    def prolonged_on_left(self,x):
+        self.p1=self.p1-x*self.vector.normalized_copy()
+        self.vector=self.p2-self.p1
+        return self
+    def prolonged_on_right(self,x):
+        self.p1=self.p1-x*self.vector.normalized_copy()
+        self.vector=self.p2-self.p1
+        return self
 
 class FrameBox(Base):
     """
