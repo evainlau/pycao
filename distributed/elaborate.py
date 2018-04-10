@@ -405,9 +405,14 @@ class Cube(Elaborate):
             maxi=point(xmax,ymax,zmax)
             self.__init__(mini,maxi)
     @staticmethod
-    def fromDimensions(*args):
+    def from_dimensions(*args):
         if len(args)==3: return Cube(*args)
         if len(args)==1: return Cube(args(0),args(1),args(2))
+    @staticmethod
+    def from_list_of_points(listOfPoints):
+        return Cube(listOfPoints)
+
+        
     def __str__(self):
         string="Cube with corners "+str(self.start())+" and "+str(self.end())
         return string
