@@ -31,23 +31,44 @@ class Room(Compound):
     """ 
     The room is suppose to have right angle corners so that its walls are cubes. 
     """
-    def __init__(polygon=Polygon(origin-X-Y,2*Y,2*X,-2*Y,-2*X),thickness=0.2,height=2):
+    def __init__(floor=Polygon(origin-X-Y,2*Y,2*X,-2*Y,-2*X),wallThickness=0.2,height=2):
         """
-        This constructs a room whose walls follow the polyline. Each line corresponds to a wall. 
+        This constructs a room whose exterior walls are along the floor. The interior walls are computed using 
+        wall thickness. The polygon for the floor is in the plane z=0, with the points listed clockwise.
         A floor and a ceiling are added. 
+        Remark: if the point are listed counterclockwise, this messes the inside and outside of the room. 
+        Doable in the future: compute the index of the polygon to know if it is clockwise. 
         """
-        listOfWalls=[]
-        for s in polyline.segments():
-            listOfWalls.append(Wall.from_segment_thickness_height(s.prolonged_on_left(0.5*thickness).prolonged_on_right(0.5*thickness)))
-        Compound.__init__(self,[["walls",listOfWalls],["ceiling",polygon.translate(height*Z)],["floor",polygon]])
+        walls=[]
+        for segment,segment.index in polyline.segments():
+            wall=Object()
+            wall.armature=segment
+            wall.insideVector=segment.normalized_copy().rotate(-Z,math.pi/2)
+            wall.insideWall=segment.copy().translate(wall.insideVector*wallThickness*.5)
+            wall.outsideWall=segment.copy().translate(-wall.insideVector*wallThickness*.5)
+            wall.height=height
+            wall.name="wall"+str(segment.index)
+            walls.append(wall)
+        intPoints=[]
+        extPoints=[]
+        for wall,wall.index in walls:
+            previousWall=walls[wall.index-1]
+            wall.insideLeftPoint=point.from_2_lines(wall.insideWall,previousWall.insideWall)
+            previousWall.insideRightPoint=wall.insideLeftPoint
+            intPoints.append(wall.insideLeftPoint)
+            wall.outsideLeftPoint=point.from_2_lines(wall.outsideWall,previousWall.outsideWall)
+            previousWall.outsideRightPoint=wall.outsideLeftPoint
+            intPoints.append(wall.outsideLeftPoint)
+            walls.append(Wall(wall))
+        floor=polygon(intPoints)
+        ceiling=floor.copy.translate(height*Z)
+        Compound.__init__(self,[["walls",walls],["ceiling",ceiling],["floor",floor]])
 
-    @staticmethod
-    def from_polyline_thickness_height(polygon=Polygon(origin-X-Y,2*Y,2*X,-2*Y,-2*X),thickness=.2,height=2):
-        return Room(polygon,thickness,height)
 
 
-* a faire : classe polygone, qui herite de polyline et son rendu dans povray shoot.
-* tester
+    
+* a faire : tester le prisme, classe polygone, qui herite de polyline et son rendu dans povray shoot.
+* faire des wall qui heritent de prisme
 * ajouter fenetres et portes,
 * ajouter des textures
 * Eventuellement faire avec des murs fins.

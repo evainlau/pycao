@@ -91,39 +91,33 @@ class Elaborate(ElaborateOrCompound):
     
 
 class Prism(ElaborateOrCompound):
-    def __init__(self,polyline1,polyline2,
+    def __init__(self,polyline1,height,
                  splineType="linear",sweepType="linear"):
         """A class for prisms.
 
         Constructor
-        upperPolyline,lowerPolyline: a sequence of points in absolute or relative coordinates. Only the x,z coordinates are meaningful for the construction.
-        height1, height2: heights for lower and upper polyline respectivly
+        polyline1=a polyline in a plane y=cte and all the points of the polyline are distinct
+        returns the Prism with faces polyline1 and polyline1.translated(height *Y)
         splineType=linear ( to be implemented in future:  quadratic or cubic or bezier for the interpolation between points)
         sweepType=linear ( to be implemented : conic. With conic only one height is sufficient (see povray doc). )
         """
         self.splineType=splineType
         self.sweepType=sweepType
-        self.polyline1=Polyline(polyline1)
+        self.polyline1=polyline1
         if (self.polyline1[0] != self.polyline1[-1]).any():
             raise NameError("The first and last point of the underlying splines must be equal in a prism")
-        self.polyline2=Polyline(polyline2)
-        if (self.polyline2[0] != self.polyline2[-1]).any():
-            raise NameError("The first and last point of the underlying splines must be equal in a prism")
+        self.height1=self.polyline1[0][1]
+        self.height2=self.height1+height
         self.povrayNumberOfPoints=len(polyline1)
         
-    def height(self,i):
-        """
-        Returns the y coordinate of the first point of spline number i, which is intended to be used as height
-        """
-        if i==1:
-            return self.polyline1[0][1]
-        elif i==2:
-            return self.polyline2[0][1]
-        else:
-            raise NameError('Wrong parameter "i" for Prism.height(i)')
-
-
-    
+    @staticmethod
+    def from_polyline_vector(polyline,vector):
+        """ returns the prism B whose parallel faces are polyline and polyline+vector"""
+        mapp=Map.rotational_difference(Y,vector)
+        mappInverse=mapp.inverse()
+        polyline1=polyline.copy().move(mappInverse)
+        return Prism(polyline1,vector.norm).move(mapp)
+        
 class Cylinder(Elaborate):
     """
     Class for bounded cylinders

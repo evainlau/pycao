@@ -605,6 +605,10 @@ class Polyline(list,Primitive,ParametrizedCurve):
     #@staticmethod
     #def linear(*args):
 
+class Polygon(Polyline):
+    """ a polygon is a closed polyline included in a plane. In contrast to polylines, it is seen by the camera """
+    pass
+    
 class BezierCurve(list,Primitive,ParametrizedCurve):
     """ A class for BezierCurve p0,...,pn ie this is the parametrized curve sum B^n_i(t) p_i with B^{n}_i(t)=(i choose n)(1-t)^i t^{n-i}
     In particular, this curve starts at p0 with tangent proportional to p1-p0 and ends at pn with tangent proportional to pn-p_{n-1} 
