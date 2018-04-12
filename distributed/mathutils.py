@@ -602,8 +602,12 @@ class Polyline(list,Primitive,ParametrizedCurve):
     def move_alone(self,M):
         [point.move_alone(M) for point in self ]
         return self
-    #@staticmethod
-    #def linear(*args):
+    def normal(self):
+        """ assumes that the polyline is included in a plane to give the normal vector"""
+        segments=self.segments()
+        vector1=segments[0].vector
+        vector2=segments[1].vector
+        return vector1.cross(vector2).normalize()
 
 class Polygon(Polyline):
     """ a polygon is a closed polyline included in a plane. In contrast to polylines, it is seen by the camera """

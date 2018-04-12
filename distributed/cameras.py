@@ -52,7 +52,7 @@ class Camera(Primitive):
         self.filmAllActors=True
         self.file="/tmp/pycaoOutput.pov" # the place to store the photo
         self.visibilityLevel=1
-        self.projection="perspective"
+        self.projection="perspective" # could be "orthographic", useful for checking
         self.technology="povray" #  only possibility at the moment
         self.povraylights="light_source {<"+ str(self.location[0])+","+str(self.location[1])+","+str(self.location[2]+10)+ "> color White " + "}\n\n"
         self.povrayPreamble='#include "colors.inc" \n#include "metals.inc" \nbackground {Blue}\n\n'

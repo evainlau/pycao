@@ -90,9 +90,8 @@ class Elaborate(ElaborateOrCompound):
 
     
 
-class Prism(ElaborateOrCompound):
-    def __init__(self,polyline1,height,
-                 splineType="linear",sweepType="linear"):
+class Prism(Elaborate):
+    def __init__(self,polyline1,height,splineType="linear",sweepType="linear"):
         """A class for prisms.
 
         Constructor
@@ -113,10 +112,16 @@ class Prism(ElaborateOrCompound):
     @staticmethod
     def from_polyline_vector(polyline,vector):
         """ returns the prism B whose parallel faces are polyline and polyline+vector"""
-        mapp=Map.rotational_difference(Y,vector)
-        mappInverse=mapp.inverse()
-        polyline1=polyline.copy().move(mappInverse)
-        return Prism(polyline1,vector.norm).move(mapp)
+        normalVec=polyline.normal()
+        map1=Map.rotational_difference(normalVec,Y)
+        map1Inverse=map1.inverse()
+        intermediateVector=map1*vector        
+        map2Inverse=Map.linear(X,intermediateVector,Z)
+        map2=map2Inverse.inverse()
+        composeMap=map2*map1
+        composeMapInverse=map1Inverse*map2Inverse
+        polyline1=polyline.copy().move(composeMap)
+        return Prism(polyline1=polyline1,height=1).move(composeMapInverse)
         
 class Cylinder(Elaborate):
     """
