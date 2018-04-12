@@ -121,7 +121,9 @@ class Prism(Elaborate):
         composeMap=map2*map1
         composeMapInverse=map1Inverse*map2Inverse
         polyline1=polyline.copy().move(composeMap)
-        return Prism(polyline1=polyline1,height=1).move(composeMapInverse)
+        p=Prism(polyline1=polyline1,height=1).move(composeMapInverse)
+        p.prismDirection=vector
+        return p
         
 class Cylinder(Elaborate):
     """
