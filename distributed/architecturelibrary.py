@@ -67,10 +67,9 @@ class Room(Compound):
 
 
 """    
-* a faire : classe polygone, qui herite de polyline et son rendu dans povray shoot.
 * faire des wall qui heritent de prisme
 * ajouter fenetres et portes,
 * ajouter des textures
 * Eventuellement faire avec des murs fins.
-* ajouter le prisme a la doc
+* ajouter le prisme et le polygone a la doc
 """

@@ -168,15 +168,11 @@ def object_string_but_CSG(self,camera):
         string+="prism {\n  "+str(self.height1)+","+str(self.height2)+" , "+str(self.povrayNumberOfPoints)+","+",".join([point_to_povray2d(p,0,2) for p in self.polyline1] )+" "+" \n"
         string+=modifier(self,camera)+"}\n"
     elif isinstance(self,Polygon) :
-        string+="polygon{"+self.len+",+"
+        string+="polygon{"+str(len(self))+",+"
         for polygonPoint in self:
-            string+=point_to_povray3d(polygonPoint)
+            string+=povrayVector(polygonPoint)
         string+=modifier(self,camera)+"}\n"
     return string   
-
-#plane {\n"+povrayVector(self.normal)+","+str(-self[3]/self.normal.norm)+" "+modifier(self,camera)+"}\n"
- 
-
 
 
 def object_string_alone(self,camera):
