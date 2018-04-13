@@ -16,30 +16,36 @@ class Wall(Prism):
 
     @classmethod
     def from_polyline_vector(cls,polyline,verticalVector,thickness=0,name=""):
-        print("starting")
-        print(cls)
-        self=super(Prism,cls)#.from_polyline_vector(polyline,verticalVector)
-        print(self)
+        self=super(Wall,cls).from_polyline_vector(polyline,verticalVector)
         if thickness>0 :
             self.thickness=thickness
         if not name:
             self.name=name
         #self.markers
+        if not hasattr(self,"markers"):
+            self.markers=Object()
         self.markers.armature=Segment(0.5*(polyline[0]+polyline[3]),0.5*(polyline[1]+polyline[2])) # aka the line on the floor in the middle of the wall
+        print(polyline[0],polyline[3],polyline[1],polyline[2])
         self.markers.center=0.25*(polyline[0]+polyline[3]+polyline[1]+polyline[2])+.5*verticalVector # aka the line on the floor in the middle of the wall
         self.markers.outsideBaseLine=Segment(polyline[2],polyline[3]) # the intersection of the floor and the exterior wall. The points are the extremal points of this line
         self.markers.insideBaseLine=Segment(polyline[0],polyline[1])
         self.markers.verticalVector=verticalVector # alread accessible by self.prismDirection but more readable alias in the context of walls
         insideVector=self.markers.outsideBaseLine.vector.cross(verticalVector)
-        if (self.markers.insideBaseLine[0]-self.markers.outsideBaseLine[0]).dot(insideVector) < 0:
+        if (self.markers.insideBaseLine.p1-self.markers.outsideBaseLine.p2).dot(insideVector) < 0:
             insideVector=-insideVector
         self.markers.insideVector=insideVector # towards the interior of the room
+        correctiveMap=self.mapFromParts.inverse()
+        markersList=[ a for a in dir(self.markers) if not a.startswith('__')]
+        print (markersList)
+        for markerName in markersList: #self.map_fromParts is not identity in the prism, thus the marker should be corrected to compensate
+            marker=getattr(self.markers,markerName)
+            marker.move(correctiveMap)
         self.markers_as_functions()
-        print ("done Markers")
+        print self.center()
+        return self
 
     def add_window(self,w,center=None,glued=True):
         if center is None:
-            print (self.__dict__)
             center=self.center()
         w.translate(center-w.center)
         self.amputed_by(w.hole)
@@ -100,9 +106,11 @@ class Room(Compound):
         liste=[["wall"+str(i),wall] for i,wall in enumerate(walls)]
         Compound.__init__(self,liste+[["ceiling",ceiling],["floor",floor]])
         self.walls=walls
-        #Compound.__init__(self,liste)
-        #Compound.__init__(self,liste+[floor])
-        #Compound.__init__(self,[floor,ceiling])
+
+    def addWindow(self,wallNumber,wlength,wheight,wdepth,deltaLength,deltaHeigth):
+        """ adds a window of size (wlength,wheight,wdepth) on wall wallNumber, located 
+        at deltaLength meters from the left, and deltaHeigth meters above the floor """
+        pass 
 
 class Window(Compound):
     def __init__(self,dx,dy,dz,border,holeBorder=None,texture="Yellow_Pine"):
@@ -121,6 +129,7 @@ class Window(Compound):
         glass.texture="Glass"
         Compound.__init__(self,[frame,glass])
         self.hole=hole.glued_on(self)
+        self.hole.visibility=0
         self.add_box("windowBox",frame.box())
 
         
@@ -142,7 +151,9 @@ class RoundWindow(Compound):
 
         
 """    
-* ajouter fenetres et portes,
-* ajouter des textures
-* ajouter le prisme et le polygone,le wall, la Room a la doc
+* ajouter 1 portes et 1 porte avec fenetre en s'inspirant du wall pour l'inclusion de la fenetre.
+* ajouter des fenetres sur une Room (il suffit d'ajouter des  fenetres a l'endroit voulu avec wall.addWindow
+* entrer le plan de Laurence
+* enjoliver :)
+* ajouter le prisme et le polygone,le wall, la Room,fenetres a la doc
 """

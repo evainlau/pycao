@@ -61,6 +61,7 @@ class ElaborateOrCompound(ObjectInWorld):
             return f(self,marker)
         return function_f_with_marker_fixed
     def markers_as_functions(self):
+        correctiveMap=self.mapFromParts.inverse()
         self.markersList=[ a for a in dir(self.markers) if not a.startswith('__')]
         #print (self.markersList)
         for marker in self.markersList:
@@ -91,7 +92,7 @@ class Elaborate(ElaborateOrCompound):
     
 
 class Prism(Elaborate):
-    def __init__(self,polyline1,height=1,splineType="linear",sweepType="linear"):
+    def __new__(cls,polyline1,height=1,splineType="linear",sweepType="linear"):
         """A class for prisms.
 
         Constructor
@@ -100,6 +101,7 @@ class Prism(Elaborate):
         splineType=linear ( to be implemented in future:  quadratic or cubic or bezier for the interpolation between points)
         sweepType=linear ( to be implemented : conic. With conic only one height is sufficient (see povray doc). )
         """
+        self=Elaborate.__new__(cls)
         self.splineType=splineType
         self.sweepType=sweepType
         self.polyline1=polyline1
@@ -108,6 +110,7 @@ class Prism(Elaborate):
         self.height1=self.polyline1[0][1]
         self.height2=self.height1+height
         self.povrayNumberOfPoints=len(polyline1)
+        return self
         
     @classmethod
     def from_polyline_vector(cls,polyline,vector):
@@ -122,7 +125,7 @@ class Prism(Elaborate):
         composeMapInverse=map1Inverse*map2Inverse
         polyline1=polyline.copy().move(composeMap)
         print(cls)
-        p=cls(polyline1,height=1).move(composeMapInverse)
+        p=Prism.__new__(cls,polyline1,height=1).move(composeMapInverse)
         p.prismDirection=vector
         return p
         
