@@ -13,28 +13,38 @@ from lights import *
 
 class Wall(Prism):
     """ Class for walls, not necessarily rectangular or vertical, but the base is a tetragon """
-    def __new__(cls,polyline,verticalVector=Z,thickness=0,name=""):
-        # items 0 and 1 in the polyline are respectivly the left and right points on the floor of the interior wall
-        print(polyline)
-        self=Prism.from_polyline_vector(polyline,verticalVector)
-        return self
-    def __init__(self,polyline,verticalVector,thickness=0,name=""):
+
+    @classmethod
+    def from_polyline_vector(cls,polyline,verticalVector,thickness=0,name=""):
+        print("starting")
+        print(cls)
+        self=super(Prism,cls)#.from_polyline_vector(polyline,verticalVector)
+        print(self)
         if thickness>0 :
             self.thickness=thickness
         if not name:
             self.name=name
-        self.armature=Segment(0.5*(polyline[0]+polyline[3]),0.5*(polyline[1]+polyline[2])) # aka the line on the floor in the middle of the wall
-        self.outsideBaseLine=Segment(polyline[2],polyline[3]) # the intersection of the floor and the exterior wall. The points are the extremal points of this line
-        self.insideBaseLine=Segment(polyline[0],polyline[1])
-        print(self.outsideBaseLine,"obl")
-        print(self.insideBaseLine)
-        self.verticalVector=verticalVector # alread accessible by self.prismDirection but more readable alias in the context of walls
-        insideVector=self.outsideBaseLine.vector.cross(verticalVector)
-        if (self.insideBaseLine[0]-self.outsideBaseLine[0]).dot(insideVector) < 0:
+        #self.markers
+        self.markers.armature=Segment(0.5*(polyline[0]+polyline[3]),0.5*(polyline[1]+polyline[2])) # aka the line on the floor in the middle of the wall
+        self.markers.center=0.25*(polyline[0]+polyline[3]+polyline[1]+polyline[2])+.5*verticalVector # aka the line on the floor in the middle of the wall
+        self.markers.outsideBaseLine=Segment(polyline[2],polyline[3]) # the intersection of the floor and the exterior wall. The points are the extremal points of this line
+        self.markers.insideBaseLine=Segment(polyline[0],polyline[1])
+        self.markers.verticalVector=verticalVector # alread accessible by self.prismDirection but more readable alias in the context of walls
+        insideVector=self.markers.outsideBaseLine.vector.cross(verticalVector)
+        if (self.markers.insideBaseLine[0]-self.markers.outsideBaseLine[0]).dot(insideVector) < 0:
             insideVector=-insideVector
-        self.insideVector=insideVector # towards the interior of the room
+        self.markers.insideVector=insideVector # towards the interior of the room
+        self.markers_as_functions()
+        print ("done Markers")
 
-        
+    def add_window(self,w,center=None,glued=True):
+        if center is None:
+            print (self.__dict__)
+            center=self.center()
+        w.translate(center-w.center)
+        self.amputed_by(w.hole)
+        if glued:
+            w.glued_on(self)
 
         
     # @staticmethod
@@ -95,7 +105,7 @@ class Room(Compound):
         #Compound.__init__(self,[floor,ceiling])
 
 class Window(Compound):
-    def __init__(self,dx,dy,dz,border,texture="Yellow_Pine"):
+    def __init__(self,dx,dy,dz,border,holeBorder=None,texture="Yellow_Pine"):
         """dx,dy,dz are the length,depth,height respectivly, border is the size of the border of the window """ 
         frame=Cube(dx,dy,dz)
         frame.texture=texture
@@ -103,10 +113,17 @@ class Window(Compound):
         toCut=Cube(frame.point(border,-0.01,border,"aaa"),frame.point(border,-.01,border,"nnn"))
         toCut.texture=texture
         frame.amputed_by(toCut)
+        if holeBorder is None:
+            holeBorder=border*.5
+        # The hole will be used to cut the wall behind the window.
+        hole=Cube(frame.point(holeBorder,-10000,holeBorder,"aaa"),frame.point(holeBorder,-10000,holeBorder,"nnn"))
         glass=Cube(frame.point(border,dy*.5-.001,border,"aaa"),frame.point(border,dy*.5-0.01,border,"nnn"))
         glass.texture="Glass"
         Compound.__init__(self,[frame,glass])
+        self.hole=hole.glued_on(self)
+        self.add_box("windowBox",frame.box())
 
+        
 class RoundWindow(Compound):
     def __init__(self,radius,depth,border,texture="Yellow_Pine"):
         """ border is the size of the border of the window """ 
