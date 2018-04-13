@@ -94,6 +94,36 @@ class Room(Compound):
         #Compound.__init__(self,liste+[floor])
         #Compound.__init__(self,[floor,ceiling])
 
+class Window(Compound):
+    def __init__(self,dx,dy,dz,border,texture="Yellow_Pine"):
+        """dx,dy,dz are the length,depth,height respectivly, border is the size of the border of the window """ 
+        frame=Cube(dx,dy,dz)
+        frame.texture=texture
+        self.normal=Y
+        toCut=Cube(frame.point(border,-0.01,border,"aaa"),frame.point(border,-.01,border,"nnn"))
+        toCut.texture=texture
+        frame.amputed_by(toCut)
+        glass=Cube(frame.point(border,dy*.5-.001,border,"aaa"),frame.point(border,dy*.5-0.01,border,"nnn"))
+        glass.texture="Glass"
+        Compound.__init__(self,[frame,glass])
+
+class RoundWindow(Compound):
+    def __init__(self,radius,depth,border,texture="Yellow_Pine"):
+        """ border is the size of the border of the window """ 
+        frame=Cylinder(start=origin,end=origin+depth*Y,radius=radius,length=None,booleanOpen=False)
+        frame.texture=texture
+        self.normal=Y
+        toCut=Cylinder(start=origin-Y,end=origin+depth*Y+Y,radius=radius-border,length=None,booleanOpen=False)
+        toCut.texture=texture
+        frame.amputed_by(toCut)
+        glass=Cylinder(start=origin+(.5*depth-.01)*Y,end=origin+(.5*depth+.01)*Y,radius=radius-border,length=None,booleanOpen=False)
+        glass.texture="Glass"
+        Compound.__init__(self,[frame,glass])
+
+
+
+
+        
 """    
 * ajouter fenetres et portes,
 * ajouter des textures
