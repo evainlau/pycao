@@ -48,14 +48,22 @@ def povrayMatrix(M):
     return(string)
 
 
-
-def color_string(self):
-    if self.color is None:
-        return ""
-    else:
-        string="pigment {color "+self.color+"}"
+def texture_string(self):
+    try:
+        return ("texture { "+self.texture+" }")
+    except AttributeError:
+        if self.color is None:
+            string= ""
+        else:
+            string="pigment {color "+self.color+"}"
+        try:
+            string+="finish { "+self.finish +"}"
+        except AttributeError:
+            string+=" finish{metallic phong 1}"
+        string="texture { "+string+" }"
         return string
 
+    
 
 def modifier_texture(self,camera):
     "Returns a string describing the texture of the object"
@@ -65,8 +73,7 @@ def modifier_texture(self,camera):
     try:
         string+=self.material+"\n"
     except AttributeError:
-        if  self.color is not None:
-            string+=" material{texture{ "+ color_string(self)+ " finish{metallic phong 1} }} \n "
+        string+=" material{"+ texture_string(self)+ " } \n "
     return string
 
 def modifier_matrix(self):

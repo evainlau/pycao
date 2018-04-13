@@ -180,6 +180,8 @@ class Cylinder(Elaborate):
         """
         return copy.deepcopy(self)
 
+    
+    
 class ICylinder(Elaborate):
     """
     Class for infinite cylinders
