@@ -447,5 +447,6 @@ class ObjectInWorld(object):
         self.axis=getattr(self.dicoaxis,name)
         return self.axis()
 
-
+    def self_rotate(self,angle):
+        return self.rotate(self.axis(),angle)
 

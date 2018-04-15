@@ -508,7 +508,17 @@ class AffinePlaneWithEquation(AffinePlane,np.ndarray):
         else:
             return True
     def contains(self,point):
-        return self.half_space_contains(point)
+        if self.normal.dot(point-self.markedPoint)==0:
+            return True
+        else:
+            return False
+    def is_parallel_to(self,other_plane):
+        print(self.normal.cross(other_plane.normal))
+        if self.normal.cross(other_plane.normal).norm==0:
+            return True
+        else:
+            return False
+        
 
         
 class ParametrizedCurve():
@@ -570,10 +580,12 @@ class ParametrizedCurve():
 
 class FunctionCurve(ParametrizedCurve,ObjectInWorld):
     """ a class for curve defined by a function"""
+    def __call__(self,t):
+        return self.value_at(t)
     def __new__(cls,f):
         myCurve=ObjectInWorld.__new__(cls)
         ObjectInWorld.__init__(myCurve)
-        myCurve.__call__=f
+        myCurve.value_at=f
         return myCurve
 
     def move_alone(curve,M):
