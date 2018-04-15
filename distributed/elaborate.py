@@ -323,9 +323,9 @@ class Torus(Elaborate):
     @staticmethod
     def from_3_points(start,middle,end,internalRadius,cut=True):
         """
-        build a torus whose underlying circle goes through the 3 points in parameter. Self.curve will be the circle, parametrized 
+        build a torus whose underlying circle goes through the 3 unaligned points in parameter. Self.curve will be the circle, parametrized 
         so that self.circle(0)=start and the orientation of the parametrization makes the circle goes from start to end, with middle in the middle 
-        as time increases from 0. If cut is True, only the part between start and middle are kept. 
+        as time increases from 0. If cut is True, only the arc between start and end containing  middle are kept. 
         """
         plane1=Plane.from_2_points(start,middle)
         plane2=Plane.from_2_points(start,end)
@@ -351,20 +351,29 @@ class Torus(Elaborate):
         self.circle=FunctionCurve(circle_function).glued_on(self)
         if cut is True:
             #print(normale)
-            #print("dans cut")
+            print("dans cut")
             #print("center",center)
             cutting1=Plane.from_3_points(center,start,center+normale)
-            #print(cutting1)
-            if not cutting1.contains(end):
-                cutting1.reverse()
             cutting2=Plane.from_3_points(center,end,center+normale)
-            print(cutting2)
-            if not cutting2.contains(start):
-                cutting2.reverse()
+            #if center,start and end are aligned and we keep the half point containing middle
+            #print(cutting1)
+            #print(cutting2)
+            if cutting1.is_parallel_to(cutting2):
+                #print("parallel")
+                if cutting1.half_space_contains(middle): 
+                    return self.intersected_by(cutting1)
+                else:
+                    return self.intersected_by(cutting1.reverse())
+            else:
+                # I build the acute sector from start to end. 
+                if not cutting1.half_space_contains(end):
+                    cutting1.reverse()
+                if not cutting2.half_space_contains(start):
+                    cutting2.reverse()
             sector=cutting1.intersected_by(cutting2)
             #sector.colored("Yellow")
             #self.sector=cutting1
-            if cutting1.contains(middle) and cutting2.contains(middle):
+            if cutting1.half_space_contains(middle) and cutting2.half_space_contains(middle):
                 return self.intersected_by(sector)
             else:
                 return self.amputed_by(sector)

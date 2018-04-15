@@ -247,10 +247,36 @@ class Table(Compound):
         centerOnFloor[2]=0
         self.add_to_compound(["centerOnFloor",centerOnFloor])
         self.add_box("tableBox",Cube([origin,point(length,width,heigth)]).box())
-        
-        
+
+class Chair(Compound):
+    def __init__(self):
+        legLenth=.45
+        seat=RoundBox.from_dimensions(.30,.35,.04,.015)
+        p1=point(.05,.35,.4)
+        p3=point(.30,.35,.4)
+        p2=point(.175,.4,.4)
+        t=Torus.from_3_points(p1,p2,p3,.02)
+        s1=Sphere(p1,.02)
+        s2=Sphere(p3,.02)
+        start=t.circle(.4)#0.110978533178,0.388316548251
+        print(start)
+        start2=point(.3-.110978,.388316,.4)
+        end2=seat.point(.12,.06,.5,"nnp")
+        end=seat.point(.12,.06,.5,"anp")
+        c=Cylinder(start,end,radius=.015)
+        c2=Cylinder(start2,end2,radius=.015)
+        Compound.__init__(self,[t,s1,s2,c,c2,seat])
+        for string in ["aaa","ana","naa","nna"]:
+            pointe=seat.point(.05,.05,0,string)
+            leg=Cylinder(pointe,pointe-legLenth*Z,.02)
+            self.add_to_compound(leg)
+        self.center_on_floor=seat.point(.5,.5,.5,"ppp")
+        self.center_on_floor[2]=0
+        axis=seat.segment(.5,.5,None,"ppp")
+        self.add_axis("axeVertical",axis)
+        self.add_box("",seat.box())
 """ 
-* correc du torus avec 3 points alignés   
+* correc du torus avec 3 points aligns   
 * ajouter 1 portes et 1 porte avec fenetre en s'inspirant du wall pour l'inclusion de la fenetre.
 * ajouter des fenetres sur une Room (il suffit d'ajouter des  fenetres a l'endroit voulu avec wall.addWindow
 * entrer le plan de Laurence
