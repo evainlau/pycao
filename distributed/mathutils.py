@@ -966,9 +966,14 @@ class Segment(AffineLineWithVectorDirector):
         #print(triangle[2])
         return triangle.angle_bisector(i)
 
-    def  point(x,coordinateType):
-        pass
-    
+    def  point(self,x,coordinateType):
+        if coordinateType=="a":
+            return self.p1+x*self.vector.normalized_copy()
+        elif coordinateType=="p":
+            return self.p1+x*self.vector
+        elif coordinateType=="n":
+            return self.p2-x*self.vector.normalized_copy()
+        
     @property
     def norm(self):
         return self.vector.norm
