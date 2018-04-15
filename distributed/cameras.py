@@ -54,8 +54,9 @@ class Camera(Primitive):
         self.visibilityLevel=1
         self.projection="perspective" # could be "orthographic", useful for checking
         self.technology="povray" #  only possibility at the moment
+        self.lights=[]
         self.povraylights="light_source {<"+ str(self.location[0])+","+str(self.location[1])+","+str(self.location[2]+10)+ "> color White " + "}\n\n"
-        self.povrayPreamble='#include "colors.inc" \n#include "metals.inc" \n#include "textures.inc" \nbackground {Blue}\n\n'
+        self.povrayPreamble='#include "colors.inc" \n#include "metals.inc" \n#include "textures.inc" \n#include "shapes.inc" \nbackground {Blue}\n\n'
         self.quality=9 #
         self.silent=True # to display or not a lot of information when self.show is called
         self.defaultDistance=3 # The distance from the point looked at in left/right... views

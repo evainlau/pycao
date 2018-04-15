@@ -206,7 +206,14 @@ class MassPoint(np.ndarray,Primitive):
             #print("self",self)
             raise NameError('norm is applied to a Vector, self is '+str(type(self)))
 
-
+    def angle_to(self,goal,vaxis):
+        cosine= np.dot(goal,self)/np.linalg.norm(self)/np.linalg.norm(goal) # -> cosine of the angle
+        angle = np.arccos(np.clip(cosine, -1, 1))
+        M=Map.linear_rotation(vaxis,angle)
+        toVanish=M*self.normalized_copy()-goal.normalized_copy() # it is zero if the angle is correct, and with norm 2|sin(angle)| otherwise
+        if toVanish.norm>math.fabs(math.sin(angle)):
+            angle=angle+math.pi
+        return angle
     # other methods
 
 
@@ -416,6 +423,7 @@ class AffinePlaneWithEquation(AffinePlane,np.ndarray):
         AffinePlaneWithEquation.from_bisector(segment) : as above with p1=segment.p1 and p2=segment.p2
         """
         if len(args)==2:
+            print(args[0],args[1])
             return AffinePlaneWithEquation(args[1]-args[0],0.5*args[0]+0.5*args[1])
         elif len(args)==1:
             segment=args[0]
@@ -423,6 +431,10 @@ class AffinePlaneWithEquation(AffinePlane,np.ndarray):
         else:
             raise NameError('from Bisector takes one or two arguments')
     @staticmethod
+    def from_2_points(p1,p2):
+        """ returns the bisector plane"""
+        return AffinePlaneWithEquation.from_bisector(p1,p2)
+
     def from_coeffs(a,b,c,d):
         """
         Returns the plane ax+by+cz+d=0
@@ -495,7 +507,10 @@ class AffinePlaneWithEquation(AffinePlane,np.ndarray):
             return False
         else:
             return True
+    def contains(self,point):
+        return self.half_space_contains(point)
 
+        
 class ParametrizedCurve():
     """
     A class to factorize the methods common to all types of curves ( polyline,BezierCurve,PiecewiseCurve)
@@ -541,6 +556,7 @@ class ParametrizedCurve():
         curve.__call__=types.MethodType(composition, curve)
         return curve
 
+        
     def speed(curve,t,epsilon=0.00000001):
         """
         The speed vector at time t
@@ -552,6 +568,22 @@ class ParametrizedCurve():
         else:
             return (curve(t+epsilon)-curve(t))/epsilon
 
+class FunctionCurve(ParametrizedCurve,ObjectInWorld):
+    """ a class for curve defined by a function"""
+    def __new__(cls,f):
+        myCurve=ObjectInWorld.__new__(cls)
+        ObjectInWorld.__init__(myCurve)
+        myCurve.__call__=f
+        return myCurve
+
+    def move_alone(curve,M):
+        oldCall=curve.__call__
+        def composition(self,t):
+            return M*oldCall(t)
+        curve.__call__=types.MethodType(composition, curve)
+        return curve
+
+        
         
 class Polyline(list,Primitive,ParametrizedCurve):
     """ A class for polylines p0,...,pn ie the curve which is the union of segments p_i,p_{i+1}
@@ -1537,6 +1569,10 @@ class Map(np.ndarray):
                          [2*(bc-ad), aa+cc-bb-dd, 2*(cd+ab), 0],
                          [2*(bd+ac), 2*(cd-ab), aa+dd-bb-cc, 0],
                          [0        , 0        , 0           ,1]]).view(Map)*np.linalg.inv(N).view(Map)
+
+    @staticmethod
+    def linear_rotation(vectorAxis,angle):
+        return Map.rotation(axis=Segment(origin,origin+vectorAxis),angle=angle)
 
     @staticmethod
     def scale(fx=1,fy=1,fz=1,xVector=MassPoint(1,0,0,0),  yVector=MassPoint(0,1,0,0), zVector=MassPoint(0,0,1,0),fixedPoint=MassPoint(0,0,0,1)):

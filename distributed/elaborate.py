@@ -124,7 +124,6 @@ class Prism(Elaborate):
         composeMap=map2*map1
         composeMapInverse=map1Inverse*map2Inverse
         polyline1=polyline.copy().move(composeMap)
-        print(cls)
         p=Prism.__new__(cls,polyline1,height=1).move(composeMapInverse)
         p.prismDirection=vector
         return p
@@ -269,7 +268,6 @@ class Washer(Cylinder):
         eCylinder.internalRadius=iCylinder.radius
         eCylinder.internalBox=iCylinder.box()
         eCylinder.markers_as_functions()
-       #print(type(eCylinder))
         return eCylinder
 
     def __deepcopy__(self,memo):
@@ -322,8 +320,55 @@ class Torus(Elaborate):
         self.markers_as_functions()
     def __str__(self):
         return ("Torus with center "+str(self.center)+" normal "+str(self.normal())+" radius "+str(self.parts.externalRadius)+","+str(self.parts.internalRadius))
-
-
+    @staticmethod
+    def from_3_points(start,middle,end,internalRadius,cut=True):
+        """
+        build a torus whose underlying circle goes through the 3 points in parameter. Self.curve will be the circle, parametrized 
+        so that self.circle(0)=start and the orientation of the parametrization makes the circle goes from start to end, with middle in the middle 
+        as time increases from 0. If cut is True, only the part between start and middle are kept. 
+        """
+        plane1=Plane.from_2_points(start,middle)
+        plane2=Plane.from_2_points(start,end)
+        plane3=Plane.from_3_points(start,middle,end)
+        normale=plane3.normal.normalize()
+        center=Point.from_3_planes(plane1,plane2,plane3)
+        delta=start-center
+        print("sm",start,center,delta)
+        radius=(start-center).norm
+        vec1=(start-center).normalize()
+        vec2=middle-center
+        vec3=end-center
+        angle1=vec1.angle_to(vec2,vaxis=normale)
+        angle2=vec1.angle_to(vec3,vaxis=normale)
+        if angle1<angle2:
+            def circle_function(t):
+                return start.rotate(axis=Segment(center,center+normale),angle=t)
+        else:
+            def circle_function(t):
+                return start.rotate(axis=Segment(center,center+normale),angle=-t)
+        #creation du torus self
+        self=Torus(radius,internalRadius,normale,center)
+        self.circle=FunctionCurve(circle_function).glued_on(self)
+        if cut is True:
+            #print(normale)
+            #print("dans cut")
+            #print("center",center)
+            cutting1=Plane.from_3_points(center,start,center+normale)
+            #print(cutting1)
+            if not cutting1.contains(end):
+                cutting1.reverse()
+            cutting2=Plane.from_3_points(center,end,center+normale)
+            print(cutting2)
+            if not cutting2.contains(start):
+                cutting2.reverse()
+            sector=cutting1.intersected_by(cutting2)
+            #sector.colored("Yellow")
+            #self.sector=cutting1
+            if cutting1.contains(middle) and cutting2.contains(middle):
+                return self.intersected_by(sector)
+            else:
+                return self.amputed_by(sector)
+        else: return self
     def sliced_by(self,point1,point2,acute=True):
         """
         returns intersection/difference of a torus and a polyhedral P, where P is the intersection of 2 half spaces which meet along the axis of the torus
@@ -348,9 +393,6 @@ class Torus(Elaborate):
         if acute:
             self.intersected_by(cuttingTool)
         else:
-            #print(cuttingTool)
-            #print(Polyhedral(cuttingTool))
-            #print("fin")
             result= self.amputed_by(Polyhedral(cuttingTool))
         plane1.disappears()
         plane2.disappears()
@@ -424,6 +466,56 @@ class Cube(Elaborate):
         string="Cube with corners "+str(self.start())+" and "+str(self.end())
         return string
 
+
+class RoundBox(Elaborate):
+    """
+    builds a rounded cube, with orthgonal edges parallel to the axis X,Y,Z
+    
+    Attributes:
+    self.center()
+    self.box()
+    self.dimensions() : the dimension of the box
+    self.point(): returns a point in the box in appropriate coordinates (cf the doc of frameBox)
+
+    Constructor:
+    RoundBox(start,end,wireRadius,merge), start,end are opposite corners of the Cube
+    RoundBox(x,y,z,wireRadius,merge)  
+    """
+    def __init__(self,*args,**kwargs):
+        """
+        """
+        if len(args)<4 or len(args)>5:
+            raise NameError('Incorrect number of arguments to build a RoundBox')
+        if len(args)==4:
+            # self.parts
+            self.parts=Object()
+            self.parts.start=args[0]
+            self.parts.end=args[1]
+            self.wireRadius=args[2] #The radius at creation,may change with a non orthogonal map
+            self.merge=args[3]
+            # self.markers
+            self.markers=Object()
+            #self.markers.center=0.5*(self.parts.start+self.parts.end)
+            self.markers.start=self.parts.start
+            self.markers.end=self.parts.end
+            self.markers.box=FrameBox(listOfPoints=[self.parts.start,self.parts.end])
+            self.markers_as_functions()
+        elif len(args)==5:
+            point(args[0],args[1],args[2])
+            self.__init__(origin,point(args[0],args[1],args[2]),args[3],args[4])
+    @staticmethod
+    def from_dimensions(x=1,y=1,z=1,wireRadius=.1,merge=True):#an alias for code readability
+        return RoundBox(x,y,z,wireRadius,merge)
+    @staticmethod
+    def from_list_of_points(start=origin,end=point(1,1,1),wireRadius=.1,merge=True):#an alias for code readability
+        return RoundBox(start,end,wireRadius,merge)
+
+        
+    def __str__(self):
+        string="Rounded Cube with corners "+str(self.start())+" and "+str(self.end())
+        return string
+
+    
 
 class Sphere(Elaborate):
     """
@@ -577,7 +669,6 @@ class Bending2d(Elaborate):
         #print("vecteurPrecedent",vecteurPrecedent)
         angles=["pas d'angle defini en ce point"]+[-1*vecteurPrecedent[i].angle_signed(vecteurSuivant[i]) for i in range(1,len(coordonnees)-1
                                                                     )]+["pas d'angle defini en ce point"]
-        #print("angles",angles)
         distanceEntreHandles=[]
         pointsDuPolyline=[coordonnees[0]] 
         coordonneesHandles=[coordonnees[0]] 

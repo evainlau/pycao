@@ -136,19 +136,37 @@ def _move_at(self,*location):
 
 
 def _move_below(self,other, offset=(0,0,0),adjustEdges=None,adjustAxis=None):
-    return self.against(other,Z,Z,X,X,offset,adjustEdges,adjustAxis)
+    if is_point(other):
+        return self.translate(other-self.point(.5,.5,1,"ppp"))
+    else:
+        return self.against(other,Z,Z,X,X,offset,adjustEdges,adjustAxis)
 
 def _move_above(self,other, offset=(0,0,0),adjustEdges=None,adjustAxis=None):
-    return self.against(other,-Z,-Z,X,X,offset,adjustEdges,adjustAxis)
+    if is_point(other):
+        return self.translate(other-self.point(.5,.5,0,"ppp"))
+    else:
+        return self.against(other,-Z,-Z,X,X,offset,adjustEdges,adjustAxis)
 
 def _move_on_left_of(self,other, offset=(0,0,0),adjustEdges=None,adjustAxis=None):
-    return self.against(other,X,X,Y,Y,offset,adjustEdges,adjustAxis)
+    if is_point(other):
+        return self.translate(other-self.point(1,.5,.5,"ppp"))
+    else:
+        return self.against(other,X,X,Y,Y,offset,adjustEdges,adjustAxis)
 def _move_on_right_of(self,other, offset=(0,0,0),adjustEdges=None,adjustAxis=None):
-    return self.against(other,-X,-X,Y,Y,offset,adjustEdges,adjustAxis)
+    if is_point(other):
+        return self.translate(other-self.point(0,.5,0.5,"ppp"))
+    else:
+        return self.against(other,-X,-X,Y,Y,offset,adjustEdges,adjustAxis)
 def _move_in_front_of(self,other, offset=(0,0,0),adjustEdges=None,adjustAxis=None):
-    return self.against(other,Y,Y,X,X,offset,adjustEdges,adjustAxis)
+    if is_point(other):
+        return self.translate(other-self.point(.5,1,.5,"ppp"))
+    else:
+        return self.against(other,Y,Y,X,X,offset,adjustEdges,adjustAxis)
 def _move_behind(self,other, offset=(0,0,0),adjustEdges=None,adjustAxis=None):
-    return self.against(other,-Y,-Y,X,X,offset,adjustEdges,adjustAxis)
+    if is_point(other):
+        return self.translate(other-self.point(.5,0,0.5,"ppp"))
+    else:
+        return self.against(other,-Y,-Y,X,X,offset,adjustEdges,adjustAxis)
 
 
 
