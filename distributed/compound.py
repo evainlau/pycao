@@ -52,18 +52,20 @@ class Compound(ElaborateOrCompound):
         - or a sublist [name,objectInworld], where name is a string. 
         In the second case, the subobject will be accessible with self.name
         """
-
-        builtList=[]
         for slave in slavesList:
-            if isinstance(slave,ObjectInWorld):
-                builtList+=[slave]
-            else :
-                name=slave[0]
-                slave=slave[1]
-                setattr(self,name,slave)
-                builtList+=[slave]
-        self.csgOperations[0].csgSlaves=builtList
+            self.add_to_compound(slave)
 
+
+    def add_to_compound(self,slave):
+        "add a slave to the compound where slave is an objectInWorld or a list [name,ObjectInWorld]"
+        if isinstance(slave,ObjectInWorld):
+            self.csgOperations[0].csgSlaves+=[slave]
+        else :
+            name=slave[0]
+            slave=slave[1]
+            setattr(self,name,slave)
+            self.csgOperations[0].csgSlaves+=[slave]
+        
     def print_slaves(self):
         print(self.csgOperations[0].csgSlaves)
         

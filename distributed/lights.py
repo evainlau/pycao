@@ -32,6 +32,7 @@ from cameras import *
 class Light(object):
     """
     """
-    def __init__(self):
-        pass
+    def __init__(self,location=origin,color="White"):
+        self.location=location
+        self.color=color
 

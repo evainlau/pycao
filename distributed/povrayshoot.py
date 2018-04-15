@@ -207,7 +207,7 @@ def object_string_alone(self,camera):
     #    print(slave)
     #print("copie",len(slavesCopie))
     kw=todo.csgKeyword
-    visibleSlaves=[slave for slave in slavesCopie if (slave.visibility>=camera.visibilityLevel and kw=="union") or (slave.booleanVisibility>=camera.visibilityLevel and ( kw=="difference" or kw=="intersection"))]
+    visibleSlaves=[slave for slave in slavesCopie if (hasattr(slave,"visibility") and slave.visibility>=camera.visibilityLevel and kw=="union") or (hasattr(slave,"booleanVisibility") and slave.booleanVisibility>=camera.visibilityLevel and ( kw=="difference" or kw=="intersection"))]
     for slave in visibleSlaves: #change restaured at the end
         slave.oldVisibility=slave.visibility
         slave.visibility=1
@@ -276,11 +276,15 @@ def camera_string(camera):
 
 
 
+
+
 def render(camera):
     booklet = open(camera.file, "w")
     booklet.write(camera.povrayPreamble)
     booklet.write(camera_string(camera))
     booklet.write(camera.povraylights+"\n\n")
+    for light in camera.lights:
+        booklet.write("light_source {<"+ str(light.location[0])+","+str(light.location[1])+","+str(light.location[2])+ "> color "+ light.color + "}\n\n")
     import gc
     if camera.filmAllActors:
         camera.actors+=[p for p in groupPhoto if p.parent==[] ]

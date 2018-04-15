@@ -12,45 +12,43 @@ from lights import *
 
 
 class Wall(Prism):
-    """ Class for walls, not necessarily rectangular or vertical, but the base is a tetragon """
+    """ Class for walls, not necessarily rectangular or vertical, but the base is a tetragon 
+    Points numbers 0,1 are by definition on the interior of the wall (numbers 2,3 are on the outside wall """
 
     @classmethod
     def from_polyline_vector(cls,polyline,verticalVector,thickness=0,name=""):
         self=super(Wall,cls).from_polyline_vector(polyline,verticalVector)
         if thickness>0 :
             self.thickness=thickness
-        if not name:
+        if name:
             self.name=name
         #self.markers
         if not hasattr(self,"markers"):
             self.markers=Object()
         self.markers.armature=Segment(0.5*(polyline[0]+polyline[3]),0.5*(polyline[1]+polyline[2])) # aka the line on the floor in the middle of the wall
-        print(polyline[0],polyline[3],polyline[1],polyline[2])
         self.markers.center=0.25*(polyline[0]+polyline[3]+polyline[1]+polyline[2])+.5*verticalVector # aka the line on the floor in the middle of the wall
         self.markers.outsideBaseLine=Segment(polyline[2],polyline[3]) # the intersection of the floor and the exterior wall. The points are the extremal points of this line
         self.markers.insideBaseLine=Segment(polyline[0],polyline[1])
-        self.markers.verticalVector=verticalVector # alread accessible by self.prismDirection but more readable alias in the context of walls
-        insideVector=self.markers.outsideBaseLine.vector.cross(verticalVector)
+        self.markers.verticalVector=verticalVector.copy() # alread accessible by self.prismDirection but more readable alias in the context of walls
+        insideVector=self.markers.outsideBaseLine.vector.cross(verticalVector).normalize()
         if (self.markers.insideBaseLine.p1-self.markers.outsideBaseLine.p2).dot(insideVector) < 0:
             insideVector=-insideVector
         self.markers.insideVector=insideVector # towards the interior of the room
         correctiveMap=self.mapFromParts.inverse()
         markersList=[ a for a in dir(self.markers) if not a.startswith('__')]
-        print (markersList)
         for markerName in markersList: #self.map_fromParts is not identity in the prism, thus the marker should be corrected to compensate
             marker=getattr(self.markers,markerName)
             marker.move(correctiveMap)
         self.markers_as_functions()
-        print self.center()
         return self
 
-    def add_window(self,w,center=None,glued=True):
+    def add_apperture(self,w,center=None): # type = winoow or doord
+        mape=Map.rotational_difference(w.normal,self.insideVector())
+        w.move(mape)
         if center is None:
             center=self.center()
         w.translate(center-w.center)
         self.amputed_by(w.hole)
-        if glued:
-            w.glued_on(self)
 
         
     # @staticmethod
@@ -72,7 +70,7 @@ class Room(Compound):
     """ 
     A class to build a 3d-room from a 2D plan
     """
-    def __init__(self,floor=Polyline([origin-X-Y,2*Y,2*X,-2*Y,-2*X]),wallThickness=0.2,height=2,verticalVector=Z):
+    def __init__(self,floor=Polyline([origin-X-Y,2*Y,2*X,-2*Y,-2*X]),insideThickness=.25,outsideThickness=0,height=2.5,verticalVector=Z,):
         """
         This constructs a room whose exterior walls are along the floor. The interior walls are computed using 
         wall thickness. The polygon for the floor is in the plane z=0, with the points listed clockwise.
@@ -82,12 +80,15 @@ class Room(Compound):
         """
         logicalWalls=[]
         outPoints=[]
+        self.windows=[]
+        self.doors=[]
+        self.height=height
         for index,segment in enumerate(floor.segments()):
             lw=Object()
             #lw.armature=segment
             lw.insideVector=segment.vector.normalized_copy().rotate(-verticalVector,math.pi/2)
-            lw.insideWall=segment.copy().translate(lw.insideVector*wallThickness*.5)
-            lw.outsideWall=segment.copy().translate(-lw.insideVector*wallThickness*.5)
+            lw.insideWall=segment.copy().translate(lw.insideVector*insideThickness)
+            lw.outsideWall=segment.copy().translate(-lw.insideVector*outsideThickness)
             lw.name="wall"+str(index)
             logicalWalls.append(lw)
         for windex,logicalWall in enumerate(logicalWalls):
@@ -100,24 +101,77 @@ class Room(Compound):
         walls=[]
         for lw in logicalWalls:
             polyline=Polyline([lw.insideLeftPoint,lw.insideRightPoint,lw.outsideLeftPoint,lw.outsideRightPoint,lw.insideLeftPoint])
-            walls.append(Wall(polyline,height*verticalVector,wallThickness))
-        floor=Polygon(outPoints).translate(0.000000001*verticalVector) # translation so that it is above the floor
+            theWall=Wall.from_polyline_vector(polyline,height*verticalVector,insideThickness+outsideThickness)
+            theWall.texture="pigment{ color rgb <0.75,0.5,0.3>}  "
+            walls.append(theWall)
+        floor=Polygon(outPoints).translate(0.000000001*verticalVector).colored("OldGold") # translation so that it is above the floor
         ceiling=floor.copy().translate(height*verticalVector)
         liste=[["wall"+str(i),wall] for i,wall in enumerate(walls)]
         Compound.__init__(self,liste+[["ceiling",ceiling],["floor",floor]])
         self.walls=walls
 
-    def addWindow(self,wallNumber,wlength,wheight,wdepth,deltaLength,deltaHeigth):
+    def add_window(self,wallNumber,wlength,wheight,wdepth,deltaLength,deltaHeigth,fromOutside=True,glued=True):
         """ adds a window of size (wlength,wheight,wdepth) on wall wallNumber, located 
-        at deltaLength meters from the left, and deltaHeigth meters above the floor """
-        pass 
+        at deltaLength meters from the right of the outside wall ( or optionnally from the left of the inside wall), 
+        and deltaHeigth meters above the floor """
+        wthickness=.1
+        w=Window(wlength,wdepth,wheight,wthickness)
+        wall=self.walls[wallNumber]
+        if fromOutside:
+            windowCenter=wall.outsideBaseLine().point(deltaLength+0.5*wlength,"n")+(deltaHeigth+.5*wheight)*wall.verticalVector().normalized_copy()+wall.insideVector().normalize()*wall.thickness
+            print(wall.thickness)
+        else:
+            windowCenter=wall.insideBaseLine().point(deltaLength+0.5*wlength,"a")+(deltaHeigth+.5*wheight)*wall.verticalVector().normalized_copy()
+        wall.add_apperture(w,windowCenter)
+        self.windows.append(w)
+        if glued:
+            w.glued_on(self)
 
+
+    def add_door(self,wallNumber,wlength,wheight,wdepth,deltaLength,deltaHeigth=0,fromOutside=True,glued=True):
+        """ adds a window of size (wlength,wheight,wdepth) on wall wallNumber, located 
+        at deltaLength meters from the right of the outside wall ( or optionnally from the left of the inside wall), 
+        and deltaHeigth meters above the floor """
+        dthickness=.1
+        w=Door(wlength,wdepth,wheight)
+        wall=self.walls[wallNumber]
+        if fromOutside:
+            doorCenter=wall.outsideBaseLine().point(deltaLength+0.5*wlength,"n")+(deltaHeigth+.5*wheight)*wall.verticalVector().normalized_copy()+wall.insideVector().normalize()*wall.thickness
+        else:
+            doorCenter=wall.insideBaseLine().point(deltaLength+0.5*wlength,"a")+(deltaHeigth+.5*wheight)*wall.verticalVector().normalized_copy()
+        wall.add_apperture(w,doorCenter)
+        self.doors.append(w)
+        if glued:
+            w.glued_on(self)
+        return w
+
+    def add_perpendicular_wall(self,wallNumber,distance,wallLength,thickness,measurementType="a",offset=0,height=None):
+        """ add a wall perpendicular to an outside wall. Measure from left by default and from the right if measurment type == "n" 
+         By default, the height of the wall is taken from the room height. 
+        If an offset is given, a space is added between the 2 walls"""
+        if height is None:
+            height=self.height
+        myWall=self.walls[wallNumber]
+        delta=.5*thickness
+        vec=myWall.insideVector().normalize()
+        print(vec,"vec")
+        basePointInside=myWall.insideBaseLine().point(distance-delta,measurementType)+offset*vec
+        basePointOutside=myWall.insideBaseLine().point(distance+delta,measurementType)+offset*vec
+        endPointInside=basePointInside+wallLength*vec
+        endPointOutside=basePointOutside+wallLength*vec
+        #print([basePointInside,endPointInside,basePointOutside,endPointOutside,basePointInside])
+        wall=Wall.from_polyline_vector(Polyline([basePointInside,endPointInside,endPointOutside,basePointOutside,basePointInside]),self.height*Z,thickness=thickness)
+        self.add_to_compound(wall)
+        self.walls.append(wall)
+        return wall
+
+    
+        
 class Window(Compound):
     def __init__(self,dx,dy,dz,border,holeBorder=None,texture="Yellow_Pine"):
         """dx,dy,dz are the length,depth,height respectivly, border is the size of the border of the window """ 
         frame=Cube(dx,dy,dz)
         frame.texture=texture
-        self.normal=Y
         toCut=Cube(frame.point(border,-0.01,border,"aaa"),frame.point(border,-.01,border,"nnn"))
         toCut.texture=texture
         frame.amputed_by(toCut)
@@ -127,24 +181,54 @@ class Window(Compound):
         hole=Cube(frame.point(holeBorder,-10000,holeBorder,"aaa"),frame.point(holeBorder,-10000,holeBorder,"nnn"))
         glass=Cube(frame.point(border,dy*.5-.001,border,"aaa"),frame.point(border,dy*.5-0.01,border,"nnn"))
         glass.texture="Glass"
-        Compound.__init__(self,[frame,glass])
+        Compound.__init__(self,[frame,glass,["normal",Y.copy()]])
         self.hole=hole.glued_on(self)
         self.hole.visibility=0
         self.add_box("windowBox",frame.box())
 
+class Door(Compound):
+    def __init__(self,dx,dy,dz,holeBorder=0.1):
+        """dx,dy,dz are the length,depth,height respectivly, the holeBorder is difference between the door and the hole """ 
+        frame=Cube(dx,dy,dz)
+        #toCut=Cube(frame.point(border,-0.01,border,"aaa"),frame.point(border,-.01,border,"nnn"))
+        #toCut.texture=texture
+        #frame.amputed_by(toCut)
+        #if holeBorder is None:
+        #    holeBorder=border*.5
+        # The hole will be used to cut the wall behind the window.
+        hole=Cube(frame.point(holeBorder,-10000,holeBorder,"aaa"),frame.point(holeBorder,-10000,holeBorder,"nnn"))
+        #glass=Cube(frame.point(border,dy*.5-.001,border,"aaa"),frame.point(border,dy*.5-0.01,border,"nnn"))
+        #glass.texture="Glass"
+        Compound.__init__(self,[frame,["normal",Y.copy()]])
+        self.hole=hole.glued_on(self)
+        self.hole.visibility=0
+        self.add_box("windowBox",frame.box())
+
+    def add_porthole(self): # type = winoow or doord
+        w=RoundWindow(radius=.2,depth=.15,border=.02)
+        #print(self.box().segment(None,.5,.5,"ppp"))
+        mape=Map.rotational_difference(w.normal,self.box().segment(.5,None,1.6,"ppa").vector)
+        w.move(mape)
+        w.translate(self.point(.5,.5,1.6,"ppa")-w.frame.axis().point(.5,"p"))
+        self.amputed_by(w.hole)
+        w.glued_on(self)
+        return self
+        
         
 class RoundWindow(Compound):
     def __init__(self,radius,depth,border,texture="Yellow_Pine"):
         """ border is the size of the border of the window """ 
         frame=Cylinder(start=origin,end=origin+depth*Y,radius=radius,length=None,booleanOpen=False)
         frame.texture=texture
-        self.normal=Y
+        self.normal=Y.copy()
         toCut=Cylinder(start=origin-Y,end=origin+depth*Y+Y,radius=radius-border,length=None,booleanOpen=False)
         toCut.texture=texture
         frame.amputed_by(toCut)
         glass=Cylinder(start=origin+(.5*depth-.01)*Y,end=origin+(.5*depth+.01)*Y,radius=radius-border,length=None,booleanOpen=False)
         glass.texture="Glass"
-        Compound.__init__(self,[frame,glass])
+        self.hole=toCut.glued_on(self)
+        self.hole.visibility=0
+        Compound.__init__(self,[["frame",frame],glass])
 
 
 
