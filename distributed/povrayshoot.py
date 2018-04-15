@@ -115,6 +115,12 @@ def object_string_but_CSG(self,camera):
         string+="torus {\n"+str(self.parts.externalRadius)+","+str(self.parts.internalRadius)+" "+modifier(self,camera)+"}\n"
     elif isinstance(self,Cube) :
         string+="box {\n"+povrayVector(self.parts.start)+","+povrayVector(self.parts.end)+" "+modifier(self,camera)+"}\n"
+    elif isinstance(self,RoundBox) :
+        if self.merge:
+            merge="0"
+        else: merge="1"
+        radius=str(self.wireRadius)
+        string+="object{Round_Box (\n"+povrayVector(self.parts.start)+","+povrayVector(self.parts.end)+","+radius+","+merge+")"+ " "+modifier(self,camera)+"}\n"
     elif isinstance(self,Sphere) :
         string+="sphere {\n"+povrayVector(self.parts.center)+","+str(self.parts.radius)+" "+modifier(self,camera)+"}\n"
     elif isinstance(self,AffinePlane) :

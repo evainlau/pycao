@@ -230,14 +230,31 @@ class RoundWindow(Compound):
         self.hole.visibility=0
         Compound.__init__(self,[["frame",frame],glass])
 
-
-
-
+class Table(Compound):
+    def __init__(self,length,width,heigth,thickness,thickness2=.1,wireRadius=.03):
+        top=RoundBox.from_dimensions(length,width,thickness,wireRadius)
+        basee=Cube(length-.05,width-.05,thickness2)
+        top.above(basee)
+        legLenth=heigth-thickness-thickness2
+        Compound.__init__(self,[["top",top],basee])
+        for string in ["aaa","ana","naa","nna"]:
+            pointe=basee.point(.05,.05,0,string)
+            leg=Cylinder(pointe,pointe-legLenth*Z,.03)
+            self.add_to_compound(leg)
+        self.translate(legLenth*Z)
+        #the point on the floor below the center of the table
+        centerOnFloor=top.point(0.5,.5,.5,"ppp")
+        centerOnFloor[2]=0
+        self.add_to_compound(["centerOnFloor",centerOnFloor])
+        self.add_box("tableBox",Cube([origin,point(length,width,heigth)]).box())
         
-"""    
+        
+""" 
+* correc du torus avec 3 points alignés   
 * ajouter 1 portes et 1 porte avec fenetre en s'inspirant du wall pour l'inclusion de la fenetre.
 * ajouter des fenetres sur une Room (il suffit d'ajouter des  fenetres a l'endroit voulu avec wall.addWindow
 * entrer le plan de Laurence
 * enjoliver :)
-* ajouter le prisme et le polygone,le wall, la Room,fenetres a la doc
+* ajouter le prisme et le polygone,le wall, la Room,fenetres a la doc, la librairie archi, la rounded box
+dire que above marche avec des points dans la doc. 
 """
