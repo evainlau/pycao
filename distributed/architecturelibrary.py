@@ -276,11 +276,11 @@ class Chair(Compound):
         self.add_axis("axeVertical",axis)
         self.add_box("",seat.box())
 """ 
-* correc du torus avec 3 points aligns   
-* ajouter 1 portes et 1 porte avec fenetre en s'inspirant du wall pour l'inclusion de la fenetre.
-* ajouter des fenetres sur une Room (il suffit d'ajouter des  fenetres a l'endroit voulu avec wall.addWindow
-* entrer le plan de Laurence
-* enjoliver :)
-* ajouter le prisme et le polygone,le wall, la Room,fenetres a la doc, la librairie archi, la rounded box
+* ajouter des objets : feu, 2 armoires, \'etagere, poignees de porte,carrelage, lampe, amelioration fenetres
+bouger la chair avec un above comme la table. 
+* corriger le deep copy
+* implementer les textures
+* ajouter le prisme et le polygone,le wall, la Room,fenetres a la doc, la librairie archi, la rounded box, 
+le torus
 dire que above marche avec des points dans la doc. 
 """
