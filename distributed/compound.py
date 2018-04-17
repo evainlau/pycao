@@ -65,7 +65,11 @@ class Compound(ElaborateOrCompound):
             slave=slave[1]
             setattr(self,name,slave)
             self.csgOperations[0].csgSlaves+=[slave]
-
+    def add_list_to_compound(self,myList):
+        for ob in myList:
+            print("MOn nov",ob)
+            self.add_to_compound(ob) 
+        return self
 
 
             
@@ -298,9 +302,9 @@ class ThickTriangle(Compound):
         plane311=plane(p1-p3,p3)
         plane233=plane(p3-p2,p2)
         plane322=plane(p2-p3,p3)
-        s1.intersected_by([plane122,plane133])
-        s2.intersected_by([plane211,plane233])
-        s3.intersected_by([plane322,plane311])
+        s1.intersected_by([plane122,plane133,planenn,planen])
+        s2.intersected_by([plane211,plane233,planenn,planen])
+        s3.intersected_by([plane322,plane311,planenn,planen])
         if not planen.half_space_contains(p1nn):
             planen.reverse()
         if not planenn.half_space_contains(p1n):

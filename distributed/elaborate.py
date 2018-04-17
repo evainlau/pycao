@@ -493,7 +493,9 @@ class RoundBox(Elaborate):
     def __init__(self,*args,**kwargs):
         """
         """
+        print(len(args),args[0])
         if len(args)<4 or len(args)>5:
+            print(args)
             raise NameError('Incorrect number of arguments to build a RoundBox')
         if len(args)==4:
             # self.parts
@@ -513,7 +515,7 @@ class RoundBox(Elaborate):
             point(args[0],args[1],args[2])
             self.__init__(origin,point(args[0],args[1],args[2]),args[3],args[4])
     @staticmethod
-    def from_dimensions(x=1,y=1,z=1,wireRadius=.1,merge=True):#an alias for code readability
+    def from_dimensions(x=1,y=1,z=1,wireRadius=.1,merge=False):#an alias for code readability
         return RoundBox(x,y,z,wireRadius,merge)
     @staticmethod
     def from_list_of_points(start=origin,end=point(1,1,1),wireRadius=.1,merge=True):#an alias for code readability

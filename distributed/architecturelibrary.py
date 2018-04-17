@@ -70,7 +70,7 @@ class Room(Compound):
     """ 
     A class to build a 3d-room from a 2D plan
     """
-    def __init__(self,floor=Polyline([origin-X-Y,2*Y,2*X,-2*Y,-2*X]),insideThickness=.25,outsideThickness=0,height=2.5,verticalVector=Z,):
+    def __init__(self,floor=Polyline([origin-X-Y,2*Y,2*X,-2*Y,-2*X]),insideThickness=.25,outsideThickness=0,height=2.5,verticalVector=Z,texture="pigment{ color rgb <0.75,0.5,0.3>}  "):
         """
         This constructs a room whose exterior walls are along the floor. The interior walls are computed using 
         wall thickness. The polygon for the floor is in the plane z=0, with the points listed clockwise.
@@ -102,10 +102,10 @@ class Room(Compound):
         for lw in logicalWalls:
             polyline=Polyline([lw.insideLeftPoint,lw.insideRightPoint,lw.outsideLeftPoint,lw.outsideRightPoint,lw.insideLeftPoint])
             theWall=Wall.from_polyline_vector(polyline,height*verticalVector,insideThickness+outsideThickness)
-            theWall.texture="pigment{ color rgb <0.75,0.5,0.3>}  "
+            theWall.texture=texture
             walls.append(theWall)
         floor=Polygon(outPoints).translate(0.000000001*verticalVector).colored("OldGold") # translation so that it is above the floor
-        ceiling=floor.copy().translate(height*verticalVector)
+        ceiling=floor.copy().translate(height*verticalVector).colored("White")
         liste=[["wall"+str(i),wall] for i,wall in enumerate(walls)]
         Compound.__init__(self,liste+[["ceiling",ceiling],["floor",floor]])
         self.walls=walls
@@ -119,7 +119,6 @@ class Room(Compound):
         wall=self.walls[wallNumber]
         if fromOutside:
             windowCenter=wall.outsideBaseLine().point(deltaLength+0.5*wlength,"n")+(deltaHeigth+.5*wheight)*wall.verticalVector().normalized_copy()+wall.insideVector().normalize()*wall.thickness
-            print(wall.thickness)
         else:
             windowCenter=wall.insideBaseLine().point(deltaLength+0.5*wlength,"a")+(deltaHeigth+.5*wheight)*wall.verticalVector().normalized_copy()
         wall.add_apperture(w,windowCenter)
@@ -154,7 +153,6 @@ class Room(Compound):
         myWall=self.walls[wallNumber]
         delta=.5*thickness
         vec=myWall.insideVector().normalize()
-        print(vec,"vec")
         basePointInside=myWall.insideBaseLine().point(distance-delta,measurementType)+offset*vec
         basePointOutside=myWall.insideBaseLine().point(distance+delta,measurementType)+offset*vec
         endPointInside=basePointInside+wallLength*vec
@@ -167,7 +165,7 @@ class Room(Compound):
 
     
         
-class Window(Compound):
+class Window2(Compound):
     def __init__(self,dx,dy,dz,border,holeBorder=None,texture="Yellow_Pine"):
         """dx,dy,dz are the length,depth,height respectivly, border is the size of the border of the window """ 
         frame=Cube(dx,dy,dz)
@@ -185,6 +183,27 @@ class Window(Compound):
         self.hole=hole.glued_on(self)
         self.hole.visibility=0
         self.add_box("windowBox",frame.box())
+
+        
+class Window(Compound):
+    def __init__(self,dx,dy,dz,border,holeBorder=None,texture="Cork pigment{White}"):#"Yellow_Pine"):
+        """dx,dy,dz are the length,depth,height respectivly, border is the size of the border of the window """ 
+        frame=RoundBox.from_dimensions(dx,dy,dz,.03)
+        frame2=Cube(dx,dy,dz)
+        frame.texture=texture
+        toCut=Cube(frame2.point(border,-0.01,border,"aaa"),frame2.point(border,-.01,border,"nnn"))
+        toCut.texture=texture
+        frame.amputed_by(toCut)
+        if holeBorder is None:
+            holeBorder=border*.5
+        # The hole will be used to cut the wall behind the window.
+        hole=Cube(frame2.point(holeBorder,-10000,holeBorder,"aaa"),frame2.point(holeBorder,-10000,holeBorder,"nnn"))
+        glass=Cube(frame2.point(border,dy*.5-.001,border,"aaa"),frame2.point(border,dy*.5-0.01,border,"nnn"))
+        glass.texture="Glass"
+        Compound.__init__(self,[frame,glass,["normal",Y.copy()]])
+        self.hole=hole.glued_on(self)
+        self.hole.visibility=0
+        self.add_box("windowBox",frame2.box())
 
 class Door(Compound):
     def __init__(self,dx,dy,dz,holeBorder=0.1):
@@ -204,8 +223,8 @@ class Door(Compound):
         self.hole.visibility=0
         self.add_box("windowBox",frame.box())
 
-    def add_porthole(self): # type = winoow or doord
-        w=RoundWindow(radius=.2,depth=.15,border=.02)
+    def add_porthole(self,texture="Cork pigment{White}"): # type = winoow or doord
+        w=RoundWindow(radius=.2,depth=.15,border=.02,texture=texture)
         #print(self.box().segment(None,.5,.5,"ppp"))
         mape=Map.rotational_difference(w.normal,self.box().segment(.5,None,1.6,"ppa").vector)
         w.move(mape)
@@ -259,7 +278,6 @@ class Chair(Compound):
         s1=Sphere(p1,.02)
         s2=Sphere(p3,.02)
         start=t.circle(.4)#0.110978533178,0.388316548251
-        print(start)
         start2=point(.3-.110978,.388316,.4)
         end2=seat.point(.12,.06,.5,"nnp")
         end=seat.point(.12,.06,.5,"anp")
@@ -275,6 +293,23 @@ class Chair(Compound):
         axis=seat.segment(.5,.5,None,"ppp")
         self.add_axis("axeVertical",axis)
         self.add_box("",seat.box())
+
+class Stove(Compound):
+    def __init__(self,roomHeight=2.5,texture="Cork pigment{Black}"):
+        door=Window(.4,.05,.6,.05,holeBorder=None,texture=texture)
+        fireplace=RoundBox.from_dimensions(.4,.4,.6,.01)
+        spacer=Cube(.38,.01,.58)
+        spacer2=Cube(.38,.38,.01)        
+        spacer.behind(door)
+        fireplace.behind(spacer)
+        spacer2.below(fireplace)
+        floorPoint=spacer2.point(.5,.5,0,"ppp")
+        cylstart=fireplace.point(.5,.5,1,"ppp")
+        cylEnd=cylstart+(roomHeight-.61)*Z
+        cyl=Cylinder(cylstart,cylEnd,.08)
+        self.add_list_to_compound([door,spacer,fireplace,spacer2,cyl,["floorPoint",floorPoint]])
+        self.add_axis("axis",fireplace.segment(.5,.5,None,"ppp"))
+        
 """ 
 * debugger le plan qui n'est pas bouge' proprement par une action non orthogonale
 * ajouter des objets : feu, 2 armoires, \'etagere, poignees de porte,carrelage, lampe, amelioration fenetres

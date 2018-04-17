@@ -54,8 +54,13 @@ ground=plane(Z,origin) # a plane with normal the vector Z=vector(0,0,1) containi
 ground.color='DarkGreen' # The possible colors are the colors described in colors.inc in povray or a rgb color. 
 
 #wall=Room(Polyline([origin,X,X+Y,Y,-2*X,-Y])).colored("Yellow")
-table=ThickTriangle(origin,origin+X,origin+Z,.8,.8,.8).colored("OldGold")
+table=ThickTriangle(origin,origin+X,origin+Z,.8,.1,.1).colored("OldGold")
 table2=ThickTriangle(origin+X+Z,origin+X,origin+Z,.8,.8,.8).colored("OldGold")
+table=RoundBox(origin-X-Y-Z,origin+X+Y+Z,.2,False).colored("Yellow")
+cyl=Cylinder(origin-2*Z,origin+2*Z,.3).colored("Pink")
+RoundBox.from_dimensions(1,1,1,.03)
+table=Stove()
+
 
 light=Light() # a light
 light.location=(origin+6.8*Z-2*X+Y)
@@ -65,11 +70,11 @@ camera.projection="orthographic"
 camera.projection="perspective"
 camera.filmAllActors=False
 print(camera.file)
-camera.location=origin-0*X-2*Y+2*Z
+camera.location=origin-0*X-10*Y+2*Z
 camera.povraylights="light_source {<"+ str(light.location[0])+","+str(light.location[1])+","+str(light.location[2])+ "> color White " + "}\n\n"
 #camera.actors=[wall,ground,cyl,cyl2,s] # what is seen by the camera
-camera.actors=[table.c13,table.c12,table.s1] # what is seen by the camera#\\
-camera.actors=[table,table2] # what is seen by the camera
+#camera.actors=[table.c13,table.c12,table.s1] # what is seen by the camera#\\
+camera.actors=[table] # what is seen by the camera
 camera.lookAt=origin
 camera.zoom(0.4)
 camera.imageHeight=800 # in pixels
