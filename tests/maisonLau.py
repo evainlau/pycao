@@ -52,6 +52,7 @@ from architecturelibrary import *
 # a plane represented graphically as a half space 
 ground=plane(Z,origin) # a plane with normal the vector Z=vector(0,0,1) containing the origin
 ground.color='DarkGreen' # The possible colors are the colors described in colors.inc in povray or a rgb color. 
+wallColor="pigment{ color rgb <0.75,0.5,0.3>} "
 
 #wall=Room(Polyline([origin,X,X+Y,Y,-2*X,-Y])).colored("Yellow")
 room=Room(Polyline([origin,7.012*Y,11.526*X,-5.64*Y,-3.614*X,-1.386*Y,-7.912*X]),insideThickness=.31).colored("White")
@@ -75,9 +76,11 @@ room.add_perpendicular_wall(3,distance=.08,wallLength=.9,thickness=.16,measureme
 room.add_perpendicular_wall(3,distance=1.88,wallLength=.9,thickness=.08,measurementType="a",height=None).colored("Silver")
 room.add_perpendicular_wall(3,distance=1.6,wallLength=1.1,thickness=.08,measurementType="a",offset=.95,height=None).colored("Silver")
 room.add_perpendicular_wall(3,distance=2.3,wallLength=1.1,thickness=.08,measurementType="a",offset=.95,height=None).colored("Silver")
+for w in room.walls:
+    w.texture=wallColor
 door1=room.add_door(wallNumber=8,wlength=.83,wheight=2.15,wdepth=.1,deltaLength=1.45).colored("BrightGold")#
 door1.name="porte1"
-room.ceiling.visibility=1
+
 
 
 
@@ -85,8 +88,8 @@ room.ceiling.visibility=1
 entrance=point(7,1,2)
 floorCenter=origin+3.5*Y+5.6*X
 light1=Light(origin+4.8*Z-6*X-4*Y) # a light
-light2=Light(floorCenter+2*Z,color="Grey") # a light
-light3=Light(origin+2.3*Z+8*X+2.7*Y,color="Grey") # a light
+light2=Light(floorCenter+2*Z,color="White") # a light
+light3=Light(origin+2.3*Z+8*X+2.7*Y,color="White") # a light
 light4=Light(origin+2.3*Z+2*X+4.5*Y,color="DarkOliveGreen") # a light
 light5=Light(origin+2.3*Z+2*X+1*Y,color="DarkOliveGreen") # a light
 
@@ -96,7 +99,9 @@ chair1=Chair().colored("White").above(origin+4.5*X+1.87*Y+.4*Z).glued_on(room)
 chair2=Chair().colored("White").above(origin+5*X+1.8*Y+.4*Z).glued_on(room)
 chair2=Chair().colored("White").above(origin+4.5*X+1*Y+.4*Z).glued_on(room).self_rotate(3)
 chair2=Chair().colored("White").above(origin+5*X+1*Y+.4*Z).glued_on(room).self_rotate(3.5)
-
+stovePosistionOnFloor=origin+7.50*X+2.3*Y
+stove=Stove().glued_on(room).self_rotate(-math.pi/2)
+stove.translate(stovePosistionOnFloor-stove.floorPoint)
 
 
 camera=Camera()
@@ -112,7 +117,7 @@ camera.location=origin+X+Y+2*Z
 camera.povraylights="" #"light_source {<"+ str(light.location[0])+","+str(light.location[1])+","+str(light.location[2])+ "> color White " + "}\n\n"
 #camera.actors=[wall,ground,cyl,cyl2,s] # what is seen by the camera
 camera.actors=[room,ground,table] # what is seen by the camera
-#camera.actors=[table] # what is seen by the camera
+#camera.actors=[room.ceiling] # what is seen by the camera
 camera.lookAt=point(1,3,1)#door1.center+2*X
 camera.lookAt=outsideDoor.center#door1.center+2*X
 camera.zoom(0.3)

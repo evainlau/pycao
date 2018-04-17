@@ -56,7 +56,7 @@ class Camera(Primitive):
         self.technology="povray" #  only possibility at the moment
         self.lights=[]
         self.povraylights="light_source {<"+ str(self.location[0])+","+str(self.location[1])+","+str(self.location[2]+10)+ "> color White " + "}\n\n"
-        self.povrayPreamble='#include "colors.inc" \n#include "metals.inc" \n#include "textures.inc" \n#include "shapes.inc" \nbackground {Blue}\n\n'
+        self.povrayPreamble='#include "colors.inc" \n#include "metals.inc" \n#include "textures.inc" \n#include "shapes.inc" \nbackground {Blue}\n\nglobal_settings { ambient_light rgb <1,1,1> }'
         self.quality=9 #
         self.silent=True # to display or not a lot of information when self.show is called
         self.defaultDistance=3 # The distance from the point looked at in left/right... views
