@@ -253,6 +253,10 @@ class ObjectInWorld(object):
         #print(copie)
         #print("mat",copie.materials,cuttingShape.materials)
         [tool.make_invisible() for tool in copie]
+        #comp=Compound()
+        #comp.add_to_compound(self)
+        #[comp.add_to_compound(tool) for tool in copie]# Then I can move self and the intersection remains OK
+        #self=comp
         [tool.glued_on(self) for tool in copie]# Then I can move self and the intersection remains OK 
         if throwShapeAway:
             if isinstance(cuttingShape,list):

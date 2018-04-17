@@ -19,7 +19,7 @@
 
 
 pycaoDir="/home/laurent/subversion/articlesEtRechercheEnCours/pycao/pycaogit/distributed"
-pycaoDir="/users/evain/subversion/articlesEtRechercheEnCours/pycao/distributed"
+#pycaoDir="/users/evain/subversion/articlesEtRechercheEnCours/pycao/distributed"
 """
                 MODULES IMPORT
 """

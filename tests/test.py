@@ -54,7 +54,8 @@ ground=plane(Z,origin) # a plane with normal the vector Z=vector(0,0,1) containi
 ground.color='DarkGreen' # The possible colors are the colors described in colors.inc in povray or a rgb color. 
 
 #wall=Room(Polyline([origin,X,X+Y,Y,-2*X,-Y])).colored("Yellow")
-table=Chair().colored("White").translate(.5*Z)
+table=ThickTriangle(origin,origin+X,origin+Z,.8,.8,.8).colored("OldGold")
+table2=ThickTriangle(origin+X+Z,origin+X,origin+Z,.8,.8,.8).colored("OldGold")
 
 light=Light() # a light
 light.location=(origin+6.8*Z-2*X+Y)
@@ -67,7 +68,8 @@ print(camera.file)
 camera.location=origin-0*X-2*Y+2*Z
 camera.povraylights="light_source {<"+ str(light.location[0])+","+str(light.location[1])+","+str(light.location[2])+ "> color White " + "}\n\n"
 #camera.actors=[wall,ground,cyl,cyl2,s] # what is seen by the camera
-camera.actors=[table,ground,table] # what is seen by the camera
+camera.actors=[table.c13,table.c12,table.s1] # what is seen by the camera#\\
+camera.actors=[table,table2] # what is seen by the camera
 camera.lookAt=origin
 camera.zoom(0.4)
 camera.imageHeight=800 # in pixels
@@ -77,3 +79,12 @@ camera.imageWidth=900
 camera.angle=0.84
 camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
 camera.show # show the photo, ie calls povray. 
+
+t=table.polyhedral
+print(type(t))
+print(isinstance(t,AffinePlane))
+import povrayshoot
+print("Fin")
+print (povrayshoot.object_string_alone(t,camera))
+print("visi",t.visibility)
+print("VFT")

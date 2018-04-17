@@ -276,6 +276,7 @@ class Chair(Compound):
         self.add_axis("axeVertical",axis)
         self.add_box("",seat.box())
 """ 
+* debugger le plan qui n'est pas bouge' proprement par une action non orthogonale
 * ajouter des objets : feu, 2 armoires, \'etagere, poignees de porte,carrelage, lampe, amelioration fenetres
 bouger la chair avec un above comme la table. 
 * corriger le deep copy

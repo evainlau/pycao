@@ -611,8 +611,6 @@ class Cone(Elaborate):
     def __str__(self):
         return ("Cone with extremal points "+str(self.axis().p1)+" and "+str(self.axis().p2)+" radius: "+str(self.radius1)+", "+str(self.radius2))
 
-
-            
 class Bobine(Cylinder):
     """
         TODO : complete rewriting necessary
