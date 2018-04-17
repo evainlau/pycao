@@ -65,7 +65,10 @@ class Compound(ElaborateOrCompound):
             slave=slave[1]
             setattr(self,name,slave)
             self.csgOperations[0].csgSlaves+=[slave]
-        
+
+
+
+            
     def print_slaves(self):
         print(self.csgOperations[0].csgSlaves)
         
@@ -263,3 +266,59 @@ class BentCylinder(Compound):
         #print (retour.spline)
         return retour
 
+
+class ThickTriangle(Compound):
+    """
+    retruns a thick triangle whose 3 vertices are spheres of radius r1,r2,r3. This is an oriented triangle with a normal.
+    Optional parameters rn and rnn (n for normal and nn for non normal) are float. They are used to cut with a plane 
+    on the normal side at distance rn of the plane containg the 3 vertices and parallel to ( resp. at distance rnn on the other side). 
+    """
+    def __init__(self,p1,p2,p3,r1,r2,r3,rn=None,rnn=None,pointOrVectorOnNOrmalSide=None):
+        myplane=plane.from_3_points(p1,p2,p3)
+        if pointOrVectorOnNOrmalSide is None:
+            normal=myplane.normal.normalized_copy()
+        s1=Sphere(p1,r1)
+        s2=Sphere(p2,r2)
+        s3=Sphere(p3,r3)
+        p1n=p1+r1*normal
+        p1nn=p1-r1*normal
+        p2n=p2+r2*normal
+        p2nn=p2-r2*normal
+        p3n=p3+r3*normal
+        p3nn=p3-r3*normal
+        planen=plane.from_3_points(p1n,p2n,p3n)
+        planenn=plane.from_3_points(p1nn,p2nn,p3nn)
+        plane12=plane.from_3_points(p1n,p1nn,p2)
+        plane13=plane.from_3_points(p1n,p1nn,p3)
+        plane23=plane.from_3_points(p2n,p2nn,p3)
+        
+        plane122=plane(p2-p1,p1)
+        plane211=plane(p1-p2,p2)
+        plane133=plane(p3-p1,p1)
+        plane311=plane(p1-p3,p3)
+        plane233=plane(p3-p2,p2)
+        plane322=plane(p2-p3,p3)
+        s1.intersected_by([plane122,plane133])
+        s2.intersected_by([plane211,plane233])
+        s3.intersected_by([plane322,plane311])
+        if not planen.half_space_contains(p1nn):
+            planen.reverse()
+        if not planenn.half_space_contains(p1n):
+            planenn.reverse()
+        if not plane12.half_space_contains(p3):
+            plane12.reverse()
+        if not plane13.half_space_contains(p2):
+            plane13.reverse()
+        if not plane23.half_space_contains(p1):
+            plane23.reverse()
+        c12=Cone(p1,p2,r1,r2)
+        c13=Cone(p1,p3,r1,r3)
+        c23=Cone(p2,p3,r2,r3)
+        polyhedral=planen.intersected_by([planenn,plane12,plane13,plane23])
+
+        Compound.__init__(self,[])
+        for string in ["s1","s2","s3","polyhedral","c12","c13","c23","normal","plane12","plane13","plane23"]:
+            self.add_to_compound([string,eval(string)])
+        for slave in planen.csgOperations[-1].csgSlaves: #POUR preservers les couleurs
+            self.add_to_compound(slave)
+#        print(plane12,plane13,plane23,planen,planenn)
