@@ -67,7 +67,6 @@ class Compound(ElaborateOrCompound):
             self.csgOperations[0].csgSlaves+=[slave]
     def add_list_to_compound(self,myList):
         for ob in myList:
-            print("MOn nov",ob)
             self.add_to_compound(ob) 
         return self
 

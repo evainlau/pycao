@@ -54,29 +54,40 @@ ground=plane(Z,origin) # a plane with normal the vector Z=vector(0,0,1) containi
 ground.color='DarkGreen' # The possible colors are the colors described in colors.inc in povray or a rgb color. 
 
 #wall=Room(Polyline([origin,X,X+Y,Y,-2*X,-Y])).colored("Yellow")
+table=ElaborateOrCompound()
+b=copy.deepcopy(table)
+print("VIde cipi")
+class A(ElaborateOrCompound):
+    def __init__(self,*args,**kwargs):
+        n=Object()
+        self.obattach=n
+        pass
+fable=A()
+copy.deepcopy(A)
+print("OK pour A")
+
+
+table=Cylinder(origin,origin+X,.1)
+b=copy.deepcopy(table)
+print("fini")
 table=ThickTriangle(origin,origin+X,origin+Z,.8,.1,.1).colored("OldGold")
-table2=ThickTriangle(origin+X+Z,origin+X,origin+Z,.8,.8,.8).colored("OldGold")
-table=RoundBox(origin-X-Y-Z,origin+X+Y+Z,.2,False).colored("Yellow")
-cyl=Cylinder(origin-2*Z,origin+2*Z,.3).colored("Pink")
-RoundBox.from_dimensions(1,1,1,.03)
-table=Stove()
+table=Door()
 
 
 light=Light() # a light
-light.location=(origin+6.8*Z-2*X+Y)
+light.location=(origin+.0*Z-.0*X-.2*Y)
 
 camera=Camera()
-camera.projection="orthographic"
 camera.projection="perspective"
 camera.filmAllActors=False
-print(camera.file)
-camera.location=origin-0*X-10*Y+2*Z
+camera.location=origin-0*X-1*Y+.2*Z
+light.location=camera.location
 camera.povraylights="light_source {<"+ str(light.location[0])+","+str(light.location[1])+","+str(light.location[2])+ "> color White " + "}\n\n"
 #camera.actors=[wall,ground,cyl,cyl2,s] # what is seen by the camera
 #camera.actors=[table.c13,table.c12,table.s1] # what is seen by the camera#\\
 camera.actors=[table] # what is seen by the camera
 camera.lookAt=origin
-camera.zoom(0.4)
+camera.zoom(1)
 camera.imageHeight=800 # in pixels
 camera.imageWidth=900 
 
@@ -85,11 +96,5 @@ camera.angle=0.84
 camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
 camera.show # show the photo, ie calls povray. 
 
-t=table.polyhedral
-print(type(t))
-print(isinstance(t,AffinePlane))
-import povrayshoot
-print("Fin")
-print (povrayshoot.object_string_alone(t,camera))
-print("visi",t.visibility)
-print("VFT")
+
+

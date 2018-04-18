@@ -37,15 +37,9 @@ class ElaborateOrCompound(ObjectInWorld):
     """
 
 
-    def __new__(cls,*args,**kwargs):
-        #print("dans new")
-        #print(cls)
-        #print(isinstance(cls,ObjectInWorld))
-        instance=ObjectInWorld.__new__(cls,*args,**kwargs)
-        return instance
-
     def marker_method(self,marker):
-        return copy.deepcopy(getattr(self.markers,marker)).move_alone(self.mapFromParts)
+        memo={}
+        return copy.deepcopy(getattr(self.markers,marker),memo).move_alone(self.mapFromParts)
 #    def third_argument_with_selfAndMarker_fixed(self,marker,f):
 #        def function_f_with_selfAndMarker_fixed():
 #            return f(self,marker)
@@ -75,7 +69,8 @@ class ElaborateOrCompound(ObjectInWorld):
     def copy(self):
         #return super(ElaborateOrCompound).__deepcopy__(self).markers_as_functions()
         #print (self.csgOperations)
-        a=copy.deepcopy(self)
+        memo={}
+        a=copy.deepcopy(self,memo)
         #print(a.csgOperations)
         #print (self.csgOperations)
         #a.markers_as_functions()
@@ -146,17 +141,16 @@ class Cylinder(Elaborate):
         If start is None, self is computed from length and radius : it is a cylinder with axis = Z
         and centered on zero.
         """
+        
         if radius is None:
             raise NameError('No default radius for a Cylinder')
-        start2=copy.deepcopy(start)
-        end2=copy.deepcopy(end)
-        if start2 is None:
-            start2=point(0,0,-length/2)
-            end2=point(0,0,length/2)
+        if start is None:
+            start=point(0,0,-length/2)
+            end=point(0,0,length/2)
         # self.parts
         self.parts=Object()
-        self.parts.start=start2
-        self.parts.end=end2
+        self.parts.start=start
+        self.parts.end=end
         self.parts.radius=radius
         self.parts.open=booleanOpen
         #self.markers
@@ -177,12 +171,24 @@ class Cylinder(Elaborate):
     def __str__(self):
         return ("Cylinder with extremal points "+str(self.start())+" and "+str(self.end()))
 
-    def _personnalDeepcopy(self):
-        """
-        This stupid name to avoir an autorecursive deepcopy
-        """
-        return copy.deepcopy(self)
-
+#    def __copy__(self,*args,**kwargs):
+#        """
+#        This stupid name to avoir an autorecursive deepcopy
+#        """
+    def __deepcopy__(self, memo):
+        myCopy = Cylinder(start=self.start(),end=self.end(),radius=self.radius,length=None,booleanOpen=self.parts.open)
+        memo[id(self)] = self
+        for key in self.__dict__:
+            print(self,key,self.__dict__[key])
+            toCopy=self.__dict__[key]
+            myCopy.__dict__[key] = copy.deepcopy(toCopy,memo)
+        return myCopy
+    def __copy__(self):
+        memo={}
+        return self.deepcopy(memo)
+    @staticmethod
+    def from_point_vector(p,v,r):
+        return Cylinder(p,p+v,r)
     
     
 class ICylinder(Elaborate):
@@ -270,9 +276,6 @@ class Washer(Cylinder):
         eCylinder.markers_as_functions()
         return eCylinder
 
-    def __deepcopy__(self,memo):
-        return self._personnalDeepcopy()
-
     def __str__(self):
         return ("Washer with radius "+str(self.parts.radius)+" and "+str(self.internalRadius) + " and axis "+str(self.axis()))
 
@@ -298,6 +301,7 @@ class Torus(Elaborate):
     
     """
     def __init__(self,externalRadius,internalRadius,normal=MassPoint(0,0,1,0),center=MassPoint(0,0,0,1)):
+    #def __init__(self,*args,**kwargs):
         """
         The axis of rotation is Z by default and the center is the origin by default. 
         """
@@ -318,6 +322,8 @@ class Torus(Elaborate):
         self.markers.box=FrameBox(listOfPoints=[point(-er-ir,-ir,-er-ir),point(er+ir,ir,er+ir)])
         self.markers.normal=self.parts.normal
         self.markers_as_functions()
+    #def __deepcopy__(self,memo):
+        
     def __str__(self):
         return ("Torus with center "+str(self.center)+" normal "+str(self.normal())+" radius "+str(self.parts.externalRadius)+","+str(self.parts.internalRadius))
     @staticmethod
@@ -333,7 +339,6 @@ class Torus(Elaborate):
         normale=plane3.normal.normalize()
         center=Point.from_3_planes(plane1,plane2,plane3)
         delta=start-center
-        print("sm",start,center,delta)
         radius=(start-center).norm
         vec1=(start-center).normalize()
         vec2=middle-center
@@ -342,16 +347,17 @@ class Torus(Elaborate):
         angle2=vec1.angle_to(vec3,vaxis=normale)
         if angle1<angle2:
             def circle_function(t):
+                self.parametrizedPositivly=True # used in the copy process
                 return start.rotate(axis=Segment(center,center+normale),angle=t)
         else:
             def circle_function(t):
+                self.parametrizedPositivly=False
                 return start.rotate(axis=Segment(center,center+normale),angle=-t)
         #creation du torus self
         self=Torus(radius,internalRadius,normale,center)
         self.circle=FunctionCurve(circle_function).glued_on(self)
         if cut is True:
             #print(normale)
-            print("dans cut")
             #print("center",center)
             cutting1=Plane.from_3_points(center,start,center+normale)
             cutting2=Plane.from_3_points(center,end,center+normale)
@@ -378,6 +384,10 @@ class Torus(Elaborate):
             else:
                 return self.amputed_by(sector)
         else: return self
+
+
+
+        
     def sliced_by(self,point1,point2,acute=True):
         """
         returns intersection/difference of a torus and a polyhedral P, where P is the intersection of 2 half spaces which meet along the axis of the torus
@@ -493,9 +503,7 @@ class RoundBox(Elaborate):
     def __init__(self,*args,**kwargs):
         """
         """
-        print(len(args),args[0])
         if len(args)<4 or len(args)>5:
-            print(args)
             raise NameError('Incorrect number of arguments to build a RoundBox')
         if len(args)==4:
             # self.parts
