@@ -54,7 +54,10 @@ ground=plane(Z,origin) # a plane with normal the vector Z=vector(0,0,1) containi
 ground.color='DarkGreen' # The possible colors are the colors described in colors.inc in povray or a rgb color. 
 
 #wall=Room(Polyline([origin,X,X+Y,Y,-2*X,-Y])).colored("Yellow")
-table=ElaborateOrCompound()
+table=Torus.from_3_points(origin,origin+Y,origin+X,.1)
+table=Chair()
+table.translate(X)
+table2=table.copy()
 b=copy.deepcopy(table)
 print("VIde cipi")
 class A(ElaborateOrCompound):
