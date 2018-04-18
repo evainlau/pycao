@@ -349,6 +349,7 @@ class DoorHandle(Compound):
         self.add_axis("verticalAxis",verticalAxis)
             
 """ 
+* ajouter le thick triangle
 * debugger le plan qui n'est pas bouge' proprement par une action non orthogonale
 * ajouter des objets : 2 armoires, \'etagere, carrelage, lampe, amelioration fenetres
 bouger la chair avec un above comme la table. 
