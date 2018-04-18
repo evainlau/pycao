@@ -350,9 +350,9 @@ class DoorHandle(Compound):
             
 """ 
 * debugger le plan qui n'est pas bouge' proprement par une action non orthogonale
-* ajouter des objets : feu, 2 armoires, \'etagere, poignees de porte,carrelage, lampe, amelioration fenetres
+* ajouter des objets : 2 armoires, \'etagere, carrelage, lampe, amelioration fenetres
 bouger la chair avec un above comme la table. 
-* corriger le deep copy
+* corriger le deep copy de la chair (liée au torus et a son call )
 * implementer les textures
 * ajouter le prisme et le polygone,le wall, la Room,fenetres a la doc, la librairie archi, la rounded box, 
 le torus
