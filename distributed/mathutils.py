@@ -595,7 +595,13 @@ class FunctionCurve(ObjectInWorld,ParametrizedCurve):
         curve.__call__=types.MethodType(composition, curve)
         return curve
 
-    #def __deepcopy(self,memo):
+    def __deepcopy__(self,memo):
+        myFunc=self.__call__
+        theCopy=FunctionCurve(myFunc)
+        memo[id(self)] = theCopy
+        for k, v in self.__dict__.items():
+            setattr(theCopy, k, copy.deepcopy(v, memo))
+        return theCopy
         
         
 class Polyline(list,Primitive,ParametrizedCurve):

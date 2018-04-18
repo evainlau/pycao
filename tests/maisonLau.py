@@ -96,7 +96,8 @@ light5=Light(origin+2.3*Z+2*X+1*Y,color="DarkOliveGreen") # a light
 table=Table(1.2,.8,.7,.03).colored("White").above(origin+4.8*X+1.5*Y).glued_on(room)
 #table=Table(1.5,.8,1,.03).colored("White").glued_on(room)
 chair1=Chair().colored("White").above(origin+4.5*X+1.87*Y+.4*Z).glued_on(room)
-chair2=chair1.copy().colored("White").above(origin+5*X+1.8*Y+.4*Z).glued_on(room)
+chair2=chair1.copy()
+chair2.colored("White").above(origin+5*X+1.8*Y+.4*Z).glued_on(room)
 chair2=Chair().colored("White").above(origin+4.5*X+1*Y+.4*Z).glued_on(room).self_rotate(3)
 chair2=Chair().colored("White").above(origin+5*X+1*Y+.4*Z).glued_on(room).self_rotate(3.5)
 stovePosistionOnFloor=origin+7.50*X+2.3*Y
