@@ -87,7 +87,7 @@ class Elaborate(ElaborateOrCompound):
     
 
 class Prism(Elaborate):
-    def __new__(cls,polyline1,height=1,splineType="linear",sweepType="linear"):
+    def __init__(self,polyline1,height=1,splineType="linear",sweepType="linear"):
         """A class for prisms.
 
         Constructor
@@ -96,7 +96,6 @@ class Prism(Elaborate):
         splineType=linear ( to be implemented in future:  quadratic or cubic or bezier for the interpolation between points)
         sweepType=linear ( to be implemented : conic. With conic only one height is sufficient (see povray doc). )
         """
-        self=Elaborate.__new__(cls)
         self.splineType=splineType
         self.sweepType=sweepType
         self.polyline1=polyline1
@@ -105,7 +104,7 @@ class Prism(Elaborate):
         self.height1=self.polyline1[0][1]
         self.height2=self.height1+height
         self.povrayNumberOfPoints=len(polyline1)
-        return self
+
         
     @classmethod
     def from_polyline_vector(cls,polyline,vector):
@@ -120,6 +119,7 @@ class Prism(Elaborate):
         composeMapInverse=map1Inverse*map2Inverse
         polyline1=polyline.copy().move(composeMap)
         p=Prism.__new__(cls,polyline1,height=1).move(composeMapInverse)
+        Prism.__init__(p,polyline1)
         p.prismDirection=vector
         return p
         
