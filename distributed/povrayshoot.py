@@ -124,7 +124,6 @@ def object_string_but_CSG(self,camera):
     elif isinstance(self,Sphere) :
         string+="sphere {\n"+povrayVector(self.parts.center)+","+str(self.parts.radius)+" "+modifier(self,camera)+"}\n"
     elif isinstance(self,AffinePlane) :
-        print("Yes,plane here")
         string+="plane {\n"+povrayVector(self.normal)+","+str(-self[3]/self.normal.norm)+" "+modifier(self,camera)+"}\n"
         # Orientation Checked with the following code
         #s=Sphere(origin,.1).colored("Red")
@@ -196,7 +195,6 @@ def object_string_alone(self,camera):
     Basically this part of code deals with csg operations. When there are no csg operations
     object_string_but_CSG is called. 
     """
-    print("before",self)
     if (not hasattr(self,"visibility")) or self.visibility<camera.visibilityLevel:
         #print(self.visibility)
         #print("invisible")
@@ -211,7 +209,7 @@ def object_string_alone(self,camera):
         return object_string_but_CSG(self,camera)
     slavesCopie=copy.copy(todo.csgSlaves)
     #for slave in slavesCopie:
-    #    print(slave)
+    #    print(slave) 
     #print("copie",len(slavesCopie))
     kw=todo.csgKeyword
     visibleSlaves=[slave for slave in slavesCopie if (hasattr(slave,"visibility") and slave.visibility>=camera.visibilityLevel and kw=="union") or (hasattr(slave,"booleanVisibility") and slave.booleanVisibility>=camera.visibilityLevel and ( kw=="difference" or kw=="intersection"))]
@@ -260,7 +258,6 @@ def object_string_recursive(self,camera):
     #print(type(self))
     #print(isinstance(self,Cylinder))
     string=object_string_alone(self,camera)
-    print(string)
     string+="\n\n"
  #   try:
         #print(self.__class__)
@@ -299,8 +296,8 @@ def render(camera):
     #for light in camera.lights:
     #    booklet.write("light_source {"+ povrayVector(light.location)+ " color White " + "}\n\n")
     for component in camera.actors:
-        print("chain for",component,object_string_recursive(component,camera))
-        print(component)
+        #print("chain for",component,object_string_recursive(component,camera))
+        #print(component)
         booklet.write(object_string_recursive(component,camera))
     booklet.close()
 

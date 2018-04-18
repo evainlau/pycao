@@ -237,7 +237,10 @@ class ObjectInWorld(object):
         if isinstance(cuttingShape,list):
            #print(cuttingShape)
            #print(type(cuttingShape[0]))
-            copie=[copy.deepcopy(tool) for tool in cuttingShape]
+            copie=[]
+            for tool in cuttingShape:
+                memo=dict()
+                copie.append(copy.deepcopy(tool,memo))
            #print([tool.children for tool in cuttingShape])
            #print([tool.children for tool in copie])
            #print(self.visibility)

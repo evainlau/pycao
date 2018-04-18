@@ -127,12 +127,12 @@ class Room(Compound):
             w.glued_on(self)
 
 
-    def add_door(self,wallNumber,wlength,wheight,wdepth,deltaLength,deltaHeigth=0,fromOutside=True,glued=True):
+    def add_door(self,wallNumber,wlength,wheight,wdepth,deltaLength,deltaHeigth=0,fromOutside=True,reverseHandle=False,glued=True):
         """ adds a window of size (wlength,wheight,wdepth) on wall wallNumber, located 
         at deltaLength meters from the right of the outside wall ( or optionnally from the left of the inside wall), 
         and deltaHeigth meters above the floor """
         dthickness=.1
-        w=Door(wlength,wdepth,wheight)
+        w=Door(wlength,wdepth,wheight,reverseHandle)
         wall=self.walls[wallNumber]
         if fromOutside:
             doorCenter=wall.outsideBaseLine().point(deltaLength+0.5*wlength,"n")+(deltaHeigth+.5*wheight)*wall.verticalVector().normalized_copy()+wall.insideVector().normalize()*wall.thickness
@@ -206,8 +206,10 @@ class Window(Compound):
         self.add_box("windowBox",frame2.box())
 
 class Door(Compound):
-    def __init__(self,dx,dy,dz,holeBorder=0.1):
-        """dx,dy,dz are the length,depth,height respectivly, the holeBorder is difference between the door and the hole """ 
+    def __init__(self,dx=.9,dy=.03,dz=2.15,reverseHandle=False,holeBorder=0.1,doorhandle=None):
+        """dx,dy,dz are the length,depth,height respectivly, the holeBorder is difference between the door and the hole
+        The option reverseHandle is set to change the handle position from left to Right """
+        
         frame=Cube(dx,dy,dz)
         #toCut=Cube(frame.point(border,-0.01,border,"aaa"),frame.point(border,-.01,border,"nnn"))
         #toCut.texture=texture
@@ -215,14 +217,29 @@ class Door(Compound):
         #if holeBorder is None:
         #    holeBorder=border*.5
         # The hole will be used to cut the wall behind the window.
+        if doorhandle is None:
+            doorhandle=DoorHandle()
+        doorhandle.glued_on(self)
+        doorhandle2=doorhandle.copy().move(Map.linear(-X,Y,Z)).glued_on(self)
         hole=Cube(frame.point(holeBorder,-10000,holeBorder,"aaa"),frame.point(holeBorder,-10000,holeBorder,"nnn"))
         #glass=Cube(frame.point(border,dy*.5-.001,border,"aaa"),frame.point(border,dy*.5-0.01,border,"nnn"))
         #glass.texture="Glass"
+        if not reverseHandle:
+            handlePointToLock1=frame.point(.1,0,1.05,"apa")
+            handlePointToLock2=frame.point(.1,1,1.05,"apa")
+            doorhandle2.self_rotate(math.pi)
+        else:
+            handlePointToLock2=frame.point(.1,0,1.05,"npa")
+            handlePointToLock1=frame.point(.1,1,1.05,"npa")
+            doorhandle.self_rotate(math.pi)
+        doorhandle.translate(handlePointToLock1-doorhandle.handlePoint)
+        doorhandle2.translate(handlePointToLock2-doorhandle2.handlePoint)
         Compound.__init__(self,[frame,["normal",Y.copy()]])
         self.hole=hole.glued_on(self)
         self.hole.visibility=0
         self.add_box("windowBox",frame.box())
 
+        
     def add_porthole(self,texture="Cork pigment{White}"): # type = winoow or doord
         w=RoundWindow(radius=.2,depth=.15,border=.02,texture=texture)
         #print(self.box().segment(None,.5,.5,"ppp"))
@@ -309,7 +326,28 @@ class Stove(Compound):
         cyl=Cylinder(cylstart,cylEnd,.08)
         self.add_list_to_compound([door,spacer,fireplace,spacer2,cyl,["floorPoint",floorPoint]])
         self.add_axis("axis",fireplace.segment(.5,.5,None,"ppp"))
-        
+
+class DoorHandle(Compound):
+    def __init__(self,texture="New_Brass",left=True):
+        bottom=Cylinder(origin,origin+.005*Y,radius=.025)
+        middle=Cube.from_list_of_points([origin-.025*X+.0*Z,origin+.025*X+.05*Z+.005*Y])
+        top=copy.deepcopy(bottom)
+        top.translate(.05*Z)
+        start=middle.point(.5,-1,.75,"ppp")
+        axis=Cylinder.from_point_vector(start,-.03*Y,.01)
+        verticalAxis=middle.segment(.5,.5,None,"ppp")
+        start=start-.02*Y
+        handle=Torus.from_3_points(start,start+.03*X,start+.07*X-.02*Z,.01)
+        handlePoint=middle.point(.5,1,.75,"ppp")
+        self.add_list_to_compound([bottom,["middle",middle],top,axis,handle,["handlePoint",handlePoint]])
+        self.texture=texture
+        scaleFactor=2
+        mape=Map.linear(scaleFactor*X,scaleFactor*Y,scaleFactor*Z)
+        self.move(mape)
+        if not left: # this handle goes to the right of the door
+            self.move(Map.linear(-X,Y,Z))
+        self.add_axis("verticalAxis",verticalAxis)
+            
 """ 
 * debugger le plan qui n'est pas bouge' proprement par une action non orthogonale
 * ajouter des objets : feu, 2 armoires, \'etagere, poignees de porte,carrelage, lampe, amelioration fenetres

@@ -49,7 +49,8 @@ class Primitive(ObjectInWorld):
         #print("in copy prim")
         #return super(ElaborateOrCompound).__deepcopy__(self).markers_as_functions()
         #print (self.csgOperations)
-        a=copy.deepcopy(self)
+        memo={}
+        a=copy.deepcopy(self,memo)
         #print(a.csgOperations)
         #print (self.csgOperations)
         #print (self.csgOperations)
@@ -76,9 +77,10 @@ class MassPoint(np.ndarray,Primitive):
         l=[float(entry) for entry in l]
         return np.array(l).view(cls)
 
-    def __init__(self,*args,**kwargs):
+    def __init__(self,*args,**kwargs):       
         ObjectInWorld.__init__(self)
-
+        pass
+        
     def __array_finalize__(self,*args,**kwargs):
         ObjectInWorld.__init__(self)
 
@@ -88,8 +90,7 @@ class MassPoint(np.ndarray,Primitive):
         
     def __deepcopy__(self,memo):
         # I have to rewrite this because ndarray.deepcopy applies and forgets to copy the arguments
-        cls = self.__class__
-        result = np.ndarray.__deepcopy__(self,memo) 
+        result=MassPoint(self[0],self[1],self[2],self[3])
         memo[id(self)] = result
         for k, v in self.__dict__.items():
             setattr(result, k, copy.deepcopy(v, memo))
@@ -132,8 +133,9 @@ class MassPoint(np.ndarray,Primitive):
         Add two mass points, the result being a mass point of the sum of the 2 weights. 
         """
         if isinstance(other, MassPoint ):
-            result=np.ndarray.__sub__(self,other).view(MassPoint)
-            ObjectInWorld.__init__(result)
+            resul=np.ndarray.__sub__(self,other)
+            result=MassPoint(resul[0],resul[1],resul[2],resul[3])
+            #ObjectInWorld.__init__(result)
             return result.roundResult()
         else :
             #print(isinstance(other, MassPoint ))
@@ -423,7 +425,6 @@ class AffinePlaneWithEquation(AffinePlane,np.ndarray):
         AffinePlaneWithEquation.from_bisector(segment) : as above with p1=segment.p1 and p2=segment.p2
         """
         if len(args)==2:
-            print(args[0],args[1])
             return AffinePlaneWithEquation(args[1]-args[0],0.5*args[0]+0.5*args[1])
         elif len(args)==1:
             segment=args[0]
@@ -513,7 +514,6 @@ class AffinePlaneWithEquation(AffinePlane,np.ndarray):
         else:
             return False
     def is_parallel_to(self,other_plane):
-        print(self.normal.cross(other_plane.normal))
         if self.normal.cross(other_plane.normal).norm==0:
             return True
         else:
@@ -578,15 +578,15 @@ class ParametrizedCurve():
         else:
             return (curve(t+epsilon)-curve(t))/epsilon
 
-class FunctionCurve(ParametrizedCurve,ObjectInWorld):
+class FunctionCurve(ObjectInWorld,ParametrizedCurve):
     """ a class for curve defined by a function"""
     def __call__(self,t):
-        return self.value_at(t)
-    def __new__(cls,f):
-        myCurve=ObjectInWorld.__new__(cls)
-        ObjectInWorld.__init__(myCurve)
-        myCurve.value_at=f
-        return myCurve
+        return self.initialParametrizing(t)
+    def __init__(self,f):
+        #myCurve=ObjectInWorld.__new__(cls)
+        #ObjectInWorld.__init__(self)
+        self.initialParametrizing=f
+
 
     def move_alone(curve,M):
         oldCall=curve.__call__
@@ -595,6 +595,7 @@ class FunctionCurve(ParametrizedCurve,ObjectInWorld):
         curve.__call__=types.MethodType(composition, curve)
         return curve
 
+    #def __deepcopy(self,memo):
         
         
 class Polyline(list,Primitive,ParametrizedCurve):
@@ -821,9 +822,11 @@ class Circle(Primitive):
 
     def __init__(self, center,radius,plane):
         ObjectInWorld.__init__(self)
-        self.center=copy.deepcopy(center).remove_children()
+        memo=dict()
+        self.center=copy.deepcopy(center,memo).remove_children()
         self.radius=radius
-        self.plane=copy.deepcopy(plane).remove_children()
+        memo=dict()
+        self.plane=copy.deepcopy(plane,memo).remove_children()
 
     def move_alone(self,M):
         if not M.is_orthogonal:

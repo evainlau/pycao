@@ -63,7 +63,7 @@ backDoor=room.add_door(wallNumber=1,wlength=.9,wheight=2.15,wdepth=.1,deltaLengt
 room.add_window(wallNumber=2,wlength=1,wheight=1.06,wdepth=.1,deltaLength=1.37,deltaHeigth=1.10)
 room.add_window(wallNumber=2,wlength=.7,wheight=1.05,wdepth=.1,deltaLength=3.57,deltaHeigth=1.10)
 room.add_window(wallNumber=3,wlength=.7,wheight=.7,wdepth=.1,deltaLength=2.57,deltaHeigth=1.60)
-outsideDoor=room.add_door(wallNumber=4,wlength=.9,wheight=2.15,wdepth=.1,deltaLength=.13,deltaHeigth=0).colored("BrightGold").add_porthole()#
+outsideDoor=room.add_door(wallNumber=4,wlength=.9,wheight=2.15,wdepth=.1,deltaLength=.13,deltaHeigth=0,reverseHandle=True).colored("BrightGold").add_porthole()#
 room.add_window(wallNumber=5,wlength=2.2,wheight=2.15,wdepth=.1,deltaLength=1.056,deltaHeigth=0)
 room.add_window(wallNumber=5,wlength=1.8,wheight=1.05,wdepth=.1,deltaLength=4.056,deltaHeigth=1.1)
 room.add_perpendicular_wall(0,distance=2.74,wallLength=2.70,thickness=.08,measurementType="a",height=None).colored("Silver")
@@ -96,7 +96,7 @@ light5=Light(origin+2.3*Z+2*X+1*Y,color="DarkOliveGreen") # a light
 table=Table(1.2,.8,.7,.03).colored("White").above(origin+4.8*X+1.5*Y).glued_on(room)
 #table=Table(1.5,.8,1,.03).colored("White").glued_on(room)
 chair1=Chair().colored("White").above(origin+4.5*X+1.87*Y+.4*Z).glued_on(room)
-chair2=Chair().colored("White").above(origin+5*X+1.8*Y+.4*Z).glued_on(room)
+chair2=chair1.copy().colored("White").above(origin+5*X+1.8*Y+.4*Z).glued_on(room)
 chair2=Chair().colored("White").above(origin+4.5*X+1*Y+.4*Z).glued_on(room).self_rotate(3)
 chair2=Chair().colored("White").above(origin+5*X+1*Y+.4*Z).glued_on(room).self_rotate(3.5)
 stovePosistionOnFloor=origin+7.50*X+2.3*Y
@@ -117,7 +117,7 @@ camera.location=origin+X+Y+2*Z
 camera.povraylights="" #"light_source {<"+ str(light.location[0])+","+str(light.location[1])+","+str(light.location[2])+ "> color White " + "}\n\n"
 #camera.actors=[wall,ground,cyl,cyl2,s] # what is seen by the camera
 camera.actors=[room,ground,table] # what is seen by the camera
-#camera.actors=[room.ceiling] # what is seen by the camera
+#camera.actors=[outsideDoor] # what is seen by the camera
 camera.lookAt=point(1,3,1)#door1.center+2*X
 camera.lookAt=outsideDoor.center#door1.center+2*X
 camera.zoom(0.3)
