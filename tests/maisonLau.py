@@ -87,11 +87,11 @@ door1.name="porte1"
 
 entrance=point(7,1,2)
 floorCenter=origin+3.5*Y+5.6*X
-light1=Light(origin+4.8*Z-6*X-4*Y) # a light
-light2=Light(floorCenter+2*Z,color="White") # a light
-light3=Light(origin+2.3*Z+8*X+2.7*Y,color="White") # a light
-light4=Light(origin+2.3*Z+2*X+4.5*Y,color="DarkOliveGreen") # a light
-light5=Light(origin+2.3*Z+2*X+1*Y,color="DarkOliveGreen") # a light
+light1=Lamp(origin+4.8*Z-6*X-4*Y) # a light
+light2=Lamp(floorCenter+2*Z,lightColor="White") # a light
+light3=Lamp(origin+2.3*Z+8*X+2.7*Y,lightColor="White") # a light
+light4=Lamp(origin+2.3*Z+2*X+4.5*Y,lightColor="DarkOliveGreen") # a light
+light5=Lamp(origin+2.3*Z+2*X+1*Y,lightColor="DarkOliveGreen") # a light
 
 table=Table(1.2,.8,.7,.03).colored("White").above(origin+4.8*X+1.5*Y).glued_on(room)
 #table=Table(1.5,.8,1,.03).colored("White").glued_on(room)
@@ -106,7 +106,7 @@ stove.translate(stovePosistionOnFloor-stove.floorPoint)
 
 
 camera=Camera()
-camera.lights=[light1,light2,light3,light4,light5]
+print(camerasInScene)
 camera.projection="orthographic"
 camera.projection="perspective"
 camera.filmAllActors=False
@@ -126,4 +126,4 @@ camera.imageHeight=800 # in pixels
 camera.imageWidth=900 
 camera.angle=1.07
 camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
-camera.show # show the photo, ie calls povray. 
+#camera.show # show the photo, ie calls povray. 

@@ -29,10 +29,12 @@ from cameras import *
 
 
         
-class Light(object):
+class Light(ObjectInWorld):
     """
     """
     def __init__(self,location=origin,color="White"):
         self.location=location
         self.color=color
-
+    def move_alone(self,M):
+        self.location=M*self.location
+        return self
