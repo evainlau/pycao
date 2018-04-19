@@ -347,8 +347,23 @@ class DoorHandle(Compound):
         if not left: # this handle goes to the right of the door
             self.move(Map.linear(-X,Y,Z))
         self.add_axis("verticalAxis",verticalAxis)
-            
+
+class Lamp(Compound):
+    def __init__(self,physicalLamp=None,light=None,cameraList=None):
+        if cameraList is None:
+            cameraList=camerasInScene
+        if physicalLamp is None:
+            physicalLamp=Sphere(origin,.1)
+            physicalLamp.texture="pigment {White}"
+        if Light is None:
+            light=Light(origin) # a light
+        for camera in cameraList:
+            camera.lights.append(light)
+        self.add_list_to_compound([["light",light],["object",physicalLamp]])
+        
 """ 
+* ameliorer la lampe pour ajouter un fil qui pendouille, puis un handle pour la mettre au plafond
+* faire une liste de handles et une methode join_handlePoints. 
 * ajouter le thick triangle
 * debugger le plan qui n'est pas bouge' proprement par une action non orthogonale
 * ajouter des objets : 2 armoires, \'etagere, carrelage, lampe, amelioration fenetres

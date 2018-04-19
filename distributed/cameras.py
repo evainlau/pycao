@@ -31,12 +31,14 @@ from elaborate import *
 from compound import *
 import povrayshoot 
 
+camerasInScene=[]
 
 class Camera(Primitive):
     """
     """
     activeCameras=True # if  False, camera.shoot does not take photo
     showImage=True # if  False compute the image (with povray to png) but dont show it on the screeen, if anything else, does not  even compue the image 
+
     
     
     def __init__(self):
@@ -60,6 +62,7 @@ class Camera(Primitive):
         self.quality=9 #
         self.silent=True # to display or not a lot of information when self.show is called
         self.defaultDistance=3 # The distance from the point looked at in left/right... views
+        camerasInScene.append(self)
     def move_alone(self,M):
         self.location=M*self.location
     @property
