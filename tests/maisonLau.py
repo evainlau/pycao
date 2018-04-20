@@ -84,14 +84,27 @@ door1.name="porte1"
 
 
 
+camera=Camera()
+print("arpes ceration Camera",camerasInScene)
 
 entrance=point(7,1,2)
 floorCenter=origin+3.5*Y+5.6*X
-light1=Lamp(origin+4.8*Z-6*X-4*Y) # a light
-light2=Lamp(floorCenter+2*Z,lightColor="White") # a light
-light3=Lamp(origin+2.3*Z+8*X+2.7*Y,lightColor="White") # a light
-light4=Lamp(origin+2.3*Z+2*X+4.5*Y,lightColor="DarkOliveGreen") # a light
-light5=Lamp(origin+2.3*Z+2*X+1*Y,lightColor="DarkOliveGreen") # a light
+#outsideLight1=Lamp(origin+6.8*Z-6*X-4*Y) # a light
+#light2=Lamp(floorCenter-1.7*Y+2*Z,lightColor="rgb <.51,.51,.51>").glued_on(room) # a light
+#light2=Lamp().hooked_on(floorCenter-1.7*Y+2.5*Z).glued_on(room) # a light
+
+
+#light2=Light().hooked_on(floorCenter-1.7*Y+2.5*Z).glued_on(room) # a light
+
+#light3=Lamp().hooked_on(origin+2.3*Z+8*X+2.7*Y).glued_on(room)
+
+
+#light4=Lamp().hooked_on(origin+2.3*Z+2*X+4.5*Y).glued_on(room)
+#light5=Lamp().hooked_on(origin+2.3*Z+2*X+1*Y).glued_on(room)#.,lightColor="rgb <.5,.5,.5>") # a light
+#light6=Light().hooked_on(floorCenter-5.7*Y+2.5*Z+X).glued_on(room) # a light
+#light65=Light().hooked_on(floorCenter-5.7*Y+2*Z+X).glued_on(room) # a light
+#light7=Light().hooked_on(floorCenter-1*X-5.7*Y+2.5*Z).glued_on(room) # a light
+#light8=Light().hooked_on(origin+3*X+.05*Y+2*Z).glued_on(room) # a light
 
 table=Table(1.2,.8,.7,.03).colored("White").above(origin+4.8*X+1.5*Y).glued_on(room)
 #table=Table(1.5,.8,1,.03).colored("White").glued_on(room)
@@ -105,25 +118,22 @@ stove=Stove().glued_on(room).self_rotate(-math.pi/2)
 stove.translate(stovePosistionOnFloor-stove.floorPoint)
 
 
-camera=Camera()
-print(camerasInScene)
 camera.projection="orthographic"
 camera.projection="perspective"
 camera.filmAllActors=False
-print(camera.file)
 #camera.location=floorCenter+2*Z-2*X
 #camera.location=origin+4*X+2*Z+.5*Y
 #camera.location=entrance-X
-camera.location=origin+X+Y+2*Z
-camera.povraylights="" #"light_source {<"+ str(light.location[0])+","+str(light.location[1])+","+str(light.location[2])+ "> color White " + "}\n\n"
+camera.location=origin+1.6*X+1.5*Y+1.62*Z
 #camera.actors=[wall,ground,cyl,cyl2,s] # what is seen by the camera
 camera.actors=[room,ground,table] # what is seen by the camera
-#camera.actors=[outsideDoor] # what is seen by the camera
+#camera.actors=[light2] # what is seen by the camera
 camera.lookAt=point(1,3,1)#door1.center+2*X
-camera.lookAt=outsideDoor.center#door1.center+2*X
-camera.zoom(0.3)
+#camera.lookAt=light2.handle()-Z #door1.center+2*X
+camera.lookAt=floorCenter-1.7*Y+1.5*Z
 camera.imageHeight=800 # in pixels
 camera.imageWidth=900 
 camera.angle=1.07
+print(camerasInScene[0].lights)
 camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
-#camera.show # show the photo, ie calls povray. 
+camera.show # show the photo, ie calls povray. 

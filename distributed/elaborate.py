@@ -179,7 +179,6 @@ class Cylinder(Elaborate):
         myCopy = Cylinder(start=self.start(),end=self.end(),radius=self.radius,length=None,booleanOpen=self.parts.open)
         memo[id(self)] = self
         for key in self.__dict__:
-            print(self,key,self.__dict__[key])
             toCopy=self.__dict__[key]
             myCopy.__dict__[key] = copy.deepcopy(toCopy,memo)
         return myCopy

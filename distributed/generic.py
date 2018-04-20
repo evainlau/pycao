@@ -367,7 +367,8 @@ class ObjectInWorld(object):
         M=self.axis().screw_map(other,adjustAlong,adjustAround)
         self.move(M)
         return self
-    
+
+
     def add_box(self,name,framebox):
         """
         Add a new box to self and select it. The box 
@@ -406,6 +407,24 @@ class ObjectInWorld(object):
             setattr(self,"dicoaxis",dicoaxis)
         setattr(self.dicoaxis,name,axis_function)
         setattr(self,"axis",axis_function)
+        return self
+
+    def add_handle(self,name,hpoint):
+        """
+        Add a new handle to self and select it. The point
+        is added to the dictionnary self.dicohandle
+        The active handlepoint is self.handlepoint()
+        """
+        # the added line must move with the object
+        gluedPoint=hpoint.copy().glued_on(self)
+        def handle_function():
+            return gluedPoint
+        # creates a dicoaxis if ncr and populates it if  ncr
+        if not hasattr(self,"dicohandle"):
+            dicohandle=Object() 
+            setattr(self,"dicohandle",dicohandle)
+        setattr(self.dicohandle,name,handle_function)
+        setattr(self,"handle",handle_function)
         return self
 
     
@@ -449,7 +468,7 @@ class ObjectInWorld(object):
     def select_axis(self,name):
         """ 
         arguments: 
-        name: the name of the box we want to select
+        name: the name of the axis we want to select
         """
         self.axis=getattr(self.dicoaxis,name)
         return self.axis()
@@ -457,3 +476,27 @@ class ObjectInWorld(object):
     def self_rotate(self,angle):
         return self.rotate(self.axis(),angle)
 
+
+
+    def print_handles(self):
+        """
+        displays the list of  handles of self
+        """
+        try:
+            print ( self.dicohandle.__dict__.keys())
+            print ("are the handles")
+        except:
+            try:
+                print(self.handle())
+                print("The above handle is the  unique handle")
+            except:
+                print("No handle")
+        return self
+  
+    def select_handle(self,name):
+        """ 
+        arguments: 
+        name: the name of the handle we want to select
+        """
+        self.handle=getattr(self.dicohandle,name)
+        return self.handle()

@@ -348,24 +348,6 @@ class DoorHandle(Compound):
             self.move(Map.linear(-X,Y,Z))
         self.add_axis("verticalAxis",verticalAxis)
 
-class Lamp(Compound):
-    def __init__(self,location,physicalLamp=None,light=None,lightColor="White",cameraList=None):
-        if cameraList is None:
-            cameraList=camerasInScene
-        if physicalLamp is None:
-            physicalLamp=Sphere(origin,.1)
-            physicalLamp.texture="pigment {White filter 1}"
-        if light is None:
-            light=Light(origin) # a light
-            lightColor=lightColor
-        for camera in cameraList:
-            camera.lights.append(light)
-        self.add_list_to_compound([["light",light],["object",physicalLamp]])
-        self.add_box("defaultBox",physicalLamp.box())
-        print("yes",physicalLamp.box())
-        print(self)
-        self.move_at(location)
-        
 """ 
 * ameliorer la lampe pour ajouter un fil qui pendouille, puis un handle pour la mettre au plafond
 * faire une liste de handles et une methode join_handlePoints. 

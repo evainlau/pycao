@@ -100,7 +100,6 @@ def _init_object(self,*args,**kwargs):
         groupPhoto.append(self)
     #   not isinstance(self,MassPoint):
 
-
 # def is_vector_object(self):
 #     return isinstance(self,MassPoint) and (self[3]==0)
 
@@ -120,6 +119,16 @@ ObjectInWorld.__new__=_new_object
 #object.is_point=is_point_object
 
 #print (vector)
+
+def _hooked_on(self,other):
+    """ other,self=an abject with a handle, move self so that self.handle() and other.handle()  coincide. 
+    If other is a point, self.handle goes to this point."""
+    if is_point(other):
+        self.translate(other-self.handle())
+    else:
+        self.translate(other.handle()-self.handle())
+    return self
+
 
 def _move_at(self,*location):
     from aliases import point
@@ -202,6 +211,7 @@ def _show_box(self):
         cyl.glued_on(cube)
     return self
 
+ObjectInWorld.hooked_on=_hooked_on
 ObjectInWorld.move_at=_move_at
 ObjectInWorld.below=_move_below
 ObjectInWorld.above=_move_above
