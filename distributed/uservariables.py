@@ -18,3 +18,6 @@
 
 screwPositiveRotations=True # ie rotation(axis,angle) "screws" when one looks  towards the axis and 
 # the graphical representation in 3D has x on right, y in front and z up.  
+defaultAmbientLight="rgb <1.07,1.07,1.07>"
+defaultPovrayPreamble='#include "colors.inc" \n#include "metals.inc" \n#include "textures.inc" \n#include "shapes.inc" \nbackground {Blue}\n\n'
+lightDefaultColor="rgb <2,2,2>"

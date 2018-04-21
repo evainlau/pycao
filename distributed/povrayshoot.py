@@ -285,6 +285,7 @@ def camera_string(camera):
 
 def render(camera):
     booklet = open(camera.file, "w")
+    camera.povrayPreamble+="global_settings { ambient_light "+camera.ambientLight+" }"
     booklet.write(camera.povrayPreamble)
     booklet.write(camera_string(camera))
     booklet.write(camera.povraylights+"\n\n")

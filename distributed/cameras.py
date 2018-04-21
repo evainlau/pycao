@@ -42,6 +42,7 @@ class Camera(Primitive):
     
     
     def __init__(self):
+        self.ambientLight=defaultAmbientLight
         self.imageHeight=800 # in pixels
         self.imageWidth=1500
         self.angle=(20./180.*math.pi)  #  use camera.zoom() to change
@@ -57,8 +58,8 @@ class Camera(Primitive):
         self.projection="perspective" # could be "orthographic", useful for checking
         self.technology="povray" #  only possibility at the moment
         self.lights=[]
-        self.povraylights="light_source {<"+ str(self.location[0])+","+str(self.location[1])+","+str(self.location[2]+10)+ "> color White " + "}\n\n"
-        self.povrayPreamble='#include "colors.inc" \n#include "metals.inc" \n#include "textures.inc" \n#include "shapes.inc" \nbackground {Blue}\n\nglobal_settings { ambient_light rgb <.007,.007,.007> }'
+        self.povraylights=""#light_source {<"+ str(self.location[0])+","+str(self.location[1])+","+str(self.location[2]+10)+ "> color White " + "}\n\n"
+        self.povrayPreamble=defaultPovrayPreamble
         self.quality=9 #
         self.silent=True # to display or not a lot of information when self.show is called
         self.defaultDistance=3 # The distance from the point looked at in left/right... views

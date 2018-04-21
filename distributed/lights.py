@@ -32,7 +32,7 @@ from cameras import *
 class Light(ObjectInWorld):
     """
     """
-    def __init__(self,location=origin,color="rgb <2,2,2>"):
+    def __init__(self,location=origin,color=lightDefaultColor):
         self.location=location
         self.add_handle("location",location)
         self.color=color
@@ -60,22 +60,14 @@ class Lamp(Compound):
     def __init__(self,physicalLamp=None,light=None,cameraList=None):
         if cameraList is None:
             cameraList=camerasInScene
-            print("cameraList",cameraList)
         if physicalLamp is None:
             physicalLamp=PhysicalLamp()
         if light is None:
             light=Light(origin) # a light
-            light.color="White"
-        #print("lampPyhand", physicalLamp.print_handles())
         physicalLamp.select_handle("light") # since the lamp has an other handle to the ceiling
-        print("handles de la light")
-        light.handle()
-        light.print_handles()
         light.hooked_on(physicalLamp) 
         for camera in cameraList:
-            #print("avant",camera.lights)
             camera.lights.append(light)
-            #print("apres",camera.lights)
         self.add_list_to_compound([["light",light],["object",physicalLamp]])
         self.add_handle("ceiling",physicalLamp.select_handle("ceiling"))
         
