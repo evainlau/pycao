@@ -123,6 +123,7 @@ stovePosistionOnFloor=origin+7.50*X+2.3*Y
 stove=Stove().glued_on(room).self_rotate(-math.pi/2)
 stove.translate(stovePosistionOnFloor-stove.floorPoint)
 stove.rgb=[.1,.1,.1]
+stove.
 
 camera.projection="orthographic"
 camera.projection="perspective"
