@@ -45,6 +45,7 @@ defaultShadowlightRgbIntensity=2# Same thing for lights with shadow
 shadowlesslightDefaultRgb=[.322,.322,.322]
 defaultShadowlesslightRgbIntensity=.3# Same thing for lights without shadow
 # usual solid objects
-defaultRgb=[.25,.25,0] 
+defaultRgb=[.25,.25,0]
+defaultRgbIntensity=1
 defaultDiffuseMultiplier=.6
 defaultAmbientMultiplier=.15

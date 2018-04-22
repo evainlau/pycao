@@ -92,6 +92,7 @@ def _init_object(self,*args,**kwargs):
     self.parent=[]
     self.color=None
     self.rgb=defaultRgb
+    self.rgbIntensity=defaultRgbIntensity
     self.diffuse=defaultDiffuseMultiplier
     self.ambient=defaultAmbientMultiplier
     self.csgOperations=[]

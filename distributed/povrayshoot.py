@@ -30,14 +30,66 @@ from elaborate import *
 from compound import *
 
 
-def compute_povray_color(self):
+def compute_pigment(self):
     if self.color:
-        return self.color
+        string= self.color
     else:
         i=self.rgbIntensity
         r=self.rgb
-        return "rgb <"+i*r[0]+","+i*r[1]+","+i*r[2]+">"
+        string="rgb <"+str(i*r[0])+","+str(i*r[1])+","+str(i*r[2])+">"
+    return "pigment {"+string+"} "
 
+def compute_normal(self):
+    return ""
+
+def compute_finish(self):
+    if hasattr(self,"minimumLight"):
+        diffuse="diffuse {"+str(self.minimumLight)+"}\n" # this illuminates everything thus no shadow
+    else:
+        diffuse=""
+    if hasattr(self,"lightAbsorption"):
+        ambient="ambient {"+str(self.lightAbsorption)+"}\n" # for more light without shadow (thus no contrast)
+    else:
+        ambient=""
+    if hasattr(self,"shadowsize"):
+        brilliance="brilliance {"+str(self.shadowsize)+"}\n" # controls the intensity of the reflectedd light vs the angle of incidence
+    else:
+        brilliance=""
+        # thus increasing self.dull increases the size of the shadowed region
+    #phong="phong "+str(self.phong[0])+" phong_size "+str(self.phong[1])+" " # finally I won't include this to keep simplicity
+    if hasattr(self,"spotgeometry"):
+        specular="specular {"+str(self.spotgeometry[0])+"} roughness {"+str(self.spotgeometry[1])+"}\n"
+    else:
+        specular=""
+    if hasattr(self,"spotcolor"):
+        metallic="metallic {"+str(self.spotcolor[2])+ "}\n"
+    else:
+        metallic=""
+    if hasattr(self,"reflection"):
+        reflection="reflection {"+str(self.reflection[0],self.reflection[1])+"}\n"
+    else:
+        reflection=""
+    myFinish=diffuse+ambient+brilliance+specular+metallic+reflection
+    if myFinish:
+        string="finish {\n"+myFinish+"}"
+    else:
+        string=""
+    return string
+
+def texture_string(self):
+    string=""
+    if hasattr(self,"texture"):
+        string=self.texture
+    string+=compute_pigment(self)
+    string+=compute_normal(self)
+    string+=compute_finish(self)
+    if string:
+        return "texture {"+string+"}"
+    else:
+        return ""
+
+
+    
 def povrayVector(p):
     return("<"+str(p[0])+","+str(p[1])+","+str(p[2])+">")
 
@@ -56,35 +108,18 @@ def povrayMatrix(M):
     return(string)
 
 
-def texture_string(self):
-    try:
-        return ("texture { "+self.texture+" }")
-    except AttributeError:
-        if self.color is None:
-            string= ""
-        else:
-            string="pigment {color "+self.color+"}"
-        try:
-            string+="finish { "+self.finish +"}"
-        except AttributeError:
-            string+=" finish{metallic phong 1}"
-        string="texture { "+string+" }"
-        return string
-
-    
-
-def modifier_texture(self,camera):
-    "Returns a string describing the texture of the object"
+def material_string(self,camera):
+    "Returns a string describing the material of the object"
     string=""
     if self.visibility<camera.visibilityLevel:
         string+=" no_shadow no_image no_reflection \n" 
-    try:
+    if hasattr(self,"material"):
         string+=self.material+"\n"
-    except AttributeError:
-        string+=" material{"+ texture_string(self)+ " } \n "
-    return string
+    string+=texture_string(self)
+    return "material {"+string+"}" #never empty since there is a default rgb
 
-def modifier_matrix(self):
+
+def matrix_string(self):
     "Returns a string describing the matrix self.mapFromParts of the object"
     if isinstance(self,Primitive):
         string= ""
@@ -95,9 +130,9 @@ def modifier_matrix(self):
 
 
 
-def modifier(self,camera):
+def modifier_string(self,camera):
     "Returns a string describing the modifier of the object"
-    return modifier_texture(self,camera)+modifier_matrix(self)
+    return material_string(self,camera)+matrix_string(self)
 
 
 
@@ -116,23 +151,23 @@ def object_string_but_CSG(self,camera):
         else:
             openString=""
     if isinstance(self,Cylinder):
-        string+="cylinder{"+povrayVector(self.parts.start)+","+povrayVector(self.parts.end)+","+str(self.parts.radius)+ openString+" "+modifier(self,camera)+"}"
+        string+="cylinder{"+povrayVector(self.parts.start)+","+povrayVector(self.parts.end)+","+str(self.parts.radius)+ openString+" "+modifier_string(self,camera)+"}"
     if isinstance(self,ICylinder):
-        string+="quadric{"+povrayVector(vector(1,1,0))+","+povrayVector(vector(0,0,0))+"," +povrayVector(vector(0,0,0)) + ",-"+str(self.parts.radius**2)+ modifier(self,camera)+"}"
+        string+="quadric{"+povrayVector(vector(1,1,0))+","+povrayVector(vector(0,0,0))+"," +povrayVector(vector(0,0,0)) + ",-"+str(self.parts.radius**2)+ modifier_string(self,camera)+"}"
     elif isinstance(self,Torus) :
-        string+="torus {\n"+str(self.parts.externalRadius)+","+str(self.parts.internalRadius)+" "+modifier(self,camera)+"}\n"
+        string+="torus {\n"+str(self.parts.externalRadius)+","+str(self.parts.internalRadius)+" "+modifier_string(self,camera)+"}\n"
     elif isinstance(self,Cube) :
-        string+="box {\n"+povrayVector(self.parts.start)+","+povrayVector(self.parts.end)+" "+modifier(self,camera)+"}\n"
+        string+="box {\n"+povrayVector(self.parts.start)+","+povrayVector(self.parts.end)+" "+modifier_string(self,camera)+"}\n"
     elif isinstance(self,RoundBox) :
         if self.merge:
             merge="0"
         else: merge="1"
         radius=str(self.wireRadius)
-        string+="object{Round_Box (\n"+povrayVector(self.parts.start)+","+povrayVector(self.parts.end)+","+radius+","+merge+")"+ " "+modifier(self,camera)+"}\n"
+        string+="object{Round_Box (\n"+povrayVector(self.parts.start)+","+povrayVector(self.parts.end)+","+radius+","+merge+")"+ " "+modifier_string(self,camera)+"}\n"
     elif isinstance(self,Sphere) :
-        string+="sphere {\n"+povrayVector(self.parts.center)+","+str(self.parts.radius)+" "+modifier(self,camera)+"}\n"
+        string+="sphere {\n"+povrayVector(self.parts.center)+","+str(self.parts.radius)+" "+modifier_string(self,camera)+"}\n"
     elif isinstance(self,AffinePlane) :
-        string+="plane {\n"+povrayVector(self.normal)+","+str(-self[3]/self.normal.norm)+" "+modifier(self,camera)+"}\n"
+        string+="plane {\n"+povrayVector(self.normal)+","+str(-self[3]/self.normal.norm)+" "+modifier_string(self,camera)+"}\n"
         # Orientation Checked with the following code
         #s=Sphere(origin,.1).colored("Red")
         #p1=plane(Z,origin+.05*Z)
@@ -142,7 +177,7 @@ def object_string_but_CSG(self,camera):
         #s.intersected_by(p1)
     elif isinstance(self,Cone) :
         #print(self)
-        string+="cone {\n"+povrayVector(self.parts.start)+","+str(self.parts.radius1)+"\n"+ povrayVector(self.parts.end)+","+str(self.parts.radius2)+" "+modifier(self,camera)+"}\n"
+        string+="cone {\n"+povrayVector(self.parts.start)+","+str(self.parts.radius1)+"\n"+ povrayVector(self.parts.end)+","+str(self.parts.radius2)+" "+modifier_string(self,camera)+"}\n"
     elif isinstance(self,Lathe) :
         if isinstance(self.parts.curve,Polyline):
             latheType="linear_spline"
@@ -150,7 +185,7 @@ def object_string_but_CSG(self,camera):
             latheType="bezier_spline"
         string+="lathe {\n"+latheType+" "+str(len(self.parts.curve))+"\n"
         for p in self.parts.curve: string+=","+point_to_povray2d(p,1,2)
-        string+=modifier(self,camera)+"}\n"
+        string+=modifier_string(self,camera)+"}\n"
     elif isinstance(self,RuledSurface):
         string+="mesh2 { vertex_vectors { "+str(2*len(self.parts.timeList1))+"\n"
         for t in self.parts.timeList1:
@@ -182,17 +217,17 @@ def object_string_but_CSG(self,camera):
         for i in xrange(len(self.parts.timeList1)-1):
             string+=",<" +str(i)+ ","+ str(i+1)+","+str(i+len(self.parts.timeList1))+">"
             string+=",<"+str(i+1)+","+str(i+len(self.parts.timeList1))+","+str(i+1+len(self.parts.timeList1))+">\n"
-        string+="}\n"+modifier(self,camera)+"}\n"
+        string+="}\n"+modifier_string(self,camera)+"}\n"
     elif isinstance(self,Prism) :
         #print(self)
-        #string+="prism {\n  "+str(self.height(1))+","+str(self.height(2))+","+str(self.povrayNumberOfPoints)+",".join([point_to_povray2d(p,0,2) for p in self.polyline1]+[point_to_povray2d(p,0,2) for p in self.polyline2] )+" "+modifier(self,camera)+" }\n"
+        #string+="prism {\n  "+str(self.height(1))+","+str(self.height(2))+","+str(self.povrayNumberOfPoints)+",".join([point_to_povray2d(p,0,2) for p in self.polyline1]+[point_to_povray2d(p,0,2) for p in self.polyline2] )+" "+modifier_string(self,camera)+" }\n"
         string+="prism {\n  "+str(self.height1)+","+str(self.height2)+" , "+str(self.povrayNumberOfPoints)+","+",".join([point_to_povray2d(p,0,2) for p in self.polyline1] )+" "+" \n"
-        string+=modifier(self,camera)+"}\n"
+        string+=modifier_string(self,camera)+"}\n"
     elif isinstance(self,Polygon) :
         string+="polygon{"+str(len(self))+",+"
         for polygonPoint in self:
             string+=povrayVector(polygonPoint)
-        string+=modifier(self,camera)+"}\n"
+        string+=modifier_string(self,camera)+"}\n"
     return string   
 
 
@@ -237,8 +272,8 @@ def object_string_alone(self,camera):
         """
         if len(visibleSlaves)>0:
             retour= "union {"+" ".join([object_string_alone(slave,camera)
-                                        for slave in visibleSlaves])+" "+modifier_texture(self,camera) +" }"
-            # remark that we add the modifier_texture of self, but not the modifier_matrix, otherwise the slaves would be moved at an incorrect positiion
+                                        for slave in visibleSlaves])+" "+material_string(self,camera) +" }"
+            # remark that we add the material_string of self, but not the matrix_string, otherwise the slaves would be moved at an incorrect positiion
         else:
             retour=""
     elif todo.csgKeyword=="difference" or todo.csgKeyword=="intersection":
@@ -261,19 +296,10 @@ def object_string_recursive(self,camera):
     this function is the glue to call recursivly all children from the parent.
     The string for each element, parent or children, is done in  object_string_alone()
     """
-    #print("self string rec",self)
-    #print(self)
-    #print(type(self))
-    #print(isinstance(self,Cylinder))
     string=object_string_alone(self,camera)
     string+="\n\n"
- #   try:
-        #print(self.__class__)
-    #print(self.children)
     for child in self.children:
         string+=object_string_recursive(child,camera)
-#    except:
-#        raise ErrorName("stringRecursiveProblem")
     return string
 
 def camera_string(camera):

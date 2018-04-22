@@ -54,8 +54,7 @@ ground=plane(Z,origin) # a plane with normal the vector Z=vector(0,0,1) containi
 ground.color='DarkGreen' # The possible colors are the colors described in colors.inc in povray or a rgb color. 
 
 #wall=Room(Polyline([origin,X,X+Y,Y,-2*X,-Y])).colored("Yellow")
-table=Lamp()
-table.print_handles()
+
 
 camera=Camera()
 camera.projection="perspective"
@@ -64,7 +63,7 @@ camera.location=origin-0*X-1*Y+.2*Z
 #camera.povraylights="light_source {<"+ str(light.location[0])+","+str(light.location[1])+","+str(light.location[2])+ "> color White " + "}\n\n"
 #camera.actors=[wall,ground,cyl,cyl2,s] # what is seen by the camera
 #camera.actors=[table.c13,table.c12,table.s1] # what is seen by the camera#\\
-camera.actors=[table] # what is seen by the camera
+camera.actors=[ground] # what is seen by the camera
 camera.lookAt=origin
 camera.zoom(1)
 
