@@ -31,6 +31,7 @@ from elaborate import *
 from compound import *
 import povrayshoot 
 
+#This list will be appended when cameras are created. 
 camerasInScene=[]
 
 class Camera(Primitive):
@@ -42,9 +43,13 @@ class Camera(Primitive):
     
     
     def __init__(self):
-        self.ambientLight=defaultAmbientLight
-        self.imageHeight=800 # in pixels
-        self.imageWidth=1500
+        self.background=defaultBackground
+        self.includedFiles=includedFiles
+        self.ambientRgb=defaultAmbientRgb
+        self.ambientIntensity=defaultAmbientRgbIntensity
+        self.ambientColor=None
+        self.imageHeight=defaultImageHeight # in pixels
+        self.imageWidth=defaultImageWidth
         self.angle=(20./180.*math.pi)  #  use camera.zoom() to change
 		#the angle without computation headache involving tangents
         self.lookAt=point(0,0,0)
@@ -52,14 +57,13 @@ class Camera(Primitive):
         self.directFrame=True  # By default, direct frame with Z vertical,X on the right, Y in front of us
         self.location=point(0,-4,2)  # sensible for units in meters. the positive y are in front of us. 
         self.actors=[]
-        self.filmAllActors=True
-        self.file="/tmp/pycaoOutput.pov" # the place to store the photo
+        self.filmAllActors=filmAllActorsDefault
+        self.file=myPovFile # the place to store the photo
         self.visibilityLevel=1
         self.projection="perspective" # could be "orthographic", useful for checking
         self.technology="povray" #  only possibility at the moment
         self.lights=[]
-        self.povraylights=""#light_source {<"+ str(self.location[0])+","+str(self.location[1])+","+str(self.location[2]+10)+ "> color White " + "}\n\n"
-        self.povrayPreamble=defaultPovrayPreamble
+        self.povraylights=""
         self.quality=9 #
         self.silent=True # to display or not a lot of information when self.show is called
         self.defaultDistance=3 # The distance from the point looked at in left/right... views
@@ -91,6 +95,7 @@ class Camera(Primitive):
     def pov_to_png(self):
         #same as show for string computation except always -D
         if self.technology=="povray":
+            print(self.imageHeight,"est la hauteur")
             command="povray"
             options=""
             options+="-D "
@@ -125,4 +130,31 @@ class Camera(Primitive):
         self.upVector=- self.frontVector.cross(self.rightVector).normalized_copy()
         if not self.directFrame:
             self.rightVector=-self.rightVector
+    ################################################################
+    # now computaitions for povray using the argumeents of self
+    ################################################################
+    def ambient_string(self):
+        if self.ambientColor:
+            string=self.ambientColor
+        else:
+            i=self.ambientIntensity
+            r=self.ambientRgb
+            string="rgb <"+str(i*r[0])+","+str(i*r[1])+","+str(i*r[2])+">"
+        string="ambient_light "+string+"\n"
+        return string
+    
+    def global_settings_string(self):
+        string="global_settings { "
+        string+=self.ambient_string()
+        string+="}\n"
+        return string
+        
+    def include_string(self):
+        string=""
+        for file in self.includedFiles:
+            string+='#include "'+file+'"\n'
+        return string
+    def preamble_string(self):
+        string=self.global_settings_string()+self.include_string()+self.background
+        return string
 

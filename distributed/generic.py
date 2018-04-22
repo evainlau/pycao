@@ -500,3 +500,4 @@ class ObjectInWorld(object):
         """
         self.handle=getattr(self.dicohandle,name)
         return self.handle()
+

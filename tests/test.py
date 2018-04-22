@@ -67,8 +67,6 @@ camera.location=origin-0*X-1*Y+.2*Z
 camera.actors=[table] # what is seen by the camera
 camera.lookAt=origin
 camera.zoom(1)
-camera.imageHeight=800 # in pixels
-camera.imageWidth=900 
 
 
 camera.angle=0.84

@@ -16,8 +16,35 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
+myPovFile="/tmp/pycaoOutput.pov" # the place to store the photo
+defaultImageHeight=620 # in pixels
+defaultImageWidth=600
+filmAllActorsDefault=False # Not to change, since there are bugs at the moment in some objects which show up too many parts
+includedFiles=["colors.inc","metals.inc","textures.inc","shapes.inc"]
+defaultBackground="background {Blue}"
+################################################################
+#    Geometry
+################################################################
+
 screwPositiveRotations=True # ie rotation(axis,angle) "screws" when one looks  towards the axis and 
 # the graphical representation in 3D has x on right, y in front and z up.  
-defaultAmbientLight="rgb <1.07,1.07,1.07>"
-defaultPovrayPreamble='#include "colors.inc" \n#include "metals.inc" \n#include "textures.inc" \n#include "shapes.inc" \nbackground {Blue}\n\n'
-lightDefaultColor="rgb <2,2,2>"
+
+
+
+################################################################
+#    Lights and colors
+################################################################
+defaultLightType="spotlight"
+# Ambient
+defaultAmbientRgb=[.307,.307,.307]
+defaultAmbientRgbIntensity=1.2
+# lights with shadow
+shadowlightDefaultRgb=[.522,.522,.522]
+defaultShadowlightRgbIntensity=2# Same thing for lights with shadow
+# lights without shadow
+shadowlesslightDefaultRgb=[.322,.322,.322]
+defaultShadowlesslightRgbIntensity=.3# Same thing for lights without shadow
+# usual solid objects
+defaultRgb=[.25,.25,0] 
+defaultDiffuseMultiplier=.6
+defaultAmbientMultiplier=.15

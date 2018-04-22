@@ -349,8 +349,7 @@ class DoorHandle(Compound):
         self.add_axis("verticalAxis",verticalAxis)
 
 """ 
-* ameliorer la lampe pour ajouter un fil qui pendouille, puis un handle pour la mettre au plafond
-* faire une liste de handles et une methode join_handlePoints. 
+* ameliorer la lampe pour ajouter un fil qui pendouille, 
 * ajouter le thick triangle
 * debugger le plan qui n'est pas bouge' proprement par une action non orthogonale
 * ajouter des objets : 2 armoires, \'etagere, carrelage, lampe, amelioration fenetres
@@ -358,5 +357,5 @@ bouger la chair avec un above comme la table.
 * implementer les textures
 * ajouter le prisme et le polygone,le wall, la Room,fenetres a la doc, la librairie archi, la rounded box, 
 le torus
-dire que above marche avec des points dans la doc. 
+dire que above marche avec des points dans la doc,doc des handles 
 """

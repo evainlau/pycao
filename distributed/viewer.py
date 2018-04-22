@@ -104,7 +104,7 @@ class ViewerWindow(Gtk.Window):
             camera.quality=9
             Camera.showImage=False # When povray computes the image,does not pop-up
             camera.location=origin-3*Y+2*Z
-            camera.imageHeight=500 # in pixels
+            camera.imageHeight=defaultImageHeight # in pixels
             #camera.imageWidth=500
             #camera.zoom(1)
             tmpFile="/tmp/viewer"

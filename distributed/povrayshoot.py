@@ -30,6 +30,14 @@ from elaborate import *
 from compound import *
 
 
+def compute_povray_color(self):
+    if self.color:
+        return self.color
+    else:
+        i=self.rgbIntensity
+        r=self.rgb
+        return "rgb <"+i*r[0]+","+i*r[1]+","+i*r[2]+">"
+
 def povrayVector(p):
     return("<"+str(p[0])+","+str(p[1])+","+str(p[2])+">")
 
@@ -285,12 +293,11 @@ def camera_string(camera):
 
 def render(camera):
     booklet = open(camera.file, "w")
-    camera.povrayPreamble+="global_settings { ambient_light "+camera.ambientLight+" }"
-    booklet.write(camera.povrayPreamble)
+    booklet.write(camera.preamble_string())
     booklet.write(camera_string(camera))
-    booklet.write(camera.povraylights+"\n\n")
+    booklet.write(camera.povraylights+"\n")
     for light in camera.lights:
-        booklet.write("light_source {<"+ str(light.location[0])+","+str(light.location[1])+","+str(light.location[2])+ "> color "+ light.color + "}\n\n")
+        booklet.write(light.povray_string())
     import gc
     if camera.filmAllActors:
         camera.actors+=[p for p in groupPhoto if p.parent==[] ]

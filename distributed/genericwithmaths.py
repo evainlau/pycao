@@ -91,6 +91,9 @@ def _init_object(self,*args,**kwargs):
     self.children=[]
     self.parent=[]
     self.color=None
+    self.rgb=defaultRgb
+    self.diffuse=defaultDiffuseMultiplier
+    self.ambient=defaultAmbientMultiplier
     self.csgOperations=[]
     #print (allObjects)
     #print(self)

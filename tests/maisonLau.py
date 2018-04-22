@@ -85,36 +85,35 @@ door1.name="porte1"
 
 
 camera=Camera()
-print("arpes ceration Camera",camerasInScene)
 
 entrance=point(7,1,2)
 floorCenter=origin+3.5*Y+5.6*X
-#outsideLight1=Lamp(origin+6.8*Z-6*X-4*Y) # a light
 
-light2=Lamp().hooked_on(floorCenter-1.7*Y+2.5*Z).glued_on(room) # a light
+sun=Light(origin+100*(5*Z-1*X-4*Y)) # a light
+sun.rgbColor=[1,1,1]
 
+livingLamp=Lamp().hooked_on(floorCenter-1.7*Y+2.5*Z).glued_on(ground) # a light
+corridorLamp=Lamp(shadowless=False).hooked_on(origin+2.5*Z+8*X+3.15*Y).glued_on(room)
+#kitchenLamp=Lamp().hooked_on(origin+2.5*Z+2*X+1.5*Y).glued_on(room)
+#unseenLamp=Light().hooked_on(floorCenter-1*Y+1.2*Z+2*X).glued_on(ground) # a light
+#unseenLamp.color="rgb <1,1,1>"
 
-#light2=Light().hooked_on(floorCenter-1.7*Y+2.5*Z).glued_on(room) # a light
+#light4=Lamp().hooked_on(origin+2.5*Z+2*X+4.5*Y).glued_on(room)
 
-
-#light3=Lamp().hooked_on(origin+2.3*Z+8*X+2.7*Y).glued_on(room)
-
-
-#light4=Lamp().hooked_on(origin+2.3*Z+2*X+4.5*Y).glued_on(room)
-#light5=Lamp().hooked_on(origin+2.3*Z+2*X+1*Y).glued_on(room)#.,lightColor="rgb <.5,.5,.5>") # a light
 #light6=Light().hooked_on(floorCenter-5.7*Y+2.5*Z+X).glued_on(room) # a light
 #light65=Light().hooked_on(floorCenter-5.7*Y+2*Z+X).glued_on(room) # a light
 #light7=Light().hooked_on(floorCenter-1*X-5.7*Y+2.5*Z).glued_on(room) # a light
 #light8=Light().hooked_on(origin+3*X+.05*Y+2*Z).glued_on(room) # a light
 
-#table=Table(1.2,.8,.7,.03).colored("White").above(origin+4.8*X+1.5*Y).glued_on(room)
-table=Table(1.5,.8,1,.03).colored("White").glued_on(room)
+table=Table(1.2,.8,.7,.03).colored("White").above(origin+4.8*X+1.5*Y).glued_on(room)
+#table=Table(1.5,.8,1,.03).colored("White").glued_on(room)
 #table.visibiliy=0
-chair1=Chair().colored("White").above(origin+4.5*X+1.87*Y+.4*Z).glued_on(room)
+chair1=Chair().colored("White").above(origin+4.5*X+1.87*Y+.4*Z).glued_on(table)
 chair2=chair1.copy()
-chair2.colored("White").above(origin+5*X+1.8*Y+.4*Z).glued_on(room)
-chair2=Chair().colored("White").above(origin+4.5*X+1*Y+.4*Z).glued_on(room).self_rotate(3)
-chair2=Chair().colored("White").above(origin+5*X+1*Y+.4*Z).glued_on(room).self_rotate(3.5)
+chair2.colored("White").above(origin+5*X+1.8*Y+.4*Z).glued_on(table)
+chair2=Chair().colored("White").above(origin+4.5*X+1*Y+.4*Z).glued_on(table).self_rotate(3)
+chair2=Chair().colored("White").above(origin+5*X+1*Y+.4*Z).glued_on(table).self_rotate(3.5)
+table.translate(.82*X)
 stovePosistionOnFloor=origin+7.50*X+2.3*Y
 stove=Stove().glued_on(room).self_rotate(-math.pi/2)
 stove.translate(stovePosistionOnFloor-stove.floorPoint)
@@ -122,15 +121,14 @@ stove.translate(stovePosistionOnFloor-stove.floorPoint)
 
 camera.projection="orthographic"
 camera.projection="perspective"
-camera.location=origin+1.6*X+1.5*Y+1.62*Z
-camera.location=entrance
-camera.actors=[room,ground,light2] # what is seen by the camera
-#camera.actors=[ground,Cylinder(origin,origin+Z,0.1)] # what is seen by the camera
-camera.lookAt=origin
-#camera.lookAt=floorCenter-1.7*Y+1.5*Z
-camera.imageHeight=800 # in pixels
-camera.imageWidth=900 
+#camera.location=origin+1.6*X+1.5*Y+1.62*Z
+camera.location=entrance#-3.9*X+1*Y-.3*Z
+camera.actors=[room,ground] # what is seen by the camera
+#camera.lookAt=kitchenLamp.light.handle()
+camera.lookAt=entrance +1*Y-1.05*Z
 camera.angle=1.07
-print(camera.lights)
+for light in camera.lights:
+    print(light.povray_string())
+
 camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
 camera.show # show the photo, ie calls povray. 
