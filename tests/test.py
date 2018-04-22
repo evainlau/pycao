@@ -52,6 +52,7 @@ from architecturelibrary import *
 # a plane represented graphically as a half space 
 ground=plane(Z,origin) # a plane with normal the vector Z=vector(0,0,1) containing the origin
 ground.color='DarkGreen' # The possible colors are the colors described in colors.inc in povray or a rgb color. 
+ground.name="plan"
 
 #wall=Room(Polyline([origin,X,X+Y,Y,-2*X,-Y])).colored("Yellow")
 
@@ -70,7 +71,7 @@ camera.zoom(1)
 
 camera.angle=0.84
 camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
-camera.show # show the photo, ie calls povray. 
+#camera.show # show the photo, ie calls povray. 
 
 
 

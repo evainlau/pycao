@@ -52,11 +52,11 @@ from architecturelibrary import *
 # a plane represented graphically as a half space 
 ground=plane(Z,origin) # a plane with normal the vector Z=vector(0,0,1) containing the origin
 ground.color='DarkGreen' # The possible colors are the colors described in colors.inc in povray or a rgb color. 
-wallColor="pigment{ color rgb <0.75,0.5,0.3>} "
+
 
 #wall=Room(Polyline([origin,X,X+Y,Y,-2*X,-Y])).colored("Yellow")
 room=Room(Polyline([origin,7.012*Y,11.526*X,-5.64*Y,-3.614*X,-1.386*Y,-7.912*X]),insideThickness=.31).colored("White")
-room.floor.colored("OldGold")
+room.floor.colored("DarkBrown")#("OldGold")
 #wall=RoundWindow(radius=1,depth=.1,border=.1,texture="Yellow_Pine")
 room.add_window(wallNumber=0,wlength=1.8,wheight=2.15,wdepth=.1,deltaLength=4.106,deltaHeigth=0)
 backDoor=room.add_door(wallNumber=1,wlength=.9,wheight=2.15,wdepth=.1,deltaLength=5.756,deltaHeigth=0)#
@@ -64,6 +64,8 @@ room.add_window(wallNumber=2,wlength=1,wheight=1.06,wdepth=.1,deltaLength=1.37,d
 room.add_window(wallNumber=2,wlength=.7,wheight=1.05,wdepth=.1,deltaLength=3.57,deltaHeigth=1.10)
 room.add_window(wallNumber=3,wlength=.7,wheight=.7,wdepth=.1,deltaLength=2.57,deltaHeigth=1.60)
 outsideDoor=room.add_door(wallNumber=4,wlength=.9,wheight=2.15,wdepth=.1,deltaLength=.13,deltaHeigth=0,reverseHandle=True).colored("BrightGold").add_porthole()#
+outsideDoor.shadowsize=10
+outsideDoor.name="outsideDoor"
 room.add_window(wallNumber=5,wlength=2.2,wheight=2.15,wdepth=.1,deltaLength=1.056,deltaHeigth=0)
 room.add_window(wallNumber=5,wlength=1.8,wheight=1.05,wdepth=.1,deltaLength=4.056,deltaHeigth=1.1)
 room.add_perpendicular_wall(0,distance=2.74,wallLength=2.70,thickness=.08,measurementType="a",height=None).colored("Silver")
@@ -77,7 +79,7 @@ room.add_perpendicular_wall(3,distance=1.88,wallLength=.9,thickness=.08,measurem
 room.add_perpendicular_wall(3,distance=1.6,wallLength=1.1,thickness=.08,measurementType="a",offset=.95,height=None).colored("Silver")
 room.add_perpendicular_wall(3,distance=2.3,wallLength=1.1,thickness=.08,measurementType="a",offset=.95,height=None).colored("Silver")
 for w in room.walls:
-    w.texture=wallColor
+    w.rgb=[0.75,0.5,0.3]
 door1=room.add_door(wallNumber=8,wlength=.83,wheight=2.15,wdepth=.1,deltaLength=1.45).colored("BrightGold")#
 door1.name="porte1"
 
@@ -105,30 +107,34 @@ corridorLamp=Lamp(shadowless=False).hooked_on(origin+2.5*Z+8*X+3.15*Y).glued_on(
 #light7=Light().hooked_on(floorCenter-1*X-5.7*Y+2.5*Z).glued_on(room) # a light
 #light8=Light().hooked_on(origin+3*X+.05*Y+2*Z).glued_on(room) # a light
 
-table=Table(1.2,.8,.7,.03).colored("White").above(origin+4.8*X+1.5*Y).glued_on(room)
+table=Table(1.2,.8,.7,.03).colored("Khaki").above(origin+4.8*X+1.5*Y).glued_on(room)
+table.minimumLight=.0
+table.lightAbsorption=.0
+table.name="table"
 #table=Table(1.5,.8,1,.03).colored("White").glued_on(room)
 #table.visibiliy=0
-chair1=Chair().colored("White").above(origin+4.5*X+1.87*Y+.4*Z).glued_on(table)
+chair1=Chair().colored("Khaki").above(origin+4.5*X+1.87*Y+.4*Z).glued_on(table)
 chair2=chair1.copy()
-chair2.colored("White").above(origin+5*X+1.8*Y+.4*Z).glued_on(table)
-chair2=Chair().colored("White").above(origin+4.5*X+1*Y+.4*Z).glued_on(table).self_rotate(3)
-chair2=Chair().colored("White").above(origin+5*X+1*Y+.4*Z).glued_on(table).self_rotate(3.5)
+chair2.colored("Khaki").above(origin+5*X+1.8*Y+.4*Z).glued_on(table)
+chair2=Chair().colored("Khaki").above(origin+4.5*X+1*Y+.4*Z).glued_on(table).self_rotate(3)
+chair2=Chair().colored("Khaki").above(origin+5*X+1*Y+.4*Z).glued_on(table).self_rotate(3.5)
 table.translate(.82*X)
 stovePosistionOnFloor=origin+7.50*X+2.3*Y
 stove=Stove().glued_on(room).self_rotate(-math.pi/2)
 stove.translate(stovePosistionOnFloor-stove.floorPoint)
-
+stove.rgb=[.1,.1,.1]
 
 camera.projection="orthographic"
 camera.projection="perspective"
 #camera.location=origin+1.6*X+1.5*Y+1.62*Z
-camera.location=entrance#-3.9*X+1*Y-.3*Z
+camera.location=entrance-3.9*X+1*Y-.3*Z
 camera.actors=[room,ground] # what is seen by the camera
 #camera.lookAt=kitchenLamp.light.handle()
-camera.lookAt=entrance +1*Y-1.05*Z
+camera.lookAt=entrance+1*Y-1.05*Z
 camera.angle=1.07
-for light in camera.lights:
-    print(light.povray_string())
+#for light in camera.lights:
+#    print(light.povray_string())
 
+print ( povrayshoot.object_string_alone(table,camera))
 camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
 camera.show # show the photo, ie calls povray. 

@@ -29,14 +29,21 @@ from genericwithmaths import *
 from elaborate import *
 from compound import *
 
+def name_comment_string(self):
+    try:
+        string="\n//name: "+self.name+"\n"
+    except AttributeError:
+        string="\n//Unnamed Object\n"
+    return string
 
 def compute_pigment(self):
     if self.color:
         string= self.color
-    else:
+    elif self.rgb:
         i=self.rgbIntensity
         r=self.rgb
         string="rgb <"+str(i*r[0])+","+str(i*r[1])+","+str(i*r[2])+">"
+    else: return ""
     return "pigment {"+string+"} "
 
 def compute_normal(self):
@@ -44,15 +51,15 @@ def compute_normal(self):
 
 def compute_finish(self):
     if hasattr(self,"minimumLight"):
-        diffuse="diffuse {"+str(self.minimumLight)+"}\n" # this illuminates everything thus no shadow
+        diffuse="diffuse "+str(self.minimumLight)+"\n" # this illuminates everything thus no shadow
     else:
         diffuse=""
     if hasattr(self,"lightAbsorption"):
-        ambient="ambient {"+str(self.lightAbsorption)+"}\n" # for more light without shadow (thus no contrast)
+        ambient="ambient "+str(self.lightAbsorption)+"\n" # for more light without shadow (thus no contrast)
     else:
         ambient=""
     if hasattr(self,"shadowsize"):
-        brilliance="brilliance {"+str(self.shadowsize)+"}\n" # controls the intensity of the reflectedd light vs the angle of incidence
+        brilliance="brilliance "+str(self.shadowsize)+"\n" # controls the intensity of the reflectedd light vs the angle of incidence
     else:
         brilliance=""
         # thus increasing self.dull increases the size of the shadowed region
@@ -79,7 +86,7 @@ def compute_finish(self):
 def texture_string(self):
     string=""
     if hasattr(self,"texture"):
-        string=self.texture
+        string=self.texture+" "
     string+=compute_pigment(self)
     string+=compute_normal(self)
     string+=compute_finish(self)
@@ -116,8 +123,9 @@ def material_string(self,camera):
     if hasattr(self,"material"):
         string+=self.material+"\n"
     string+=texture_string(self)
-    return "material {"+string+"}" #never empty since there is a default rgb
-
+    if string:
+        return "material {"+string+"}" 
+    else: return ""
 
 def matrix_string(self):
     "Returns a string describing the matrix self.mapFromParts of the object"
@@ -141,10 +149,7 @@ def object_string_but_CSG(self,camera):
     """
     This is the code to get the string for an object which has no csg operations. 
     """
-    try:
-        string="\n//name: "+self.name+"\n"
-    except AttributeError:
-        string="\n//Unnamed Object\n"
+    string=name_comment_string(self)
     if isinstance(self,Cylinder) or isinstance(self,Cone):
         if self.parts.open:
             openString=" open "
@@ -239,11 +244,7 @@ def object_string_alone(self,camera):
     object_string_but_CSG is called. 
     """
     if (not hasattr(self,"visibility")) or self.visibility<camera.visibilityLevel:
-        #print(self.visibility)
-        #print("invisible")
-        #print(self)
         return ""
-    #print("avant")
     todoList=copy.copy(self.csgOperations)# list to be restaured at the end
     #print("tdlist",len(todoList))
     try:
@@ -271,7 +272,8 @@ def object_string_alone(self,camera):
         for a union, we take a new empty objectInWorld with a unique csg op which is the union of the slaves. 
         """
         if len(visibleSlaves)>0:
-            retour= "union {"+" ".join([object_string_alone(slave,camera)
+            retour="\n"+name_comment_string(self)
+            retour+= "union {"+" ".join([object_string_alone(slave,camera)
                                         for slave in visibleSlaves])+" "+material_string(self,camera) +" }"
             # remark that we add the material_string of self, but not the matrix_string, otherwise the slaves would be moved at an incorrect positiion
         else:

@@ -349,11 +349,12 @@ class DoorHandle(Compound):
         self.add_axis("verticalAxis",verticalAxis)
 
 """ 
+* reflechir a l'interaction des textures et du compound/elaborate. Sans doute self.aspect(parameter,value) qui va changer le self.aspect. 
+meme chose pour une difference. 
 * ajouter le thick triangle
 * debugger le plan qui n'est pas bouge' proprement par une action non orthogonale
-* ajouter des objets : 2 armoires, \'etagere, carrelage, amelioration fenetres
+* ajouter des objets : 2 armoires, \'etagere, carrelage, interrupteurs 
 bouger la chair avec un above comme la table. 
-* implementer les textures
 * ajouter le prisme et le polygone,le wall, la Room,fenetres a la doc, la librairie archi, la rounded box, 
 le torus
 dire que above marche avec des points dans la doc,doc des handles, des lampes, des couleurs.  

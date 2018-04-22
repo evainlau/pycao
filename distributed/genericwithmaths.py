@@ -91,7 +91,7 @@ def _init_object(self,*args,**kwargs):
     self.children=[]
     self.parent=[]
     self.color=None
-    self.rgb=defaultRgb
+    self.rgb=None # do not change since it would overwrite the textures
     self.rgbIntensity=defaultRgbIntensity
     self.diffuse=defaultDiffuseMultiplier
     self.ambient=defaultAmbientMultiplier
