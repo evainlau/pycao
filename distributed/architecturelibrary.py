@@ -357,5 +357,5 @@ bouger la chair avec un above comme la table.
 * implementer les textures
 * ajouter le prisme et le polygone,le wall, la Room,fenetres a la doc, la librairie archi, la rounded box, 
 le torus
-dire que above marche avec des points dans la doc,doc des handles 
+dire que above marche avec des points dans la doc,doc des handles, des lampes, des couleurs.  
 """
