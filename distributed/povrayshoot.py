@@ -50,30 +50,32 @@ def compute_normal(self):
     return ""
 
 def compute_finish(self):
-    if hasattr(self,"minimumLight"):
-        diffuse="diffuse "+str(self.minimumLight)+"\n" # this illuminates everything thus no shadow
+    if hasattr(self,"diffuse"):
+        diffuse="diffuse "+str(self.diffuse)+"\n" # this illuminates everything thus no shadow
     else:
         diffuse=""
-    if hasattr(self,"lightAbsorption"):
-        ambient="ambient "+str(self.lightAbsorption)+"\n" # for more light without shadow (thus no contrast)
+    if hasattr(self,"ambient"):
+        ambient="ambient "+str(self.ambient)+"\n" # for more light without shadow (thus no contrast)
     else:
         ambient=""
-    if hasattr(self,"shadowsize"):
-        brilliance="brilliance "+str(self.shadowsize)+"\n" # controls the intensity of the reflectedd light vs the angle of incidence
+    if hasattr(self,"shadow"):
+        brilliance="brilliance "+str(self.shadow)+"\n" # controls the intensity of the reflectedd light vs the angle of incidence
     else:
         brilliance=""
         # thus increasing self.dull increases the size of the shadowed region
     #phong="phong "+str(self.phong[0])+" phong_size "+str(self.phong[1])+" " # finally I won't include this to keep simplicity
-    if hasattr(self,"spotgeometry"):
-        specular="specular {"+str(self.spotgeometry[0])+"} roughness {"+str(self.spotgeometry[1])+"}\n"
+    if hasattr(self,"glintintensity"):
+        specular="specular {"+str(self.glintintensity)+"}"
+        if hasattr(self,"glintsize"):
+             specular+="roughness {"+str(self.glintsize)+"}\n"
     else:
         specular=""
-    if hasattr(self,"spotcolor"):
-        metallic="metallic {"+str(self.spotcolor[2])+ "}\n"
+    if hasattr(self,"glintcolor"):
+        metallic="metallic {"+str(self.glintcolor)+ "}\n"
     else:
         metallic=""
-    if hasattr(self,"reflection"):
-        reflection="reflection {"+str(self.reflection[0],self.reflection[1])+"}\n"
+    if hasattr(self,"reflect"):
+        reflection="reflection {"+str(self.reflect[0],self.reflect[1])+"}\n"
     else:
         reflection=""
     myFinish=diffuse+ambient+brilliance+specular+metallic+reflection
