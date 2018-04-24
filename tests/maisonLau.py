@@ -16,16 +16,18 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-
-
-pycaoDir="/home/laurent/subversion/articlesEtRechercheEnCours/pycao/pycaogit/distributed"
-#pycaoDir="/users/evain/subversion/articlesEtRechercheEnCours/pycao/distributed"
+import os 
+if os.environ['ordi']=="ordiFac":
+    pycaoDir="/users/evain/subversion/articlesEtRechercheEnCours/pycao/distributed"
+else:
+    pycaoDir="/home/laurent/subversion/articlesEtRechercheEnCours/pycao/pycaogit/distributed"
+#
 """
                 MODULES IMPORT
 """
 
 
-import os 
+
 import sys
 from os.path import expanduser
 sys.path.append(pycaoDir)

@@ -91,7 +91,7 @@ def _init_object(self,*args,**kwargs):
     self.children=[]
     self.parent=[]
     #from material import Texture
-    import material
+    #import material
     texture=Object()
     texture.color=None
     texture.rgb=None # do not change since it would overwrite the povray name textures
