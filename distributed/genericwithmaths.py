@@ -73,9 +73,9 @@ def _init_object(self,*args,**kwargs):
     keys = sorted(kwargs.keys())
     if "name" in keys:
         self.name=kwargs["name"]
-    self.materials=[]
-    if "material" in keys:
-        self.materials.append(kwargs["material"])
+#    self.materials=[]
+#    if "material" in keys:
+#        self.materials.append(kwargs["material"])
 #    else:
 #        self.materials.append(DEFAULT_COLOR)
     self.mapFromParts=Map.identity
@@ -90,11 +90,13 @@ def _init_object(self,*args,**kwargs):
     #print("dans Init")
     self.children=[]
     self.parent=[]
-    self.color=None
-    self.rgb=None # do not change since it would overwrite the textures
-    self.rgbIntensity=defaultRgbIntensity
-    self.diffuse=defaultDiffuseMultiplier
-    self.ambient=defaultAmbientMultiplier
+    #from material import Texture
+    import material
+    texture=Object()
+    texture.color=None
+    texture.rgb=None # do not change since it would overwrite the povray name textures
+    texture.rgbIntensity=defaultRgbIntensity
+    self.texture=texture
     self.csgOperations=[]
     #print (allObjects)
     #print(self)
@@ -104,6 +106,16 @@ def _init_object(self,*args,**kwargs):
         groupPhoto.append(self)
     #   not isinstance(self,MassPoint):
 
+def _textured(self,argument,value):
+    setattr(self.texture,argument,value)
+    if hasattr(self,"csgOperations") and len(self.csgOperations)>0:
+        for op in self.csgOperations:
+            slaves=op.csgSlaves
+            for slave  in slaves :
+                _textured(slave,argument,value)
+    return self
+
+    
 # def is_vector_object(self):
 #     return isinstance(self,MassPoint) and (self[3]==0)
 
@@ -113,7 +125,7 @@ def _init_object(self,*args,**kwargs):
 
 
 
-
+ObjectInWorld.textured=_textured
 ObjectInWorld.translate=_translate_object
 ObjectInWorld.rotate=_rotate_object
 ObjectInWorld.scale=_scale_object

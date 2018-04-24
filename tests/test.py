@@ -51,27 +51,29 @@ from architecturelibrary import *
 
 # a plane represented graphically as a half space 
 ground=plane(Z,origin) # a plane with normal the vector Z=vector(0,0,1) containing the origin
-ground.color='DarkGreen' # The possible colors are the colors described in colors.inc in povray or a rgb color. 
+ground.colored('DarkGreen') # The possible colors are the colors described in colors.inc in povray or a rgb color. 
 ground.name="plan"
 
 #wall=Room(Polyline([origin,X,X+Y,Y,-2*X,-Y])).colored("Yellow")
-
+c=Cube(2,.1,.03)
+c.textured("povtexture","Rosewood")
 
 camera=Camera()
 camera.projection="perspective"
 camera.filmAllActors=False
-camera.location=origin-0*X-1*Y+.2*Z
+camera.location=origin-0*X-0*Y+1*Z
+l=Light().translate(2*Y+15*Z)
 #camera.povraylights="light_source {<"+ str(light.location[0])+","+str(light.location[1])+","+str(light.location[2])+ "> color White " + "}\n\n"
 #camera.actors=[wall,ground,cyl,cyl2,s] # what is seen by the camera
 #camera.actors=[table.c13,table.c12,table.s1] # what is seen by the camera#\\
-camera.actors=[ground] # what is seen by the camera
+camera.actors=[ground,c] # what is seen by the camera
 camera.lookAt=origin
 camera.zoom(1)
 
 
 camera.angle=0.84
 camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
-#camera.show # show the photo, ie calls povray. 
+camera.show # show the photo, ie calls povray. 
 
 
 

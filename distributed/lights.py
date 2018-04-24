@@ -37,13 +37,13 @@ class Light(ObjectInWorld):
         self.location=location
         self.add_handle("location",location)
         if not shadow:
-            self.intensity=defaultShadowlesslightRgbIntensity
+            self.texture.rgbIntensity=defaultShadowlesslightRgbIntensity
         else:
-            self.intensity=defaultShadowlightRgbIntensity
+            self.texture.rgbIntensity=defaultShadowlightRgbIntensity
         if not shadow:
-            self.rgb=shadowlightDefaultRgb
+            self.texture.rgb=shadowlightDefaultRgb
         else:
-            self.rgb=shadowlesslightDefaultRgb
+            self.texture.rgb=shadowlesslightDefaultRgb
         self.lightType=lightType
         self.shadow=shadow
         for camera in cameraList:
@@ -59,12 +59,14 @@ class Light(ObjectInWorld):
         else:
             return ""
     def color_string(self):
-        if self.color:
-            string=self.color
-        else:
-            i=self.intensity
-            r=self.rgb
+        if hasattr(self.texture,"color")and self.texture.color is not None:
+            string=self.texture.color
+        elif hasattr(self.texture,"rgb") and self.texture.rgb is not None:
+            i=self.texture.rgbIntensity
+            r=self.texture.rgb
+            print(i,r,"was ir")
             string="rgb <"+str(i*r[0])+","+str(i*r[1])+","+str(i*r[2])+"> "
+        else: return ""
         return "color "+string
     def povray_string(self):
         string="light_source {"+self.location_string()+ self.color_string()+ self.lightType +" "+ self.shadow_string()+"}\n"
@@ -81,7 +83,7 @@ class PhysicalLamp(Compound):
     def conical():
         self=PhysicalLamp()
         cone=Cone(origin-.05*Z,origin+.2*Z,.4,.20,booleanOpen=True)
-        cone.texture="pigment {rgb<.55,.5,.5> filter .2} finish{diffuse .5 brilliance 0  ambient .5}"
+        cone.textured("rgb",[.55,.5,.5])
         cone.name="Lampe"
         cylinder1=Cylinder(origin+.2*Z,origin+.3*Z,0.005).colored("Black")
         cylinder2=Cylinder(origin+.3*Z,origin+.32*Z,.05).colored("Black")

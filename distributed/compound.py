@@ -92,11 +92,11 @@ class Compound(ElaborateOrCompound):
     def __str__(self):
         return "This is a compound"
 
-    def colored(self,string):
-        slaves=self.csgOperations[0].csgSlaves
-        for slave  in slaves :
-            slave.colored(string)
-        return self
+    # def colored(self,string):
+    #     slaves=self.csgOperations[0].csgSlaves
+    #     for slave  in slaves :
+    #         slave.colored(string)
+    #     return self
     
 class Lathe(Elaborate):
     """

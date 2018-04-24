@@ -1,4 +1,3 @@
-
 from uservariables import *
 from generic import *
 from mathutils import *
@@ -49,7 +48,7 @@ class Wall(Prism):
             center=self.center()
         w.translate(center-w.center)
         self.amputed_by(w.hole)
-
+        return self
         
     # @staticmethod
     # def from_x1y1x2y2_thickness_height(x1=0,y1=0,x_2=1,y_2=0,thickness=.2,height=2):
@@ -70,7 +69,7 @@ class Room(Compound):
     """ 
     A class to build a 3d-room from a 2D plan
     """
-    def __init__(self,floor=Polyline([origin-X-Y,2*Y,2*X,-2*Y,-2*X]),insideThickness=.25,outsideThickness=0,height=2.5,verticalVector=Z,texture="pigment{ color rgb <0.75,0.5,0.3>}  "):
+    def __init__(self,floor=Polyline([origin-X-Y,2*Y,2*X,-2*Y,-2*X]),insideThickness=.25,outsideThickness=0,height=2.5,verticalVector=Z, rgb=[0.75,0.5,0.3]):
         """
         This constructs a room whose exterior walls are along the floor. The interior walls are computed using 
         wall thickness. The polygon for the floor is in the plane z=0, with the points listed clockwise.
@@ -102,7 +101,7 @@ class Room(Compound):
         for lw in logicalWalls:
             polyline=Polyline([lw.insideLeftPoint,lw.insideRightPoint,lw.outsideLeftPoint,lw.outsideRightPoint,lw.insideLeftPoint])
             theWall=Wall.from_polyline_vector(polyline,height*verticalVector,insideThickness+outsideThickness)
-            theWall.texture=texture
+            theWall.textured("rgb",rgb)
             walls.append(theWall)
         floor=Polygon(outPoints).translate(0.000000001*verticalVector).colored("OldGold") # translation so that it is above the floor
         ceiling=floor.copy().translate(height*verticalVector).colored("White")
@@ -125,7 +124,7 @@ class Room(Compound):
         self.windows.append(w)
         if glued:
             w.glued_on(self)
-
+        return w
 
     def add_door(self,wallNumber,wlength,wheight,wdepth,deltaLength,deltaHeigth=0,fromOutside=True,reverseHandle=False,glued=True):
         """ adds a window of size (wlength,wheight,wdepth) on wall wallNumber, located 
@@ -166,19 +165,19 @@ class Room(Compound):
     
         
 class Window2(Compound):
-    def __init__(self,dx,dy,dz,border,holeBorder=None,texture="Yellow_Pine"):
+    def __init__(self,dx,dy,dz,border,holeBorder=None,color="Yellow_Pine"):
         """dx,dy,dz are the length,depth,height respectivly, border is the size of the border of the window """ 
         frame=Cube(dx,dy,dz)
-        frame.texture=texture
+        frame.colored(color)
         toCut=Cube(frame.point(border,-0.01,border,"aaa"),frame.point(border,-.01,border,"nnn"))
-        toCut.texture=texture
+        toCut.colored(color)
         frame.amputed_by(toCut)
         if holeBorder is None:
             holeBorder=border*.5
         # The hole will be used to cut the wall behind the window.
         hole=Cube(frame.point(holeBorder,-10000,holeBorder,"aaa"),frame.point(holeBorder,-10000,holeBorder,"nnn"))
         glass=Cube(frame.point(border,dy*.5-.001,border,"aaa"),frame.point(border,dy*.5-0.01,border,"nnn"))
-        glass.texture="Glass"
+        glass.textured("povtexture","Glass")
         Compound.__init__(self,[frame,glass,["normal",Y.copy()]])
         self.hole=hole.glued_on(self)
         self.hole.visibility=0
@@ -186,21 +185,21 @@ class Window2(Compound):
 
         
 class Window(Compound):
-    def __init__(self,dx,dy,dz,border,holeBorder=None,texture="Cork pigment{White}"):#"Yellow_Pine"):
+    def __init__(self,dx,dy,dz,border,holeBorder=None,texture="Cork"):#"Yellow_Pine"):
         """dx,dy,dz are the length,depth,height respectivly, border is the size of the border of the window """ 
         frame=RoundBox.from_dimensions(dx,dy,dz,.03)
         frame2=Cube(dx,dy,dz)
-        frame.texture=texture
+        frame.textured("povtexture",texture)
         toCut=Cube(frame2.point(border,-0.01,border,"aaa"),frame2.point(border,-.01,border,"nnn"))
-        toCut.texture=texture
+        toCut.textured("povtexture",texture)
         frame.amputed_by(toCut)
         if holeBorder is None:
             holeBorder=border*.5
         # The hole will be used to cut the wall behind the window.
         hole=Cube(frame2.point(holeBorder,-10000,holeBorder,"aaa"),frame2.point(holeBorder,-10000,holeBorder,"nnn"))
         glass=Cube(frame2.point(border,dy*.5-.001,border,"aaa"),frame2.point(border,dy*.5-0.01,border,"nnn"))
-        glass.texture="Glass"
-        Compound.__init__(self,[frame,glass,["normal",Y.copy()]])
+        glass.textured("povtexture","Glass")
+        Compound.__init__(self,[["frame",frame],["glass",glass],["normal",Y.copy()]])
         self.hole=hole.glued_on(self)
         self.hole.visibility=0
         self.add_box("windowBox",frame2.box())
@@ -210,7 +209,7 @@ class Door(Compound):
         """dx,dy,dz are the length,depth,height respectivly, the holeBorder is difference between the door and the hole
         The option reverseHandle is set to change the handle position from left to Right """
         
-        frame=Cube(dx,dy,dz)
+        frame=RoundBox.from_dimensions(dx,dy,dz,.025)
         #toCut=Cube(frame.point(border,-0.01,border,"aaa"),frame.point(border,-.01,border,"nnn"))
         #toCut.texture=texture
         #frame.amputed_by(toCut)
@@ -220,7 +219,9 @@ class Door(Compound):
         if doorhandle is None:
             doorhandle=DoorHandle()
         doorhandle.glued_on(self)
+        self.dhandle1=doorhandle
         doorhandle2=doorhandle.copy().move(Map.linear(-X,Y,Z)).glued_on(self)
+        self.dhandle2=doorhandle2
         hole=Cube(frame.point(holeBorder,-10000,holeBorder,"aaa"),frame.point(holeBorder,-10000,holeBorder,"nnn"))
         #glass=Cube(frame.point(border,dy*.5-.001,border,"aaa"),frame.point(border,dy*.5-0.01,border,"nnn"))
         #glass.texture="Glass"
@@ -240,7 +241,7 @@ class Door(Compound):
         self.add_box("windowBox",frame.box())
 
         
-    def add_porthole(self,texture="Cork pigment{White}"): # type = winoow or doord
+    def add_porthole(self,texture="Cork"): # type = winoow or doord
         w=RoundWindow(radius=.2,depth=.15,border=.02,texture=texture)
         #print(self.box().segment(None,.5,.5,"ppp"))
         mape=Map.rotational_difference(w.normal,self.box().segment(.5,None,1.6,"ppa").vector)
@@ -248,20 +249,21 @@ class Door(Compound):
         w.translate(self.point(.5,.5,1.6,"ppa")-w.frame.axis().point(.5,"p"))
         self.amputed_by(w.hole)
         w.glued_on(self)
-        return self
+        self.window=w
+        return w
         
         
 class RoundWindow(Compound):
     def __init__(self,radius,depth,border,texture="Yellow_Pine"):
         """ border is the size of the border of the window """ 
         frame=Cylinder(start=origin,end=origin+depth*Y,radius=radius,length=None,booleanOpen=False)
-        frame.texture=texture
+        frame.textured("povtexture",texture)
         self.normal=Y.copy()
         toCut=Cylinder(start=origin-Y,end=origin+depth*Y+Y,radius=radius-border,length=None,booleanOpen=False)
-        toCut.texture=texture
+        toCut.textured("povtexture",texture)
         frame.amputed_by(toCut)
         glass=Cylinder(start=origin+(.5*depth-.01)*Y,end=origin+(.5*depth+.01)*Y,radius=radius-border,length=None,booleanOpen=False)
-        glass.texture="Glass"
+        glass.textured("povtexture","Glass")
         self.hole=toCut.glued_on(self)
         self.hole.visibility=0
         Compound.__init__(self,[["frame",frame],glass])
@@ -312,9 +314,10 @@ class Chair(Compound):
         self.add_box("",seat.box())
 
 class Stove(Compound):
-    def __init__(self,roomHeight=2.5,texture="Cork pigment{Black}"):
+    def __init__(self,roomHeight=2.5,texture="New_Brass"):
         door=Window(.4,.05,.6,.05,holeBorder=None,texture=texture)
-        fireplace=RoundBox.from_dimensions(.4,.4,.6,.01)
+        door.glass.textured("reflect",.5)
+        fireplace=RoundBox.from_dimensions(.4,.4,.6,.01).textured("povtexture",texture)
         spacer=Cube(.38,.01,.58)
         spacer2=Cube(.38,.38,.01)        
         spacer.behind(door)
@@ -323,8 +326,8 @@ class Stove(Compound):
         floorPoint=spacer2.point(.5,.5,0,"ppp")
         cylstart=fireplace.point(.5,.5,1,"ppp")
         cylEnd=cylstart+(roomHeight-.61)*Z
-        cyl=Cylinder(cylstart,cylEnd,.08)
-        self.add_list_to_compound([door,spacer,fireplace,spacer2,cyl,["floorPoint",floorPoint]])
+        cyl=Cylinder(cylstart,cylEnd,.08).textured("povtexture",texture)
+        self.add_list_to_compound([["door",door],spacer,fireplace,spacer2,cyl,["floorPoint",floorPoint]])
         self.add_axis("axis",fireplace.segment(.5,.5,None,"ppp"))
 
 class DoorHandle(Compound):
@@ -340,7 +343,7 @@ class DoorHandle(Compound):
         handle=Torus.from_3_points(start,start+.03*X,start+.07*X-.02*Z,.01)
         handlePoint=middle.point(.5,1,.75,"ppp")
         self.add_list_to_compound([bottom,["middle",middle],top,axis,handle,["handlePoint",handlePoint]])
-        self.texture=texture
+        self.textured("povtexture",texture)
         scaleFactor=2
         mape=Map.linear(scaleFactor*X,scaleFactor*Y,scaleFactor*Z)
         self.move(mape)

@@ -37,11 +37,12 @@ def name_comment_string(self):
     return string
 
 def compute_pigment(self):
-    if self.color:
-        string= self.color
-    elif self.rgb:
-        i=self.rgbIntensity
-        r=self.rgb
+    #print(self,"in pigment")
+    if self.texture.color:
+        string= self.texture.color
+    elif self.texture.rgb:
+        i=self.texture.rgbIntensity
+        r=self.texture.rgb
         string="rgb <"+str(i*r[0])+","+str(i*r[1])+","+str(i*r[2])+">"
     else: return ""
     return "pigment {"+string+"} "
@@ -50,32 +51,35 @@ def compute_normal(self):
     return ""
 
 def compute_finish(self):
-    if hasattr(self,"diffuse"):
-        diffuse="diffuse "+str(self.diffuse)+"\n" # this illuminates everything thus no shadow
+    if hasattr(self.texture,"diffuse"):
+        diffuse="diffuse "+str(self.texture.diffuse)+"\n" # this illuminates everything thus no shadow
     else:
         diffuse=""
-    if hasattr(self,"ambient"):
-        ambient="ambient "+str(self.ambient)+"\n" # for more light without shadow (thus no contrast)
+    if hasattr(self.texture,"ambient"):
+        ambient="ambient "+str(self.texture.ambient)+"\n" # for more light without shadow (thus no contrast)
     else:
         ambient=""
-    if hasattr(self,"shadow"):
-        brilliance="brilliance "+str(self.shadow)+"\n" # controls the intensity of the reflectedd light vs the angle of incidence
+    if hasattr(self.texture,"shadow"):
+        brilliance="brilliance "+str(self.texture.shadow)+"\n" # controls the intensity of the reflectedd light vs the angle of incidence
     else:
         brilliance=""
-        # thus increasing self.dull increases the size of the shadowed region
-    #phong="phong "+str(self.phong[0])+" phong_size "+str(self.phong[1])+" " # finally I won't include this to keep simplicity
-    if hasattr(self,"glintintensity"):
-        specular="specular {"+str(self.glintintensity)+"}"
-        if hasattr(self,"glintsize"):
-             specular+="roughness {"+str(self.glintsize)+"}\n"
+        # thus increasing self.texture.dull increases the size of the shadowed region
+    #phong="phong "+str(self.texture.phong[0])+" phong_size "+str(self.texture.phong[1])+" " # finally I won't include this to keep simplicity
+    if hasattr(self.texture,"glintintensity"):
+        specular="specular "+str(self.texture.glintintensity)+" "
+        if hasattr(self.texture,"glintsize"):
+             specular+="roughness "+str(self.texture.glintsize)+"\n"
     else:
         specular=""
-    if hasattr(self,"glintcolor"):
-        metallic="metallic {"+str(self.glintcolor)+ "}\n"
+    if hasattr(self.texture,"glintcolor"):
+        metallic="metallic {"+str(self.texture.glintcolor)+ "}\n"
     else:
         metallic=""
-    if hasattr(self,"reflect"):
-        reflection="reflection {"+str(self.reflect[0],self.reflect[1])+"}\n"
+    if hasattr(self.texture,"reflect"):
+        try:
+            reflection="reflection {"+str(self.texture.reflect[0],self.texture.reflect[1])+"}\n"
+        except:
+            reflection="reflection {"+str(self.texture.reflect)+"}\n"
     else:
         reflection=""
     myFinish=diffuse+ambient+brilliance+specular+metallic+reflection
@@ -87,8 +91,8 @@ def compute_finish(self):
 
 def texture_string(self):
     string=""
-    if hasattr(self,"texture"):
-        string=self.texture+" "
+    if hasattr(self.texture,"povtexture"):
+        string=self.texture.povtexture+" "
     string+=compute_pigment(self)
     string+=compute_normal(self)
     string+=compute_finish(self)

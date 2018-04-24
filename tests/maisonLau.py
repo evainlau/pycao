@@ -19,7 +19,7 @@
 
 
 pycaoDir="/home/laurent/subversion/articlesEtRechercheEnCours/pycao/pycaogit/distributed"
-pycaoDir="/users/evain/subversion/articlesEtRechercheEnCours/pycao/distributed"
+#pycaoDir="/users/evain/subversion/articlesEtRechercheEnCours/pycao/distributed"
 """
                 MODULES IMPORT
 """
@@ -58,16 +58,22 @@ ground.color='DarkGreen' # The possible colors are the colors described in color
 room=Room(Polyline([origin,7.012*Y,11.526*X,-5.64*Y,-3.614*X,-1.386*Y,-7.912*X]),insideThickness=.31).colored("White")
 room.floor.colored("DarkBrown")#("OldGold")
 #wall=RoundWindow(radius=1,depth=.1,border=.1,texture="Yellow_Pine")
-room.add_window(wallNumber=0,wlength=1.8,wheight=2.15,wdepth=.1,deltaLength=4.106,deltaHeigth=0)
+myWin=room.add_window(wallNumber=0,wlength=1.8,wheight=2.15,wdepth=.1,deltaLength=4.106,deltaHeigth=0).colored("White")
 backDoor=room.add_door(wallNumber=1,wlength=.9,wheight=2.15,wdepth=.1,deltaLength=5.756,deltaHeigth=0)#
-room.add_window(wallNumber=2,wlength=1,wheight=1.06,wdepth=.1,deltaLength=1.37,deltaHeigth=1.10)
-room.add_window(wallNumber=2,wlength=.7,wheight=1.05,wdepth=.1,deltaLength=3.57,deltaHeigth=1.10)
-room.add_window(wallNumber=3,wlength=.7,wheight=.7,wdepth=.1,deltaLength=2.57,deltaHeigth=1.60)
-outsideDoor=room.add_door(wallNumber=4,wlength=.9,wheight=2.15,wdepth=.1,deltaLength=.13,deltaHeigth=0,reverseHandle=True).colored("BrightGold").add_porthole()#
-outsideDoor.shadowsize=10
+room.add_window(wallNumber=2,wlength=1,wheight=1.06,wdepth=.1,deltaLength=1.37,deltaHeigth=1.10).colored("White")
+room.add_window(wallNumber=2,wlength=.7,wheight=1.05,wdepth=.1,deltaLength=3.57,deltaHeigth=1.10).colored("White")
+room.add_window(wallNumber=3,wlength=.7,wheight=.7,wdepth=.1,deltaLength=2.57,deltaHeigth=1.60).colored("White")
+outsideDoor=room.add_door(wallNumber=4,wlength=.9,wheight=2.15,wdepth=.1,deltaLength=.13,deltaHeigth=0,reverseHandle=True).colored("BrightGold").textured("glintsize",500).textured("glintintensity",500)
+outsideDoor.add_porthole()
+outsideDoor.window.frame.textured("rgb",[.8,.8,.6])
+outsideDoor.window.frame.textured("rgbIntensity",.2)
 outsideDoor.name="outsideDoor"
-room.add_window(wallNumber=5,wlength=2.2,wheight=2.15,wdepth=.1,deltaLength=1.056,deltaHeigth=0)
-room.add_window(wallNumber=5,wlength=1.8,wheight=1.05,wdepth=.1,deltaLength=4.056,deltaHeigth=1.1)
+outsideDoor.textured("diffuse",.2)
+outsideDoor.textured("ambient",.3)
+outsideDoor.dhandle1.textured("ambient",0)
+outsideDoor.dhandle1.textured("diffuse",2)
+room.add_window(wallNumber=5,wlength=2.2,wheight=2.15,wdepth=.1,deltaLength=1.056,deltaHeigth=0).frame.colored("White")
+room.add_window(wallNumber=5,wlength=1.8,wheight=1.05,wdepth=.1,deltaLength=4.056,deltaHeigth=1.1).frame.colored("White")
 room.add_perpendicular_wall(0,distance=2.74,wallLength=2.70,thickness=.08,measurementType="a",height=None).colored("Silver")
 room.add_perpendicular_wall(1,distance=3.73+.85,wallLength=1.67+1.47,thickness=.08,measurementType="a",height=None).colored("Silver")
 room.add_perpendicular_wall(0,distance=3.31,wallLength=2.9,thickness=.08,measurementType="a",offset=3.73+.83,height=None).colored("Silver")#wall8
@@ -108,34 +114,41 @@ corridorLamp=Lamp(shadowless=False).hooked_on(origin+2.5*Z+8*X+3.15*Y).glued_on(
 #light8=Light().hooked_on(origin+3*X+.05*Y+2*Z).glued_on(room) # a light
 
 table=Table(1.2,.8,.7,.03).colored("Khaki").above(origin+4.8*X+1.5*Y).glued_on(room)
-table.minimumLight=.0
-table.lightAbsorption=.0
+table.textured("diffuse",0.5)
+table.textured("reflect",.0)
+table.textured("shadow",1)
+table.textured("glintsize",.05).textured("glintintensity",.25)
 table.name="table"
-#table=Table(1.5,.8,1,.03).colored("White").glued_on(room)
-#table.visibiliy=0
-chair1=Chair().colored("Khaki").above(origin+4.5*X+1.87*Y+.4*Z).glued_on(table)
+chair1=Chair().colored("Khaki").above(origin+4.5*X+1.87*Y+.4*Z).glued_on(table).textured("glintsize",.05).textured("glintintensity",.25)
 chair2=chair1.copy()
-chair2.colored("Khaki").above(origin+5*X+1.8*Y+.4*Z).glued_on(table)
-chair2=Chair().colored("Khaki").above(origin+4.5*X+1*Y+.4*Z).glued_on(table).self_rotate(3)
-chair2=Chair().colored("Khaki").above(origin+5*X+1*Y+.4*Z).glued_on(table).self_rotate(3.5)
+chair2.colored("Khaki").above(origin+5*X+1.8*Y+.4*Z).glued_on(table).textured("glintsize",.05).textured("glintintensity",.25)
+chair2=Chair().colored("Khaki").above(origin+4.5*X+1*Y+.4*Z).glued_on(table).self_rotate(3).textured("glintsize",.05).textured("glintintensity",.25)
+chair2=Chair().colored("Khaki").above(origin+5*X+1*Y+.4*Z).glued_on(table).self_rotate(3.5).textured("glintsize",.05).textured("glintintensity",.25)
 table.translate(.82*X)
 stovePosistionOnFloor=origin+7.50*X+2.3*Y
 stove=Stove().glued_on(room).self_rotate(-math.pi/2)
+stove.name="stove"
 stove.translate(stovePosistionOnFloor-stove.floorPoint)
 stove.rgb=[.1,.1,.1]
-#stove.
+stove.textured("diffuse",.1)
+#stove.textured("povtexture","New_Brass")
+stove.textured("ambient",0.05)
+stove.textured("glintsize",50)
+stove.textured("glintintensity",50)
 
 camera.projection="orthographic"
 camera.projection="perspective"
 #camera.location=origin+1.6*X+1.5*Y+1.62*Z
 camera.location=entrance-3.9*X+1*Y-.3*Z
 camera.actors=[room,ground] # what is seen by the camera
+#camera.actors=[outsideDoor]
 #camera.lookAt=kitchenLamp.light.handle()
 camera.lookAt=entrance+1*Y-1.05*Z
 camera.angle=1.07
 #for light in camera.lights:
 #    print(light.povray_string())
 
-print ( povrayshoot.object_string_alone(table,camera))
+print(myWin.texture.color)
+print ( povrayshoot.object_string_alone(myWin,camera))
 camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
 camera.show # show the photo, ie calls povray. 

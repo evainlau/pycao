@@ -278,9 +278,8 @@ class ObjectInWorld(object):
         return self.amputed_by(cylPercage,throwShapeAway=True)
 
     def colored(self,color):
-        self.color=color
+        self.textured("color",color)
         return self
-
 
 
 
