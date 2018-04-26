@@ -5,6 +5,7 @@ from aliases import *
 from genericwithmaths import *
 from elaborate import *
 from compound import *
+from material import *
 import povrayshoot 
 from cameras import *
 from lights import *
@@ -101,7 +102,7 @@ class Room(Compound):
         for lw in logicalWalls:
             polyline=Polyline([lw.insideLeftPoint,lw.insideRightPoint,lw.outsideLeftPoint,lw.outsideRightPoint,lw.insideLeftPoint])
             theWall=Wall.from_polyline_vector(polyline,height*verticalVector,insideThickness+outsideThickness)
-            theWall.textured("rgb",rgb)
+            theWall.rgbed(rgb)
             walls.append(theWall)
         floor=Polygon(outPoints).translate(0.000000001*verticalVector).colored("OldGold") # translation so that it is above the floor
         ceiling=floor.copy().translate(height*verticalVector).colored("White")
@@ -177,7 +178,7 @@ class Window2(Compound):
         # The hole will be used to cut the wall behind the window.
         hole=Cube(frame.point(holeBorder,-10000,holeBorder,"aaa"),frame.point(holeBorder,-10000,holeBorder,"nnn"))
         glass=Cube(frame.point(border,dy*.5-.001,border,"aaa"),frame.point(border,dy*.5-0.01,border,"nnn"))
-        glass.textured("povtexture","Glass")
+        glass.makeup(Texture("Glass","glassTexture"))
         Compound.__init__(self,[frame,glass,["normal",Y.copy()]])
         self.hole=hole.glued_on(self)
         self.hole.visibility=0
@@ -185,20 +186,20 @@ class Window2(Compound):
 
         
 class Window(Compound):
-    def __init__(self,dx,dy,dz,border,holeBorder=None,texture="Cork"):#"Yellow_Pine"):
+    def __init__(self,dx,dy,dz,border,holeBorder=None,texture=Texture("Cork")):#"Yellow_Pine"):
         """dx,dy,dz are the length,depth,height respectivly, border is the size of the border of the window """ 
         frame=RoundBox.from_dimensions(dx,dy,dz,.03)
         frame2=Cube(dx,dy,dz)
-        frame.textured("povtexture",texture)
+        frame.makeup(texture)
         toCut=Cube(frame2.point(border,-0.01,border,"aaa"),frame2.point(border,-.01,border,"nnn"))
-        toCut.textured("povtexture",texture)
+        toCut.makeup(texture)
         frame.amputed_by(toCut)
         if holeBorder is None:
             holeBorder=border*.5
         # The hole will be used to cut the wall behind the window.
         hole=Cube(frame2.point(holeBorder,-10000,holeBorder,"aaa"),frame2.point(holeBorder,-10000,holeBorder,"nnn"))
         glass=Cube(frame2.point(border,dy*.5-.001,border,"aaa"),frame2.point(border,dy*.5-0.01,border,"nnn"))
-        glass.textured("povtexture","Glass")
+        glass.makeup(Texture("Glass","glassTexture"))
         Compound.__init__(self,[["frame",frame],["glass",glass],["normal",Y.copy()]])
         self.hole=hole.glued_on(self)
         self.hole.visibility=0
@@ -224,7 +225,6 @@ class Door(Compound):
         self.dhandle2=doorhandle2
         hole=Cube(frame.point(holeBorder,-10000,holeBorder,"aaa"),frame.point(holeBorder,-10000,holeBorder,"nnn"))
         #glass=Cube(frame.point(border,dy*.5-.001,border,"aaa"),frame.point(border,dy*.5-0.01,border,"nnn"))
-        #glass.texture="Glass"
         if not reverseHandle:
             handlePointToLock1=frame.point(.1,0,1.05,"apa")
             handlePointToLock2=frame.point(.1,1,1.05,"apa")
@@ -241,7 +241,7 @@ class Door(Compound):
         self.add_box("windowBox",frame.box())
 
         
-    def add_porthole(self,texture="Cork"): # type = winoow or doord
+    def add_porthole(self,texture=Texture("Cork")): # type = winoow or doord
         w=RoundWindow(radius=.2,depth=.15,border=.02,texture=texture)
         #print(self.box().segment(None,.5,.5,"ppp"))
         mape=Map.rotational_difference(w.normal,self.box().segment(.5,None,1.6,"ppa").vector)
@@ -254,16 +254,16 @@ class Door(Compound):
         
         
 class RoundWindow(Compound):
-    def __init__(self,radius,depth,border,texture="Yellow_Pine"):
+    def __init__(self,radius,depth,border,texture=Texture("Yellow_Pine")):
         """ border is the size of the border of the window """ 
         frame=Cylinder(start=origin,end=origin+depth*Y,radius=radius,length=None,booleanOpen=False)
-        frame.textured("povtexture",texture)
+        frame.makeup(texture)
         self.normal=Y.copy()
         toCut=Cylinder(start=origin-Y,end=origin+depth*Y+Y,radius=radius-border,length=None,booleanOpen=False)
-        toCut.textured("povtexture",texture)
+        toCut.makeup(texture)
         frame.amputed_by(toCut)
         glass=Cylinder(start=origin+(.5*depth-.01)*Y,end=origin+(.5*depth+.01)*Y,radius=radius-border,length=None,booleanOpen=False)
-        glass.textured("povtexture","Glass")
+        glass.makeup(Texture("Glass"))
         self.hole=toCut.glued_on(self)
         self.hole.visibility=0
         Compound.__init__(self,[["frame",frame],glass])
@@ -316,8 +316,7 @@ class Chair(Compound):
 class Stove(Compound):
     def __init__(self,roomHeight=2.5,texture="New_Brass"):
         door=Window(.4,.05,.6,.05,holeBorder=None,texture=texture)
-        door.glass.textured("reflect",.5)
-        fireplace=RoundBox.from_dimensions(.4,.4,.6,.01).textured("povtexture",texture)
+        fireplace=RoundBox.from_dimensions(.4,.4,.6,.01).makeup(texture)
         spacer=Cube(.38,.01,.58)
         spacer2=Cube(.38,.38,.01)        
         spacer.behind(door)
@@ -326,12 +325,12 @@ class Stove(Compound):
         floorPoint=spacer2.point(.5,.5,0,"ppp")
         cylstart=fireplace.point(.5,.5,1,"ppp")
         cylEnd=cylstart+(roomHeight-.61)*Z
-        cyl=Cylinder(cylstart,cylEnd,.08).textured("povtexture",texture)
+        cyl=Cylinder(cylstart,cylEnd,.08).makeup(texture)
         self.add_list_to_compound([["door",door],spacer,fireplace,spacer2,cyl,["floorPoint",floorPoint]])
         self.add_axis("axis",fireplace.segment(.5,.5,None,"ppp"))
 
 class DoorHandle(Compound):
-    def __init__(self,texture="New_Brass",left=True):
+    def __init__(self,texture=Texture("New_Brass"),left=True):
         bottom=Cylinder(origin,origin+.005*Y,radius=.025)
         middle=Cube.from_list_of_points([origin-.025*X+.0*Z,origin+.025*X+.05*Z+.005*Y])
         top=copy.deepcopy(bottom)
@@ -343,7 +342,7 @@ class DoorHandle(Compound):
         handle=Torus.from_3_points(start,start+.03*X,start+.07*X-.02*Z,.01)
         handlePoint=middle.point(.5,1,.75,"ppp")
         self.add_list_to_compound([bottom,["middle",middle],top,axis,handle,["handlePoint",handlePoint]])
-        self.textured("povtexture",texture)
+        self.makeup(texture)
         scaleFactor=2
         mape=Map.linear(scaleFactor*X,scaleFactor*Y,scaleFactor*Z)
         self.move(mape)
@@ -352,8 +351,7 @@ class DoorHandle(Compound):
         self.add_axis("verticalAxis",verticalAxis)
 
 """ 
-* reflechir a l'interaction des textures et du compound/elaborate. Sans doute self.aspect(parameter,value) qui va changer le self.aspect. 
-meme chose pour une difference. 
+* remplacer les handle par des hook
 * ajouter le thick triangle
 * debugger le plan qui n'est pas bouge' proprement par une action non orthogonale
 * ajouter des objets : 2 armoires, \'etagere, carrelage, interrupteurs 

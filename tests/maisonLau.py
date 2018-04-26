@@ -42,6 +42,7 @@ from aliases import *
 from genericwithmaths import *
 from elaborate import *
 from compound import *
+from material import *
 import povrayshoot 
 from cameras import *
 from lights import *
@@ -59,21 +60,20 @@ ground.color='DarkGreen' # The possible colors are the colors described in color
 #wall=Room(Polyline([origin,X,X+Y,Y,-2*X,-Y])).colored("Yellow")
 room=Room(Polyline([origin,7.012*Y,11.526*X,-5.64*Y,-3.614*X,-1.386*Y,-7.912*X]),insideThickness=.31).colored("White")
 room.floor.colored("DarkBrown")#("OldGold")
+tex=room.floor.texture.enhance("normal {brick brick_size .4 mortar .003}")
+room.floor.makeup(tex)
 #wall=RoundWindow(radius=1,depth=.1,border=.1,texture="Yellow_Pine")
 myWin=room.add_window(wallNumber=0,wlength=1.8,wheight=2.15,wdepth=.1,deltaLength=4.106,deltaHeigth=0).colored("White")
 backDoor=room.add_door(wallNumber=1,wlength=.9,wheight=2.15,wdepth=.1,deltaLength=5.756,deltaHeigth=0)#
 room.add_window(wallNumber=2,wlength=1,wheight=1.06,wdepth=.1,deltaLength=1.37,deltaHeigth=1.10).colored("White")
 room.add_window(wallNumber=2,wlength=.7,wheight=1.05,wdepth=.1,deltaLength=3.57,deltaHeigth=1.10).colored("White")
 room.add_window(wallNumber=3,wlength=.7,wheight=.7,wdepth=.1,deltaLength=2.57,deltaHeigth=1.60).colored("White")
-outsideDoor=room.add_door(wallNumber=4,wlength=.9,wheight=2.15,wdepth=.1,deltaLength=.13,deltaHeigth=0,reverseHandle=True).colored("BrightGold").textured("glintsize",500).textured("glintintensity",500)
+outsideDoor=room.add_door(wallNumber=4,wlength=.9,wheight=2.15,wdepth=.1,deltaLength=.13,deltaHeigth=0,reverseHandle=True).colored("BrightGold")
 outsideDoor.add_porthole()
-outsideDoor.window.frame.textured("rgb",[.8,.8,.6])
-outsideDoor.window.frame.textured("rgbIntensity",.2)
+outsideDoor.window.frame.rgbed([.8,.8,.6])
 outsideDoor.name="outsideDoor"
-outsideDoor.textured("diffuse",.2)
-outsideDoor.textured("ambient",.3)
-outsideDoor.dhandle1.textured("ambient",0)
-outsideDoor.dhandle1.textured("diffuse",2)
+tex=outsideDoor.texture.enhance("normal {brick brick_size 1.5 mortar .05} ").move(Map.linear(X,Y,2*Z))
+outsideDoor.makeup(tex)
 room.add_window(wallNumber=5,wlength=2.2,wheight=2.15,wdepth=.1,deltaLength=1.056,deltaHeigth=0).frame.colored("White")
 room.add_window(wallNumber=5,wlength=1.8,wheight=1.05,wdepth=.1,deltaLength=4.056,deltaHeigth=1.1).frame.colored("White")
 room.add_perpendicular_wall(0,distance=2.74,wallLength=2.70,thickness=.08,measurementType="a",height=None).colored("Silver")
@@ -90,7 +90,7 @@ for w in room.walls:
     w.rgb=[0.75,0.5,0.3]
 door1=room.add_door(wallNumber=8,wlength=.83,wheight=2.15,wdepth=.1,deltaLength=1.45).colored("BrightGold")#
 door1.name="porte1"
-
+door1.makeup(tex)
 
 
 
@@ -116,27 +116,19 @@ corridorLamp=Lamp(shadowless=False).hooked_on(origin+2.5*Z+8*X+3.15*Y).glued_on(
 #light8=Light().hooked_on(origin+3*X+.05*Y+2*Z).glued_on(room) # a light
 
 table=Table(1.2,.8,.7,.03).colored("Khaki").above(origin+4.8*X+1.5*Y).glued_on(room)
-table.textured("diffuse",0.5)
-table.textured("reflect",.0)
-table.textured("shadow",1)
-table.textured("glintsize",.05).textured("glintintensity",.25)
 table.name="table"
-chair1=Chair().colored("Khaki").above(origin+4.5*X+1.87*Y+.4*Z).glued_on(table).textured("glintsize",.05).textured("glintintensity",.25)
+chair1=Chair().colored("Khaki").above(origin+4.5*X+1.87*Y+.4*Z).glued_on(table)
 chair2=chair1.copy()
-chair2.colored("Khaki").above(origin+5*X+1.8*Y+.4*Z).glued_on(table).textured("glintsize",.05).textured("glintintensity",.25)
-chair2=Chair().colored("Khaki").above(origin+4.5*X+1*Y+.4*Z).glued_on(table).self_rotate(3).textured("glintsize",.05).textured("glintintensity",.25)
-chair2=Chair().colored("Khaki").above(origin+5*X+1*Y+.4*Z).glued_on(table).self_rotate(3.5).textured("glintsize",.05).textured("glintintensity",.25)
+chair2.colored("Khaki").above(origin+5*X+1.8*Y+.4*Z).glued_on(table)
+chair2=Chair().colored("Khaki").above(origin+4.5*X+1*Y+.4*Z).glued_on(table).self_rotate(3)
+chair2=Chair().colored("Khaki").above(origin+5*X+1*Y+.4*Z).glued_on(table).self_rotate(3.5)
 table.translate(.82*X)
 stovePosistionOnFloor=origin+7.50*X+2.3*Y
 stove=Stove().glued_on(room).self_rotate(-math.pi/2)
 stove.name="stove"
 stove.translate(stovePosistionOnFloor-stove.floorPoint)
 stove.rgb=[.1,.1,.1]
-stove.textured("diffuse",.1)
-#stove.textured("povtexture","New_Brass")
-stove.textured("ambient",0.05)
-stove.textured("glintsize",50)
-stove.textured("glintintensity",50)
+
 
 camera.projection="orthographic"
 camera.projection="perspective"
@@ -150,7 +142,6 @@ camera.angle=1.07
 #for light in camera.lights:
 #    print(light.povray_string())
 
-print(myWin.texture.color)
-print ( povrayshoot.object_string_alone(myWin,camera))
+
 camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
 camera.show # show the photo, ie calls povray. 

@@ -83,7 +83,7 @@ class PhysicalLamp(Compound):
     def conical():
         self=PhysicalLamp()
         cone=Cone(origin-.05*Z,origin+.2*Z,.4,.20,booleanOpen=True)
-        cone.textured("rgb",[.55,.5,.5])
+        cone.rgbed([.55,.5,.5])
         cone.name="Lampe"
         cylinder1=Cylinder(origin+.2*Z,origin+.3*Z,0.005).colored("Black")
         cylinder2=Cylinder(origin+.3*Z,origin+.32*Z,.05).colored("Black")

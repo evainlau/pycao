@@ -91,12 +91,8 @@ def _init_object(self,*args,**kwargs):
     self.children=[]
     self.parent=[]
     #from material import Texture
-    #import material
-    texture=Object()
-    texture.color=None
-    texture.rgb=None # do not change since it would overwrite the povray name textures
-    texture.rgbIntensity=defaultRgbIntensity
-    self.texture=texture
+    import material
+    self.texture=material.yellowTexture
     self.csgOperations=[]
     #print (allObjects)
     #print(self)
@@ -106,13 +102,16 @@ def _init_object(self,*args,**kwargs):
         groupPhoto.append(self)
     #   not isinstance(self,MassPoint):
 
-def _textured(self,argument,value):
-    setattr(self.texture,argument,value)
+def _makeup(self,texture):
+    if isinstance(texture,str):#then should be a povray name texture
+        import material
+        texture=material.Texture(texture,name=texture,declare=False)
+    self.texture=texture
     if hasattr(self,"csgOperations") and len(self.csgOperations)>0:
         for op in self.csgOperations:
             slaves=op.csgSlaves
             for slave  in slaves :
-                _textured(slave,argument,value)
+                _makeup(slave,texture)
     return self
 
     
@@ -125,7 +124,7 @@ def _textured(self,argument,value):
 
 
 
-ObjectInWorld.textured=_textured
+ObjectInWorld.makeup=_makeup
 ObjectInWorld.translate=_translate_object
 ObjectInWorld.rotate=_rotate_object
 ObjectInWorld.scale=_scale_object

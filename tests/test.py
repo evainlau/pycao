@@ -43,6 +43,7 @@ from compound import *
 import povrayshoot 
 from cameras import *
 from lights import *
+from material import *
 from architecturelibrary import *
 
 """
@@ -55,9 +56,16 @@ ground.colored('DarkGreen') # The possible colors are the colors described in co
 ground.name="plan"
 
 #wall=Room(Polyline([origin,X,X+Y,Y,-2*X,-Y])).colored("Yellow")
-c=Cube(2,.1,.03)
-c.textured("povtexture","Rosewood")
+p=Pigment("color Red",name="monpig").move(Map.linear(X,Y,X),"apremove")
+t=Texture(name="tex1")
+t.enhance(p,name="matexture2")
 
+
+
+c=Cube(2,.1,.03).colored("Blue")
+
+#c.normal="normal { bumps scale .2 bump_size .01} "
+s=Sphere(origin,.1).colored("Red")
 camera=Camera()
 camera.projection="perspective"
 camera.filmAllActors=False
@@ -66,7 +74,7 @@ l=Light().translate(2*Y+15*Z)
 #camera.povraylights="light_source {<"+ str(light.location[0])+","+str(light.location[1])+","+str(light.location[2])+ "> color White " + "}\n\n"
 #camera.actors=[wall,ground,cyl,cyl2,s] # what is seen by the camera
 #camera.actors=[table.c13,table.c12,table.s1] # what is seen by the camera#\\
-camera.actors=[ground,c] # what is seen by the camera
+camera.actors=[ground,c,s] # what is seen by the camera
 camera.lookAt=origin
 camera.zoom(1)
 

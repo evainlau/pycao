@@ -48,7 +48,10 @@ def compute_pigment(self):
     return "pigment {"+string+"} "
 
 def compute_normal(self):
-    return ""
+    return ""#normal {brick   brick_size 1   mortar 0.02   scale 1}"# normal { bozo scale .01 bump_size 1} "
+    if hasattr(self,"normal"):
+        return self.normal
+    else: return ""
 
 def compute_finish(self):
     if hasattr(self.texture,"diffuse"):
@@ -121,17 +124,16 @@ def povrayMatrix(M):
     return(string)
 
 
-def material_string(self,camera):
-    "Returns a string describing the material of the object"
+def texture_string(self,camera):
+    "Returns a string describing the texture of the object"
     string=""
     if self.visibility<camera.visibilityLevel:
-        string+=" no_shadow no_image no_reflection \n" 
-    if hasattr(self,"material"):
-        string+=self.material+"\n"
-    string+=texture_string(self)
-    if string:
-        return "material {"+string+"}" 
-    else: return ""
+        string=" no_shadow no_image no_reflection \n"
+    else:
+        print("Debug",self,self.texture)
+        string+=" texture { "+self.texture.name+" }\n"
+    return string
+
 
 def matrix_string(self):
     "Returns a string describing the matrix self.mapFromParts of the object"
@@ -146,7 +148,7 @@ def matrix_string(self):
 
 def modifier_string(self,camera):
     "Returns a string describing the modifier of the object"
-    return material_string(self,camera)+matrix_string(self)
+    return texture_string(self,camera)+matrix_string(self)
 
 
 
@@ -241,7 +243,6 @@ def object_string_but_CSG(self,camera):
         string+=modifier_string(self,camera)+"}\n"
     return string   
 
-
 def object_string_alone(self,camera):
     """
     This method builds the povray string for an object alone, without its chiddren.
@@ -280,8 +281,8 @@ def object_string_alone(self,camera):
         if len(visibleSlaves)>0:
             retour="\n"+name_comment_string(self)
             retour+= "union {"+" ".join([object_string_alone(slave,camera)
-                                        for slave in visibleSlaves])+" "+material_string(self,camera) +" }"
-            # remark that we add the material_string of self, but not the matrix_string, otherwise the slaves would be moved at an incorrect positiion
+                                        for slave in visibleSlaves])+" "+texture_string(self,camera) +" }"
+            # remark that we add the texture_string of self, but not the matrix_string, otherwise the slaves would be moved at an incorrect positiion
         else:
             retour=""
     elif todo.csgKeyword=="difference" or todo.csgKeyword=="intersection":
@@ -296,8 +297,6 @@ def object_string_alone(self,camera):
     for slave in visibleSlaves:
         slave.visibility=slave.oldVisibility
     return retour
-
-
 
 def object_string_recursive(self,camera):
     """
@@ -321,14 +320,11 @@ def camera_string(camera):
             " look_at "+ povrayVector(camera.lookAt) +" }\n\n"
     return string
 
-
-
-
-
 def render(camera):
     booklet = open(camera.file, "w")
     booklet.write(camera.preamble_string())
     booklet.write(camera_string(camera))
+    booklet.write(globVars.TextureString)
     booklet.write(camera.povraylights+"\n")
     for light in camera.lights:
         booklet.write(light.povray_string())

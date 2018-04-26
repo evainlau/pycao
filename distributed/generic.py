@@ -35,11 +35,15 @@ from uservariables import *
 # the list of people included if filmAllActors==True
 groupPhoto=[]
 
-
 class Object(object):
     pass
 
+class Scene(Object):
+    "An object with a unique instance globVars to store the global variables of the scene"
+    def __init__(self):
+        self.TextureString=""
 
+globVars=Scene()
 
 class ObjectInWorld(object):
     """
@@ -278,7 +282,17 @@ class ObjectInWorld(object):
         return self.amputed_by(cylPercage,throwShapeAway=True)
 
     def colored(self,color):
-        self.textured("color",color)
+        import material
+        p=material.Pigment("color "+color,name=color+"Pigment")
+        t=self.texture.enhance(p)
+        self.makeup(t)
+        return self
+
+    def rgbed(self,list):
+        import material
+        p=material.Pigment("color rgb <"+str(list[0])+","+str(list[1])+","+str(list[2])+">")
+        t=self.texture.enhance(p)
+        self.makeup(t)
         return self
 
 
