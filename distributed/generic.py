@@ -294,16 +294,23 @@ class ObjectInWorld(object):
         return self
 
     def rgbed(self,list):
-        print("inrgbed1",self.texture.smallString)
+        #print("inrgbed1",self.texture.smallString)
         import material
         p=material.Pigment("color rgb <"+str(list[0])+","+str(list[1])+","+str(list[2])+">")
         t=self.texture.enhance(p)
         self.makeup(t) #for the csg childs
-        print("in rgbed",t.smallString)
+        #print("in rgbed",t.smallString)
+        return self
+
+    def light_level(self,value):
+        ambient=value*defaultAmbientMultiplier
+        diffuse=value*defaultDiffuseMultiplier
+        finish="finish {ambient "+str(ambient)+" diffuse "+str(diffuse)+"}"        
+        self.enhance(finish)
         return self
 
 
-
+    
 # class BoundedByBox(ObjectInWorld):
 #     """
 #     A class for objects with a box marker 

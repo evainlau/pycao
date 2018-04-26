@@ -46,6 +46,7 @@ from material import *
 import povrayshoot 
 from cameras import *
 from lights import *
+from material import *
 from architecturelibrary import *
 
 """
@@ -60,7 +61,13 @@ ground.colored('DarkGreen') # The possible colors are the colors described in co
 #wall=Room(Polyline([origin,X,X+Y,Y,-2*X,-Y])).colored("Yellow")
 room=Room(Polyline([origin,7.012*Y,11.526*X,-5.64*Y,-3.614*X,-1.386*Y,-7.912*X]),insideThickness=.31).colored("LightWood")
 room.floor.makeup(Texture.from_colorkw("DarkBrown"))#("OldGold")
+unleash([room.floor])
+room.floor.name="myFloor"
+normale="normal{ quilted 2 control0 0 control1 0 scale .3}"
+room.floor.texture.enhance(normale)
+print("apres la normale",room.floor.texture.smallString)
 room.ceiling.makeup(Texture.from_colorkw("White"))#("OldGold")
+print("apres le ceiling",room.floor.texture.smallString)
 #tex=room.floor.texture.copy().enhance("normal {brick brick_size .4 mortar .003}")
 #room.floor.makeup(tex)
 #wall=RoundWindow(radius=1,depth=.1,border=.1,texture="Yellow_Pine")
@@ -131,20 +138,22 @@ stove.name="stove"
 stove.translate(stovePosistionOnFloor-stove.floorPoint)
 stove.spacer.texture.enhance("finish {ambient 0.05}")
 
-
+print("avant le light level",room.floor.texture.smallString)
+print("avant le light level",room.floor.texture.smallString)
+room.light_level(1)
 camera.projection="orthographic"
 camera.projection="perspective"
 #camera.location=origin+1.6*X+1.5*Y+1.62*Z
 camera.location=entrance-3.9*X+1*Y-.3*Z
 camera.actors=[room,ground] # what is seen by the camera
-#camera.actors=[outsideDoor]
+#camera.actors=[room.floor]
 #camera.lookAt=kitchenLamp.light.handle()
 camera.lookAt=entrance+1*Y-1.05*Z
 camera.angle=1.07
 #for light in camera.lights:
 #    print(light.povray_string())
 
-
+print("a la fin",room.floor.texture.smallString)
 camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
 camera.show # show the photo, ie calls povray. 
 #print (globVars.TextureString)

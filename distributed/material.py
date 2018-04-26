@@ -111,6 +111,7 @@ class Texture(object):
             wc=len(listeOrItem.split())
             if wc>1:
                 outstring=self.smallString+" "+listeOrItem
+                print("oui avec",outstring)
                 self.__init__(outstring,name)
             else: # the item is a keyword, need to declare selfto add the item if not done already
                 keyword=listeOrItem
@@ -129,16 +130,6 @@ class Texture(object):
             print (type(listeOrItem),listeOrItem)
             raise NameError("The Texture should be enhances with a list,a PNF item, or a string")
         return self
-    
-    def enhanceOldToSuppress(self,listeOrItem,name=""):
-        if isinstance(listeOrItem,list):
-            newlist=[self]+listeOrItem
-        elif isinstance(listeOrItem,str) or isinstance(listeOrItem,PNFItem):
-            newlist=[self,listeOrItem]
-        else:
-            print (type(listeOrItem),listeOrItem)
-            raise NameError("The Texture should be enhances with a list,a PNF item, or a string")
-        return Texture.from_list(newlist,name=name)
 
     
     def move(self,mape,name=""):
@@ -148,14 +139,62 @@ class Texture(object):
 
     def copy(self):#no deepcopy needed since contains only strings
         return copy.copy(self)    
-    
+
+def unleash(liste):
+    texture=liste[0].texture
+    for obj in liste:
+        if not obj.texture==texture:
+            raise NameError("All objects must share the same texture to unleash it")
+    newtexture=texture.copy()
+    for obj in liste:
+        obj.makeup(newtexture)
+
+def _makeup(self,texture):
+    if isinstance(texture,str):#then should be a povray name texture
+        import material
+        texture=material.Texture(texture)
+    self.texture=texture
+    if hasattr(self,"csgOperations") and len(self.csgOperations)>0:
+        for op in self.csgOperations:
+            slaves=op.csgSlaves
+            for slave  in slaves :
+                _makeup(slave,texture)
+    return self
+
+def _enhance(self,value,name=""):
+    self.texture.enhance(value,name)
+    if hasattr(self,"csgOperations") and len(self.csgOperations)>0:
+        for op in self.csgOperations:
+            slaves=op.csgSlaves
+            for slave  in slaves :
+                _enhance(slave,value,name=name)
+    return self
+
+
+ObjectInWorld.makeup=_makeup
+ObjectInWorld.enhance=_enhance
+
+        
+        
+"""
+unleash code tested:
+c=Sphere(origin,.1)
+d=Sphere(origin+.2*X,.1)
+e=Sphere(origin+.4*X,.1)
+d.texture=c.texture
+e.texture=c.texture
+c.colored("Blue")
+import material
+material.unleash([d,e])
+d.colored("Green")
+material.unleash([c,d])
+"""
+        
 def defaultTexture():
     return Texture("pigment {Yellow}")
 
 """TO DO
 
-.colored prend la Texture et lui ajoute un pigment:texture.enhance([Pigment("color Red")])
-ou cree la structure si non existante.
 Verifier la possibilit\'e de faire un carrelage et la Brick normale sur la porte !
-Nettoyer les essais infructueux
+remplacer makeup par painted_by
 """

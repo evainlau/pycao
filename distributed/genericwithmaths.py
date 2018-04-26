@@ -102,29 +102,6 @@ def _init_object(self,*args,**kwargs):
         groupPhoto.append(self)
     #   not isinstance(self,MassPoint):
 
-def _makeup(self,texture):
-    if isinstance(texture,str):#then should be a povray name texture
-        import material
-        texture=material.Texture(texture)
-    self.texture=texture
-    if hasattr(self,"csgOperations") and len(self.csgOperations)>0:
-        for op in self.csgOperations:
-            slaves=op.csgSlaves
-            for slave  in slaves :
-                _makeup(slave,texture)
-    return self
-
-    
-# def is_vector_object(self):
-#     return isinstance(self,MassPoint) and (self[3]==0)
-
-# def is_point_object(self):
-#     return isinstance(self,MassPoint) and (self[3]==1)
-
-
-
-
-ObjectInWorld.makeup=_makeup
 ObjectInWorld.translate=_translate_object
 ObjectInWorld.rotate=_rotate_object
 ObjectInWorld.scale=_scale_object
@@ -235,3 +212,5 @@ ObjectInWorld.behind=_move_behind
 ObjectInWorld.on_left_of=_move_on_left_of
 ObjectInWorld.on_right_of=_move_on_right_of
 ObjectInWorld.show_box=_show_box
+
+
