@@ -54,14 +54,15 @@ from architecturelibrary import *
 
 # a plane represented graphically as a half space 
 ground=plane(Z,origin) # a plane with normal the vector Z=vector(0,0,1) containing the origin
-ground.color='DarkGreen' # The possible colors are the colors described in colors.inc in povray or a rgb color. 
+ground.colored('DarkGreen') # The possible colors are the colors described in colors.inc in povray or a rgb color. 
 
 
 #wall=Room(Polyline([origin,X,X+Y,Y,-2*X,-Y])).colored("Yellow")
-room=Room(Polyline([origin,7.012*Y,11.526*X,-5.64*Y,-3.614*X,-1.386*Y,-7.912*X]),insideThickness=.31).colored("White")
-room.floor.colored("DarkBrown")#("OldGold")
-tex=room.floor.texture.enhance("normal {brick brick_size .4 mortar .003}")
-room.floor.makeup(tex)
+room=Room(Polyline([origin,7.012*Y,11.526*X,-5.64*Y,-3.614*X,-1.386*Y,-7.912*X]),insideThickness=.31).colored("LightWood")
+room.floor.makeup(Texture.from_colorkw("DarkBrown"))#("OldGold")
+room.ceiling.makeup(Texture.from_colorkw("White"))#("OldGold")
+#tex=room.floor.texture.copy().enhance("normal {brick brick_size .4 mortar .003}")
+#room.floor.makeup(tex)
 #wall=RoundWindow(radius=1,depth=.1,border=.1,texture="Yellow_Pine")
 myWin=room.add_window(wallNumber=0,wlength=1.8,wheight=2.15,wdepth=.1,deltaLength=4.106,deltaHeigth=0).colored("White")
 backDoor=room.add_door(wallNumber=1,wlength=.9,wheight=2.15,wdepth=.1,deltaLength=5.756,deltaHeigth=0)#
@@ -76,16 +77,17 @@ tex=outsideDoor.texture.enhance("normal {brick brick_size 1.5 mortar .05} ").mov
 outsideDoor.makeup(tex)
 room.add_window(wallNumber=5,wlength=2.2,wheight=2.15,wdepth=.1,deltaLength=1.056,deltaHeigth=0).frame.colored("White")
 room.add_window(wallNumber=5,wlength=1.8,wheight=1.05,wdepth=.1,deltaLength=4.056,deltaHeigth=1.1).frame.colored("White")
-room.add_perpendicular_wall(0,distance=2.74,wallLength=2.70,thickness=.08,measurementType="a",height=None).colored("Silver")
-room.add_perpendicular_wall(1,distance=3.73+.85,wallLength=1.67+1.47,thickness=.08,measurementType="a",height=None).colored("Silver")
-room.add_perpendicular_wall(0,distance=3.31,wallLength=2.9,thickness=.08,measurementType="a",offset=3.73+.83,height=None).colored("Silver")#wall8
-room.add_perpendicular_wall(1,distance=3.4,wallLength=1.67+1.47,thickness=.16,measurementType="n",height=None).colored("Silver")
-room.add_perpendicular_wall(2,distance=2.94,wallLength=3.4,thickness=.08,measurementType="a",height=None).colored("Silver")
-room.add_perpendicular_wall(2,distance=0.95,wallLength=2.86,thickness=.08,measurementType="n",offset=.75,height=None).colored("Silver")
-room.add_perpendicular_wall(3,distance=.08,wallLength=.9,thickness=.16,measurementType="n",height=None).colored("Silver")
-room.add_perpendicular_wall(3,distance=1.88,wallLength=.9,thickness=.08,measurementType="a",height=None).colored("Silver")
-room.add_perpendicular_wall(3,distance=1.6,wallLength=1.1,thickness=.08,measurementType="a",offset=.95,height=None).colored("Silver")
-room.add_perpendicular_wall(3,distance=2.3,wallLength=1.1,thickness=.08,measurementType="a",offset=.95,height=None).colored("Silver")
+
+room.add_perpendicular_wall(0,distance=2.74,wallLength=2.70,thickness=.08,measurementType="a",height=None).colored("LightWood")
+room.add_perpendicular_wall(1,distance=3.73+.85,wallLength=1.67+1.47,thickness=.08,measurementType="a",height=None).colored("LightWood")
+room.add_perpendicular_wall(0,distance=3.31,wallLength=2.9,thickness=.08,measurementType="a",offset=3.73+.83,height=None).colored("LightWood")#wall8
+room.add_perpendicular_wall(1,distance=3.4,wallLength=1.67+1.47,thickness=.16,measurementType="n",height=None).colored("LightWood")
+room.add_perpendicular_wall(2,distance=2.94,wallLength=3.4,thickness=.08,measurementType="a",height=None).colored("LightWood")
+room.add_perpendicular_wall(2,distance=0.95,wallLength=2.86,thickness=.08,measurementType="n",offset=.75,height=None).colored("LightWood")
+room.add_perpendicular_wall(3,distance=.08,wallLength=.9,thickness=.16,measurementType="n",height=None).colored("LightWood")
+room.add_perpendicular_wall(3,distance=1.88,wallLength=.9,thickness=.08,measurementType="a",height=None).colored("LightWood")
+room.add_perpendicular_wall(3,distance=1.6,wallLength=1.1,thickness=.08,measurementType="a",offset=.95,height=None).colored("LightWood")
+room.add_perpendicular_wall(3,distance=2.3,wallLength=1.1,thickness=.08,measurementType="a",offset=.95,height=None).colored("LightWood")
 for w in room.walls:
     w.rgb=[0.75,0.5,0.3]
 door1=room.add_door(wallNumber=8,wlength=.83,wheight=2.15,wdepth=.1,deltaLength=1.45).colored("BrightGold")#
@@ -127,7 +129,7 @@ stovePosistionOnFloor=origin+7.50*X+2.3*Y
 stove=Stove().glued_on(room).self_rotate(-math.pi/2)
 stove.name="stove"
 stove.translate(stovePosistionOnFloor-stove.floorPoint)
-stove.rgb=[.1,.1,.1]
+stove.spacer.texture.enhance("finish {ambient 0.05}")
 
 
 camera.projection="orthographic"
@@ -145,3 +147,4 @@ camera.angle=1.07
 
 camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
 camera.show # show the photo, ie calls povray. 
+#print (globVars.TextureString)

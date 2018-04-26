@@ -78,6 +78,7 @@ class Room(Compound):
         Remark: if the point are listed counterclockwise, this messes the inside and outside of the room. 
         Doable in the future: compute the index of the polygon to know if it is clockwise. 
         """
+        self.name="Room"
         logicalWalls=[]
         outPoints=[]
         self.windows=[]
@@ -104,8 +105,9 @@ class Room(Compound):
             theWall=Wall.from_polyline_vector(polyline,height*verticalVector,insideThickness+outsideThickness)
             theWall.rgbed(rgb)
             walls.append(theWall)
-        floor=Polygon(outPoints).translate(0.000000001*verticalVector).colored("OldGold") # translation so that it is above the floor
+        floor=Polygon(outPoints).translate(0.000000001*verticalVector).colored("OldGold") # translation so that it is above the outside floor
         ceiling=floor.copy().translate(height*verticalVector).colored("White")
+        floor.name="Ceiling"
         liste=[["wall"+str(i),wall] for i,wall in enumerate(walls)]
         Compound.__init__(self,liste+[["ceiling",ceiling],["floor",floor]])
         self.walls=walls
@@ -178,7 +180,7 @@ class Window2(Compound):
         # The hole will be used to cut the wall behind the window.
         hole=Cube(frame.point(holeBorder,-10000,holeBorder,"aaa"),frame.point(holeBorder,-10000,holeBorder,"nnn"))
         glass=Cube(frame.point(border,dy*.5-.001,border,"aaa"),frame.point(border,dy*.5-0.01,border,"nnn"))
-        glass.makeup(Texture("Glass","glassTexture"))
+        glass.makeup(Texture("Glass"))
         Compound.__init__(self,[frame,glass,["normal",Y.copy()]])
         self.hole=hole.glued_on(self)
         self.hole.visibility=0
@@ -199,7 +201,8 @@ class Window(Compound):
         # The hole will be used to cut the wall behind the window.
         hole=Cube(frame2.point(holeBorder,-10000,holeBorder,"aaa"),frame2.point(holeBorder,-10000,holeBorder,"nnn"))
         glass=Cube(frame2.point(border,dy*.5-.001,border,"aaa"),frame2.point(border,dy*.5-0.01,border,"nnn"))
-        glass.makeup(Texture("Glass","glassTexture"))
+        glass.name="Window Glass"
+        glass.makeup(Texture("Glass"))
         Compound.__init__(self,[["frame",frame],["glass",glass],["normal",Y.copy()]])
         self.hole=hole.glued_on(self)
         self.hole.visibility=0
@@ -314,11 +317,11 @@ class Chair(Compound):
         self.add_box("",seat.box())
 
 class Stove(Compound):
-    def __init__(self,roomHeight=2.5,texture="New_Brass"):
+    def __init__(self,roomHeight=2.5,texture=Texture("New_Brass")):
         door=Window(.4,.05,.6,.05,holeBorder=None,texture=texture)
         fireplace=RoundBox.from_dimensions(.4,.4,.6,.01).makeup(texture)
-        spacer=Cube(.38,.01,.58)
-        spacer2=Cube(.38,.38,.01)        
+        spacer=Cube(.38,.01,.58).makeup(texture)
+        spacer2=Cube(.38,.38,.01).makeup(texture)
         spacer.behind(door)
         fireplace.behind(spacer)
         spacer2.below(fireplace)
@@ -326,7 +329,7 @@ class Stove(Compound):
         cylstart=fireplace.point(.5,.5,1,"ppp")
         cylEnd=cylstart+(roomHeight-.61)*Z
         cyl=Cylinder(cylstart,cylEnd,.08).makeup(texture)
-        self.add_list_to_compound([["door",door],spacer,fireplace,spacer2,cyl,["floorPoint",floorPoint]])
+        self.add_list_to_compound([["door",door],["spacer",spacer],fireplace,spacer2,cyl,["floorPoint",floorPoint]])
         self.add_axis("axis",fireplace.segment(.5,.5,None,"ppp"))
 
 class DoorHandle(Compound):

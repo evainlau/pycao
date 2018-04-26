@@ -1,3 +1,4 @@
+
 from uservariables import *
 from generic import *
 from mathutils import *
@@ -10,19 +11,20 @@ from cameras import *
 from lights import *
 
 
-class PNFItem(object):
+class PNFItem(object):#PNF means Pigment,Normal or Finish
     def __init__(self,string,name=""):
         "Builds a instance from the given string. Computes a name if the name option is not filled"
         global globVars
-        if name:
-            self.name=name
-        else:
-            self.name="Id"+str(id(self))
         self.smallString=string # the 'small' povray string ie. without the surrounding Pigment{} or Normal{} or Finish{} or Texture{} 
         self.largeString=self.__class__.__name__.lower()+" {"+self.smallString+"}"
-        self.declareString="#declare "+self.name+" = "+self.largeString
-        globVars.TextureString+="\n"+self.declareString
+        if name:
+            self.name=name
+            self.declareString="#declare "+self.name+" = "+self.largeString
+            globVars.TextureString+="\n"+self.declareString
+        else:
+            self.name=""
 
+            
         
     def enhance(self,stringOrPNFItem,newname=""):
         """
@@ -30,8 +32,6 @@ class PNFItem(object):
         This may be used to add diffuse or ambient options in a finish, or a transformation in a pigment,normal, etc... 
         """
         built=self.__class__.__new__(self.__class__)
-        if not newname:
-            newname="Id"+str(id(built))
         def _tostring(a):
             if isinstance(a,str):
                 return a
@@ -49,30 +49,32 @@ class PNFItem(object):
         
         
 class Pigment(PNFItem):
-    def __init__(self,*args,**kwargs):
-        super(Pigment,self).__init__(*args,**kwargs)
+    def __init__(self,string,name=""):
+        super(Pigment,self).__init__(string,name=name)
     
 class Normal(PNFItem):
-    def __init__(self,*args,**kwargs):
-        super().__init__(self,*args,**kwargs)
+    def __init__(self,string,name=""):
+        super().__init__(self,string,name=name)
 
 class Finish(PNFItem):
-    def __init__(self,*args,**kwargs):
-        super().__init__(self,*args,**kwargs)
+    def __init__(self,string,name=""):
+        super().__init__(self,string,name=name)
 
 
 class Texture(object):
-    def __init__(self,string="",name="",declare=True):
-        if name:
-            self.name=name
-        else:
-            self.name="Id"+str(id(self))
+    def __init__(self,string="",name=""):
         self.smallString=string # the 'small' povray string ie. without the surrounding Pigment{} or Normal{} or Finish{} or Texture{} 
         self.largeString=self.__class__.__name__.lower()+" {"+self.smallString+"}"
-        if declare:
+        self.name=name
+        if self.name:
             self.declareString="#declare "+self.name+" = "+self.largeString
             globVars.TextureString+="\n"+self.declareString
-        
+
+    @staticmethod
+    def from_colorkw(ckw):
+        return Texture("pigment {color "+ckw+"}")
+
+            
     @staticmethod
     def from_list(pnflist,name=""):
         """ in the list, there should be at most one Texture instance. The list is reorded so that string instances go to the end 
@@ -96,8 +98,39 @@ class Texture(object):
         built.__init__(outstring,name)
         return built
 
-    
+
     def enhance(self,listeOrItem,name=""):
+        if isinstance(listeOrItem,list):
+            for entry in listeOrItem:
+                self.enhance(entry,name="")
+            if name:
+                self.name=name
+                self.declareString="#declare "+self.name+" = "+self.largeString
+                globVars.TextureString+="\n"+self.declareString
+        elif isinstance(listeOrItem,str):
+            wc=len(listeOrItem.split())
+            if wc>1:
+                outstring=self.smallString+" "+listeOrItem
+                self.__init__(outstring,name)
+            else: # the item is a keyword, need to declare selfto add the item if not done already
+                keyword=listeOrItem
+                if not self.name:
+                    self.name="Id"+str(id(self))
+                    self.declareString="#declare "+self.name+" = "+self.largeString
+                    globVars.TextureString+="\n"+self.declareString
+                outstring=self.name+" "+keyword
+                self.__init__(outstring,name)
+        elif isinstance(listeOrItem,PNFItem):
+            if listeOrItem.name:
+                self.enhance(listeOrItem.name,name)
+            else:
+                self.enhance(listeOrItem.largeString,name)
+        else:
+            print (type(listeOrItem),listeOrItem)
+            raise NameError("The Texture should be enhances with a list,a PNF item, or a string")
+        return self
+    
+    def enhanceOldToSuppress(self,listeOrItem,name=""):
         if isinstance(listeOrItem,list):
             newlist=[self]+listeOrItem
         elif isinstance(listeOrItem,str) or isinstance(listeOrItem,PNFItem):
@@ -113,7 +146,11 @@ class Texture(object):
         string="matrix "+povrayshoot.povrayMatrix(mape)
         return self.enhance(string,name)
 
-yellowTexture=Texture.from_list([Pigment("Yellow",name="YellowPigment")],name="YellowTexture")
+    def copy(self):#no deepcopy needed since contains only strings
+        return copy.copy(self)    
+    
+def defaultTexture():
+    return Texture("pigment {Yellow}")
 
 """TO DO
 

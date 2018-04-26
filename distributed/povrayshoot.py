@@ -130,8 +130,12 @@ def texture_string(self,camera):
     if self.visibility<camera.visibilityLevel:
         string=" no_shadow no_image no_reflection \n"
     else:
-        print("Debug",self,self.texture)
-        string+=" texture { "+self.texture.name+" }\n"
+        #print("DebugTextureString",self,self.texture)
+        myTexture=self.texture
+        if myTexture.name:
+            string+=" texture { "+myTexture.name+" }\n"
+        else:
+            string+=" texture { "+myTexture.smallString+" }\n"
     return string
 
 

@@ -282,17 +282,24 @@ class ObjectInWorld(object):
         return self.amputed_by(cylPercage,throwShapeAway=True)
 
     def colored(self,color):
+        " color should be a string known to povray"
         import material
-        p=material.Pigment("color "+color,name=color+"Pigment")
+        p=material.Pigment(color)
+        #print(p.smallString)
         t=self.texture.enhance(p)
-        self.makeup(t)
+        #print(self.texture.smallString)
+        #print("phasname",p.name)
+        self.makeup(t)#keep it for the childs in csg
+        #print("in colored",t.smallString)
         return self
 
     def rgbed(self,list):
+        print("inrgbed1",self.texture.smallString)
         import material
         p=material.Pigment("color rgb <"+str(list[0])+","+str(list[1])+","+str(list[2])+">")
         t=self.texture.enhance(p)
-        self.makeup(t)
+        self.makeup(t) #for the csg childs
+        print("in rgbed",t.smallString)
         return self
 
 

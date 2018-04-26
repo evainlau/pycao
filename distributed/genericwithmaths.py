@@ -92,7 +92,7 @@ def _init_object(self,*args,**kwargs):
     self.parent=[]
     #from material import Texture
     import material
-    self.texture=material.yellowTexture
+    self.texture=material.defaultTexture()
     self.csgOperations=[]
     #print (allObjects)
     #print(self)
@@ -105,7 +105,7 @@ def _init_object(self,*args,**kwargs):
 def _makeup(self,texture):
     if isinstance(texture,str):#then should be a povray name texture
         import material
-        texture=material.Texture(texture,name=texture,declare=False)
+        texture=material.Texture(texture)
     self.texture=texture
     if hasattr(self,"csgOperations") and len(self.csgOperations)>0:
         for op in self.csgOperations:
