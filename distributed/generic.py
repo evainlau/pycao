@@ -43,7 +43,8 @@ class Scene(Object):
     def __init__(self):
         self.TextureString=""
 
-globVars=Scene()
+globvars=Scene()
+globvars.userDefinedFunctions=""
 
 class ObjectInWorld(object):
     """

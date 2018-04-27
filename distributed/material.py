@@ -14,13 +14,13 @@ from lights import *
 class PNFItem(object):#PNF means Pigment,Normal or Finish
     def __init__(self,string,name=""):
         "Builds a instance from the given string. Computes a name if the name option is not filled"
-        global globVars
+        global globvars
         self.smallString=string # the 'small' povray string ie. without the surrounding Pigment{} or Normal{} or Finish{} or Texture{} 
         self.largeString=self.__class__.__name__.lower()+" {"+self.smallString+"}"
         if name:
             self.name=name
             self.declareString="#declare "+self.name+" = "+self.largeString
-            globVars.TextureString+="\n"+self.declareString
+            globvars.TextureString+="\n"+self.declareString
         else:
             self.name=""
 
@@ -31,20 +31,20 @@ class PNFItem(object):#PNF means Pigment,Normal or Finish
         takes a copy of self, adds the stringOrPNFItem options, and returns the modified copy
         This may be used to add diffuse or ambient options in a finish, or a transformation in a pigment,normal, etc... 
         """
-        built=self.__class__.__new__(self.__class__)
         def _tostring(a):
             if isinstance(a,str):
                 return a
             else:
                 return a.smallString
         stringToAdd=_tostring(stringOrPNFItem)
-        outstring=self.name+" "+stringToAdd
-        built.__init__(outstring,newname)
-        return built
+        outstring=self.smallString +" "+stringToAdd
+        self.__init__(outstring,newname)
+        return self
 
     def move(self,mape,name=""):
         import povrayshoot
         string="matrix "+povrayshoot.povrayMatrix(mape)
+        #
         return self.enhance(string,name)
         
         
@@ -68,7 +68,7 @@ class Texture(object):
         self.name=name
         if self.name:
             self.declareString="#declare "+self.name+" = "+self.largeString
-            globVars.TextureString+="\n"+self.declareString
+            globvars.TextureString+="\n"+self.declareString
 
     @staticmethod
     def from_colorkw(ckw):
@@ -106,19 +106,19 @@ class Texture(object):
             if name:
                 self.name=name
                 self.declareString="#declare "+self.name+" = "+self.largeString
-                globVars.TextureString+="\n"+self.declareString
+                globvars.TextureString+="\n"+self.declareString
         elif isinstance(listeOrItem,str):
             wc=len(listeOrItem.split())
             if wc>1:
                 outstring=self.smallString+" "+listeOrItem
-                print("oui avec",outstring)
+                #print("oui avec",outstring)
                 self.__init__(outstring,name)
             else: # the item is a keyword, need to declare selfto add the item if not done already
                 keyword=listeOrItem
                 if not self.name:
                     self.name="Id"+str(id(self))
                     self.declareString="#declare "+self.name+" = "+self.largeString
-                    globVars.TextureString+="\n"+self.declareString
+                    globvars.TextureString+="\n"+self.declareString
                 outstring=self.name+" "+keyword
                 self.__init__(outstring,name)
         elif isinstance(listeOrItem,PNFItem):
@@ -167,7 +167,8 @@ def _enhance(self,value,name=""):
         for op in self.csgOperations:
             slaves=op.csgSlaves
             for slave  in slaves :
-                _enhance(slave,value,name=name)
+                if not slave.texture==self.texture:#otherwise already done
+                    _enhance(slave,value,name=name)
     return self
 
 

@@ -64,7 +64,6 @@ class Light(ObjectInWorld):
         elif hasattr(self.texture,"rgb") and self.texture.rgb is not None:
             i=self.texture.rgbIntensity
             r=self.texture.rgb
-            print(i,r,"was ir")
             string="rgb <"+str(i*r[0])+","+str(i*r[1])+","+str(i*r[2])+"> "
         else: return ""
         return "color "+string

@@ -53,6 +53,26 @@ from architecturelibrary import *
                 SCENE DESCRIPTION
 """
 
+
+
+import povrayshoot
+
+#####
+#Functions
+######
+
+myFonc="\n#declare mortar1 = function (x,s){3*pow((mod(x/s,1)),2)-2*pow((mod(x/s,1)),3) } \n#declare mortar2 = function (x,s) {3*pow((mod(x/s+1,1)-1),2)-2*pow((mod(x/s+1,1)-1),3) }\n"
+globvars.userDefinedFunctions+=myFonc
+
+
+#######
+# colors, textures
+#######
+tw="pigment {LightWood} normal {agate .5 scale 4 bump_size .1}"
+t=Texture("Yellow_Pine").move(Map.linear(6*X,.3*Z,10*Y))
+tableBump="normal {agate .5 scale 4 bump_size .2}"
+
+
 # a plane represented graphically as a half space 
 ground=plane(Z,origin) # a plane with normal the vector Z=vector(0,0,1) containing the origin
 ground.colored('DarkGreen') # The possible colors are the colors described in colors.inc in povray or a rgb color. 
@@ -60,13 +80,20 @@ ground.colored('DarkGreen') # The possible colors are the colors described in co
 
 #wall=Room(Polyline([origin,X,X+Y,Y,-2*X,-Y])).colored("Yellow")
 room=Room(Polyline([origin,7.012*Y,11.526*X,-5.64*Y,-3.614*X,-1.386*Y,-7.912*X]),insideThickness=.31).colored("LightWood")
-room.floor.makeup(Texture.from_colorkw("DarkBrown"))#("OldGold")
+#room.light_level(1.5)
+room.enhance("normal {agate .5 scale 1 bump_size .05}")
+print(room.texture.smallString)
+rommTexture=room.walls[0]
+
 unleash([room.floor])
 room.floor.name="myFloor"
-normale="normal{ quilted 2 control0 0 control1 0 scale .3}"
-room.floor.texture.enhance(normale)
+
+
+room.floor.makeup(t)
 print("apres la normale",room.floor.texture.smallString)
+room.ceiling.name="Ceiling"
 room.ceiling.makeup(Texture.from_colorkw("White"))#("OldGold")
+room.ceiling.enhance("finish {ambient .3 }")
 print("apres le ceiling",room.floor.texture.smallString)
 #tex=room.floor.texture.copy().enhance("normal {brick brick_size .4 mortar .003}")
 #room.floor.makeup(tex)
@@ -85,16 +112,16 @@ outsideDoor.makeup(tex)
 room.add_window(wallNumber=5,wlength=2.2,wheight=2.15,wdepth=.1,deltaLength=1.056,deltaHeigth=0).frame.colored("White")
 room.add_window(wallNumber=5,wlength=1.8,wheight=1.05,wdepth=.1,deltaLength=4.056,deltaHeigth=1.1).frame.colored("White")
 
-room.add_perpendicular_wall(0,distance=2.74,wallLength=2.70,thickness=.08,measurementType="a",height=None).colored("LightWood")
-room.add_perpendicular_wall(1,distance=3.73+.85,wallLength=1.67+1.47,thickness=.08,measurementType="a",height=None).colored("LightWood")
-room.add_perpendicular_wall(0,distance=3.31,wallLength=2.9,thickness=.08,measurementType="a",offset=3.73+.83,height=None).colored("LightWood")#wall8
-room.add_perpendicular_wall(1,distance=3.4,wallLength=1.67+1.47,thickness=.16,measurementType="n",height=None).colored("LightWood")
-room.add_perpendicular_wall(2,distance=2.94,wallLength=3.4,thickness=.08,measurementType="a",height=None).colored("LightWood")
-room.add_perpendicular_wall(2,distance=0.95,wallLength=2.86,thickness=.08,measurementType="n",offset=.75,height=None).colored("LightWood")
-room.add_perpendicular_wall(3,distance=.08,wallLength=.9,thickness=.16,measurementType="n",height=None).colored("LightWood")
-room.add_perpendicular_wall(3,distance=1.88,wallLength=.9,thickness=.08,measurementType="a",height=None).colored("LightWood")
-room.add_perpendicular_wall(3,distance=1.6,wallLength=1.1,thickness=.08,measurementType="a",offset=.95,height=None).colored("LightWood")
-room.add_perpendicular_wall(3,distance=2.3,wallLength=1.1,thickness=.08,measurementType="a",offset=.95,height=None).colored("LightWood")
+room.add_perpendicular_wall(0,distance=2.74,wallLength=2.70,thickness=.08,measurementType="a",height=None).makeup(tw)
+room.add_perpendicular_wall(1,distance=3.73+.85,wallLength=1.67+1.47,thickness=.08,measurementType="a",height=None).makeup(tw)
+room.add_perpendicular_wall(0,distance=3.31,wallLength=2.9,thickness=.08,measurementType="a",offset=3.73+.83,height=None).makeup(tw)#wall8
+room.add_perpendicular_wall(1,distance=3.4,wallLength=1.67+1.47,thickness=.16,measurementType="n",height=None).makeup(tw)
+room.add_perpendicular_wall(2,distance=2.94,wallLength=3.4,thickness=.08,measurementType="a",height=None).makeup(tw)
+room.add_perpendicular_wall(2,distance=0.95,wallLength=2.86,thickness=.08,measurementType="n",offset=.75,height=None).makeup(tw)
+room.add_perpendicular_wall(3,distance=.08,wallLength=.9,thickness=.16,measurementType="n",height=None).makeup(tw)
+room.add_perpendicular_wall(3,distance=1.88,wallLength=.9,thickness=.08,measurementType="a",height=None).makeup(tw)
+room.add_perpendicular_wall(3,distance=1.6,wallLength=1.1,thickness=.08,measurementType="a",offset=.95,height=None).makeup(tw)
+room.add_perpendicular_wall(3,distance=2.3,wallLength=1.1,thickness=.08,measurementType="a",offset=.95,height=None).makeup(tw)
 for w in room.walls:
     w.rgb=[0.75,0.5,0.3]
 door1=room.add_door(wallNumber=8,wlength=.83,wheight=2.15,wdepth=.1,deltaLength=1.45).colored("BrightGold")#
@@ -124,7 +151,10 @@ corridorLamp=Lamp(shadowless=False).hooked_on(origin+2.5*Z+8*X+3.15*Y).glued_on(
 #light7=Light().hooked_on(floorCenter-1*X-5.7*Y+2.5*Z).glued_on(room) # a light
 #light8=Light().hooked_on(origin+3*X+.05*Y+2*Z).glued_on(room) # a light
 
-table=Table(1.2,.8,.7,.03).colored("Khaki").above(origin+4.8*X+1.5*Y).glued_on(room)
+
+
+
+table=Table(1.2,.8,.7,.03).colored("Khaki").above(origin+4.8*X+1.5*Y).glued_on(room).enhance(tableBump)
 table.name="table"
 chair1=Chair().colored("Khaki").above(origin+4.5*X+1.87*Y+.4*Z).glued_on(table)
 chair2=chair1.copy()
@@ -140,7 +170,7 @@ stove.spacer.texture.enhance("finish {ambient 0.05}")
 
 print("avant le light level",room.floor.texture.smallString)
 print("avant le light level",room.floor.texture.smallString)
-room.light_level(1)
+
 camera.projection="orthographic"
 camera.projection="perspective"
 #camera.location=origin+1.6*X+1.5*Y+1.62*Z
@@ -153,7 +183,8 @@ camera.angle=1.07
 #for light in camera.lights:
 #    print(light.povray_string())
 
-print("a la fin",room.floor.texture.smallString)
+#print("a la fin",room.floor.texture.smallString)
 camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
 camera.show # show the photo, ie calls povray. 
 #print (globVars.TextureString)
+#print(room.texture.smallString)

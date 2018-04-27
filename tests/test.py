@@ -62,16 +62,11 @@ ground.name="plan"
 
 #wall=Room(Polyline([origin,X,X+Y,Y,-2*X,-Y])).colored("Yellow")
 
-c=Sphere(origin,.1)
-d=Sphere(origin+.2*X,.1)
-e=Sphere(origin+.4*X,.1)
-d.texture=c.texture
-e.texture=c.texture
-c.colored("Blue")
-import material
-material.unleash([d,e])
-d.colored("Green")
-material.unleash([c,d])
+
+myFonc="#declare mortar1{x}{3*pow((x mod 1),2)-2*pow((x mod 1),3) } \n#declare mortar2{x} }{3*pow(((x+1) mod 1-1),2)-2*pow(((x+1) mod 1-1),3) }\n"
+globvars.userDefinedFunctions+=myFonc
+t=Texture(" normal { function { mortar1(x) } 1}")
+
 
 #c.normal="normal { bumps scale .2 bump_size .01} "
 #s=Sphere(origin,.1).colored("Red")
@@ -83,14 +78,14 @@ l=Light().translate(2*Y+15*Z)
 #camera.povraylights="light_source {<"+ str(light.location[0])+","+str(light.location[1])+","+str(light.location[2])+ "> color White " + "}\n\n"
 #camera.actors=[wall,ground,cyl,cyl2,s] # what is seen by the camera
 #camera.actors=[table.c13,table.c12,table.s1] # what is seen by the camera#\\
-camera.actors=[ground,c,] # what is seen by the camera
+camera.actors=[ground] # what is seen by the camera
 camera.lookAt=origin
 camera.zoom(1)
 
 
 camera.angle=0.84
 camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
-camera.show # show the photo, ie calls povray. 
+#camera.show # show the photo, ie calls povray. 
 
 
 

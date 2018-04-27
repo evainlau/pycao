@@ -327,8 +327,9 @@ def camera_string(camera):
 def render(camera):
     booklet = open(camera.file, "w")
     booklet.write(camera.preamble_string())
+    booklet.write(globvars.userDefinedFunctions)
     booklet.write(camera_string(camera))
-    booklet.write(globVars.TextureString)
+    booklet.write(globvars.TextureString)
     booklet.write(camera.povraylights+"\n")
     for light in camera.lights:
         booklet.write(light.povray_string())
