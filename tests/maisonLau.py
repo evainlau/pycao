@@ -25,15 +25,10 @@ else:
 """
                 MODULES IMPORT
 """
-
-
-
 import sys
 from os.path import expanduser
 sys.path.append(pycaoDir)
 import math
-
-
 
 from uservariables import *
 from generic import *
@@ -52,25 +47,33 @@ from architecturelibrary import *
 """
                 SCENE DESCRIPTION
 """
-
-
-
-import povrayshoot
-
 #####
 #Functions
 ######
 
-myFonc="\n#declare mortar1 = function (x,s){3*pow((mod(x/s,1)),2)-2*pow((mod(x/s,1)),3) } \n#declare mortar2 = function (x,s) {3*pow((mod(x/s+1,1)-1),2)-2*pow((mod(x/s+1,1)-1),3) }\n"
+# s is the proportion lengh(Carrelage+Join)/lengthJoin
+myFonc="\n#declare mortar1 = function (x,y,z,s){3*pow(mod(x,1)*s,2)-2*pow(mod(x,1)*s,3) } \n#declare mortar2 = function (x,y,z,s){3*pow(mod(-x,1)*s,2)-2*pow(mod(-x,1)*s,3) }  \n"
 globvars.userDefinedFunctions+=myFonc
+
 
 
 #######
 # colors, textures
 #######
 tw="pigment {LightWood} normal {agate .5 scale 4 bump_size .1}"
-t=Texture("Yellow_Pine").move(Map.linear(6*X,.3*Z,10*Y))
+#texFloor=Texture("Yellow_Pine " ).move(Map.linear(6*X,.3*Z,10*Y))
+texFloor=Texture("pigment {Grey}")
+texFloor.enhance("normal { function {mortar1(x,y,z,1)} bump_size .2}")
+texFloor.move(Map.linear(-X,Y,Z))
+texFloor2=Texture(" pigment  { checker    pigment { granite color_map { [0 rgb 1][1 rgb .9] } }    pigment { granite color_map { [0 rgb .9][1 rgb .7] } }  }")
+texFloor2.move(Map.linear(.8*X,.8*Y,.8*Y))
+
 tableBump="normal {agate .5 scale 4 bump_size .2}"
+handleTexture=Texture("New_Brass finish{ambient 0.05 specular 2}","handleTexture")
+stoveFinish="finish {ambient 0.05 brilliance 30}"
+texDoor=Texture( "pigment {BrightGold} finish{brilliance 1.8}")
+lampFinish="finish {ambient .2 diffuse 2} normal{agate .5 scale .1 bump_size .1}"
+texCeil=Texture("pigment {White} finish {ambient .3 }")
 
 
 # a plane represented graphically as a half space 
@@ -84,18 +87,13 @@ room=Room(Polyline([origin,7.012*Y,11.526*X,-5.64*Y,-3.614*X,-1.386*Y,-7.912*X])
 room.enhance("normal {agate .5 scale 1 bump_size .05}")
 print(room.texture.smallString)
 rommTexture=room.walls[0]
-
 unleash([room.floor])
 room.floor.name="myFloor"
-
-
-room.floor.makeup(t)
-print("apres la normale",room.floor.texture.smallString)
+room.floor.makeup(texFloor2)
 room.ceiling.name="Ceiling"
-room.ceiling.makeup(Texture.from_colorkw("White"))#("OldGold")
-room.ceiling.enhance("finish {ambient .3 }")
-print("apres le ceiling",room.floor.texture.smallString)
-#tex=room.floor.texture.copy().enhance("normal {brick brick_size .4 mortar .003}")
+room.ceiling.makeup(texCeil)
+
+#tex=room.floor.texture.copy().enhance("
 #room.floor.makeup(tex)
 #wall=RoundWindow(radius=1,depth=.1,border=.1,texture="Yellow_Pine")
 myWin=room.add_window(wallNumber=0,wlength=1.8,wheight=2.15,wdepth=.1,deltaLength=4.106,deltaHeigth=0).colored("White")
@@ -103,7 +101,7 @@ backDoor=room.add_door(wallNumber=1,wlength=.9,wheight=2.15,wdepth=.1,deltaLengt
 room.add_window(wallNumber=2,wlength=1,wheight=1.06,wdepth=.1,deltaLength=1.37,deltaHeigth=1.10).colored("White")
 room.add_window(wallNumber=2,wlength=.7,wheight=1.05,wdepth=.1,deltaLength=3.57,deltaHeigth=1.10).colored("White")
 room.add_window(wallNumber=3,wlength=.7,wheight=.7,wdepth=.1,deltaLength=2.57,deltaHeigth=1.60).colored("White")
-outsideDoor=room.add_door(wallNumber=4,wlength=.9,wheight=2.15,wdepth=.1,deltaLength=.13,deltaHeigth=0,reverseHandle=True).colored("BrightGold")
+outsideDoor=room.add_door(wallNumber=4,wlength=.9,wheight=2.15,wdepth=.1,deltaLength=.13,deltaHeigth=0,reverseHandle=True,handleTexture=handleTexture).makeup(texDoor)
 outsideDoor.add_porthole()
 outsideDoor.window.frame.rgbed([.8,.8,.6])
 outsideDoor.name="outsideDoor"
@@ -124,7 +122,7 @@ room.add_perpendicular_wall(3,distance=1.6,wallLength=1.1,thickness=.08,measurem
 room.add_perpendicular_wall(3,distance=2.3,wallLength=1.1,thickness=.08,measurementType="a",offset=.95,height=None).makeup(tw)
 for w in room.walls:
     w.rgb=[0.75,0.5,0.3]
-door1=room.add_door(wallNumber=8,wlength=.83,wheight=2.15,wdepth=.1,deltaLength=1.45).colored("BrightGold")#
+door1=room.add_door(wallNumber=8,wlength=.83,wheight=2.15,wdepth=.1,deltaLength=1.45,handleTexture=handleTexture).makeup(texDoor)
 door1.name="porte1"
 door1.makeup(tex)
 
@@ -138,8 +136,8 @@ floorCenter=origin+3.5*Y+5.6*X
 sun=Light(origin+100*(5*Z-1*X-4*Y)) # a light
 sun.rgbColor=[1,1,1]
 
-livingLamp=Lamp().hooked_on(floorCenter-1.7*Y+2.5*Z).glued_on(ground) # a light
-corridorLamp=Lamp(shadowless=False).hooked_on(origin+2.5*Z+8*X+3.15*Y).glued_on(room)
+livingLamp=Lamp().hooked_on(floorCenter-1.7*Y+2.5*Z).glued_on(ground).enhance(lampFinish) # a light
+corridorLamp=Lamp(shadowless=False).hooked_on(origin+2.5*Z+8*X+3.15*Y).glued_on(room).enhance(lampFinish)
 #kitchenLamp=Lamp().hooked_on(origin+2.5*Z+2*X+1.5*Y).glued_on(room)
 #unseenLamp=Light().hooked_on(floorCenter-1*Y+1.2*Z+2*X).glued_on(ground) # a light
 #unseenLamp.color="rgb <1,1,1>"
@@ -166,7 +164,7 @@ stovePosistionOnFloor=origin+7.50*X+2.3*Y
 stove=Stove().glued_on(room).self_rotate(-math.pi/2)
 stove.name="stove"
 stove.translate(stovePosistionOnFloor-stove.floorPoint)
-stove.spacer.texture.enhance("finish {ambient 0.05}")
+stove.spacer.texture.enhance(stoveFinish)
 
 print("avant le light level",room.floor.texture.smallString)
 print("avant le light level",room.floor.texture.smallString)
@@ -185,6 +183,6 @@ camera.angle=1.07
 
 #print("a la fin",room.floor.texture.smallString)
 camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
-camera.show # show the photo, ie calls povray. 
+#camera.show # show the photo, ie calls povray. 
 #print (globVars.TextureString)
 #print(room.texture.smallString)

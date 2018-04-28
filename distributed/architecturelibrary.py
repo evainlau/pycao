@@ -129,12 +129,12 @@ class Room(Compound):
             w.glued_on(self)
         return w
 
-    def add_door(self,wallNumber,wlength,wheight,wdepth,deltaLength,deltaHeigth=0,fromOutside=True,reverseHandle=False,glued=True):
+    def add_door(self,wallNumber,wlength,wheight,wdepth,deltaLength,deltaHeigth=0,fromOutside=True,reverseHandle=False,glued=True,handleTexture=Texture("New_Brass")):
         """ adds a window of size (wlength,wheight,wdepth) on wall wallNumber, located 
         at deltaLength meters from the right of the outside wall ( or optionnally from the left of the inside wall), 
         and deltaHeigth meters above the floor """
         dthickness=.1
-        w=Door(wlength,wdepth,wheight,reverseHandle)
+        w=Door(wlength,wdepth,wheight,reverseHandle,handleTexture=handleTexture)
         wall=self.walls[wallNumber]
         if fromOutside:
             doorCenter=wall.outsideBaseLine().point(deltaLength+0.5*wlength,"n")+(deltaHeigth+.5*wheight)*wall.verticalVector().normalized_copy()+wall.insideVector().normalize()*wall.thickness
@@ -209,7 +209,7 @@ class Window(Compound):
         self.add_box("windowBox",frame2.box())
 
 class Door(Compound):
-    def __init__(self,dx=.9,dy=.03,dz=2.15,reverseHandle=False,holeBorder=0.1,doorhandle=None):
+    def __init__(self,dx=.9,dy=.03,dz=2.15,reverseHandle=False,holeBorder=0.1,doorhandle=None,handleTexture=None):
         """dx,dy,dz are the length,depth,height respectivly, the holeBorder is difference between the door and the hole
         The option reverseHandle is set to change the handle position from left to Right """
         
@@ -221,7 +221,7 @@ class Door(Compound):
         #    holeBorder=border*.5
         # The hole will be used to cut the wall behind the window.
         if doorhandle is None:
-            doorhandle=DoorHandle()
+            doorhandle=DoorHandle(handleTexture)
         doorhandle.glued_on(self)
         self.dhandle1=doorhandle
         doorhandle2=doorhandle.copy().move(Map.linear(-X,Y,Z)).glued_on(self)
@@ -333,7 +333,7 @@ class Stove(Compound):
         self.add_axis("axis",fireplace.segment(.5,.5,None,"ppp"))
 
 class DoorHandle(Compound):
-    def __init__(self,texture=Texture("New_Brass"),left=True):
+    def __init__(self,texture=Texture("New_Brass "),left=True):
         bottom=Cylinder(origin,origin+.005*Y,radius=.025)
         middle=Cube.from_list_of_points([origin-.025*X+.0*Z,origin+.025*X+.05*Z+.005*Y])
         top=copy.deepcopy(bottom)

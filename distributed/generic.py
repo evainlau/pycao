@@ -214,7 +214,7 @@ class ObjectInWorld(object):
             #print(cuttingShape)
             copie=[tool.copy() for tool in cuttingShape]
         else:
-            copie=[cuttingShape.copy()]
+            copie=[cuttingShape.copy().makeup(self.texture)]
         #print("mat",copie.materials,cuttingShape.materials)
         #print("Les outils de coupe")
         #print([tool.children for tool in copie])
@@ -256,7 +256,7 @@ class ObjectInWorld(object):
             #print("in else")
             #print(cuttingShape.__class__)
             #print(cuttingShape)
-            copie=[cuttingShape.copy()]
+            copie=[cuttingShape.copy().makeup(self.texture)]
         #print(cuttingShape)
         #print(copie)
         #print("mat",copie.materials,cuttingShape.materials)
