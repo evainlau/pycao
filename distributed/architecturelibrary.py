@@ -381,6 +381,21 @@ class LightSwitch(Compound):
         self.add_box("default",base.box())
         self.add_axis("outsideVector",self.box().segment(.5,None,.5,"ppp"))
         self.add_handle("to_wall",self.box().point(.5,1,.5,"ppp"))
+
+
+        
+class Tiling(Compound):
+    def __init__(self,tile,jointSize,xnumber,ynumber):
+        p=tile.point(0,0,0,"ppp")
+        q=tile.point(0,0,1,"ppp")
+        for i in range(xnumber):
+            for j in range(ynumber):
+                ntile=tile.copy().move(origin-p+i*(tile.xdimension+jointSize)*X+j*(tile.ydimension+jointSize)*Y)
+                self.add_to_compound(ntile)
+        mortar=Cube(origin,origin+xnumber*(tile.xdimension+jointSize)*X+ynumber*(tile.ydimension+jointSize)*Y+tile.zdimension*Z)
+        self.add_to_compound(mortar)
+        self.add_handle("bottomInitialPoint",p)
+        self.add_handle("upperInitialPoint",q)
 """ 
 * remplacer les handle par des hook
 * ajouter le thick triangle
