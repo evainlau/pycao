@@ -47,19 +47,23 @@ from architecturelibrary import *
 """
                 SCENE DESCRIPTION
 """
-#####
-#Functions
-######
+################################################################
 
+#Functions
+
+################################################################
 # s is the proportion lengh(Carrelage+Join)/lengthJoin
+
 myFonc="\n#declare mortar1 = function (x,y,z,s){3*pow(mod(x,1)*s,2)-2*pow(mod(x,1)*s,3) } \n#declare mortar2 = function (x,y,z,s){3*pow(mod(-x,1)*s,2)-2*pow(mod(-x,1)*s,3) }  \n"
 globvars.userDefinedFunctions+=myFonc
 
 
+################################################################
 
-#######
 # colors, textures
-#######
+
+################################################################
+
 tw="pigment {LightWood} normal {agate .5 scale 4 bump_size .1}"
 #texFloor=Texture("Yellow_Pine " ).move(Map.linear(6*X,.3*Z,10*Y))
 texFloor=Texture("pigment {Grey}")
@@ -75,7 +79,9 @@ texDoor=Texture( "pigment {BrightGold} finish{brilliance 1.8}")
 lampFinish="finish {ambient .2 diffuse 2} normal{agate .5 scale .1 bump_size .1}"
 texCeil=Texture("pigment {White} finish {ambient .3 }")
 
-
+################################################################
+#                Objects
+################################################################
 # a plane represented graphically as a half space 
 ground=plane(Z,origin) # a plane with normal the vector Z=vector(0,0,1) containing the origin
 ground.colored('DarkGreen') # The possible colors are the colors described in colors.inc in povray or a rgb color. 
@@ -107,6 +113,9 @@ outsideDoor.window.frame.rgbed([.8,.8,.6])
 outsideDoor.name="outsideDoor"
 tex=outsideDoor.texture.enhance("normal {brick brick_size 1.5 mortar .05} ").move(Map.linear(X,Y,2*Z))
 outsideDoor.makeup(tex)
+ls=LightSwitch().parallel_to(-1*room.walls[4].insideVector())
+ls.hooked_on(room.walls[4].insideBaseLine().point(.2,"p")+1.1*Z).glued_on(room)
+
 room.add_window(wallNumber=5,wlength=2.2,wheight=2.15,wdepth=.1,deltaLength=1.056,deltaHeigth=0).frame.colored("White")
 room.add_window(wallNumber=5,wlength=1.8,wheight=1.05,wdepth=.1,deltaLength=4.056,deltaHeigth=1.1).frame.colored("White")
 
@@ -120,8 +129,6 @@ room.add_perpendicular_wall(3,distance=.08,wallLength=.9,thickness=.16,measureme
 room.add_perpendicular_wall(3,distance=1.88,wallLength=.9,thickness=.08,measurementType="a",height=None).makeup(tw)
 room.add_perpendicular_wall(3,distance=1.6,wallLength=1.1,thickness=.08,measurementType="a",offset=.95,height=None).makeup(tw)
 room.add_perpendicular_wall(3,distance=2.3,wallLength=1.1,thickness=.08,measurementType="a",offset=.95,height=None).makeup(tw)
-for w in room.walls:
-    w.rgb=[0.75,0.5,0.3]
 door1=room.add_door(wallNumber=8,wlength=.83,wheight=2.15,wdepth=.1,deltaLength=1.45,handleTexture=handleTexture).makeup(texDoor)
 door1.name="porte1"
 door1.makeup(tex)
@@ -154,6 +161,14 @@ corridorLamp=Lamp(shadowless=False).hooked_on(origin+2.5*Z+8*X+3.15*Y).glued_on(
 
 table=Table(1.2,.8,.7,.03).colored("Khaki").above(origin+4.8*X+1.5*Y).glued_on(room).enhance(tableBump)
 table.name="table"
+table.add_handle("glass1",table.point(.5,.5,1))
+glass1=Glass()
+glass2=Glass()
+glass3=Glass()
+glass1.hooked_on(table).glued_on(table).translate(.1*Y)
+glass2.hooked_on(table).glued_on(table).translate(.2*X)
+glass3.hooked_on(table).glued_on(table).translate(-.2*X)
+
 chair1=Chair().colored("Khaki").above(origin+4.5*X+1.87*Y+.4*Z).glued_on(table)
 chair2=chair1.copy()
 chair2.colored("Khaki").above(origin+5*X+1.8*Y+.4*Z).glued_on(table)
@@ -166,15 +181,12 @@ stove.name="stove"
 stove.translate(stovePosistionOnFloor-stove.floorPoint)
 stove.spacer.texture.enhance(stoveFinish)
 
-print("avant le light level",room.floor.texture.smallString)
-print("avant le light level",room.floor.texture.smallString)
-
 camera.projection="orthographic"
 camera.projection="perspective"
 #camera.location=origin+1.6*X+1.5*Y+1.62*Z
 camera.location=entrance-3.9*X+1*Y-.3*Z
 camera.actors=[room,ground] # what is seen by the camera
-#camera.actors=[room.floor]
+#camera.actors=[ls]
 #camera.lookAt=kitchenLamp.light.handle()
 camera.lookAt=entrance+1*Y-1.05*Z
 camera.angle=1.07
@@ -183,6 +195,6 @@ camera.angle=1.07
 
 #print("a la fin",room.floor.texture.smallString)
 camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
-#camera.show # show the photo, ie calls povray. 
+camera.show # show the photo, ie calls povray. 
 #print (globVars.TextureString)
 #print(room.texture.smallString)

@@ -353,6 +353,34 @@ class DoorHandle(Compound):
             self.move(Map.linear(-X,Y,Z))
         self.add_axis("verticalAxis",verticalAxis)
 
+class Glass(Compound):
+    def __init__(self,start=origin,end=origin+.2*Z,radius=.05):
+        base=Cylinder(start,end,radius)
+        toCut=Cylinder(start+.02*Z,end+.05*Z,radius-.001)
+        base.amputed_by(toCut)
+        self.add_handle("bottom",origin)
+        self.add_to_compound(base)
+        self.makeup("Glass")
+        self.enhance("pigment {color rgbt <1,1,1,.58>}")
+
+class LightSwitch(Compound):
+    def __init__(self,size=.12):
+        support=Cube(origin+.003*Y,origin+size*X+size*Z+.0035*Y)
+        base=RoundBox(origin,origin+size*X+size*Z+.003*Y,.001,False)
+        toCut=Cube(origin+.02*X+.02*Z-Y,origin+(size-.02)*X+(size-.02)*Z+Y)
+        button=Cube(origin+.023*X+.023*Z-.003*Y,origin+(size-.023)*X+(size-.023)*Z+.003*Y).translate(-.003*Y)
+        p1=button.point(0,0,0,"ppp")
+        p2=button.point(0,1,1,"ppp")
+        p3=button.point(1,1,1,"ppp")
+        P=plane.from_3_points(p1,p2,p3)
+        button.amputed_by(P)
+        base.amputed_by(toCut)
+        self.add_list_to_compound([base,button,support])
+        self.makeup("pigment {White}")
+        support.makeup("pigment {Grey}")
+        self.add_box("default",base.box())
+        self.add_axis("outsideVector",self.box().segment(.5,None,.5,"ppp"))
+        self.add_handle("to_wall",self.box().point(.5,1,.5,"ppp"))
 """ 
 * remplacer les handle par des hook
 * ajouter le thick triangle

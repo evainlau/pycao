@@ -63,9 +63,9 @@ ground.name="plan"
 #wall=Room(Polyline([origin,X,X+Y,Y,-2*X,-Y])).colored("Yellow")
 
 
-myFonc="#declare mortar1{x}{3*pow((x mod 1),2)-2*pow((x mod 1),3) } \n#declare mortar2{x} }{3*pow(((x+1) mod 1-1),2)-2*pow(((x+1) mod 1-1),3) }\n"
-globvars.userDefinedFunctions+=myFonc
-t=Texture(" normal { function { mortar1(x) } 1}")
+
+l=LightSwitch()
+
 
 
 #c.normal="normal { bumps scale .2 bump_size .01} "
@@ -85,7 +85,7 @@ camera.zoom(1)
 
 camera.angle=0.84
 camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
-#camera.show # show the photo, ie calls povray. 
+camera.show # show the photo, ie calls povray. 
 
 
 
