@@ -62,20 +62,36 @@ ground.name="plan"
 
 #wall=Room(Polyline([origin,X,X+Y,Y,-2*X,-Y])).colored("Yellow")
 
-def WoodStud():
-    c=Cube.from_dimensions(.2,.1,1.02)
-    c.makeup(Texture("T_Wood3").move(Map.linear(X,Z,Y)))
+def WoodStud(dimx,dimy,dimz,grainVector):
+    c=Cube.from_dimensions(dimx,dimy,dimz)
+    M=Map.rotational_difference(Y,grainVector)
+    c.makeup(Texture("T_Wood3").move(M))
     return c
 
-def WoodBoard(xdim,ydim,thickness,xnumber):
-    c=RoundBox.from_dimensions(xdim,ydim,thickness,.005)
-    c.makeup(Texture("T_Wood3").move(Map.linear(X,Z,Y)))
+def RoundedWoodStud(dimx,dimy,dimz,radius=.005,grainVector=Z):
+    c=RoundBox.from_dimensions(dimx,dimy,dimz,radius)
+    M=Map.rotational_difference(Y,grainVector)
+    c.makeup(Texture("T_Wood3").move(M))
+    return c
+
+
+
+def WoodBoard(xdim,ydim,thickness,xnumber,grainVector):
+    c=RoundedWoodStud(xdim,ydim,thickness,.005)
+    M=Map.rotational_difference(Y,grainVector)
+    c.makeup(Texture("T_Wood3").move(M))
     return Tiling(c,jointWidth=-.0001,jointHeight=0,xnumber=xnumber,ynumber=1,polyline=None)
 
-#def PhotoFrame(xdim,ydim,width,thickness)
+def PictureFrame(xdim,ydim,width,thickness,radius=.005):
+    l1=RoundedWoodStud(xdim,width,2*thickness,radius=radius,grainVector=X)
+    l3=l1.copy().translate((ydim-width)*Y)
+    l2=RoundedWoodStud(width,ydim,2*thickness,radius=radius,grainVector=Y)
+    l4=l2.copy().translate((xdim-width)*X)
+    ret=Compound()
+    ret.add_list_to_compound([l1,l2,l3,l4])
+    return ret
 
-
-floor=WoodBoard(.1,.4,.02,6)
+floor=PictureFrame(.6,.4,.07,.02)
 
 
 camera=Camera()
