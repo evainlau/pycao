@@ -220,6 +220,7 @@ class MassPoint(np.ndarray,Primitive):
 
 
     def move_alone(self,M):
+        #print("selfInMA",self,M)
         self[:]=M*self
         return self
 

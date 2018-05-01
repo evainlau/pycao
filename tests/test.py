@@ -62,23 +62,32 @@ ground.name="plan"
 
 #wall=Room(Polyline([origin,X,X+Y,Y,-2*X,-Y])).colored("Yellow")
 
+def WoodStud():
+    c=Cube.from_dimensions(.2,.1,1.02)
+    c.makeup(Texture("T_Wood3").move(Map.linear(X,Z,Y)))
+    return c
+
+def WoodBoard(xdim,ydim,thickness,xnumber):
+    c=RoundBox.from_dimensions(xdim,ydim,thickness,.005)
+    c.makeup(Texture("T_Wood3").move(Map.linear(X,Z,Y)))
+    return Tiling(c,jointWidth=-.0001,jointHeight=0,xnumber=xnumber,ynumber=1,polyline=None)
+
+#def PhotoFrame(xdim,ydim,width,thickness)
 
 
-l=LightSwitch()
+floor=WoodBoard(.1,.4,.02,6)
 
 
-
-#c.normal="normal { bumps scale .2 bump_size .01} "
-#s=Sphere(origin,.1).colored("Red")
 camera=Camera()
 camera.projection="perspective"
-camera.filmAllActors=True
-camera.location=origin-0*X-0*Y+1*Z
+camera.filmAllActors=False
+camera.location=origin-0*X+04*Y+3*Z
 l=Light().translate(2*Y+15*Z)
 #camera.povraylights="light_source {<"+ str(light.location[0])+","+str(light.location[1])+","+str(light.location[2])+ "> color White " + "}\n\n"
 #camera.actors=[wall,ground,cyl,cyl2,s] # what is seen by the camera
 #camera.actors=[table.c13,table.c12,table.s1] # what is seen by the camera#\\
-camera.actors=[ground] # what is seen by the camera
+camera.actors=[floor,ground] # what is seen by the camera
+#ground.visibility=0
 camera.lookAt=origin
 camera.zoom(1)
 

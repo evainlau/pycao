@@ -86,9 +86,8 @@ texCeil=Texture("pigment {White} finish {ambient .3 }")
 ground=plane(Z,origin) # a plane with normal the vector Z=vector(0,0,1) containing the origin
 ground.colored('DarkGreen') # The possible colors are the colors described in colors.inc in povray or a rgb color. 
 
-
-#wall=Room(Polyline([origin,X,X+Y,Y,-2*X,-Y])).colored("Yellow")
-room=Room(Polyline([origin,7.012*Y,11.526*X,-5.64*Y,-3.614*X,-1.386*Y,-7.912*X]),insideThickness=.31).colored("LightWood")
+floorPolyline=Polyline([origin,7.012*Y,11.526*X,-5.64*Y,-3.614*X,-1.386*Y,-7.912*X+.014*Y])
+room=Room(floorPolyline,insideThickness=.31).colored("LightWood")
 #room.light_level(1.5)
 room.enhance("normal {agate .5 scale 1 bump_size .05}")
 print(room.texture.smallString)
@@ -98,6 +97,17 @@ room.floor.name="myFloor"
 room.floor.makeup(texFloor2)
 room.ceiling.name="Ceiling"
 room.ceiling.makeup(texCeil)
+
+
+myTile=RoundBox.from_dimensions(.4,.4,.02,.005)
+myTile.makeup(Texture("T_Stone4"))
+tiling=Tiling(myTile,jointWidth=.01,jointHeight=.01,xnumber=23,ynumber=10,polyline=floorPolyline)#.move(.001*Z)
+tiling.hooked_on(origin+.001*Z).glued_on(room)
+tiling.glued_on(room)
+room.floor.visibility=0
+ground.visibility=0
+
+
 
 #tex=room.floor.texture.copy().enhance("
 #room.floor.makeup(tex)
@@ -185,10 +195,13 @@ camera.projection="orthographic"
 camera.projection="perspective"
 #camera.location=origin+1.6*X+1.5*Y+1.62*Z
 camera.location=entrance-3.9*X+1*Y-.3*Z
+#camera.location=entrance-3.9*X-10*Y-.3*Z
 camera.actors=[room,ground] # what is seen by the camera
+#camera.actors=[tiling]
 #camera.actors=[ls]
-#camera.lookAt=kitchenLamp.light.handle()
+#camera.lookAt=origin
 camera.lookAt=entrance+1*Y-1.05*Z
+#camera.lookAt=origin
 camera.angle=1.07
 #for light in camera.lights:
 #    print(light.povray_string())

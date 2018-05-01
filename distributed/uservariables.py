@@ -20,7 +20,7 @@ myPovFile="/tmp/pycaoOutput.pov" # the place to store the photo
 defaultImageHeight=620 # in pixels
 defaultImageWidth=900
 filmAllActorsDefault=False # Not to change, since there are bugs at the moment in some objects which show up too many parts
-includedFiles=["colors.inc","metals.inc","textures.inc","shapes.inc"]
+includedFiles=["colors.inc","metals.inc","textures.inc","shapes.inc","stones1.inc","woods.inc"]
 defaultBackground="background {Blue}\n"
 ################################################################
 #    Geometry

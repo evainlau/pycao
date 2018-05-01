@@ -385,17 +385,29 @@ class LightSwitch(Compound):
 
         
 class Tiling(Compound):
-    def __init__(self,tile,jointSize,xnumber,ynumber):
+    def __init__(self,tile,jointWidth,jointHeight,xnumber,ynumber,polyline=None):
+        """
+        The tile has a box from which the dimensions are read. 
+        """
         p=tile.point(0,0,0,"ppp")
-        q=tile.point(0,0,1,"ppp")
+        q=tile.point(1,1,1,"ppp")
+        r=tile.point(0,0,1,"ppp")
+        xdim=(q-p)[0]
+        ydim=(q-p)[1]
+        zdim=(q-p)[2]
         for i in range(xnumber):
             for j in range(ynumber):
-                ntile=tile.copy().move(origin-p+i*(tile.xdimension+jointSize)*X+j*(tile.ydimension+jointSize)*Y)
-                self.add_to_compound(ntile)
-        mortar=Cube(origin,origin+xnumber*(tile.xdimension+jointSize)*X+ynumber*(tile.ydimension+jointSize)*Y+tile.zdimension*Z)
+                ntile=tile.copy()
+                ntile.translate(origin-p+i*(xdim+jointWidth)*X+j*(ydim+jointWidth)*Y)
+                tcop=ntile.copy()
+                self.add_to_compound(tcop)
+        mortar=Cube(origin,origin+xnumber*(xdim+jointWidth)*X+ynumber*(ydim+jointWidth)*Y+jointHeight*Z).colored("Black")
         self.add_to_compound(mortar)
         self.add_handle("bottomInitialPoint",p)
-        self.add_handle("upperInitialPoint",q)
+        self.add_handle("upperInitialPoint",r)
+        if polyline:
+            self.intersected_by(Prism.from_polyline_vector(polyline.translate(-10000*Z),20000*Z))
+        
 """ 
 * remplacer les handle par des hook
 * ajouter le thick triangle

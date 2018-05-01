@@ -59,7 +59,7 @@ class ElaborateOrCompound(ObjectInWorld):
         self.markersList=[ a for a in dir(self.markers) if not a.startswith('__')]
         #print (self.markersList)
         for marker in self.markersList:
-            #print(marker)
+            #print(marker, "etait le marqueur")
             setattr(self.__class__,marker,Elaborate.fixing_param(marker,Elaborate.marker_method))
             #setattr(self,marker,self.marker)
 
@@ -81,6 +81,7 @@ class ElaborateOrCompound(ObjectInWorld):
 class Elaborate(ElaborateOrCompound):
     def move_alone(self,mape):
         self.mapFromParts=mape*self.mapFromParts
+        print("dansMAl",self,mape,self.mapFromParts)
         return self
 
 
@@ -99,8 +100,10 @@ class Prism(Elaborate):
         self.splineType=splineType
         self.sweepType=sweepType
         self.polyline1=polyline1
-        if (self.polyline1[0] != self.polyline1[-1]).any():
-            raise NameError("The first and last point of the underlying splines must be equal in a prism")
+        print(polyline1,"was the polyline for the prism")
+        # suppressing the follwing 2 lines because of rounding pbs
+        #if (self.polyline1[0] != self.polyline1[-1]).any():
+        #    raise NameError("The first and last point of the underlying splines must be equal in a prism")
         self.height1=self.polyline1[0][1]
         self.height2=self.height1+height
         self.povrayNumberOfPoints=len(polyline1)
