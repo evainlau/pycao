@@ -63,14 +63,30 @@ class ElaborateOrCompound(ObjectInWorld):
             setattr(self.__class__,marker,Elaborate.fixing_param(marker,Elaborate.marker_method))
             #setattr(self,marker,self.marker)
 
+    def markers_as_functions2(self):#for debugging can be withdrawn
+        correctiveMap=self.mapFromParts.inverse()
+        self.markersList=[ a for a in dir(self.markers) if not a.startswith('__')]
+        #print (self.markersList)
+        for marker in self.markersList:
+            #print(marker, "etait le marqueur")
+            setattr(self.__class__,marker,Elaborate.fixing_param(marker,Elaborate.marker_method))
+            #setattr(self,marker,self.marker)
+
 
             #return self
 
+
+            
     def copy(self):
         #return super(ElaborateOrCompound).__deepcopy__(self).markers_as_functions()
         #print (self.csgOperations)
         memo={}
         a=copy.deepcopy(self,memo)
+        #if hasattr(a,"markers"):
+        #    try:
+        #        print("copyMarkers",self.name)
+        #    except: pass
+        #    a.markers_as_functions()
         #print(a.csgOperations)
         #print (self.csgOperations)
         #a.markers_as_functions()
@@ -81,7 +97,7 @@ class ElaborateOrCompound(ObjectInWorld):
 class Elaborate(ElaborateOrCompound):
     def move_alone(self,mape):
         self.mapFromParts=mape*self.mapFromParts
-        print("dansMAl",self,mape,self.mapFromParts)
+        #print("dansMAl",self,mape,self.mapFromParts)
         return self
 
 

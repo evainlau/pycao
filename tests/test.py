@@ -91,13 +91,41 @@ def PictureFrame(xdim,ydim,width,thickness,radius=.005):
     ret.add_list_to_compound([l1,l2,l3,l4])
     return ret
 
-floor=PictureFrame(.6,.4,.07,.02)
+def cabinetStorey(b0,b1,b2,b3):
+    """
+    creates a storey for a cabinet from 4 boeards. The 4 boards are in the (x,z) plane and parallel
+    and the outside face of the board is oriented towards the negative y. 
+    This function gives the right orientation to the 4 boards and returns a compound with 4 panels 
+    called front,irght,back,left, and a box. Each board must have a box for the computations to occur. 
+    """
+    b0.named("b0")
+    b1.rotate(Z,math.pi/2).named("b1")
+    b2.rotate(Z,math.pi).named("b2")
+    b3.rotate(Z,-math.pi/2).named("b3")
+    for ob in [b0,b1,b2,b3]:
+        ob.add_handle("bottomFrontLeft",ob.point(0,0,0,"ppp"))
+        ob.add_handle("bottomFrontRight",ob.point(1,0,0,"ppp"))
+    for pair in [[b0,b1],[b1,b2],[b2,b3]]:
+        pair[0].select_handle("bottomFrontRight")
+        pair[1].select_handle("bottomFrontLeft")
+        pair[1].hooked_on(pair[0])
+    c=Compound()
+    c.add_list_to_compound([["front",b0],["right",b1],["back",b2],["left",b3]])
+    d=Cube(b0.point(0,0,0,"ppp"),b1.point(1,0,1,"ppp"))
+    c.add_box("globalBox",d.box())
+    return c
 
+#b0=Cube.from_dimensions(1,.02,.5)
+b0=WoodBoard(xdim=1,ydim=.5,thickness=.01,xnumber=1,grainVector=Z).move(Map.linear(X,Z,Y))
+b1=b0.copy()
+b2=b0.copy()
+b3=b0.copy()
+floor=cabinetStorey(b0,b1,b2,b3)#PictureFrame(.6,.4,.07,.02)
 
 camera=Camera()
 camera.projection="perspective"
 camera.filmAllActors=False
-camera.location=origin-0*X+04*Y+3*Z
+camera.location=origin-0*X-4*Y+3*Z
 l=Light().translate(2*Y+15*Z)
 #camera.povraylights="light_source {<"+ str(light.location[0])+","+str(light.location[1])+","+str(light.location[2])+ "> color White " + "}\n\n"
 #camera.actors=[wall,ground,cyl,cyl2,s] # what is seen by the camera
@@ -111,6 +139,3 @@ camera.zoom(1)
 camera.angle=0.84
 camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
 camera.show # show the photo, ie calls povray. 
-
-
-

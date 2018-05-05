@@ -105,7 +105,9 @@ class ObjectInWorld(object):
         return ( string )
 
 
-
+    def named(self,str):
+        self.name=str
+        return self
 
     def move(self,map=None):
         """ This is the fundamental method to move any object : the user defines a map M  
@@ -416,6 +418,13 @@ class ObjectInWorld(object):
         self.move(M)
         return self
 
+    def box(self): #will be overwritten for some objects construcing their own boxes
+        return self.activeBox.copy()
+
+    def named_box(self,name):
+        return getattr(self.dicobox,name).copy()
+
+    
     def add_box(self,name,framebox):
         """
         Add a new box to self and select it. The box 
@@ -423,19 +432,19 @@ class ObjectInWorld(object):
         The activebox is self.box()
         """
         # the added box must move with the object
-        gluedBox=framebox.copy().glued_on(self)
-        def box_function():
-            return gluedBox
         # creates a dicobox if ncr and populates it if  ncr
         if not hasattr(self,"dicobox"):
             dicobox=Object() # The pair k,v with k a string and v a callable returning a framebox
             if hasattr(self,"box"):
                 dicobox.initialBox=self.box
             setattr(self,"dicobox",dicobox)
-        setattr(self.dicobox,name,box_function)
-        setattr(self,"box",box_function)
+        self.activeBox=framebox.copy().glued_on(self)
+        setattr(self.dicobox,name,self.activeBox)
         return self
 
+
+
+    
     def add_axis(self,name,line):
         """
         Add a new axis to self and select it. The line
@@ -494,8 +503,8 @@ class ObjectInWorld(object):
         arguments: 
         name: the name of the box we want to select
         """
-        self.box=getattr(self.dicobox,name)
-        return self.box()
+        self.activeBox=getattr(self.dicobox,name)
+        return self
 
 
     def print_axes(self):

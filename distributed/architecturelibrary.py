@@ -402,6 +402,7 @@ class Tiling(Compound):
                 tcop=ntile.copy()
                 self.add_to_compound(tcop)
         mortar=Cube(origin,origin+xnumber*(xdim+jointWidth)*X+ynumber*(ydim+jointWidth)*Y+jointHeight*Z).colored("Black")
+        self.add_box("globalBox",mortar.box())
         self.add_to_compound(mortar)
         self.add_handle("bottomInitialPoint",p)
         self.add_handle("upperInitialPoint",r)
@@ -409,6 +410,7 @@ class Tiling(Compound):
             self.intersected_by(Prism.from_polyline_vector(polyline.translate(-10000*Z),20000*Z))
         
 """ 
+* comprendre pourquoi la copie du cube ne bouge pas le framebox
 * remplacer les handle par des hook
 * ajouter le thick triangle
 * debugger le plan qui n'est pas bouge' proprement par une action non orthogonale

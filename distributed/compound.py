@@ -79,7 +79,7 @@ class Compound(ElaborateOrCompound):
         """
         the obect o is a compound iff o admits a union in its list of csg operations iff o has a unique union in its csg operations
         and this union is the first item. """
-        self.mapFromParts=mape*self.mapFromParts
+        #self.mapFromParts=mape*self.mapFromParts
         slaves=self.csgOperations[0].csgSlaves
         for slave in slaves:
             slave.move(mape)
