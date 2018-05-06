@@ -31,11 +31,11 @@ from cameras import *
         
 class Light(ObjectInWorld):
     """
-    A light with a handle, added by default to the cameras already created.
+    A light with a hook, added by default to the cameras already created.
     """
     def __init__(self,location=origin,shadow=True,lightType=defaultLightType,cameraList=camerasInScene):
         self.location=location
-        self.add_handle("location",location)
+        self.add_hook("location",location)
         if not shadow:
             self.texture.rgbIntensity=defaultShadowlesslightRgbIntensity
         else:
@@ -73,10 +73,10 @@ class Light(ObjectInWorld):
 
     
 class PhysicalLamp(Compound):
-    """" returns an object with 2 handles, one for the light, one for hanging on the wall/ceiling """
+    """" returns an object with 2 hooks, one for the light, one for hanging on the wall/ceiling """
     def __init__(self):#an empty lamp,often useful
-            self.add_handle("ceiling",origin)
-            self.add_handle("light",origin)
+            self.add_hook("ceiling",origin)
+            self.add_hook("light",origin)
 
     @staticmethod
     def conical():
@@ -87,20 +87,20 @@ class PhysicalLamp(Compound):
         cylinder1=Cylinder(origin+.2*Z,origin+.3*Z,0.005).colored("Black")
         cylinder2=Cylinder(origin+.3*Z,origin+.32*Z,.05).colored("Black")
         self.add_list_to_compound([cone,cylinder2,cylinder1])
-        self.add_handle("ceiling",origin+.32*Z)
-        self.add_handle("light",origin-.2*Z)
+        self.add_hook("ceiling",origin+.32*Z)
+        self.add_hook("light",origin-.2*Z)
         return self
 
 
         
 class Lamp(Compound):
-    """ a union of a light and a physicallamp, it comes with a handle. The light is by default added to the list of existing cameras when it 
+    """ a union of a light and a physicallamp, it comes with a hook. The light is by default added to the list of existing cameras when it 
     is created """ 
     def __init__(self,physicalLamp=None,shadowfull=None,shadowless=None,cameraList=None):
         if physicalLamp is None:
             physicalLamp=PhysicalLamp.conical()
         elif physicalLamp == False:
-            physicalLamp=PhysicalLamp() #an empty compound with 2 handles for consistency
+            physicalLamp=PhysicalLamp() #an empty compound with 2 hooks for consistency
         if shadowfull is None:
             shadowfull=Light() # a light
         if shadowless is None:
@@ -112,6 +112,6 @@ class Lamp(Compound):
         if not shadowless==False:
             self.add_to_compound(["shadowless",shadowless])
             shadowless.hooked_on(physicalLamp)
-        physicalLamp.select_handle("light") # since the lamp has an other handle to the ceiling
-        self.add_handle("ceiling",physicalLamp.select_handle("ceiling"))
+        physicalLamp.select_hook("light") # since the lamp has an other hook to the ceiling
+        self.add_hook("ceiling",physicalLamp.select_hook("ceiling"))
         

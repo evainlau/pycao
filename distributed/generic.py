@@ -358,7 +358,7 @@ class ObjectInWorld(object):
         #print(otherBox)
         try:
             M=selfBox._map_for_parallelism(otherBox,selfFace1,otherFace1,selfFace2,otherFace2)
-        except LinAlgError:
+        except:
             raise NameError("Non invertible matrix, probably got a box whose volume is zero")
             #I have to be careful here because the argument adjustAxis, may be a child of self or not.
         # Thus I make a copy so that I am sure this is not a child
@@ -465,22 +465,22 @@ class ObjectInWorld(object):
         setattr(self,"axis",axis_function)
         return self
 
-    def add_handle(self,name,hpoint):
+    def add_hook(self,name,hpoint):
         """
-        Add a new handle to self and select it. The point
-        is added to the dictionnary self.dicohandle
-        The active handlepoint is self.handlepoint()
+        Add a new hook to self and select it. The point
+        is added to the dictionnary self.dicohook
+        The active hookpoint is self.hookpoint()
         """
         # the added line must move with the object
         gluedPoint=hpoint.copy().glued_on(self)
-        def handle_function():
+        def hook_function():
             return gluedPoint
         # creates a dicoaxis if ncr and populates it if  ncr
-        if not hasattr(self,"dicohandle"):
-            dicohandle=Object() 
-            setattr(self,"dicohandle",dicohandle)
-        setattr(self.dicohandle,name,handle_function)
-        setattr(self,"handle",handle_function)
+        if not hasattr(self,"dicohook"):
+            dicohook=Object() 
+            setattr(self,"dicohook",dicohook)
+        setattr(self.dicohook,name,hook_function)
+        setattr(self,"hook",hook_function)
         return self
 
     
@@ -534,26 +534,26 @@ class ObjectInWorld(object):
 
 
 
-    def print_handles(self):
+    def print_hooks(self):
         """
-        displays the list of  handles of self
+        displays the list of  hooks of self
         """
         try:
-            print ( self.dicohandle.__dict__.keys())
-            print ("are the handles")
+            print ( self.dicohook.__dict__.keys())
+            print ("are the hooks")
         except:
             try:
-                print(self.handle())
-                print("The above handle is the  unique handle")
+                print(self.hook())
+                print("The above hook is the  unique hook")
             except:
-                print("No handle")
+                print("No hook")
         return self
   
-    def select_handle(self,name):
+    def select_hook(self,name):
         """ 
         arguments: 
-        name: the name of the handle we want to select
+        name: the name of the hook we want to select
         """
-        self.handle=getattr(self.dicohandle,name)
-        return self.handle()
+        self.hook=getattr(self.dicohook,name)
+        return self.hook()
 

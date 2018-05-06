@@ -74,13 +74,11 @@ def RoundedWoodStud(dimx,dimy,dimz,radius=.005,grainVector=Z):
     c.makeup(Texture("T_Wood3").move(M))
     return c
 
-
-
-def WoodBoard(xdim,ydim,thickness,xnumber,grainVector):
+def WoodBoard(xdim,ydim,thickness,xnumber=1,grainVector=Y):
     c=RoundedWoodStud(xdim,ydim,thickness,.005)
     M=Map.rotational_difference(Y,grainVector)
     c.makeup(Texture("T_Wood3").move(M))
-    return Tiling(c,jointWidth=-.0001,jointHeight=0,xnumber=xnumber,ynumber=1,polyline=None)
+    return Tiling(c,jointWidth=-.0001,jointHeight=thickness,xnumber=xnumber,ynumber=1,polyline=None)
 
 def PictureFrame(xdim,ydim,width,thickness,radius=.005):
     l1=RoundedWoodStud(xdim,width,2*thickness,radius=radius,grainVector=X)
@@ -91,7 +89,7 @@ def PictureFrame(xdim,ydim,width,thickness,radius=.005):
     ret.add_list_to_compound([l1,l2,l3,l4])
     return ret
 
-def cabinetStorey(b0,b1,b2,b3):
+def CabinetStorey(b0,b1,b2,b3):
     """
     creates a storey for a cabinet from 4 boeards. The 4 boards are in the (x,z) plane and parallel
     and the outside face of the board is oriented towards the negative y. 
@@ -103,24 +101,36 @@ def cabinetStorey(b0,b1,b2,b3):
     b2.rotate(Z,math.pi).named("b2")
     b3.rotate(Z,-math.pi/2).named("b3")
     for ob in [b0,b1,b2,b3]:
-        ob.add_handle("bottomFrontLeft",ob.point(0,0,0,"ppp"))
-        ob.add_handle("bottomFrontRight",ob.point(1,0,0,"ppp"))
+        ob.add_hook("bottomFrontLeft",ob.point(0,0,0,"ppp"))
+        ob.add_hook("bottomFrontRight",ob.point(1,0,0,"ppp"))
     for pair in [[b0,b1],[b1,b2],[b2,b3]]:
-        pair[0].select_handle("bottomFrontRight")
-        pair[1].select_handle("bottomFrontLeft")
+        pair[0].select_hook("bottomFrontRight")
+        pair[1].select_hook("bottomFrontLeft")
         pair[1].hooked_on(pair[0])
     c=Compound()
     c.add_list_to_compound([["front",b0],["right",b1],["back",b2],["left",b3]])
     d=Cube(b0.point(0,0,0,"ppp"),b1.point(1,0,1,"ppp"))
+    #print(b1[0])
     c.add_box("globalBox",d.box())
     return c
 
-#b0=Cube.from_dimensions(1,.02,.5)
-b0=WoodBoard(xdim=1,ydim=.5,thickness=.01,xnumber=1,grainVector=Z).move(Map.linear(X,Z,Y))
-b1=b0.copy()
-b2=b0.copy()
-b3=b0.copy()
-floor=cabinetStorey(b0,b1,b2,b3)#PictureFrame(.6,.4,.07,.02)
+def Drawer(dimx,dimy,dimz,thickness):
+    print("thickness",dimz-thickness)
+    b0=WoodBoard(dimx,thickness,dimz-thickness)
+    print(b0.box())
+    b2=b0.copy()
+    b1=WoodBoard(dimy,thickness,dimz-thickness)
+    b3=b1.copy()
+    c=CabinetStorey(b0,b1,b2,b3)
+    b=WoodBoard(dimx,dimy,thickness)
+    print(c.box())
+    print(b.box())
+    c.above(b)
+    ret=Compound()
+    ret.add_list_to_compound([b,c])
+    return ret
+
+floor=Drawer(.2,.4,.07,.01)
 
 camera=Camera()
 camera.projection="perspective"

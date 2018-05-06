@@ -609,7 +609,7 @@ class Cone(Elaborate):
 
     def __init__(self,*args,**kwargs):
 
-        # The cone and its handles are  built from the following data: vectorAxis,center1,center2,length,radius2,radius1
+        # The cone and its hooks are  built from the following data: vectorAxis,center1,center2,length,radius2,radius1
         # First, I compute these data from the arguments of the init function
         
         if len(args)==3:
@@ -680,7 +680,7 @@ class Bending2d(Elaborate):
         cintree qu'on veut considerer est celle qui est obtenue en remplacant chaque jonction/soudure 
         entre deux tubes rectilignes par un tube cintre' dont la forme est le
         cercle susdecrit. Chaque cercle est approxime' par subdivCardinal morceaux de droite. 
-        Les handles seront le debut du tube, le debut et la fin de chaque morceau de cercle, et enfin la fin du tube. 
+        Les hooks seront le debut du tube, le debut et la fin de chaque morceau de cercle, et enfin la fin du tube. 
         J'ai fait les calculs en supposant que les angles sont < a pi, sinon il faut sans doute changer les formules. 
 
         A bending tube is a sequence of objects O1,O2....
@@ -737,7 +737,7 @@ class Bending2d(Elaborate):
         self.length=sum(distanceEntreHandles)
         #print("length",self.length)
         for i in range(len(coordonneesHandles)):
-            self.add_handle(name=str(i)+"_"+str(coordonneesHandles[i]),coordinates=coordonneesHandles[i].to_3d(),visibility=0)
+            self.add_hook(name=str(i)+"_"+str(coordonneesHandles[i]),coordinates=coordonneesHandles[i].to_3d(),visibility=0)
             #print (coordonneesHandles[i].to_3d())
 
 

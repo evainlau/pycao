@@ -358,7 +358,7 @@ class Glass(Compound):
         base=Cylinder(start,end,radius)
         toCut=Cylinder(start+.02*Z,end+.05*Z,radius-.001)
         base.amputed_by(toCut)
-        self.add_handle("bottom",origin)
+        self.add_hook("bottom",origin)
         self.add_to_compound(base)
         self.makeup("Glass")
         self.enhance("pigment {color rgbt <1,1,1,.58>}")
@@ -380,7 +380,7 @@ class LightSwitch(Compound):
         support.makeup("pigment {Grey}")
         self.add_box("default",base.box())
         self.add_axis("outsideVector",self.box().segment(.5,None,.5,"ppp"))
-        self.add_handle("to_wall",self.box().point(.5,1,.5,"ppp"))
+        self.add_hook("to_wall",self.box().point(.5,1,.5,"ppp"))
 
 
         
@@ -404,8 +404,8 @@ class Tiling(Compound):
         mortar=Cube(origin,origin+xnumber*(xdim+jointWidth)*X+ynumber*(ydim+jointWidth)*Y+jointHeight*Z).colored("Black")
         self.add_box("globalBox",mortar.box())
         self.add_to_compound(mortar)
-        self.add_handle("bottomInitialPoint",p)
-        self.add_handle("upperInitialPoint",r)
+        self.add_hook("bottomInitialPoint",p)
+        self.add_hook("upperInitialPoint",r)
         if polyline:
             self.intersected_by(Prism.from_polyline_vector(polyline.translate(-10000*Z),20000*Z))
         

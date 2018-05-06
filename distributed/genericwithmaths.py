@@ -64,7 +64,7 @@ def _scale_object(self,fx=1,fy=1,fz=1,xVector=X,yVector=Y, zVector=Z,fixedPoint=
 
 @staticmethod
 def _new_object(cls,*args,**kwargs):
-    #dico={handle.name:handle for handle in handles}
+    #dico={hook.name:hook for hook in hooks}
     self=super(ObjectInWorld,cls).__new__(cls)
     ObjectInWorld.__init__(self,args,kwargs)
     return self
@@ -113,12 +113,12 @@ ObjectInWorld.__new__=_new_object
 #print (vector)
 
 def _hooked_on(self,other):
-    """ other,self=an abject with a handle, move self so that self.handle() and other.handle()  coincide. 
-    If other is a point, self.handle goes to this point."""
+    """ other,self=an abject with a hook, move self so that self.hook() and other.hook()  coincide. 
+    If other is a point, self.hook goes to this point."""
     if is_point(other):
-        self.translate(other-self.handle())
+        self.translate(other-self.hook())
     else:
-        self.translate(other.handle()-self.handle())
+        self.translate(other.hook()-self.hook())
     return self
 
 

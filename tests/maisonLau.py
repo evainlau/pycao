@@ -171,7 +171,7 @@ corridorLamp=Lamp(shadowless=False).hooked_on(origin+2.5*Z+8*X+3.15*Y).glued_on(
 
 table=Table(1.2,.8,.7,.03).colored("Khaki").above(origin+4.8*X+1.5*Y).glued_on(room).enhance(tableBump)
 table.name="table"
-table.add_handle("glass1",table.point(.5,.5,1))
+table.add_hook("glass1",table.point(.5,.5,1))
 glass1=Glass()
 glass2=Glass()
 glass3=Glass()
