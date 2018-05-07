@@ -70,6 +70,9 @@ class Texture(object):
             self.declareString="#declare "+self.name+" = "+self.largeString
             globvars.TextureString+="\n"+self.declareString
 
+    def __str__(self):
+        return self.largeString
+
     @staticmethod
     def from_colorkw(ckw):
         return Texture("pigment {color "+ckw+"}")

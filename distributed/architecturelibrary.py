@@ -401,19 +401,129 @@ class Tiling(Compound):
                 ntile.translate(origin-p+i*(xdim+jointWidth)*X+j*(ydim+jointWidth)*Y)
                 tcop=ntile.copy()
                 self.add_to_compound(tcop)
-        mortar=Cube(origin,origin+xnumber*(xdim+jointWidth)*X+ynumber*(ydim+jointWidth)*Y+jointHeight*Z).colored("Black")
-        self.add_box("globalBox",mortar.box())
-        self.add_to_compound(mortar)
+        if jointHeight >0:
+            mortar=Cube(origin,origin+xnumber*(xdim+jointWidth)*X+ynumber*(ydim+jointWidth)*Y+jointHeight*Z).colored("Black")
+            self.add_to_compound(mortar)
+        fb=Cube(origin,origin+xnumber*(xdim+jointWidth)*X+ynumber*(ydim+jointWidth)*Y+(r-p)).box()
+        self.add_box("globalBox",fb)
         self.add_hook("bottomInitialPoint",p)
         self.add_hook("upperInitialPoint",r)
         if polyline:
             self.intersected_by(Prism.from_polyline_vector(polyline.translate(-10000*Z),20000*Z))
-        
+
+
+
+
+def WoodStud(dimx,dimy,dimz,grainVector=Z,texture=None):
+    if texture is None:
+        texture=Texture("DMFDarkOak scale .03")
+    c=Cube.from_dimensions(dimx,dimy,dimz)
+    M=Map.rotational_difference(Z,grainVector)    
+    c.new_texture(texture)
+    c.texture.move(M)
+    return c
+
+def RoundedWoodStud(dimx,dimy,dimz,radius=.005,grainVector=Z,texture=None):
+    if texture is None:
+        texture=Texture("DMFDarkOak scale .03")
+    c=RoundBox.from_dimensions(dimx,dimy,dimz,radius)
+    c.new_texture(texture)
+    M=Map.rotational_difference(Z,grainVector)
+    c.texture.move(M)
+    return c
+
+def WoodBoard(xdim,ydim,thickness,xnumber=2,grainVector=Z,texture=None):
+    """ 
+    returns a board in the xy plane obtained by tiling in the x direction
+    """
+    if texture is None:
+        texture=Texture("DMFDarkOak scale .03")
+    c=RoundedWoodStud(xdim,ydim,thickness,radius=.005,grainVector=grainVector,texture=texture)
+    return c#Tiling(c,jointWidth=-.0001,jointHeight=0,xnumber=xnumber,ynumber=1,polyline=None)
+
+def PictureFrame(xdim,ydim,thickness,borderWidth,radius=.005):
+    l1=RoundedWoodStud(xdim,borderWidth,2*thickness,radius=radius,grainVector=X)
+    l3=l1.copy().translate((ydim-borderWidth)*Y)
+    l2=RoundedWoodStud(borderWidth,ydim,2*thickness,radius=radius,grainVector=Y)
+    l4=l2.copy().translate((xdim-borderWidth)*X)
+    plane1=plane.from_3_points(origin,origin+Z,origin+X+Y)
+    if plane1.half_space_contains(origin+X):
+        plane1.reverse()
+    l1.amputed_by(plane1)
+    l2.amputed_by(plane1.copy().reverse())
+    plane1.translate(l3.point(1,1,1,"ppp")-origin)
+    l4.amputed_by(plane1)
+    l3.amputed_by(plane1.copy().reverse())
+    plane2=plane.from_3_points(origin,origin+Z,origin-X+Y)
+    if plane2.half_space_contains(origin+X+Y):
+        plane2.reverse()
+    plane3=plane2.copy().translate(xdim*X)
+    plane2.translate(ydim*Y)
+    l2.amputed_by(plane2.copy().reverse())
+    l3.amputed_by(plane2)
+    l1.amputed_by(plane3.copy().reverse())
+    l4.amputed_by(plane3)
+    ret=Compound()
+    ret.add_list_to_compound([l1,l2,l3,l4])
+    ret.add_box("globalBox",Cube(origin,origin+xdim*X+ydim*Y+thickness*Z).box())
+    return ret
+
+def FramedGlass(width,height,thickness,borderWidth):
+    mape=Map.linear(X,Z,Y)
+    border=PictureFrame(width,height,thickness,borderWidth).move(mape)
+    glass=Cube(origin,origin+(width-2*borderWidth)*X+(height-2*borderWidth)*Z+.002*Y)
+    glass.new_texture("Glass")
+    glass.translate(border.center-glass.center)
+    ret=Compound()
+    ret.add_list_to_compound([["frame",border],["glass",glass]])
+    ret.add_box("globalBox",border.box())
+    return ret
+
+def CabinetStorey(b0,b1,b2,b3):
+    """
+    creates a storey for a cabinet from 4 boeards. The 4 boards are in the (x,z) plane and parallel
+    and the outside face of the board is oriented towards the negative y. 
+    This function gives the right orientation to the 4 boards and returns a compound with 4 panels 
+    called front,irght,back,left, and a box. Each board must have a box for the computations to occur. 
+    """
+    b0.named("b0")
+    b1.rotate(Z,math.pi/2).named("b1")
+    b2.rotate(Z,math.pi).named("b2")
+    b3.rotate(Z,-math.pi/2).named("b3")
+    for ob in [b0,b1,b2,b3]:
+        ob.add_hook("bottomFrontLeft",ob.point(0,0,0,"ppp"))
+        ob.add_hook("bottomFrontRight",ob.point(1,0,0,"ppp"))
+    for pair in [[b0,b1],[b1,b2],[b2,b3]]:
+        pair[0].select_hook("bottomFrontRight")
+        pair[1].select_hook("bottomFrontLeft")
+        pair[1].hooked_on(pair[0])
+    c=Compound()
+    c.add_list_to_compound([["front",b0],["right",b1],["back",b2],["left",b3]])
+    d=Cube(b0.point(0,0,0,"ppp"),b1.point(1,0,1,"ppp"))
+    #print(b1[0])
+    c.add_box("globalBox",d.box())
+    return c
+
+def Drawer(dimx,dimy,dimz,thickness):
+    b0=WoodBoard(dimx,thickness,dimz-thickness,grainVector=X)
+    b2=b0.copy()
+    b1=WoodBoard(dimy,thickness,dimz-thickness,grainVector=X)
+    b3=b1.copy()
+    c=CabinetStorey(b0,b1,b2,b3)
+    b=WoodBoard(dimx,dimy,thickness,grainVector=Y)
+    c.above(b)
+    ret=Compound()
+    ret.add_list_to_compound([b,c])
+    return ret
+
+
+
+            
 """ 
 TODO
+* revoir et reautomatiser la doc
 * ajouter le thick triangle
 * debugger le plan qui n'est pas bouge' proprement par une action non orthogonale
-* changer enhance,makeup en add_to_texture et new_texture 
 * ajouter des objets : 2 armoires, \'etagere, carrelage, interrupteurs 
 bouger la chair avec un above comme la table. 
 * ajouter le prisme et le polygone,le wall, la Room,fenetres a la doc, la librairie archi, la rounded box, 
