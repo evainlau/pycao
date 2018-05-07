@@ -65,19 +65,19 @@ ground.name="plan"
 def WoodStud(dimx,dimy,dimz,grainVector):
     c=Cube.from_dimensions(dimx,dimy,dimz)
     M=Map.rotational_difference(Y,grainVector)
-    c.makeup(Texture("T_Wood3").move(M))
+    c.new_texture(Texture("T_Wood3").move(M))
     return c
 
 def RoundedWoodStud(dimx,dimy,dimz,radius=.005,grainVector=Z):
     c=RoundBox.from_dimensions(dimx,dimy,dimz,radius)
     M=Map.rotational_difference(Y,grainVector)
-    c.makeup(Texture("T_Wood3").move(M))
+    c.new_texture(Texture("T_Wood3").move(M))
     return c
 
 def WoodBoard(xdim,ydim,thickness,xnumber=1,grainVector=Y):
     c=RoundedWoodStud(xdim,ydim,thickness,.005)
     M=Map.rotational_difference(Y,grainVector)
-    c.makeup(Texture("T_Wood3").move(M))
+    c.new_texture(Texture("T_Wood3").move(M))
     return Tiling(c,jointWidth=-.0001,jointHeight=thickness,xnumber=xnumber,ynumber=1,polyline=None)
 
 def PictureFrame(xdim,ydim,width,thickness,radius=.005):

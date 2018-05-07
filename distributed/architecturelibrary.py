@@ -180,7 +180,7 @@ class Window2(Compound):
         # The hole will be used to cut the wall behind the window.
         hole=Cube(frame.point(holeBorder,-10000,holeBorder,"aaa"),frame.point(holeBorder,-10000,holeBorder,"nnn"))
         glass=Cube(frame.point(border,dy*.5-.001,border,"aaa"),frame.point(border,dy*.5-0.01,border,"nnn"))
-        glass.makeup(Texture("Glass"))
+        glass.new_texture(Texture("Glass"))
         Compound.__init__(self,[frame,glass,["normal",Y.copy()]])
         self.hole=hole.glued_on(self)
         self.hole.visibility=0
@@ -192,9 +192,9 @@ class Window(Compound):
         """dx,dy,dz are the length,depth,height respectivly, border is the size of the border of the window """ 
         frame=RoundBox.from_dimensions(dx,dy,dz,.03)
         frame2=Cube(dx,dy,dz)
-        frame.makeup(texture)
+        frame.new_texture(texture)
         toCut=Cube(frame2.point(border,-0.01,border,"aaa"),frame2.point(border,-.01,border,"nnn"))
-        toCut.makeup(texture)
+        toCut.new_texture(texture)
         frame.amputed_by(toCut)
         if holeBorder is None:
             holeBorder=border*.5
@@ -202,7 +202,7 @@ class Window(Compound):
         hole=Cube(frame2.point(holeBorder,-10000,holeBorder,"aaa"),frame2.point(holeBorder,-10000,holeBorder,"nnn"))
         glass=Cube(frame2.point(border,dy*.5-.001,border,"aaa"),frame2.point(border,dy*.5-0.01,border,"nnn"))
         glass.name="Window Glass"
-        glass.makeup(Texture("Glass"))
+        glass.new_texture(Texture("Glass"))
         Compound.__init__(self,[["frame",frame],["glass",glass],["normal",Y.copy()]])
         self.hole=hole.glued_on(self)
         self.hole.visibility=0
@@ -260,13 +260,13 @@ class RoundWindow(Compound):
     def __init__(self,radius,depth,border,texture=Texture("Yellow_Pine")):
         """ border is the size of the border of the window """ 
         frame=Cylinder(start=origin,end=origin+depth*Y,radius=radius,length=None,booleanOpen=False)
-        frame.makeup(texture)
+        frame.new_texture(texture)
         self.normal=Y.copy()
         toCut=Cylinder(start=origin-Y,end=origin+depth*Y+Y,radius=radius-border,length=None,booleanOpen=False)
-        toCut.makeup(texture)
+        toCut.new_texture(texture)
         frame.amputed_by(toCut)
         glass=Cylinder(start=origin+(.5*depth-.01)*Y,end=origin+(.5*depth+.01)*Y,radius=radius-border,length=None,booleanOpen=False)
-        glass.makeup(Texture("Glass"))
+        glass.new_texture(Texture("Glass"))
         self.hole=toCut.glued_on(self)
         self.hole.visibility=0
         Compound.__init__(self,[["frame",frame],glass])
@@ -319,16 +319,16 @@ class Chair(Compound):
 class Stove(Compound):
     def __init__(self,roomHeight=2.5,texture=Texture("New_Brass")):
         door=Window(.4,.05,.6,.05,holeBorder=None,texture=texture)
-        fireplace=RoundBox.from_dimensions(.4,.4,.6,.01).makeup(texture)
-        spacer=Cube(.38,.01,.58).makeup(texture)
-        spacer2=Cube(.38,.38,.01).makeup(texture)
+        fireplace=RoundBox.from_dimensions(.4,.4,.6,.01).new_texture(texture)
+        spacer=Cube(.38,.01,.58).new_texture(texture)
+        spacer2=Cube(.38,.38,.01).new_texture(texture)
         spacer.behind(door)
         fireplace.behind(spacer)
         spacer2.below(fireplace)
         floorPoint=spacer2.point(.5,.5,0,"ppp")
         cylstart=fireplace.point(.5,.5,1,"ppp")
         cylEnd=cylstart+(roomHeight-.61)*Z
-        cyl=Cylinder(cylstart,cylEnd,.08).makeup(texture)
+        cyl=Cylinder(cylstart,cylEnd,.08).new_texture(texture)
         self.add_list_to_compound([["door",door],["spacer",spacer],fireplace,spacer2,cyl,["floorPoint",floorPoint]])
         self.add_axis("axis",fireplace.segment(.5,.5,None,"ppp"))
 
@@ -345,7 +345,7 @@ class DoorHandle(Compound):
         handle=Torus.from_3_points(start,start+.03*X,start+.07*X-.02*Z,.01)
         handlePoint=middle.point(.5,1,.75,"ppp")
         self.add_list_to_compound([bottom,["middle",middle],top,axis,handle,["handlePoint",handlePoint]])
-        self.makeup(texture)
+        self.new_texture(texture)
         scaleFactor=2
         mape=Map.linear(scaleFactor*X,scaleFactor*Y,scaleFactor*Z)
         self.move(mape)
@@ -360,8 +360,8 @@ class Glass(Compound):
         base.amputed_by(toCut)
         self.add_hook("bottom",origin)
         self.add_to_compound(base)
-        self.makeup("Glass")
-        self.enhance("pigment {color rgbt <1,1,1,.58>}")
+        self.new_texture("Glass")
+        self.add_to_texture("pigment {color rgbt <1,1,1,.58>}")
 
 class LightSwitch(Compound):
     def __init__(self,size=.12):
@@ -376,8 +376,8 @@ class LightSwitch(Compound):
         button.amputed_by(P)
         base.amputed_by(toCut)
         self.add_list_to_compound([base,button,support])
-        self.makeup("pigment {White}")
-        support.makeup("pigment {Grey}")
+        self.new_texture("pigment {White}")
+        support.new_texture("pigment {Grey}")
         self.add_box("default",base.box())
         self.add_axis("outsideVector",self.box().segment(.5,None,.5,"ppp"))
         self.add_hook("to_wall",self.box().point(.5,1,.5,"ppp"))
@@ -410,9 +410,10 @@ class Tiling(Compound):
             self.intersected_by(Prism.from_polyline_vector(polyline.translate(-10000*Z),20000*Z))
         
 """ 
-* comprendre pourquoi la copie du cube ne bouge pas le framebox+idem pour axis et hook
+TODO
 * ajouter le thick triangle
 * debugger le plan qui n'est pas bouge' proprement par une action non orthogonale
+* changer enhance,makeup en add_to_texture et new_texture 
 * ajouter des objets : 2 armoires, \'etagere, carrelage, interrupteurs 
 bouger la chair avec un above comme la table. 
 * ajouter le prisme et le polygone,le wall, la Room,fenetres a la doc, la librairie archi, la rounded box, 

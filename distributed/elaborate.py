@@ -116,7 +116,6 @@ class Prism(Elaborate):
         self.splineType=splineType
         self.sweepType=sweepType
         self.polyline1=polyline1
-        print(polyline1,"was the polyline for the prism")
         # suppressing the follwing 2 lines because of rounding pbs
         #if (self.polyline1[0] != self.polyline1[-1]).any():
         #    raise NameError("The first and last point of the underlying splines must be equal in a prism")

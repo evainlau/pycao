@@ -89,18 +89,17 @@ ground.colored('DarkGreen') # The possible colors are the colors described in co
 floorPolyline=Polyline([origin,7.012*Y,11.526*X,-5.64*Y,-3.614*X,-1.386*Y,-7.912*X+.014*Y])
 room=Room(floorPolyline,insideThickness=.31).colored("LightWood")
 #room.light_level(1.5)
-room.enhance("normal {agate .5 scale 1 bump_size .05}")
-print(room.texture.smallString)
+room.add_to_texture("normal {agate .5 scale 1 bump_size .05}")
 rommTexture=room.walls[0]
 unleash([room.floor])
 room.floor.name="myFloor"
-room.floor.makeup(texFloor2)
+room.floor.new_texture(texFloor2)
 room.ceiling.name="Ceiling"
-room.ceiling.makeup(texCeil)
+room.ceiling.new_texture(texCeil)
 
 
 myTile=RoundBox.from_dimensions(.4,.4,.02,.005)
-myTile.makeup(Texture("T_Stone4"))
+myTile.new_texture(Texture("T_Stone4"))
 tiling=Tiling(myTile,jointWidth=.01,jointHeight=.01,xnumber=23,ynumber=10,polyline=floorPolyline)#.move(.001*Z)
 tiling.hooked_on(origin+.001*Z).glued_on(room)
 tiling.glued_on(room)
@@ -110,38 +109,38 @@ ground.visibility=0
 
 
 #tex=room.floor.texture.copy().enhance("
-#room.floor.makeup(tex)
+#room.floor.new_texture(tex)
 #wall=RoundWindow(radius=1,depth=.1,border=.1,texture="Yellow_Pine")
 myWin=room.add_window(wallNumber=0,wlength=1.8,wheight=2.15,wdepth=.1,deltaLength=4.106,deltaHeigth=0).colored("White")
 backDoor=room.add_door(wallNumber=1,wlength=.9,wheight=2.15,wdepth=.1,deltaLength=5.756,deltaHeigth=0)#
 room.add_window(wallNumber=2,wlength=1,wheight=1.06,wdepth=.1,deltaLength=1.37,deltaHeigth=1.10).colored("White")
 room.add_window(wallNumber=2,wlength=.7,wheight=1.05,wdepth=.1,deltaLength=3.57,deltaHeigth=1.10).colored("White")
 room.add_window(wallNumber=3,wlength=.7,wheight=.7,wdepth=.1,deltaLength=2.57,deltaHeigth=1.60).colored("White")
-outsideDoor=room.add_door(wallNumber=4,wlength=.9,wheight=2.15,wdepth=.1,deltaLength=.13,deltaHeigth=0,reverseHandle=True,handleTexture=handleTexture).makeup(texDoor)
+outsideDoor=room.add_door(wallNumber=4,wlength=.9,wheight=2.15,wdepth=.1,deltaLength=.13,deltaHeigth=0,reverseHandle=True,handleTexture=handleTexture).new_texture(texDoor)
 outsideDoor.add_porthole()
 outsideDoor.window.frame.rgbed([.8,.8,.6])
 outsideDoor.name="outsideDoor"
 tex=outsideDoor.texture.enhance("normal {brick brick_size 1.5 mortar .05} ").move(Map.linear(X,Y,2*Z))
-outsideDoor.makeup(tex)
+outsideDoor.new_texture(tex)
 ls=LightSwitch().parallel_to(-1*room.walls[4].insideVector())
 ls.hooked_on(room.walls[4].insideBaseLine().point(.2,"p")+1.1*Z).glued_on(room)
 
 room.add_window(wallNumber=5,wlength=2.2,wheight=2.15,wdepth=.1,deltaLength=1.056,deltaHeigth=0).frame.colored("White")
 room.add_window(wallNumber=5,wlength=1.8,wheight=1.05,wdepth=.1,deltaLength=4.056,deltaHeigth=1.1).frame.colored("White")
 
-room.add_perpendicular_wall(0,distance=2.74,wallLength=2.70,thickness=.08,measurementType="a",height=None).makeup(tw)
-room.add_perpendicular_wall(1,distance=3.73+.85,wallLength=1.67+1.47,thickness=.08,measurementType="a",height=None).makeup(tw)
-room.add_perpendicular_wall(0,distance=3.31,wallLength=2.9,thickness=.08,measurementType="a",offset=3.73+.83,height=None).makeup(tw)#wall8
-room.add_perpendicular_wall(1,distance=3.4,wallLength=1.67+1.47,thickness=.16,measurementType="n",height=None).makeup(tw)
-room.add_perpendicular_wall(2,distance=2.94,wallLength=3.4,thickness=.08,measurementType="a",height=None).makeup(tw)
-room.add_perpendicular_wall(2,distance=0.95,wallLength=2.86,thickness=.08,measurementType="n",offset=.75,height=None).makeup(tw)
-room.add_perpendicular_wall(3,distance=.08,wallLength=.9,thickness=.16,measurementType="n",height=None).makeup(tw)
-room.add_perpendicular_wall(3,distance=1.88,wallLength=.9,thickness=.08,measurementType="a",height=None).makeup(tw)
-room.add_perpendicular_wall(3,distance=1.6,wallLength=1.1,thickness=.08,measurementType="a",offset=.95,height=None).makeup(tw)
-room.add_perpendicular_wall(3,distance=2.3,wallLength=1.1,thickness=.08,measurementType="a",offset=.95,height=None).makeup(tw)
-door1=room.add_door(wallNumber=8,wlength=.83,wheight=2.15,wdepth=.1,deltaLength=1.45,handleTexture=handleTexture).makeup(texDoor)
+room.add_perpendicular_wall(0,distance=2.74,wallLength=2.70,thickness=.08,measurementType="a",height=None).new_texture(tw)
+room.add_perpendicular_wall(1,distance=3.73+.85,wallLength=1.67+1.47,thickness=.08,measurementType="a",height=None).new_texture(tw)
+room.add_perpendicular_wall(0,distance=3.31,wallLength=2.9,thickness=.08,measurementType="a",offset=3.73+.83,height=None).new_texture(tw)#wall8
+room.add_perpendicular_wall(1,distance=3.4,wallLength=1.67+1.47,thickness=.16,measurementType="n",height=None).new_texture(tw)
+room.add_perpendicular_wall(2,distance=2.94,wallLength=3.4,thickness=.08,measurementType="a",height=None).new_texture(tw)
+room.add_perpendicular_wall(2,distance=0.95,wallLength=2.86,thickness=.08,measurementType="n",offset=.75,height=None).new_texture(tw)
+room.add_perpendicular_wall(3,distance=.08,wallLength=.9,thickness=.16,measurementType="n",height=None).new_texture(tw)
+room.add_perpendicular_wall(3,distance=1.88,wallLength=.9,thickness=.08,measurementType="a",height=None).new_texture(tw)
+room.add_perpendicular_wall(3,distance=1.6,wallLength=1.1,thickness=.08,measurementType="a",offset=.95,height=None).new_texture(tw)
+room.add_perpendicular_wall(3,distance=2.3,wallLength=1.1,thickness=.08,measurementType="a",offset=.95,height=None).new_texture(tw)
+door1=room.add_door(wallNumber=8,wlength=.83,wheight=2.15,wdepth=.1,deltaLength=1.45,handleTexture=handleTexture).new_texture(texDoor)
 door1.name="porte1"
-door1.makeup(tex)
+door1.new_texture(tex)
 
 
 
@@ -153,8 +152,8 @@ floorCenter=origin+3.5*Y+5.6*X
 sun=Light(origin+100*(5*Z-1*X-4*Y)) # a light
 sun.rgbColor=[1,1,1]
 
-livingLamp=Lamp().hooked_on(floorCenter-1.7*Y+2.5*Z).glued_on(ground).enhance(lampFinish) # a light
-corridorLamp=Lamp(shadowless=False).hooked_on(origin+2.5*Z+8*X+3.15*Y).glued_on(room).enhance(lampFinish)
+livingLamp=Lamp().hooked_on(floorCenter-1.7*Y+2.5*Z).glued_on(ground).add_to_texture(lampFinish) # a light
+corridorLamp=Lamp(shadowless=False).hooked_on(origin+2.5*Z+8*X+3.15*Y).glued_on(room).add_to_texture(lampFinish)
 #kitchenLamp=Lamp().hooked_on(origin+2.5*Z+2*X+1.5*Y).glued_on(room)
 #unseenLamp=Light().hooked_on(floorCenter-1*Y+1.2*Z+2*X).glued_on(ground) # a light
 #unseenLamp.color="rgb <1,1,1>"
@@ -169,7 +168,7 @@ corridorLamp=Lamp(shadowless=False).hooked_on(origin+2.5*Z+8*X+3.15*Y).glued_on(
 
 
 
-table=Table(1.2,.8,.7,.03).colored("Khaki").above(origin+4.8*X+1.5*Y).glued_on(room).enhance(tableBump)
+table=Table(1.2,.8,.7,.03).colored("Khaki").above(origin+4.8*X+1.5*Y).glued_on(room).add_to_texture(tableBump)
 table.name="table"
 table.add_hook("glass1",table.point(.5,.5,1))
 glass1=Glass()

@@ -147,9 +147,9 @@ def unleash(liste):
             raise NameError("All objects must share the same texture to unleash it")
     newtexture=texture.copy()
     for obj in liste:
-        obj.makeup(newtexture)
+        obj.new_texture(newtexture)
 
-def _makeup(self,texture):
+def _new_texture(self,texture):
     if isinstance(texture,str):#then should be a povray name texture
         import material
         texture=material.Texture(texture)
@@ -158,22 +158,22 @@ def _makeup(self,texture):
         for op in self.csgOperations:
             slaves=op.csgSlaves
             for slave  in slaves :
-                _makeup(slave,texture)
+                _new_texture(slave,texture)
     return self
 
-def _enhance(self,value,name=""):
+def _add_to_texture(self,value,name=""):
     self.texture.enhance(value,name)
     if hasattr(self,"csgOperations") and len(self.csgOperations)>0:
         for op in self.csgOperations:
             slaves=op.csgSlaves
             for slave  in slaves :
                 if not slave.texture==self.texture:#otherwise already done
-                    _enhance(slave,value,name=name)
+                    _add_to_texture(slave,value,name=name)
     return self
 
 
-ObjectInWorld.makeup=_makeup
-ObjectInWorld.enhance=_enhance
+ObjectInWorld.new_texture=_new_texture
+ObjectInWorld.add_to_texture=_add_to_texture
 
         
         
@@ -194,8 +194,4 @@ material.unleash([c,d])
 def defaultTexture():
     return Texture("pigment {Yellow}")
 
-"""TO DO
 
-Verifier la possibilit\'e de faire un carrelage et la Brick normale sur la porte !
-remplacer makeup par painted_by
-"""

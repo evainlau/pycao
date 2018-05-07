@@ -216,7 +216,7 @@ class ObjectInWorld(object):
             #print(cuttingShape)
             copie=[tool.copy() for tool in cuttingShape]
         else:
-            copie=[cuttingShape.copy().makeup(self.texture)]
+            copie=[cuttingShape.copy().new_texture(self.texture)]
         #print("mat",copie.materials,cuttingShape.materials)
         #print("Les outils de coupe")
         #print([tool.children for tool in copie])
@@ -258,7 +258,7 @@ class ObjectInWorld(object):
             #print("in else")
             #print(cuttingShape.__class__)
             #print(cuttingShape)
-            copie=[cuttingShape.copy().makeup(self.texture)]
+            copie=[cuttingShape.copy().new_texture(self.texture)]
         #print(cuttingShape)
         #print(copie)
         #print("mat",copie.materials,cuttingShape.materials)
@@ -292,7 +292,7 @@ class ObjectInWorld(object):
         t=self.texture.enhance(p)
         #print(self.texture.smallString)
         #print("phasname",p.name)
-        self.makeup(t)#keep it for the childs in csg
+        self.new_texture(t)#keep it for the childs in csg
         #print("in colored",t.smallString)
         return self
 
@@ -301,7 +301,7 @@ class ObjectInWorld(object):
         import material
         p=material.Pigment("color rgb <"+str(list[0])+","+str(list[1])+","+str(list[2])+">")
         t=self.texture.enhance(p)
-        self.makeup(t) #for the csg childs
+        self.new_texture(t) #for the csg childs
         #print("in rgbed",t.smallString)
         return self
 
@@ -309,7 +309,7 @@ class ObjectInWorld(object):
         ambient=value*defaultAmbientMultiplier
         diffuse=value*defaultDiffuseMultiplier
         finish="finish {ambient "+str(ambient)+" diffuse "+str(diffuse)+"}"        
-        self.enhance(finish)
+        self.add_to_texture(finish)
         return self
 
 
@@ -481,7 +481,6 @@ class ObjectInWorld(object):
         if not hasattr(self,"dicohook"):
             dicohook=Object() 
             setattr(self,"dicohook",dicohook)
-        print("lehpoint",hpoint)
         self.activeHook=hpoint.copy().glued_on(self)
         setattr(self.dicohook,name,self.activeHook)
         return self
