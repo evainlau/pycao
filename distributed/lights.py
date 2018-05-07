@@ -113,5 +113,5 @@ class Lamp(Compound):
             self.add_to_compound(["shadowless",shadowless])
             shadowless.hooked_on(physicalLamp)
         physicalLamp.select_hook("light") # since the lamp has an other hook to the ceiling
-        self.add_hook("ceiling",physicalLamp.select_hook("ceiling"))
+        self.add_hook("ceiling",physicalLamp.hook("ceiling"))
         

@@ -418,11 +418,18 @@ class ObjectInWorld(object):
         self.move(M)
         return self
 
-    def box(self): #will be overwritten for some objects construcing their own boxes
-        return self.activeBox.copy()
-
-    def named_box(self,name):
-        return getattr(self.dicobox,name).copy()
+    def box(self,name=None): #will be overwritten for some objects construcing their own boxes
+        if name is None:
+            return self.activeBox.copy()
+        else :return getattr(self.dicobox,name).copy()
+    def axis(self,name=None): #will be overwritten for some objects construcing their own boxes
+        if name is None:
+            return self.activeAxis.copy()
+        else: return getattr(self.dicoaxis,name).copy()
+    def hook(self,name=None): #will be overwritten for some objects construcing their own boxes
+        if name is None:
+            return self.activeHook.copy()
+        else: return getattr(self.dicohook,name).copy()
 
     
     def add_box(self,name,framebox):
@@ -452,7 +459,6 @@ class ObjectInWorld(object):
         The active axis is self.axis()
         """
         # the added line must move with the object
-        gluedLine=line.copy().glued_on(self)
         def axis_function():
             return gluedLine
         # creates a dicoaxis if ncr and populates it if  ncr
@@ -461,8 +467,8 @@ class ObjectInWorld(object):
             if hasattr(self,"axis"):
                 dicoaxis.initialAxis=self.axis
             setattr(self,"dicoaxis",dicoaxis)
-        setattr(self.dicoaxis,name,axis_function)
-        setattr(self,"axis",axis_function)
+        self.activeAxis=line.copy().glued_on(self)
+        setattr(self.dicoaxis,name,self.activeAxis)
         return self
 
     def add_hook(self,name,hpoint):
@@ -471,16 +477,13 @@ class ObjectInWorld(object):
         is added to the dictionnary self.dicohook
         The active hookpoint is self.hookpoint()
         """
-        # the added line must move with the object
-        gluedPoint=hpoint.copy().glued_on(self)
-        def hook_function():
-            return gluedPoint
         # creates a dicoaxis if ncr and populates it if  ncr
         if not hasattr(self,"dicohook"):
             dicohook=Object() 
             setattr(self,"dicohook",dicohook)
-        setattr(self.dicohook,name,hook_function)
-        setattr(self,"hook",hook_function)
+        print("lehpoint",hpoint)
+        self.activeHook=hpoint.copy().glued_on(self)
+        setattr(self.dicohook,name,self.activeHook)
         return self
 
     
@@ -526,8 +529,8 @@ class ObjectInWorld(object):
         arguments: 
         name: the name of the axis we want to select
         """
-        self.axis=getattr(self.dicoaxis,name)
-        return self.axis()
+        self.activeAxis=getattr(self.dicoaxis,name)
+        return self
 
     def self_rotate(self,angle):
         return self.rotate(self.axis(),angle)
@@ -554,6 +557,6 @@ class ObjectInWorld(object):
         arguments: 
         name: the name of the hook we want to select
         """
-        self.hook=getattr(self.dicohook,name)
-        return self.hook()
+        self.activeHook=getattr(self.dicohook,name)
+        return self
 

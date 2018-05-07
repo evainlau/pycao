@@ -410,14 +410,13 @@ class Tiling(Compound):
             self.intersected_by(Prism.from_polyline_vector(polyline.translate(-10000*Z),20000*Z))
         
 """ 
-* comprendre pourquoi la copie du cube ne bouge pas le framebox
-* remplacer les handle par des hook
+* comprendre pourquoi la copie du cube ne bouge pas le framebox+idem pour axis et hook
 * ajouter le thick triangle
 * debugger le plan qui n'est pas bouge' proprement par une action non orthogonale
 * ajouter des objets : 2 armoires, \'etagere, carrelage, interrupteurs 
 bouger la chair avec un above comme la table. 
 * ajouter le prisme et le polygone,le wall, la Room,fenetres a la doc, la librairie archi, la rounded box, 
 le torus
-dire que above marche avec des points dans la doc,doc des handles, des lampes, des couleurs.
+dire que above marche avec des points dans la doc,doc des hooks, des lampes, des couleurs.
 doc sur les textures.  
 """
