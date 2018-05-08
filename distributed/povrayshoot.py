@@ -92,17 +92,19 @@ def compute_finish(self):
         string=""
     return string
 
-def texture_string(self):
-    string=""
-    if hasattr(self.texture,"povtexture"):
-        string=self.texture.povtexture+" "
-    string+=compute_pigment(self)
-    string+=compute_normal(self)
-    string+=compute_finish(self)
-    if string:
-        return "texture {"+string+"}"
-    else:
-        return ""
+# def texture_string(self):
+#     string=""
+#     if hasattr(self.texture,"povtexture"):
+#         string=self.texture.povtexture+" "
+#     string+=compute_pigment(self)
+#     string+=compute_normal(self)
+#     string+="matrix "+povrayMatrix(self.moveMap)
+#     string+=compute_finish(self)
+
+#     if string:
+#         return "texture {"+string+"}"
+#     else:
+#         return ""
 
 
     
@@ -126,17 +128,22 @@ def povrayMatrix(M):
 
 def texture_string(self,camera):
     "Returns a string describing the texture of the object"
-    string=""
     if self.visibility<camera.visibilityLevel:
         string=" no_shadow no_image no_reflection \n"
     else:
-        #print("DebugTextureString",self,self.texture)
-        myTexture=self.texture
-        if myTexture.name:
-            string+=" texture { "+myTexture.name+" }\n"
-        else:
-            string+=" texture { "+myTexture.smallString+" }\n"
+        return texture_string_cameraless(self.texture)
+
+def texture_string_cameraless(myTexture):
+    "Returns a string describing the texture of the object"
+    string=""
+    if myTexture.name:
+        string+=myTexture.name
+    else:
+        string+=myTexture.smallString
+    string+=" matrix "+povrayMatrix(myTexture.moveMap)
+    string=" texture { "+string+" }\n"
     return string
+    
 
 
 def matrix_string(self):
@@ -152,7 +159,7 @@ def matrix_string(self):
 
 def modifier_string(self,camera):
     "Returns a string describing the modifier of the object"
-    return texture_string(self,camera)+matrix_string(self)
+    return matrix_string(self)+texture_string(self,camera)
 
 
 

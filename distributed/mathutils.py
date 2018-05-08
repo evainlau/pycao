@@ -352,7 +352,7 @@ class AffinePlaneWithEquation(AffinePlane,np.ndarray):
     """ 
     An affine plane with equation ax_0+bx_1+cx_2+d=0.
     Equivalently, this is the equation  ax_0+bx_1+cx_2+dx_3=0 of a 3-dim linear space in the massic space.
-    What is drawn in the 3D view is the half space  ax_0+bx_1+cx_2+d<0, ie. the normal vector points outside the plane.
+    What is drawn in the 3D view is the half space  ax_0+bx_1+cx_2+d<=0, ie. the normal vector points outside the plane.
 
 
     Construction:
@@ -436,7 +436,7 @@ class AffinePlaneWithEquation(AffinePlane,np.ndarray):
     def from_2_points(p1,p2):
         """ returns the bisector plane"""
         return AffinePlaneWithEquation.from_bisector(p1,p2)
-
+    @staticmethod
     def from_coeffs(a,b,c,d):
         """
         Returns the plane ax+by+cz+d=0
@@ -453,6 +453,7 @@ class AffinePlaneWithEquation(AffinePlane,np.ndarray):
     @staticmethod
     def from_point_and_vector(p,v):
         return AffinePlaneWithEquation(v,p)
+    @staticmethod
     def from_vector_and_point(v,p):
         return AffinePlaneWithEquation(v,p)
 

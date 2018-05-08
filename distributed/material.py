@@ -42,10 +42,8 @@ class PNFItem(object):#PNF means Pigment,Normal or Finish
         return self
 
     def move(self,mape,name=""):
-        import povrayshoot
-        string="matrix "+povrayshoot.povrayMatrix(mape)
-        #
-        return self.enhance(string,name)
+        self.moveMap=mape*self.moveMap
+        return self
         
         
 class Pigment(PNFItem):
@@ -62,16 +60,19 @@ class Finish(PNFItem):
 
 
 class Texture(object):
-    def __init__(self,string="",name=""):
+    def __init__(self,string="",name="",moveMap=None):
         self.smallString=string # the 'small' povray string ie. without the surrounding Pigment{} or Normal{} or Finish{} or Texture{} 
         self.largeString=self.__class__.__name__.lower()+" {"+self.smallString+"}"
         self.name=name
         if self.name:
             self.declareString="#declare "+self.name+" = "+self.largeString
             globvars.TextureString+="\n"+self.declareString
-
+        if moveMap is None:
+            self.moveMap=Map.identity
+            
     def __str__(self):
-        return self.largeString
+        import povrayshoot
+        return povrayshoot.texture_string_cameraless(self)
 
     @staticmethod
     def from_colorkw(ckw):
@@ -103,19 +104,20 @@ class Texture(object):
 
 
     def enhance(self,listeOrItem,name=""):
+        import povrayshoot
         if isinstance(listeOrItem,list):
             for entry in listeOrItem:
                 self.enhance(entry,name="")
             if name:
                 self.name=name
-                self.declareString="#declare "+self.name+" = "+self.largeString
+                self.declareString="#declare "+self.name+" = "+povrayshoot.texture_string_cameraless(self)
                 globvars.TextureString+="\n"+self.declareString
         elif isinstance(listeOrItem,str):
             wc=len(listeOrItem.split())
             if wc>1:
                 outstring=self.smallString+" "+listeOrItem
                 #print("oui avec",outstring)
-                self.__init__(outstring,name)
+                self.__init__(outstring,name,moveMap=self.moveMap)
             else: # the item is a keyword, need to declare selfto add the item if not done already
                 keyword=listeOrItem
                 if not self.name:
@@ -123,7 +125,7 @@ class Texture(object):
                     self.declareString="#declare "+self.name+" = "+self.largeString
                     globvars.TextureString+="\n"+self.declareString
                 outstring=self.name+" "+keyword
-                self.__init__(outstring,name)
+                self.__init__(outstring,name,self.moveMap)
         elif isinstance(listeOrItem,PNFItem):
             if listeOrItem.name:
                 self.enhance(listeOrItem.name,name)
@@ -134,14 +136,16 @@ class Texture(object):
             raise NameError("The Texture should be enhances with a list,a PNF item, or a string")
         return self
 
-    
     def move(self,mape,name=""):
-        import povrayshoot
-        string="matrix "+povrayshoot.povrayMatrix(mape)
-        return self.enhance(string,name)
+        self.moveMap=mape*self.moveMap
+        return self
+
 
     def copy(self):#no deepcopy needed since contains only strings
-        return copy.copy(self)    
+        memo=dict()
+        return copy.deepcopy(self,memo)    
+
+
 
 def unleash(liste):
     texture=liste[0].texture
@@ -154,8 +158,7 @@ def unleash(liste):
 
 def _new_texture(self,texture):
     if isinstance(texture,str):#then should be a povray name texture
-        import material
-        texture=material.Texture(texture)
+        texture=Texture(texture)
     self.texture=texture
     if hasattr(self,"csgOperations") and len(self.csgOperations)>0:
         for op in self.csgOperations:
@@ -175,9 +178,28 @@ def _add_to_texture(self,value,name=""):
     return self
 
 
+def _get_textures(self,textureset=None,withChildren=True):
+    if textureset is None:
+        textureset=set()
+    try:
+        textureset.add(self.texture)
+    except: # no texture
+        pass
+    if hasattr(self,"csgOperations") and len(self.csgOperations)>0:
+        for op in self.csgOperations:
+            slaves=op.csgSlaves
+            for slave  in slaves :
+                pass
+                textureset.add(slave.texture)
+                #except: pass # notexture for the slave
+    if withChildren:
+        for c in self.children:
+            c.get_textures(textureset=textureset)
+    return textureset
+    
 ObjectInWorld.new_texture=_new_texture
 ObjectInWorld.add_to_texture=_add_to_texture
-
+ObjectInWorld.get_textures=_get_textures
         
         
 """

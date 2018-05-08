@@ -22,6 +22,7 @@ import copy
 from uservariables import *
 
 
+
 # class Dico2Attribut(dict):
 #     """" transforme un dictionnaire foo en un objet foo
 #     dont les donnees sont accessibles par foo.bar en
@@ -109,7 +110,7 @@ class ObjectInWorld(object):
         self.name=str
         return self
 
-    def move(self,map=None):
+    def move(self,map=None,topLevel=True):
         """ This is the fundamental method to move any object : the user defines a map M  
         using any of the possible primitives in the class Map. Then self.move(M) 
         moves the object and all its children using the matrix M. Of course, for 
@@ -128,7 +129,13 @@ class ObjectInWorld(object):
         #print("in move,generic")
         #print(self)
         for c in self.children:
-            c.move(map)
+            c.move(map,topLevel=False)
+        import material
+        if topLevel==True:
+            textureset=self.get_textures()
+            for tex in textureset:
+                #pass
+                tex.move(map)
         return self
 
     def descendants_and_myself(self):
@@ -203,7 +210,7 @@ class ObjectInWorld(object):
             c.make_invisible()
 
 
-    def amputed_by(self,cuttingShape,throwShapeAway=True):
+    def amputed_by(self,cuttingShape,throwShapeAway=True,texturedAsSelf=True):
         """
         cut self using the substraction of cuttingShape, where cuttingShape=object or listOfObjects
         The cuttingShape is made invisible after the cutting operation if throwShapeAway=True
@@ -211,12 +218,12 @@ class ObjectInWorld(object):
         # I make a copy so that I can move the cutting shape independently of self later on
         #print("type")
         #print(type(cuttingShape))
-        if isinstance(cuttingShape,list):
-            #print("yes liste")
-            #print(cuttingShape)
-            copie=[tool.copy() for tool in cuttingShape]
+        if not isinstance(cuttingShape,list):
+            cuttingShape=[cuttingShape]
+        if texturedAsSelf:
+            copie=[tool.copy().new_texture(self.texture) for tool in cuttingShape]
         else:
-            copie=[cuttingShape.copy().new_texture(self.texture)]
+            copie=[tool.copy() for tool in cuttingShape]
         #print("mat",copie.materials,cuttingShape.materials)
         #print("Les outils de coupe")
         #print([tool.children for tool in copie])
@@ -234,33 +241,26 @@ class ObjectInWorld(object):
         return self
 
 
-    def intersected_by(self,cuttingShape,throwShapeAway=True):
+    def intersected_by(self,cuttingShape,throwShapeAway=True,texturedAsSelf=True):
         """
         cut self using the intersection with cuttingShape
         The cuttingShape is made invisible after the cutting operation if throwShapeAway=True
         """
         # I make a copy so that I can move the cutting shape independently of self later on
         #print("in intersected by")
-        if isinstance(cuttingShape,list):
+        if not isinstance(cuttingShape,list):
+            cuttingShape=[cuttingShape]
            #print(cuttingShape)
            #print(type(cuttingShape[0]))
-            copie=[]
-            for tool in cuttingShape:
-                memo=dict()
-                copie.append(copy.deepcopy(tool,memo))
-           #print([tool.children for tool in cuttingShape])
-           #print([tool.children for tool in copie])
-           #print(self.visibility)
-        elif not isinstance(cuttingShape,ObjectInWorld):
-            #print("in elif")
-            raise NameError('In "Intersected_by", The cutting argument is an ObjectInWorld or a list of ObjectInWorld')
-        else:
-            #print("in else")
-            #print(cuttingShape.__class__)
-            #print(cuttingShape)
-            copie=[cuttingShape.copy().new_texture(self.texture)]
-        #print(cuttingShape)
-        #print(copie)
+        copie=[]
+        for tool in cuttingShape:
+            memo=dict()
+            theCopy=copy.deepcopy(tool,memo)
+            if texturedAsSelf:
+                theCopy.new_texture(self.texture)
+            else:
+                print("Not TexturedAsSelf")
+            copie.append(theCopy)
         #print("mat",copie.materials,cuttingShape.materials)
         [tool.make_invisible() for tool in copie]
         #comp=Compound()

@@ -441,33 +441,44 @@ def WoodBoard(xdim,ydim,thickness,xnumber=2,grainVector=Z,texture=None):
     c=RoundedWoodStud(xdim,ydim,thickness,radius=.005,grainVector=grainVector,texture=texture)
     return c#Tiling(c,jointWidth=-.0001,jointHeight=0,xnumber=xnumber,ynumber=1,polyline=None)
 
-def PictureFrame(xdim,ydim,thickness,borderWidth,radius=.005):
-    l1=RoundedWoodStud(xdim,borderWidth,2*thickness,radius=radius,grainVector=X)
-    l3=l1.copy().translate((ydim-borderWidth)*Y)
-    l2=RoundedWoodStud(borderWidth,ydim,2*thickness,radius=radius,grainVector=Y)
-    l4=l2.copy().translate((xdim-borderWidth)*X)
-    plane1=plane.from_3_points(origin,origin+Z,origin+X+Y)
-    if plane1.half_space_contains(origin+X):
-        plane1.reverse()
-    l1.amputed_by(plane1)
-    l2.amputed_by(plane1.copy().reverse())
-    plane1.translate(l3.point(1,1,1,"ppp")-origin)
-    l4.amputed_by(plane1)
-    l3.amputed_by(plane1.copy().reverse())
-    plane2=plane.from_3_points(origin,origin+Z,origin-X+Y)
-    if plane2.half_space_contains(origin+X+Y):
-        plane2.reverse()
-    plane3=plane2.copy().translate(xdim*X)
-    plane2.translate(ydim*Y)
-    l2.amputed_by(plane2.copy().reverse())
-    l3.amputed_by(plane2)
-    l1.amputed_by(plane3.copy().reverse())
-    l4.amputed_by(plane3)
-    ret=Compound()
-    ret.add_list_to_compound([l1,l2,l3,l4])
-    ret.add_box("globalBox",Cube(origin,origin+xdim*X+ydim*Y+thickness*Z).box())
-    return ret
+class PictureFrame(Compound):
+    def __init__(self,width,height,thickness,borderWidth,normalVector=Y,radius=.005):
+        self.name="pictureFrame"
+        self.borderWidth=borderWidth
+        l1=RoundedWoodStud(width,borderWidth,2*thickness,radius=radius,grainVector=X).named("l1")
+        l3=l1.copy().translate((height-borderWidth)*Y).named("l3")
+        l2=RoundedWoodStud(borderWidth,height,2*thickness,radius=radius,grainVector=Y).named("l2")
+        l4=l2.copy().translate((width-borderWidth)*X).named("l4")
+        plane1=plane.from_3_points(origin,origin+Z,origin+X+Y)
+        if plane1.half_space_contains(origin+X):
+            plane1.reverse()
+        l1.amputed_by(plane1)
+        l2.amputed_by(plane1.copy().reverse())
+        plane1.translate(l3.point(1,1,1,"ppp")-origin)
+        l4.amputed_by(plane1)
+        l3.amputed_by(plane1.copy().reverse())
+        plane2=plane.from_3_points(origin,origin+Z,origin-X+Y)
+        if plane2.half_space_contains(origin+X+Y):
+            plane2.reverse()
+        plane3=plane2.copy().translate(width*X)
+        plane2.translate(height*Y)
+        l2.amputed_by(plane2.copy().reverse())
+        l3.amputed_by(plane2)
+        l1.amputed_by(plane3.copy().reverse())
+        l4.amputed_by(plane3)
+        self.add_list_to_compound([l1,l2,l3,l4])
+        self.texture=l2.texture
+        self.add_box("globalBox",Cube(origin,origin+width*X+height*Y+thickness*Z).box())
+        [ob.intersected_by(plane.from_coeffs(0,0,1,-thickness)) for ob in [l1,l2,l3,l4]]
 
+        #if not normalVector==Z:
+        #    mape=Map.rotational_difference(Z,normalVector)
+        #    self.move(mape)
+    def add_drawer(self,openingAmount=0.5,thickness=.02):
+        dim=self.dimensions
+        d=Drawer(dimx=dim[0]-self.borderWidth,dimy=dim[1]-self.borderWidth,dimz=dim[2],thickness=thickness)
+        d.translate(self.center-d.center).glued_on(self)
+        return self
 def FramedGlass(width,height,thickness,borderWidth):
     mape=Map.linear(X,Z,Y)
     border=PictureFrame(width,height,thickness,borderWidth).move(mape)
@@ -486,9 +497,8 @@ def CabinetStorey(b0,b1,b2,b3):
     This function gives the right orientation to the 4 boards and returns a compound with 4 panels 
     called front,irght,back,left, and a box. Each board must have a box for the computations to occur. 
     """
-    b0.named("b0")
     b1.rotate(Z,math.pi/2).named("b1")
-    b2.rotate(Z,math.pi).named("b2")
+    b2.rotate(Z,math.pi)
     b3.rotate(Z,-math.pi/2).named("b3")
     for ob in [b0,b1,b2,b3]:
         ob.add_hook("bottomFrontLeft",ob.point(0,0,0,"ppp"))
@@ -505,22 +515,27 @@ def CabinetStorey(b0,b1,b2,b3):
     return c
 
 def Drawer(dimx,dimy,dimz,thickness):
-    b0=WoodBoard(dimx,thickness,dimz-thickness,grainVector=X)
-    b2=b0.copy()
-    b1=WoodBoard(dimy,thickness,dimz-thickness,grainVector=X)
+    b0=WoodBoard(dimx,thickness,dimz-thickness,grainVector=X).named("DrawerFrontPanel")
+    b2=WoodBoard(dimx,thickness,dimz-thickness,grainVector=X)#.named("DrawerBackPanel")
+    b1=WoodBoard(dimy,thickness,dimz-thickness,grainVector=X).named("DrawerLeftPanel")
     b3=b1.copy()
     c=CabinetStorey(b0,b1,b2,b3)
     b=WoodBoard(dimx,dimy,thickness,grainVector=Y)
     c.above(b)
     ret=Compound()
     ret.add_list_to_compound([b,c])
+    import mathutils
+    ret.add_box("globalBox",FrameBox([origin,origin+dimx*X+dimy*Y+thickness*Z]))
+    ret.add_axis("slidingAxis",ret.segment(.5,None,.5,"ppp"))
     return ret
-
-
+    
+def FramedDrawer(drawer,width,height,depth,openingAmount):
+    border
 
             
 """ 
 TODO
+* plane : le creer avec un init plutot que new
 * revoir et reautomatiser la doc
 * ajouter le thick triangle
 * debugger le plan qui n'est pas bouge' proprement par une action non orthogonale

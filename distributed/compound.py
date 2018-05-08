@@ -82,7 +82,7 @@ class Compound(ElaborateOrCompound):
         #self.mapFromParts=mape*self.mapFromParts
         slaves=self.csgOperations[0].csgSlaves
         for slave in slaves:
-            slave.move(mape)
+            slave.move(mape,topLevel=False)
         return self
 
         
