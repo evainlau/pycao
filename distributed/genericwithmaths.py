@@ -184,9 +184,9 @@ def _show_box(self):
         #print(i)
         #print(liste)
         #print(liste[i])
-        #print(colors[i])
-        liste[i].color=colors[i]
-    cube=liste.pop().intersected_by(liste).glued_on(self)
+        print(colors[i])
+        liste[i].colored(colors[i])
+    cube=liste.pop().intersected_by(liste,keepTexture=False).glued_on(self)
     for i in range(3):
         center=b.point(0.5,0.5,0.5)
         boxOrigin=b.point(0,0,0)

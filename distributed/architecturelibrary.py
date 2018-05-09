@@ -469,16 +469,19 @@ class PictureFrame(Compound):
         self.add_list_to_compound([l1,l2,l3,l4])
         self.texture=l2.texture
         self.add_box("globalBox",Cube(origin,origin+width*X+height*Y+thickness*Z).box())
+        self.add_axis("normalAxis",self.segment(.5,.5,None,"ppp"))
+        self.parallel_to(normalVector)
         [ob.intersected_by(plane.from_coeffs(0,0,1,-thickness)) for ob in [l1,l2,l3,l4]]
 
         #if not normalVector==Z:
         #    mape=Map.rotational_difference(Z,normalVector)
         #    self.move(mape)
-    def add_drawer(self,openingAmount=0.5,thickness=.02):
+    def get_drawer(self,openingAmount=0.5,thickness=.02):
         dim=self.dimensions
-        d=Drawer(dimx=dim[0]-self.borderWidth,dimy=dim[1]-self.borderWidth,dimz=dim[2],thickness=thickness)
-        d.translate(self.center-d.center).glued_on(self)
-        return self
+        d=Drawer(dimx=dim[0]-2*self.borderWidth,dimy=.4,dimz=dim[1]-2*self.borderWidth,thickness=thickness)
+        d.translate(self.center-d.center)
+        return d
+    
 def FramedGlass(width,height,thickness,borderWidth):
     mape=Map.linear(X,Z,Y)
     border=PictureFrame(width,height,thickness,borderWidth).move(mape)
@@ -487,7 +490,9 @@ def FramedGlass(width,height,thickness,borderWidth):
     glass.translate(border.center-glass.center)
     ret=Compound()
     ret.add_list_to_compound([["frame",border],["glass",glass]])
-    ret.add_box("globalBox",border.box())
+    ret.add_box("globalBox",border.box())#.axisPermutation())
+    #print(ret.box(),"was the box")
+    #print(ret.activeBox)
     return ret
 
 def CabinetStorey(b0,b1,b2,b3):
@@ -514,9 +519,9 @@ def CabinetStorey(b0,b1,b2,b3):
     c.add_box("globalBox",d.box())
     return c
 
-def Drawer(dimx,dimy,dimz,thickness):
+def Drawer(dimx,dimy,dimz,thickness,slidingAxis=Y):
     b0=WoodBoard(dimx,thickness,dimz-thickness,grainVector=X).named("DrawerFrontPanel")
-    b2=WoodBoard(dimx,thickness,dimz-thickness,grainVector=X)#.named("DrawerBackPanel")
+    b2=WoodBoard(dimx,thickness,dimz-thickness,grainVector=X).named("DrawerBackPanel")
     b1=WoodBoard(dimy,thickness,dimz-thickness,grainVector=X).named("DrawerLeftPanel")
     b3=b1.copy()
     c=CabinetStorey(b0,b1,b2,b3)
@@ -524,17 +529,27 @@ def Drawer(dimx,dimy,dimz,thickness):
     c.above(b)
     ret=Compound()
     ret.add_list_to_compound([b,c])
-    import mathutils
-    ret.add_box("globalBox",FrameBox([origin,origin+dimx*X+dimy*Y+thickness*Z]))
-    ret.add_axis("slidingAxis",ret.segment(.5,None,.5,"ppp"))
+    ret.add_box("globalBox",FrameBox([origin,origin+dimx*X+dimy*Y+dimz*Z]))
+    ret.add_axis("slidingAxis",ret.segment(.5,.5,None,"ppp"))
     return ret
     
-def FramedDrawer(drawer,width,height,depth,openingAmount):
-    border
+def FramedDrawer(width=.4,height=.3,thickness=.01,borderWidth=.05,openingAmount=0):
+    frame=PictureFrame(width=width,height=height,thickness=thickness,borderWidth=borderWidth,radius=.005)
+    drawer=frame.get_drawer()
+    print(frame.center)
+    print(drawer.center)
+    print("was frame et drawer, expected ;.15 et .1")
+    drawer.translate(frame.center-drawer.center)
+    c=Compound()
+    c.add_list_to_compound([["frame",frame],["drawer",drawer]])
+    c.add_box("frameBox",frame.box())
+    return c
+
 
             
 """ 
 TODO
+* finir la reorientation de la box et appliquer a l'armoire
 * plane : le creer avec un init plutot que new
 * revoir et reautomatiser la doc
 * ajouter le thick triangle

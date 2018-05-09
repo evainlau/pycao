@@ -210,7 +210,7 @@ class ObjectInWorld(object):
             c.make_invisible()
 
 
-    def amputed_by(self,cuttingShape,throwShapeAway=True,texturedAsSelf=True):
+    def amputed_by(self,cuttingShape,throwShapeAway=True,keepTexture=True):
         """
         cut self using the substraction of cuttingShape, where cuttingShape=object or listOfObjects
         The cuttingShape is made invisible after the cutting operation if throwShapeAway=True
@@ -220,7 +220,7 @@ class ObjectInWorld(object):
         #print(type(cuttingShape))
         if not isinstance(cuttingShape,list):
             cuttingShape=[cuttingShape]
-        if texturedAsSelf:
+        if keepTexture:
             copie=[tool.copy().new_texture(self.texture) for tool in cuttingShape]
         else:
             copie=[tool.copy() for tool in cuttingShape]
@@ -241,7 +241,7 @@ class ObjectInWorld(object):
         return self
 
 
-    def intersected_by(self,cuttingShape,throwShapeAway=True,texturedAsSelf=True):
+    def intersected_by(self,cuttingShape,throwShapeAway=True,keepTexture=True):
         """
         cut self using the intersection with cuttingShape
         The cuttingShape is made invisible after the cutting operation if throwShapeAway=True
@@ -256,10 +256,11 @@ class ObjectInWorld(object):
         for tool in cuttingShape:
             memo=dict()
             theCopy=copy.deepcopy(tool,memo)
-            if texturedAsSelf:
+            if keepTexture:
                 theCopy.new_texture(self.texture)
-            else:
-                print("Not TexturedAsSelf")
+            #else:
+            #    pass
+                #print("Not TexturedAsSelf")
             copie.append(theCopy)
         #print("mat",copie.materials,cuttingShape.materials)
         [tool.make_invisible() for tool in copie]

@@ -1123,6 +1123,35 @@ class FrameBox(Base):
         # so there is no harm in considering only i<3 in move alone below. 
         # 
 
+    def axisPermutation(self,i,j,k):
+        """
+        permutes the points of the frame so that the first vector is parallel to X (resp. second,third to Y,Z)
+        useful when the box has been moved and the 
+        """
+        M=Map.from_permutation(i,j,k)
+        pointsCopy=copy.copy(self.points)
+        #print("avt",self)
+        self.points[1]=pointsCopy[i]
+        self.points[2]=pointsCopy[j]
+        self.points[3]=pointsCopy[k]
+        self[0:3]=[self.points[i+1]-self.points[0] for i in range(3)]
+        self.canToBase=self.canToBase*M
+        #print("apres",self)
+        return self
+
+    def reorder(self):
+        """reorder the points of the frame so that the first vector is (close to) parallel to X (resp. second,third to Y,Z)
+        useful when the box has been moved and we want to permute the axes for clarity. 
+        """
+        perm=[]
+        for i in range(3):
+            print("le self")
+            print (self[i])
+            max_value = max(self[i])
+            perm.append(np.argmax(self[i]))
+        print(perm)
+        self.axisPermutation(*perm)
+        
     def move_alone(self,M):
         self.points=[i.move_alone(M) for i in self.points]
         self[0:3]=[self.points[i+1]-self.points[0] for i in range(3)]
@@ -1652,7 +1681,25 @@ class Map(np.ndarray):
         """
         M=base2.decompose_on(base1)
         return (M*self*np.linalg.inv(M).view(Map))
-
+    @staticmethod
+    def from_permutation(a,b,c):
+        def _to_vector(i):
+            if i==0: return vector(1,0,0)
+            if i==1: return vector(0,1,0)
+            if i==2: return vector(0,0,1)
+            raise NameError("i should be 1,2 or 3")
+        M=Map.linear(_to_vector(a),_to_vector(b),_to_vector(c))
+        return M
+    @staticmethod
+    def flipXY():
+        return Map.from_permutation(1,0,2)
+    @staticmethod
+    def flipXZ():
+        return Map.from_permutation(2,1,0)
+    @staticmethod
+    def flipYZ():
+        return Map.from_permutation(0,2,1)
+    
 class Rotation(Map):
     """ 
     A class  to generate rotations
