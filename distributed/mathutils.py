@@ -1123,35 +1123,61 @@ class FrameBox(Base):
         # so there is no harm in considering only i<3 in move alone below. 
         # 
 
-    def axisPermutation(self,i,j,k):
+    def axis_permutation(self,i,j,k):
         """
-        permutes the points of the frame so that the first vector is parallel to X (resp. second,third to Y,Z)
-        useful when the box has been moved and the 
+        ij,k in 0,1,2
+        permutes the  vectors X,Y,Z corresponding to indexes 0,1,2 and send them to i,j,k
         """
         M=Map.from_permutation(i,j,k)
         pointsCopy=copy.copy(self.points)
         #print("avt",self)
-        self.points[1]=pointsCopy[i]
-        self.points[2]=pointsCopy[j]
-        self.points[3]=pointsCopy[k]
+        self.points[1]=pointsCopy[i+1]
+        self.points[2]=pointsCopy[j+1]
+        self.points[3]=pointsCopy[k+1]
         self[0:3]=[self.points[i+1]-self.points[0] for i in range(3)]
         self.canToBase=self.canToBase*M
-        #print("apres",self)
         return self
 
+    def reverse_axis(self,i):
+        """
+        changes the vector i in 0,1,2 of the framebox to its opposite. The cube associated to the framebox is unchanged.
+        """
+        p=self.points[i+1].copy()
+        vec=self[i]
+        for j in range(4):
+            self.points[j]+=vec
+        #self.points[0]=p
+        self.points[i+1]=p-vec
+        listeVecteursInit=[self.points[i+1]-self.points[0] for i in range(3)]
+        super(FrameBox,self).__init__(*listeVecteursInit,v3=self.points[0])
+        return self
+        
     def reorder(self):
-        """reorder the points of the frame so that the first vector is (close to) parallel to X (resp. second,third to Y,Z)
-        useful when the box has been moved and we want to permute the axes for clarity. 
+        """reorder the points of the frame so that the local coordinate of the frame corresponds 
+        to the global coordinate of the world (at the linear level,not affine level). In other words, 
+        the first vector is (close to) parallel to X (resp. second,third to Y,Z)
+        useful when the box has been moved and we want to permute the axes for clarity 
         """
         perm=[]
         for i in range(3):
-            print("le self")
-            print (self[i])
-            max_value = max(self[i])
-            perm.append(np.argmax(self[i]))
-        print(perm)
-        self.axisPermutation(*perm)
-        
+            #print("le self")
+            #print (self[i])
+            #max_value = max(self[i])
+            selfabs=[math.fabs(self[i][j]) for j in range(4)]
+            perm.append(np.argmax(selfabs))
+        #print("permutation",perm)
+        permInverse=[]
+        for i in range(3):
+            permInverse.append(perm.index(i))
+        #print("pinverse",permInverse)
+        self.axis_permutation(*permInverse)
+        # now the lines through the axis are correct, but maybe the orientation of the vectors is not correct.
+        # the following lines deal with the orientation
+        for i in range(3):
+            if self[i][i]<0:
+                self.reverse_axis(i)
+        return self
+    
     def move_alone(self,M):
         self.points=[i.move_alone(M) for i in self.points]
         self[0:3]=[self.points[i+1]-self.points[0] for i in range(3)]
@@ -1681,13 +1707,14 @@ class Map(np.ndarray):
         """
         M=base2.decompose_on(base1)
         return (M*self*np.linalg.inv(M).view(Map))
+    
     @staticmethod
     def from_permutation(a,b,c):
         def _to_vector(i):
             if i==0: return vector(1,0,0)
             if i==1: return vector(0,1,0)
             if i==2: return vector(0,0,1)
-            raise NameError("i should be 1,2 or 3")
+            raise NameError("i should be 0,1 or 2")
         M=Map.linear(_to_vector(a),_to_vector(b),_to_vector(c))
         return M
     @staticmethod

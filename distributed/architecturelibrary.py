@@ -414,7 +414,9 @@ class Tiling(Compound):
 
 
 
-def WoodStud(dimx,dimy,dimz,grainVector=Z,texture=None):
+def WoodStud(dimx,dimy,dimz,grainVector=None,texture=None):
+    if grainVector is None:
+        grainVector=Z
     if texture is None:
         texture=Texture("DMFDarkOak scale .03")
     c=Cube.from_dimensions(dimx,dimy,dimz)
@@ -466,35 +468,40 @@ class PictureFrame(Compound):
         l3.amputed_by(plane2)
         l1.amputed_by(plane3.copy().reverse())
         l4.amputed_by(plane3)
+        [ob.amputed_by(plane.from_coeffs(0,0,1,-thickness)) for ob in [l1,l2,l3,l4]]
+        self.add_box("globalBox",Cube(origin+thickness*Z,origin+width*X+height*Y+2*thickness*Z).box())
         self.add_list_to_compound([l1,l2,l3,l4])
-        self.texture=l2.texture
-        self.add_box("globalBox",Cube(origin,origin+width*X+height*Y+thickness*Z).box())
+        #self.texture=l2.texture
+
         self.add_axis("normalAxis",self.segment(.5,.5,None,"ppp"))
         self.parallel_to(normalVector)
-        [ob.intersected_by(plane.from_coeffs(0,0,1,-thickness)) for ob in [l1,l2,l3,l4]]
+        self.activeBox.reorder()
+
 
         #if not normalVector==Z:
         #    mape=Map.rotational_difference(Z,normalVector)
         #    self.move(mape)
-    def get_drawer(self,openingAmount=0.5,thickness=.02):
+    def get_drawer(self,drawerDepth=.3,openingAmount=0.5,thickness=.02):
         dim=self.dimensions
-        d=Drawer(dimx=dim[0]-2*self.borderWidth,dimy=.4,dimz=dim[1]-2*self.borderWidth,thickness=thickness)
+        d=Drawer(dimx=dim[0]-2*self.borderWidth,dimy=drawerDepth,dimz=dim[2]-2*self.borderWidth,thickness=thickness)
         d.translate(self.center-d.center)
         return d
-    
-def FramedGlass(width,height,thickness,borderWidth):
-    mape=Map.linear(X,Z,Y)
-    border=PictureFrame(width,height,thickness,borderWidth).move(mape)
-    glass=Cube(origin,origin+(width-2*borderWidth)*X+(height-2*borderWidth)*Z+.002*Y)
-    glass.new_texture("Glass")
-    glass.translate(border.center-glass.center)
-    ret=Compound()
-    ret.add_list_to_compound([["frame",border],["glass",glass]])
-    ret.add_box("globalBox",border.box())#.axisPermutation())
-    #print(ret.box(),"was the box")
-    #print(ret.activeBox)
-    return ret
 
+    def get_glass(self,thickness=.002):
+        dim=self.dimensions
+        d=Cube.from_dimensions(dim[0]-2*self.borderWidth,thickness,dim[2]-2*self.borderWidth)
+        #print (d)
+        #print("was le cube")
+        d.translate(self.center-d.center).new_texture("Glass")
+        return d
+
+    def get_stub(self):
+        dim=self.dimensions
+        d=WoodStud(dim[0]-2*self.borderWidth,dim[1],dim[2]-2*self.borderWidth,grainVector=X)
+        d.translate(self.center-d.center)
+        return d
+
+    
 def CabinetStorey(b0,b1,b2,b3):
     """
     creates a storey for a cabinet from 4 boeards. The 4 boards are in the (x,z) plane and parallel
@@ -507,23 +514,31 @@ def CabinetStorey(b0,b1,b2,b3):
     b3.rotate(Z,-math.pi/2).named("b3")
     for ob in [b0,b1,b2,b3]:
         ob.add_hook("bottomFrontLeft",ob.point(0,0,0,"ppp"))
+        ob.add_hook("bottomBackLeft",ob.point(0,1,0,"ppp"))
         ob.add_hook("bottomFrontRight",ob.point(1,0,0,"ppp"))
-    for pair in [[b0,b1],[b1,b2],[b2,b3]]:
-        pair[0].select_hook("bottomFrontRight")
-        pair[1].select_hook("bottomFrontLeft")
-        pair[1].hooked_on(pair[0])
+        ob.add_hook("bottomBackRight",ob.point(1,1,0,"ppp"))
+    #for pair in [[b0,b1],[b1,b2],[b2,b3]]:
+    b0.select_hook("bottomBackRight")
+    b1.select_hook("bottomFrontLeft")
+    b1.hooked_on(b0)
+    b2.select_hook("bottomBackLeft")
+    b1.select_hook("bottomFrontRight")
+    b2.hooked_on(b1)
+    b3.select_hook("bottomFrontLeft")
+    b2.select_hook("bottomBackRight")
+    b3.hooked_on(b2)
     c=Compound()
     c.add_list_to_compound([["front",b0],["right",b1],["back",b2],["left",b3]])
-    d=Cube(b0.point(0,0,0,"ppp"),b1.point(1,0,1,"ppp"))
+#    d=Cube()
     #print(b1[0])
-    c.add_box("globalBox",d.box())
+    c.add_box("globalBox",FrameBox([b0.point(0,0,0,"ppp"),b1.point(1,0,1,"ppp")]))
     return c
 
 def Drawer(dimx,dimy,dimz,thickness,slidingAxis=Y):
     b0=WoodBoard(dimx,thickness,dimz-thickness,grainVector=X).named("DrawerFrontPanel")
     b2=WoodBoard(dimx,thickness,dimz-thickness,grainVector=X).named("DrawerBackPanel")
-    b1=WoodBoard(dimy,thickness,dimz-thickness,grainVector=X).named("DrawerLeftPanel")
-    b3=b1.copy()
+    b1=WoodBoard(dimy-2*thickness,thickness,dimz-thickness,grainVector=X).named("DrawerLeftPanel")
+    b3=b1.copy().named("DrawerRightPanel")
     c=CabinetStorey(b0,b1,b2,b3)
     b=WoodBoard(dimx,dimy,thickness,grainVector=Y)
     c.above(b)
@@ -533,23 +548,80 @@ def Drawer(dimx,dimy,dimz,thickness,slidingAxis=Y):
     ret.add_axis("slidingAxis",ret.segment(.5,.5,None,"ppp"))
     return ret
     
-def FramedDrawer(width=.4,height=.3,thickness=.01,borderWidth=.05,openingAmount=0):
+def FramedDrawer(width=.4,height=.3,thickness=.01,borderWidth=.05,drawerDepth=.3,openingAmount=0):
     frame=PictureFrame(width=width,height=height,thickness=thickness,borderWidth=borderWidth,radius=.005)
-    drawer=frame.get_drawer()
-    print(frame.center)
-    print(drawer.center)
-    print("was frame et drawer, expected ;.15 et .1")
+    drawer=frame.get_drawer(drawerDepth=drawerDepth)
     drawer.translate(frame.center-drawer.center)
     c=Compound()
     c.add_list_to_compound([["frame",frame],["drawer",drawer]])
     c.add_box("frameBox",frame.box())
     return c
 
+def FramedGlass(width=.4,height=.3,thickness=.01,borderWidth=.05):
+    frame=PictureFrame(width=width,height=height,thickness=thickness,borderWidth=borderWidth,radius=.005)
+    glass=frame.get_glass()
+    glass.translate(frame.center-glass.center)
+    c=Compound()
+    c.add_list_to_compound([["frame",frame],["glass",glass]])
+    c.add_box("frameBox",frame.box())
+    return c
+
+def FramedStub(width=.4,height=.3,thickness=.01,borderWidth=.05):
+    frame=PictureFrame(width=width,height=height,thickness=thickness,borderWidth=borderWidth,radius=.005)
+    stub=frame.get_stub()
+    stub.translate(frame.center-stub.center).named("topstub")
+    c=Compound()
+    c.add_list_to_compound([["frame",frame],["stub",stub]])
+    c.add_box("frameBox",frame.box())
+    c.add_axis("normalDirection",c.frame.axis())
+    return c
+
+# feetheight=.1
+# feetSize=.1
+# up=FramedGlass(width=.5,height=.4,thickness=.02,borderWidth=.06)
+# bot=FramedDrawer(width=.5,height=.3,thickness=.02,borderWidth=.06,openingAmount=0)
+# up.above(bot)
+# frontFace=Compound()
+# frontFace.add_list_to_compound([["up",up],["bot",bot]])
+# f=FrameBox(up.box().points+bot.box().points)
+# frontFace.add_box("globalBox",f)
+# dim=f.dimensions
+# b1=WoodStud(dimx=.3,dimy=dim[1],dimz=dim[2],grainVector=Z)
+# #pourquoi ne marche pas avec *dim ?
+# b2=WoodStud(dimx=dim[0],dimy=dim[1],dimz=dim[2],grainVector=Z)
+# b3=b1.copy()
+# mainPart=CabinetStorey(frontFace,b1,b2,b3)
+# dim=mainPart.dimensions
+# support=WoodStud(dim[0]+.015,dim[1]+.015,.01)
+# mainPart.above(support)
+# top=FramedStub(width=dim[0]+.015,height=dim[1]+.015,thickness=.01,borderWidth=.07)
+# top.parallel_to(Z)
+# top.activeBox.reorder()
+# top.above(mainPart)
+# #dimx=.3,dimy=dim[1],dimz=dim[2],
+
+# feet=WoodStud(dim[0],dim[1],2*feetheight)
+# toCut1=RoundedWoodStud((1-2*feetSize)*dim[0],dim[1]+1,2*feetheight+.001,radius=.4*feetheight)
+# toCut1.translate(feet.center-toCut1.center)
+# toCut2=RoundedWoodStud(dim[0]+1,(1-2*feetSize)*dim[1],2*feetheight+.001,radius=.4*feetheight)
+# toCut2.translate(feet.center-toCut2.center)
+# toCut3=plane.from_coeffs(0,0,1,-feetheight)
+# feet.amputed_by([toCut1,toCut2,toCut3])
+# feet.below(support)
+
+
+# cabinet=Compound()
+# cabinet.add_list_to_compound([mainPart,support,feet,top])
+# cabinet.add_box("mp",mainPart.box())
+
+
 
             
 """ 
 TODO
-* finir la reorientation de la box et appliquer a l'armoire
+* self translate et opening amount du tiroir
+* corriger les signes dans la reorientation de la box : dans reorder, prendre le max en valeur absolue
+et appliquer a l'armoire
 * plane : le creer avec un init plutot que new
 * revoir et reautomatiser la doc
 * ajouter le thick triangle

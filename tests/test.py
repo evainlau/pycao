@@ -66,49 +66,49 @@ ground.name="plan"
 
 
 l=Light(origin+3*Z-Y)
-#floor=Drawer(dimx=.4,dimy=.5,dimz=.1,thickness=.03)
 
-#floor=FramedGlass(.4,.6,.02,.07).translate(.1*Z).light_level(1)
-#floor=PictureFrame(width=.4,height=.3,thickness=.01,borderWidth=.05,radius=.005)
-
-#floor.add_drawer()
-
-up=FramedGlass(width=.5,height=.6,thickness=.02,borderWidth=.06)
+feetheight=.1
+feetSize=.1
+up=FramedGlass(width=.5,height=.4,thickness=.02,borderWidth=.06)
 bot=FramedDrawer(width=.5,height=.3,thickness=.02,borderWidth=.06,openingAmount=0)
 up.above(bot)
-floor=Compound()
-floor.add_list_to_compound([["up",up],["boy",bot]])
-#mape=Map.linear(X,Z,14*Y)
-#floor.move(mape)
-#floor.rotate(X,math.pi/2)
-#floor=RoundedWoodStud(.4,.6,.03,radius=.003,grainVector=Y).named("l2")
-#floor=WoodStud(dimx=.4,dimy=.1,dimz=.5,grainVector=Y,texture=None).named("f")
-#floor=RoundedWoodStud(dimx=.4,dimy=.3,dimz=.5,grainVector=Z,texture=None)#.rotate(X,math.pi/2)
-#floor2=floor.copy().named("f2").translate(.4*X)
-#mape=Map.rotation(X,math.pi/2)
-#floor.move(mape)
-#floor=WoodBoard(.2,.4,thickness=.01,grainVector=X).named("Woodboard")
-#floor2=RoundedWoodStud(.2,.4,.01,grainVector=X).named("RoundedWS")
-#floor=Woo(.2,.2,.4)
+frontFace=Compound()
+frontFace.add_list_to_compound([["up",up],["bot",bot]])
+f=FrameBox(up.box().points+bot.box().points)
+frontFace.add_box("globalBox",f)
+dim=f.dimensions
+b1=WoodStud(dimx=.3,dimy=dim[1],dimz=dim[2],grainVector=Z)
+#pourquoi ne marche pas avec *dim ?
+b2=WoodStud(dimx=dim[0],dimy=dim[1],dimz=dim[2],grainVector=Z)
+b3=b1.copy()
+mainPart=CabinetStorey(frontFace,b1,b2,b3)
+dim=mainPart.dimensions
+support=WoodStud(dim[0]+.015,dim[1]+.015,.01)
+mainPart.above(support)
+top=FramedStub(width=dim[0]+.015,height=dim[1]+.015,thickness=.01,borderWidth=.07)
+top.parallel_to(Z)
+top.activeBox.reorder()
+top.above(mainPart)
+#dimx=.3,dimy=dim[1],dimz=dim[2],
 
-floor=Compound().add_box("mybox",Cube(.2,.42,.32).box())
-floor2=floor.copy().translate(.5*X)
-#print (floor.__dict__)
-#delattr( floor,"box")
-#floor.add_box("newbox",floor.box())
-#floor.move(Map.flipXY())
-print floor.box()
-print "was avt"
-print(floor.dicobox.mybox)
-print(floor.dicobox.mybox.points)
-floor.dicobox.mybox.axisPermutation(2,1,3)
-print(floor.dicobox.mybox)
-print(floor.dicobox.mybox.points)
-floor.dicobox.mybox.reorder()
-print floor.box()
-print "was apres"
-floor.show_box().translate(-.5*X)
-floor2.show_box()
+feet=WoodStud(dim[0],dim[1],2*feetheight)
+toCut1=RoundedWoodStud((1-2*feetSize)*dim[0],dim[1]+1,2*feetheight+.001,radius=.4*feetheight)
+toCut1.translate(feet.center-toCut1.center)
+toCut2=RoundedWoodStud(dim[0]+1,(1-2*feetSize)*dim[1],2*feetheight+.001,radius=.4*feetheight)
+toCut2.translate(feet.center-toCut2.center)
+toCut3=plane.from_coeffs(0,0,1,-feetheight)
+feet.amputed_by([toCut1,toCut2,toCut3])
+feet.below(support)
+
+
+cabinet=Compound()
+cabinet.add_list_to_compound([mainPart,support,feet,top])
+cabinet.add_box("mp",mainPart.box())
+actor=cabinet#FramedStub()
+#top.frame.translate(.01*Z)
+
+#print(top.frame.box())
+#print(top.stub.box())
 
 
 camera=Camera()
@@ -119,13 +119,13 @@ l=Light(origin+2*Y+15*Z)
 #camera.povraylights="light_source {<"+ str(light.location[0])+","+str(light.location[1])+","+str(light.location[2])+ "> color White " + "}\n\n"
 #camera.actors=[wall,ground,cyl,cyl2,s] # what is seen by the camera
 #camera.actors=[table.c13,table.c12,table.s1] # what is seen by the camera#\\
-camera.actors=[floor,floor2]#,ground] # what is seen by the camera
+camera.actors=[actor]#,floor2]#,ground] # what is seen by the camera
 #ground.visibility=0
-camera.lookAt=origin
+camera.lookAt=actor.center#origin
 camera.zoom(1)
 
 
 camera.angle=0.84
 camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
-#camera.show # show the photo, ie calls povray. 
+camera.show # show the photo, ie calls povray. 
 
