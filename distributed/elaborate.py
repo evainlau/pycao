@@ -471,7 +471,8 @@ class Cube(Elaborate):
             #self.markers.center=0.5*(self.parts.start+self.parts.end)
             self.markers.start=self.parts.start
             self.markers.end=self.parts.end
-            self.markers.box=FrameBox(listOfPoints=[self.parts.start,self.parts.end])
+            #self.markers.box=FrameBox(listOfPoints=[self.parts.start,self.parts.end])
+            self.add_box("globalBox",FrameBox(listOfPoints=[self.parts.start,self.parts.end]))
             self.markers_as_functions()
         elif len(args)==3:
             v=vector(args)

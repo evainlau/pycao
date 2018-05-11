@@ -535,6 +535,11 @@ class ObjectInWorld(object):
     def self_rotate(self,angle):
         return self.rotate(self.axis(),angle)
 
+    def self_translate(self,amount,type="p"):
+        if type=="p": vec=amount* self.axis().vector
+        elif type=="a": vec=amount*self.axis().vector.normalized_copy()
+        else: return NameError("Type should be a or p")
+        return self.translate(vec)
 
 
     def print_hooks(self):

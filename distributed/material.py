@@ -190,7 +190,7 @@ def _get_textures(self,textureset=None,withChildren=True):
             slaves=op.csgSlaves
             for slave  in slaves :
                 pass
-                textureset.add(slave.texture)
+                textureset=textureset.union(slave.get_textures())
                 #except: pass # notexture for the slave
     if withChildren:
         for c in self.children:

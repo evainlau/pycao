@@ -1504,8 +1504,19 @@ class FrameBox(Base):
     #     M=self._map_for_parallelism(otherBox,selfFace1,otherFace1,selfFace2,otherFace2)
     #     N=self.copy().move(M)._map_translate_against(otherBox, faceOfSelf=selfFace1, offset=offset,adjustEdges=adjustEdges,adjustAxis=adjustAxis)
     #     return(N*M)
-
-
+    @staticmethod
+    def from_union(liste):
+        """ 
+        elements in the list are frameboxes or objects with a box. Returns the union of boxes
+        """ 
+        newlist=[]
+        for entry in liste:
+            if not isinstance(entry,FrameBox):
+                entry=entry.box()
+                newlist.append(entry.point(0,0,0,"ppp"))
+                newlist.append(entry.point(1,1,1,"ppp"))
+        return FrameBox(newlist)
+        
 
 class FaceInformation(object):
     """
