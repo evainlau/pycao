@@ -220,7 +220,7 @@ class ObjectInWorld(object):
         #print(type(cuttingShape))
         if not isinstance(cuttingShape,list):
             cuttingShape=[cuttingShape]
-        if keepTexture:
+        if keepTexture and hasattr(self,"texture"):
             copie=[tool.copy().new_texture(self.texture) for tool in cuttingShape]
         else:
             copie=[tool.copy() for tool in cuttingShape]
@@ -256,7 +256,7 @@ class ObjectInWorld(object):
         for tool in cuttingShape:
             memo=dict()
             theCopy=copy.deepcopy(tool,memo)
-            if keepTexture:
+            if keepTexture and hasattr(self,"texture"):
                 theCopy.new_texture(self.texture)
             #else:
             #    pass
@@ -292,6 +292,7 @@ class ObjectInWorld(object):
         #print(p.smallString)
         if hasattr(self,"texture"):
             t=self.texture.enhance(p)
+            #print(t)
         else:
             import material
             t=material.Texture(p)
@@ -301,11 +302,25 @@ class ObjectInWorld(object):
         #print("in colored",t.smallString)
         return self
 
+    # def colored(self,color):
+    #     self.colored_alone(color)
+    #     if hasattr(self,"csgOperations") and len(self.csgOperations)>0:
+    #         for op in self.csgOperations:
+    #             slaves=op.csgSlaves
+    #             for slave  in slaves :
+    #                 slave.colored(color)
+    #     return self
+
+    
     def rgbed(self,list):
         #print("inrgbed1",self.texture.smallString)
         import material
         p=material.Pigment("color rgb <"+str(list[0])+","+str(list[1])+","+str(list[2])+">")
-        t=self.texture.enhance(p)
+        if hasattr(self,"texture"):
+            t=self.texture.enhance(p)
+        else:
+            import material
+            t=material.Texture(p)
         self.new_texture(t) #for the csg childs
         #print("in rgbed",t.smallString)
         return self

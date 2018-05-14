@@ -34,18 +34,18 @@ class Light(ObjectInWorld):
     A light with a hook, added by default to the cameras already created.
     """
     def __init__(self,location=origin,shadow=True,lightType=defaultLightType,cameraList=camerasInScene):
-        if not hasattr(self,"texture"):
-            self.texture=Object()
+        if not hasattr(self,"info"):
+            self.info=Object()
         self.location=location
         self.add_hook("location",location)
         if not shadow:
-            self.texture.rgbIntensity=defaultShadowlesslightRgbIntensity
+            self.info.rgbIntensity=defaultShadowlesslightRgbIntensity
         else:
-            self.texture.rgbIntensity=defaultShadowlightRgbIntensity
+            self.info.rgbIntensity=defaultShadowlightRgbIntensity
         if not shadow:
-            self.texture.rgb=shadowlightDefaultRgb
+            self.info.rgb=shadowlightDefaultRgb
         else:
-            self.texture.rgb=shadowlesslightDefaultRgb
+            self.info.rgb=shadowlesslightDefaultRgb
         self.lightType=lightType
         self.shadow=shadow
         for camera in cameraList:
@@ -61,11 +61,11 @@ class Light(ObjectInWorld):
         else:
             return ""
     def color_string(self):
-        if hasattr(self.texture,"color")and self.texture.color is not None:
-            string=self.texture.color
-        elif hasattr(self.texture,"rgb") and self.texture.rgb is not None:
-            i=self.texture.rgbIntensity
-            r=self.texture.rgb
+        if hasattr(self.info,"color")and self.info.color is not None:
+            string=self.info.color
+        elif hasattr(self.info,"rgb") and self.info.rgb is not None:
+            i=self.info.rgbIntensity
+            r=self.info.rgb
             string="rgb <"+str(i*r[0])+","+str(i*r[1])+","+str(i*r[2])+"> "
         else: return ""
         return "color "+string

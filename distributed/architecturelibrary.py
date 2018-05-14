@@ -334,7 +334,7 @@ class Stove(Compound):
         self.add_axis("axis",fireplace.segment(.5,.5,None,"ppp"))
 
 class DoorHandle(Compound):
-    def __init__(self,texture=Texture("New_Brass "),left=True):
+    def __init__(self,texture=Texture("New_Brass"),left=True):
         bottom=Cylinder(origin,origin+.005*Y,radius=.025)
         middle=Cube.from_list_of_points([origin-.025*X+.0*Z,origin+.025*X+.05*Z+.005*Y])
         top=copy.deepcopy(bottom)
@@ -362,7 +362,7 @@ class Glass(Compound):
         self.add_hook("bottom",origin)
         self.add_to_compound(base)
         self.new_texture("Glass")
-        self.add_to_texture("pigment {color rgbt <1,1,1,.58>}")
+        self.add_to_texture(Pigment(" color rgbt <1,1,1,.58>"))
 
 class LightSwitch(Compound):
     def __init__(self,size=.12):
@@ -425,12 +425,7 @@ def WoodStud(dimx,dimy,dimz,grainVector=None,texture=None):
     M=Map.rotational_difference(grainVector,Z)
     c.move(M)
     c.new_texture(texture)
-    print "bef"
-    print(c.texture)
-    print("was c.text")
-    print(c.get_textures())
     c.move(M.inverse())
-    print(texture)
     c.scale(dimx,dimy,dimz)
     c.translate(dimx/2*X+dimy/2*Y+dimz/2*Z)
     return c

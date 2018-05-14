@@ -12,26 +12,39 @@ from lights import *
 
 
 """
-Here I want,pigment,normals and finishes and textures,
-pigments and normals and finishes have a  move map. 
-some textures like the cubic one, don't support finishes 
-or movemaps so they should be encapsulated in a name.
-Une entite nommee est automatically declared in povray. 
- 
-The input of pigment is 
-a pigment smallstring, the smallstring may contain previously named pigments or povray names. The smallstring by
-def does not containt the "pigment{}" surrounding neither the movemap 
-Similar  for normal. 
+PNFITem = a string + a moveMap attribute (not for finish)
+Titem= [ a list of PNFT items ]+ a moveMap. Only the first element may be a texture, in which case it is a named texture. 
+Only the texture items of the form [ namedTexture ] require a move map. For the unnamed textures, the elements of the list 
+are accessible and the movement is transmitted to them. 
 
-The input of a texture instance is a string as for pnf items, or a list where each element 
-of the list is:
-a pnf or texture instance. As for the input, if this is a pnf item, ok recognized by the language. 
-if one of the items input is a word, it is a povray string and the povrayshoot output will be "texture{povrayname matrix}"
-for that texture. Idem si c'est une string plus longue, l'output will be "texture{longerString matrix}. Thus these 
-input strings correspond to special textures with an attribute smallString. Moving a structure moves each element in the list. 
-The output string is the concatenation of the output strings of each element in the list ( this is a recursive procedure 
-since textures contains textures). Thus there is a callable "smallstring" attached to each texture. This is generic but 
-overwritten for textures imput by strings. In contrast smallstring is an attribute, not a callable for pnf items. 
+input(PNF item)= a string (Called smallstring below) which may  conaini, and even be reduced to a named (by Povray or Pycao) PNF item. 
+No keyword like "pigment" or surrounding braces at the ends of the string. 
+input(Titem)= a sequence of( PFNT items or inputs of PNF(notT)items ) or a one word string for previously defined povray textures.
+In particular, there is no string in the input besides the special case of predefined povray texture (they are called "stringy" below).
+Summing up, we have roughly input=strings for PNF-items and items not string for T-items.
+
+naming a texture is equivalent to declare it to povray and using the name therefore. Makes the povray code more readable. 
+Once an item has been name, it is still possible to move it. Technically, In the declaration corresponding to the named item, 
+the moveMap is not included to keep further movements manageable and to keep the povray code more 
+readable with products of matrices rather than the many operands of the product. 
+
+Some textures (like the cubic pattern), don't support finishes 
+or matrix identifier (povray limitation), but they can be 
+declared and then enhanced by a finish or moved. 
+Correspondingly, these textures must be named to be 
+operational with our formalism.  
+
+if named or stringy
+outputString(PNFT item)=  PNFTkeyword { name facultativeMoveMap }
+else
+outputString(PNF item)= PNFkeyword { smallstring moveMap }
+outputString(T item)=Texture { concatenation of reducedoutputString of eachPNFT item }. 
+The reduced outputString is the outputString, except if the first entry is  T-item. 
+Povray does not admit a string like "texture {texture {keyword matrixMove} otherItems}" but only 
+"texture { nameOfDeclaredTexture otherItems}" 
+thus we have to build ourselves a named texture "a la volee" which is an equivalent to texture {keyword matrixMove}.
+We break the rule saying that we don't include movemaps in the declaration, but since this occurs 
+only when we produce the pov file, it does not bring any complexity in the hierarchy and manipulation of items.
 
 longstrings are defined similarly for pnft items as classname+{+shortstring + moveMap}
 When a pnft item has been named, its shortstring is equal to its name. To enhance, we enhance the shortstring
@@ -42,31 +55,44 @@ for pnf items and we add an element to the list in the case of textures.
 
 class PNFTItem(object):#PNF means Pigment,Normal or Finish or texture
             
-    def named(self,name):
+    def named(self,name,withMove=False):
         self.name=name
-        globvars.TextureString+="\n#declare "+self.name+" = "+self.declaration_string()
+        nameDeclared=self.name
+        if withMove:
+            nameDeclared+="WithMove"
+        globvars.TextureString+="\n#declare "+nameDeclared+" = "+self.declaration_string(withMove=withMove)
         self.smallString=self.name
         if isinstance(self,Texture):
             self.stringy=True 
         return self
 
-    def declaration_string_bracketless(self):
-        return  self.__class__.__name__.lower()+" {"+self.get_smallString()
+    def declaration_string_bracketless(self,withMove=False):
+        string=self.__class__.__name__.lower()+" {"+self.get_smallString(withMove=withMove)
+        if withMove and hasattr(self,"moveMap"):
+            import povrayshoot
+            string+=" matrix "+povrayshoot.povrayMatrix(self.moveMap)
+        return  string
 
     
-    def declaration_string(self):
-        return  self.declaration_string_bracketless()+"}"
+    def declaration_string(self,withMove=False):
+        return  self.declaration_string_bracketless(withMove=withMove)+"}"
 
-    
+    def __str__(self):
+        return  self.declaration_string(withMove=True)
 
-class PNFItem(object):#PNF means Pigment,Normal or Finish
+class PNFItem(PNFTItem):#PNF means Pigment,Normal or Finish
     def __init__(self,string):
         "Builds a instance from the given string. Computes a name if the name option is not filled"
         global globvars
         self.smallString=string # the 'small' povray string ie. without the surrounding Pigment{} or Normal{} or Finish{} or Texture{} 
 
-    def get_smallString(self):
-        return self.smallString
+    def get_smallString(self,withMove=False):
+        ret=self.smallString
+        if withMove and hasattr(self,"moveMap"):
+            import povrayshoot
+            ret+=" matrix "+povrayshoot.povrayMatrix(self.moveMap)
+        return ret
+
         
     def enhance(self,stringOrPNFItem):
         """
@@ -83,7 +109,7 @@ class PNFItem(object):#PNF means Pigment,Normal or Finish
         return self
 
     def move(self,mape,name=""):
-        if isinstance(self,"Finish"):
+        if isinstance(self,Finish):
             pass
         else:
             try:
@@ -108,8 +134,19 @@ class Finish(PNFItem):
 
 class Texture(PNFTItem,list):
 
-    def get_smallString(self):
-        return " ".join([entry.get_smallString() for entry in self])
+    def get_smallString(self,withMove=False):# seems that it is always called with withMove=True in practice. Argument useful for PNF but not T-items ?
+        # The first item may be a named texture
+        if not isinstance(self[0],Texture):
+            firstString=self[0].declaration_string(withMove=withMove)
+        else:
+            if withMove:
+                self.named(self.name,withMove=withMove) # making the declaration with the move included
+                firstString=self.name+"WithMove"
+            else:
+                firstString=self.name
+        lastString=" ".join([entry.declaration_string(withMove=withMove) for entry in self[1:]])
+        return firstString+" "+lastString
+    
 
 
     def move(self,mape):
@@ -127,24 +164,23 @@ class Texture(PNFTItem,list):
             
     def __init__(self,*args):
         if len(args)==1 and isinstance(args[0],str):
+            #if len(args[0].split())>1:
+            #    raise NameError("A string in a texture declaration is valid only for a povray keyword")
             self.stringy=True
             self.smallString=args[0] # the 'small' povray string ie. without the surrounding Pigment{} or Normal{} or Finish{} or Texture{}
-            def sms():
-                return self.smallString
+            def sms(withMove=False):
+                ret=self.smallString
+                if withMove and hasattr(self,"moveMap"):
+                    import povrayshoot
+                    ret+=" matrix "+povrayshoot.povrayMatrix(self.moveMap)
+                return ret
             self.get_smallString=sms
+            self.append(self)
         else:
             self.stringy=False
-            # param should be a sequence of pnft items
             for entry in args:
-                if not isinstance(entry,str):
-                    self.append(entry)
-                else:
-                    self.append(Texture(entry)) 
+                self.append(entry)
 
-            
-    def __str__(self):
-        import povrayshoot
-        return povrayshoot.texture_string_cameraless(self)
 
     @staticmethod
     def from_colorkw(ckw):

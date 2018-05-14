@@ -64,7 +64,7 @@ globvars.userDefinedFunctions+=myFonc
 
 ################################################################
 
-tw="pigment {LightWood} normal {agate .5 scale 4 bump_size .1}"
+
 tw=Texture("pigment {image_map {png \"murTerre.png\"}}").move(Map.linear(X+Y,X+Z,X+Y+Z)).move(Map.scale(7.24,7.277,7.24))
 #tw=Texture("pigment {image_map {png \"chaux.png\"}}").move(Map.linear(X+Y,X+Z,X+Y+Z)).move(Map.scale(6.24,6.277,6.24))
 #tw=Texture("pigment {image_map {png \"chaux.png\"}}").move(Map.linear(X+Y,X+Z,X+Y+Z))#.move(Map.scale(.24,.277,.24))
@@ -72,7 +72,7 @@ tw=Texture("pigment {image_map {png \"murTerre.png\"}}").move(Map.linear(X+Y,X+Z
 tw=Texture("pigment {image_map {png \"sandWhite.png\"}}  finish {diffuse 1.3}").move(Map.linear(X+Y,X+Z,X+Y+Z)).move(Map.scale(1.7124,1.71277,1.724))
 #texFloor=Texture("Yellow_Pine " ).move(Map.linear(6*X,.3*Z,10*Y))
 texFloor=Texture("pigment {Grey}")
-texFloor.enhance("normal { function {mortar1(x,y,z,1)} bump_size .2}")
+texFloor.enhance(Pigment("normal { function {mortar1(x,y,z,1)} bump_size .2}"))
 texFloor.move(Map.linear(-X,Y,Z))
 texFloor2=Texture(" pigment  { checker    pigment { granite color_map { [0 rgb 1][1 rgb .9] } }    pigment { granite color_map { [0 rgb .9][1 rgb .7] } }  }")
 texFloor2.move(Map.linear(.8*X,.8*Y,.8*Y))
@@ -82,13 +82,14 @@ stoveTexture=Texture("pigment {image_map {png \"poele.png\"}}")
 #oakTexture=Texture("pigment {image_map {png \"chene.png\"}}")
 tableTexture=oakTexture.move(Map.linear(Y,X,Z))
 
-tableBump="normal {agate .5 scale 4 bump_size .2}"
+tableBump=Normal("agate .5 scale 4 bump_size .2")
 
-handleTexture=Texture("New_Brass finish{ambient 0.05 specular 2}","handleTexture")
-stoveFinish="finish {ambient 0.05 brilliance 30}"
+handleTexture=Texture("New_Brass finish{ambient 0.05 specular 2}")
+stoveFinish=Finish( "ambient 0.05 brilliance 30")
 texDoor=Texture( "pigment {BrightGold} finish{brilliance 1.8}")
 texDoor=Texture("pigment {image_map {png \"wood.png\"}} finish {diffuse .6}").move(Map.flipXZ()*Map.scale(1.7,1.7,1.7))
-lampFinish="finish {ambient .2 diffuse 2} normal{agate .5 scale .1 bump_size .1}"
+lampFinish2=Normal("agate .5 scale .1 bump_size .1")
+lampFinish=Finish ("ambient .2 diffuse 2")
 texCeil=Texture("pigment {White} finish {ambient .3 }")
 chairTexture=Texture("pigment {image_map {png \"chene2.png\"}} finish {diffuse .6}")#.move(Map.scale(2,2,2))
 
@@ -100,9 +101,9 @@ ground=plane(Z,origin) # a plane with normal the vector Z=vector(0,0,1) containi
 ground.colored('DarkGreen') # The possible colors are the colors described in colors.inc in povray or a rgb color. 
 
 floorPolyline=Polyline([origin,7.012*Y,11.526*X,-5.64*Y,-3.614*X,-1.386*Y,-7.912*X+.014*Y])
-room=Room(floorPolyline,insideThickness=.31).colored("LightWood")
+room=Room(floorPolyline,insideThickness=.31)#.colored("LightWood")
 #room.light_level(1.5)
-room.add_to_texture("normal {agate .5 scale 1 bump_size .05}")
+room.add_to_texture(Normal("agate .5 scale 1 bump_size .05"))
 rommTexture=room.walls[0]
 unleash([room.floor])
 room.floor.name="myFloor"
@@ -127,7 +128,7 @@ ground.visibility=0
 #tex=room.floor.texture.copy().enhance("
 #room.floor.new_texture(tex)
 #wall=RoundWindow(radius=1,depth=.1,border=.1,texture="Yellow_Pine")
-myWin=room.add_window(wallNumber=0,wlength=1.8,wheight=2.15,wdepth=.1,deltaLength=4.106,deltaHeigth=0).colored("White")
+myWin=room.add_window(wallNumber=0,wlength=1.8,wheight=2.15,wdepth=.1,deltaLength=4.106,deltaHeigth=0).colored("White").named("myWin")
 backDoor=room.add_door(wallNumber=1,wlength=.9,wheight=2.15,wdepth=.1,deltaLength=5.756,deltaHeigth=0)#
 room.add_window(wallNumber=2,wlength=1,wheight=1.06,wdepth=.1,deltaLength=1.37,deltaHeigth=1.10).colored("White")
 room.add_window(wallNumber=2,wlength=.7,wheight=1.05,wdepth=.1,deltaLength=3.57,deltaHeigth=1.10).colored("White")
@@ -136,7 +137,7 @@ outsideDoor=room.add_door(wallNumber=4,wlength=.9,wheight=2.15,wdepth=.1,deltaLe
 outsideDoor.add_porthole()
 outsideDoor.window.frame.rgbed([.8,.8,.6])
 outsideDoor.name="outsideDoor"
-tex=outsideDoor.texture.enhance("normal {brick brick_size 1.5 mortar .05} ").move(Map.linear(X,Y,2*Z))
+tex=outsideDoor.texture.enhance(Normal(" {brick brick_size 1.5 mortar .05} ")).move(Map.linear(X,Y,2*Z))
 outsideDoor.new_texture(tex)
 ls=LightSwitch().parallel_to(-1*room.walls[4].insideVector())
 ls.hooked_on(room.walls[4].insideBaseLine().point(.2,"p")+1.1*Z).glued_on(room)
@@ -170,8 +171,12 @@ floorCenter=origin+3.5*Y+5.6*X
 sun=Light(origin+100*(5*Z-1*X-4*Y)) # a light
 sun.rgbColor=[1,1,1]
 
-livingLamp=Lamp().hooked_on(floorCenter-1.7*Y+2.5*Z).glued_on(ground).add_to_texture(lampFinish) # a light
+livingLamp=Lamp().hooked_on(floorCenter-1.7*Y+2.5*Z).glued_on(ground).add_to_texture(lampFinish)
+livingLamp.add_to_texture(lampFinish2) # a light
 corridorLamp=Lamp(shadowless=False).hooked_on(origin+2.5*Z+8*X+3.15*Y).glued_on(room).add_to_texture(lampFinish)
+print(livingLamp.texture[0])
+print(livingLamp.texture[1])
+print(livingLamp.texture)
 #kitchenLamp=Lamp().hooked_on(origin+2.5*Z+2*X+1.5*Y).glued_on(room)
 #unseenLamp=Light().hooked_on(floorCenter-1*Y+1.2*Z+2*X).glued_on(ground) # a light
 #unseenLamp.color="rgb <1,1,1>"
@@ -233,7 +238,7 @@ camera.angle=1.07
 #    print(light.povray_string())
 
 #print("a la fin",room.floor.texture.smallString)
-camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
-#camera.show # show the photo, ie calls povray. 
+#camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
+camera.show # show the photo, ie calls povray. 
 #print (globVars.TextureString)
 #print(room.texture.smallString)

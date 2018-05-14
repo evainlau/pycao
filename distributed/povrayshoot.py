@@ -36,61 +36,61 @@ def name_comment_string(self):
         string="\n//Unnamed Object\n"
     return string
 
-def compute_pigment(self):
-    #print(self,"in pigment")
-    if self.texture.color:
-        string= self.texture.color
-    elif self.texture.rgb:
-        i=self.texture.rgbIntensity
-        r=self.texture.rgb
-        string="rgb <"+str(i*r[0])+","+str(i*r[1])+","+str(i*r[2])+">"
-    else: return ""
-    return "pigment {"+string+"} "
+# def compute_pigment(self):
+#     #print(self,"in pigment")
+#     if self.texture.color:
+#         string= self.texture.color
+#     elif self.texture.rgb:
+#         i=self.texture.rgbIntensity
+#         r=self.texture.rgb
+#         string="rgb <"+str(i*r[0])+","+str(i*r[1])+","+str(i*r[2])+">"
+#     else: return ""
+#     return "pigment {"+string+"} "
 
-def compute_normal(self):
-    return ""#normal {brick   brick_size 1   mortar 0.02   scale 1}"# normal { bozo scale .01 bump_size 1} "
-    if hasattr(self,"normal"):
-        return self.normal
-    else: return ""
+# def compute_normal(self):
+#     return ""#normal {brick   brick_size 1   mortar 0.02   scale 1}"# normal { bozo scale .01 bump_size 1} "
+#     if hasattr(self,"normal"):
+#         return self.normal
+#     else: return ""
 
-def compute_finish(self):
-    if hasattr(self.texture,"diffuse"):
-        diffuse="diffuse "+str(self.texture.diffuse)+"\n" # this illuminates everything thus no shadow
-    else:
-        diffuse=""
-    if hasattr(self.texture,"ambient"):
-        ambient="ambient "+str(self.texture.ambient)+"\n" # for more light without shadow (thus no contrast)
-    else:
-        ambient=""
-    if hasattr(self.texture,"shadow"):
-        brilliance="brilliance "+str(self.texture.shadow)+"\n" # controls the intensity of the reflectedd light vs the angle of incidence
-    else:
-        brilliance=""
-        # thus increasing self.texture.dull increases the size of the shadowed region
-    #phong="phong "+str(self.texture.phong[0])+" phong_size "+str(self.texture.phong[1])+" " # finally I won't include this to keep simplicity
-    if hasattr(self.texture,"glintintensity"):
-        specular="specular "+str(self.texture.glintintensity)+" "
-        if hasattr(self.texture,"glintsize"):
-             specular+="roughness "+str(self.texture.glintsize)+"\n"
-    else:
-        specular=""
-    if hasattr(self.texture,"glintcolor"):
-        metallic="metallic {"+str(self.texture.glintcolor)+ "}\n"
-    else:
-        metallic=""
-    if hasattr(self.texture,"reflect"):
-        try:
-            reflection="reflection {"+str(self.texture.reflect[0],self.texture.reflect[1])+"}\n"
-        except:
-            reflection="reflection {"+str(self.texture.reflect)+"}\n"
-    else:
-        reflection=""
-    myFinish=diffuse+ambient+brilliance+specular+metallic+reflection
-    if myFinish:
-        string="finish {\n"+myFinish+"}"
-    else:
-        string=""
-    return string
+# def compute_finish(self):
+#     if hasattr(self.texture,"diffuse"):
+#         diffuse="diffuse "+str(self.texture.diffuse)+"\n" # this illuminates everything thus no shadow
+#     else:
+#         diffuse=""
+#     if hasattr(self.texture,"ambient"):
+#         ambient="ambient "+str(self.texture.ambient)+"\n" # for more light without shadow (thus no contrast)
+#     else:
+#         ambient=""
+#     if hasattr(self.texture,"shadow"):
+#         brilliance="brilliance "+str(self.texture.shadow)+"\n" # controls the intensity of the reflectedd light vs the angle of incidence
+#     else:
+#         brilliance=""
+#         # thus increasing self.texture.dull increases the size of the shadowed region
+#     #phong="phong "+str(self.texture.phong[0])+" phong_size "+str(self.texture.phong[1])+" " # finally I won't include this to keep simplicity
+#     if hasattr(self.texture,"glintintensity"):
+#         specular="specular "+str(self.texture.glintintensity)+" "
+#         if hasattr(self.texture,"glintsize"):
+#              specular+="roughness "+str(self.texture.glintsize)+"\n"
+#     else:
+#         specular=""
+#     if hasattr(self.texture,"glintcolor"):
+#         metallic="metallic {"+str(self.texture.glintcolor)+ "}\n"
+#     else:
+#         metallic=""
+#     if hasattr(self.texture,"reflect"):
+#         try:
+#             reflection="reflection {"+str(self.texture.reflect[0],self.texture.reflect[1])+"}\n"
+#         except:
+#             reflection="reflection {"+str(self.texture.reflect)+"}\n"
+#     else:
+#         reflection=""
+#     myFinish=diffuse+ambient+brilliance+specular+metallic+reflection
+#     if myFinish:
+#         string="finish {\n"+myFinish+"}"
+#     else:
+#         string=""
+#     return string
 
 # def texture_string(self):
 #     string=""
@@ -140,15 +140,16 @@ def texture_string_cameraless(self):
     if not hasattr(self,"texture"):
         return ""
     else:
-        myTexture=self.texture
-        if hasattr(myTexture,"moveMap"):
-            moveString=" matrix "+povrayMatrix(myTexture.moveMap)
-        if hasattr(myTexture,"name") and myTexture.name:
-            string+=myTexture.name +moveString
-        else:
-            string+=myTexture.declaration_string_bracketless()+moveString+"}"
-        string=" texture { "+string+" }\n"
-        return string
+        #myTexture=self.texture#
+        # if hasattr(myTexture,"moveMap"):
+        #     moveString=" matrix "+povrayMatrix(myTexture.moveMap)
+        # if hasattr(myTexture,"name") and myTexture.name:
+        #     string+=myTexture.name +moveString
+        # else:
+        #     string+=myTexture.declaration_string_bracketless()+moveString+"}"
+        #string=" texture { "+string+" }\n"
+        return  self.texture.declaration_string(withMove=True)
+
 
 
 
