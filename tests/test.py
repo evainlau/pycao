@@ -107,7 +107,7 @@ cabinet.add_box("mp",mainPart.box())
 actor=Cabinet().hooked_on(origin).light_level(2)
 
 z=actor.texture[0]
-print(povrayshoot.texture_string_cameraless(actor))
+print()
 print(z)
 print(povrayshoot.texture_string_cameraless(z))
 #FramedStub()

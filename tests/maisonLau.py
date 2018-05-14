@@ -238,7 +238,7 @@ camera.angle=1.07
 #    print(light.povray_string())
 
 #print("a la fin",room.floor.texture.smallString)
-#camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
+camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
 camera.show # show the photo, ie calls povray. 
 #print (globVars.TextureString)
 #print(room.texture.smallString)

@@ -93,6 +93,8 @@ class PNFItem(PNFTItem):#PNF means Pigment,Normal or Finish
             ret+=" matrix "+povrayshoot.povrayMatrix(self.moveMap)
         return ret
 
+    def get_reducedString(self,withMove):
+        return self.declaration_string(withMove)
         
     def enhance(self,stringOrPNFItem):
         """
@@ -136,16 +138,8 @@ class Texture(PNFTItem,list):
 
     def get_smallString(self,withMove=False):# seems that it is always called with withMove=True in practice. Argument useful for PNF but not T-items ?
         # The first item may be a named texture
-        if not isinstance(self[0],Texture):
-            firstString=self[0].declaration_string(withMove=withMove)
-        else:
-            if withMove:
-                self.named(self.name,withMove=withMove) # making the declaration with the move included
-                firstString=self.name+"WithMove"
-            else:
-                firstString=self.name
-        lastString=" ".join([entry.declaration_string(withMove=withMove) for entry in self[1:]])
-        return firstString+" "+lastString
+        return " ".join([entry.get_reducedString(withMove=withMove) for entry in self])
+
     
 
 
@@ -164,17 +158,27 @@ class Texture(PNFTItem,list):
             
     def __init__(self,*args):
         if len(args)==1 and isinstance(args[0],str):
-            #if len(args[0].split())>1:
-            #    raise NameError("A string in a texture declaration is valid only for a povray keyword")
-            self.stringy=True
+            self.stringy=True #?? not used it seems
+            print("les args")
+            for l in args:
+                print(l )
+            print("fin")
             self.smallString=args[0] # the 'small' povray string ie. without the surrounding Pigment{} or Normal{} or Finish{} or Texture{}
             def sms(withMove=False):
-                ret=self.smallString
+                """ This function computes a string which is a valid for the declared texture
+                builds a name declares and declares the string with the identifier name. 
+                then returns the name
+                """
+                idName="IdAuto"+str(id(self))
                 if withMove and hasattr(self,"moveMap"):
                     import povrayshoot
-                    ret+=" matrix "+povrayshoot.povrayMatrix(self.moveMap)
-                return ret
-            self.get_smallString=sms
+                    moveString=" matrix "+povrayshoot.povrayMatrix(self.moveMap)
+                else: moveString=" "
+                declareString="\n#declare " +idName +" = texture{"+self.smallString+ moveString+"}\n"
+                print("la declare string pour l'entree ", args[0],"est", declareString)
+                globvars.TextureString+=declareString
+                return idName
+            self.get_reducedString=sms
             self.append(self)
         else:
             self.stringy=False
@@ -285,7 +289,7 @@ def _get_textures(self,textureset=None,withChildren=True):
             for slave  in slaves :
                 toAdd=slave.get_textures()
                 for entry in toAdd:
-                    if entry not in textureset:
+                    if id(entry) not in [id(entry) for entry in textureset]:#id necessary to avoid infinite loop
                         textureset.append(entry)
                 #except: pass # notexture for the slave
     if withChildren:
