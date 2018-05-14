@@ -290,7 +290,11 @@ class ObjectInWorld(object):
         import material
         p=material.Pigment(color)
         #print(p.smallString)
-        t=self.texture.enhance(p)
+        if hasattr(self,"texture"):
+            t=self.texture.enhance(p)
+        else:
+            import material
+            t=material.Texture(p)
         #print(self.texture.smallString)
         #print("phasname",p.name)
         self.new_texture(t)#keep it for the childs in csg
@@ -309,7 +313,8 @@ class ObjectInWorld(object):
     def light_level(self,value):
         ambient=value*defaultAmbientMultiplier
         diffuse=value*defaultDiffuseMultiplier
-        finish="finish {ambient "+str(ambient)+" diffuse "+str(diffuse)+"}"        
+        import material
+        finish=material.Finish("ambient "+str(ambient)+" diffuse "+str(diffuse))        
         self.add_to_texture(finish)
         return self
 
@@ -535,12 +540,29 @@ class ObjectInWorld(object):
     def self_rotate(self,angle):
         return self.rotate(self.axis(),angle)
 
+    def self_pirotate(self,angle):
+        return self.rotate(self.axis(),math.pi*angle)
+
+    def self_degrotate(self,angle):
+        return self.rotate(self.axis(),math.pi*angle/90)
+
+    
     def self_translate(self,amount,type="p"):
         if type=="p": vec=amount* self.axis().vector
         elif type=="a": vec=amount*self.axis().vector.normalized_copy()
         else: return NameError("Type should be a or p")
         return self.translate(vec)
 
+    def self_gtranslate(self,goal,vec=None,start=None,):
+        if start is None:
+            start=self.hook()
+        if vec is None:
+            vec=self.axis().vector
+        import mathutils
+        if not mathutils.is_point(goal):
+            goal=goal.hook()
+        self.gtranslate(vec,start,goal)
+        return self
 
     def print_hooks(self):
         """

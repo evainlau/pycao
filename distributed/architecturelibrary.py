@@ -40,6 +40,7 @@ class Wall(Prism):
             marker=getattr(self.markers,markerName)
             marker.move(correctiveMap)
         self.markers_as_functions()
+        self.add_axis("insideAxis",Segment(self.markers.outsideBaseLine.point(.5),insideVector))
         return self
 
     def add_apperture(self,w,center=None): # type = winoow or doord
@@ -418,20 +419,33 @@ def WoodStud(dimx,dimy,dimz,grainVector=None,texture=None):
     if grainVector is None:
         grainVector=Z
     if texture is None:
-        texture=Texture("DMFDarkOak scale .03")
-    c=Cube.from_dimensions(dimx,dimy,dimz)
-    M=Map.rotational_difference(Z,grainVector)    
+        texture=oakCubicTexture#.move(Map.scale(1/dimx,1/dimy,1/dimz))
+    c=Cube.from_dimensions(1,1,1)
+    c.translate(origin-c.center)
+    M=Map.rotational_difference(grainVector,Z)
+    c.move(M)
     c.new_texture(texture)
-    c.texture.move(M)
+    print "bef"
+    print(c.texture)
+    print("was c.text")
+    print(c.get_textures())
+    c.move(M.inverse())
+    print(texture)
+    c.scale(dimx,dimy,dimz)
+    c.translate(dimx/2*X+dimy/2*Y+dimz/2*Z)
     return c
 
 def RoundedWoodStud(dimx,dimy,dimz,radius=.005,grainVector=Z,texture=None):
     if texture is None:
-        texture=Texture("DMFDarkOak scale .03")
-    c=RoundBox.from_dimensions(dimx,dimy,dimz,radius)
+        texture=oakCubicTexture
+    c=RoundBox.from_dimensions(dimx,dimy,dimz,radius).move(Map.scale(1/dimx,1/dimy,1/dimz))
+    c.translate(origin-c.center)
+    M=Map.rotational_difference(grainVector,Z)
+    c.move(M)
     c.new_texture(texture)
-    M=Map.rotational_difference(Z,grainVector)
-    c.texture.move(M)
+    c.move(M.inverse())
+    c.scale(dimx,dimy,dimz)
+    c.translate(dimx/2*X+dimy/2*Y+dimz/2*Z)
     return c
 
 def WoodBoard(xdim,ydim,thickness,xnumber=2,grainVector=Z,texture=None):
@@ -439,8 +453,8 @@ def WoodBoard(xdim,ydim,thickness,xnumber=2,grainVector=Z,texture=None):
     returns a board in the xy plane obtained by tiling in the x direction
     """
     if texture is None:
-        texture=Texture("DMFDarkOak scale .03")
-    c=RoundedWoodStud(xdim,ydim,thickness,radius=.005,grainVector=grainVector,texture=texture)
+        texture=oakCubicTexture
+    c=WoodStud(xdim,ydim,thickness,grainVector=grainVector,texture=texture)
     return c#Tiling(c,jointWidth=-.0001,jointHeight=0,xnumber=xnumber,ynumber=1,polyline=None)
 
 class PictureFrame(Compound):
@@ -557,13 +571,16 @@ def FramedDrawer(width=.4,height=.3,thickness=.01,borderWidth=.05,drawerDepth=.3
     c.add_box("frameBox",frame.box())
     return c
 
-def FramedGlass(width=.4,height=.3,thickness=.01,borderWidth=.05,texture=None):
+def FramedGlass(width=.4,height=.3,thickness=.01,borderWidth=.05,texture=None,opening="right"):
     frame=PictureFrame(width=width,height=height,thickness=thickness,borderWidth=borderWidth,texture=texture,radius=.005)
     glass=frame.get_glass()
     glass.translate(frame.center-glass.center)
     c=Compound()
     c.add_list_to_compound([["frame",frame],["glass",glass]])
     c.add_box("frameBox",frame.box())
+    if opening=="right":
+        c.add_axis("openingAxis",frame.segment(1,1,None,"ppp"))
+    else: c.add_axis("openingAxis",frame.segment(1,1,None,"ppp"))
     return c
 
 def FramedStub(width=.4,height=.3,thickness=.01,borderWidth=.05,frameTexture=None,stubTexture=None):
@@ -576,11 +593,18 @@ def FramedStub(width=.4,height=.3,thickness=.01,borderWidth=.05,frameTexture=Non
     c.add_axis("normalDirection",c.frame.axis())
     return c
 
-def Cabinet(width=.5,upheight=.4,botheight=.3,depth=.3,thickness=.02,borderWidth=.06,feetheight=.1,feetSize=.1,frameTexture="DMFLightOak scale .03",drawerTexture="DMFDarkOak scale .03"):
-    up=FramedGlass(width=width,height=upheight,thickness=thickness,borderWidth=borderWidth,texture=frameTexture)
+#def Cabinet(width=.5,upheight=.4,botheight=.3,depth=.3,thickness=.02,borderWidth=.06,feetheight=.1,feetSize=.1,frameTexture="DMFLightOak scale .03",drawerTexture="DMFDarkOak scale .03"):
+def Cabinet(width=.5,upheight=.4,botheight=.3,depth=.3,thickness=.02,borderWidth=.06,feetheight=.1,feetSize=.1,frameTexture=None,drawerTexture=None):
+    ret=Compound()
+    if frameTexture is None:
+        frameTexture=oakCubicTexture.copy()
+        frameTexture.named("Id"+str(id(ret)))
+    if drawerTexture is None:
+        drawerTexture=wengeTexture.copy().move(Map.linear(.2*Z,Y,3*X))
+    up=FramedGlass(width=width,height=upheight,thickness=thickness,borderWidth=borderWidth,texture=frameTexture).select_axis("openingAxis")
     bot=FramedDrawer(width=width,height=botheight,thickness=thickness,borderWidth=borderWidth,openingAmount=0,frameTexture=frameTexture,drawerTexture=drawerTexture)
     bot.drawer.self_translate(.4)
-    up.above(bot)
+    up.above(bot).translate(0.007*Z)
     frontFace=Compound()
     frontFace.add_list_to_compound([["up",up],["bot",bot]])
     f=FrameBox(up.box().points+bot.box().points)
@@ -606,14 +630,14 @@ def Cabinet(width=.5,upheight=.4,botheight=.3,depth=.3,thickness=.02,borderWidth
     toCut3=plane.from_coeffs(0,0,1,-feetheight)
     feet.amputed_by([toCut1,toCut2,toCut3])
     feet.activeBox=FrameBox([feet.box().point(0,0,.5),feet.box().point(1,1,1)]).glued_on(feet)
-    print(feet.box())
     feet.below(support)
-    print(feet.box())
-    ret=Compound()
     ret.add_list_to_compound([["mainPart",mainPart],support,["feet",feet],top])
     f=FrameBox.from_union([mainPart,support,feet,top])
     ret.add_box("globalBox",f)
+    ret.add_hook("backHook",feet.point(0.5,1,1,"ppp"))
     ret.add_hook("hookToFloor",feet.point(0.5,.5,0,"ppp"))
+    ret.door=up
+    ret.door.self_rotate(math.pi*.0025)
     return ret
 
 

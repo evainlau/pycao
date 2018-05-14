@@ -34,6 +34,8 @@ class Light(ObjectInWorld):
     A light with a hook, added by default to the cameras already created.
     """
     def __init__(self,location=origin,shadow=True,lightType=defaultLightType,cameraList=camerasInScene):
+        if not hasattr(self,"texture"):
+            self.texture=Object()
         self.location=location
         self.add_hook("location",location)
         if not shadow:

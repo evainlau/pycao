@@ -1021,7 +1021,7 @@ class Segment(AffineLineWithVectorDirector):
         #print(triangle[2])
         return triangle.angle_bisector(i)
 
-    def  point(self,x,coordinateType):
+    def  point(self,x,coordinateType="p"):
         if coordinateType=="a":
             return self.p1+x*self.vector.normalized_copy()
         elif coordinateType=="p":
@@ -1728,13 +1728,15 @@ class Map(np.ndarray):
             raise NameError("i should be 0,1 or 2")
         M=Map.linear(_to_vector(a),_to_vector(b),_to_vector(c))
         return M
-    @staticmethod
+
+    @property
     def flipXY():
-        return Map.from_permutation(1,0,2)
+        return Map.linear(Y,X,Z)
+
     @staticmethod
     def flipXZ():
         return Map.from_permutation(2,1,0)
-    @staticmethod
+    @property
     def flipYZ():
         return Map.from_permutation(0,2,1)
     

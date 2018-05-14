@@ -113,8 +113,8 @@ actor=Cabinet().hooked_on(origin).light_level(2)#FramedStub()
 camera=Camera()
 camera.projection="perspective"
 camera.filmAllActors=False
-camera.location=origin-0*X-1*Y+1*Z
-l=Light(origin-2*Y+15*Z)
+camera.location=origin-0.8*X-1.*Y+1*Z
+l=Light(origin-4*Y+10*Z-3*X)
 #camera.povraylights="light_source {<"+ str(light.location[0])+","+str(light.location[1])+","+str(light.location[2])+ "> color White " + "}\n\n"
 #camera.actors=[wall,ground,cyl,cyl2,s] # what is seen by the camera
 #camera.actors=[table.c13,table.c12,table.s1] # what is seen by the camera#\\
@@ -124,9 +124,9 @@ camera.lookAt=actor.center#origin
 camera.zoom(1)
 
 
-camera.angle=0.84
+camera.angle=0.94
 camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
-camera.show # show the photo, ie calls povray. 
+#camera.show # show the photo, ie calls povray. 
 #print(actor.center)
 #print(actor.box())
 #print(actor.box().point(0,0,1,"ppp"))

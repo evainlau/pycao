@@ -65,19 +65,32 @@ globvars.userDefinedFunctions+=myFonc
 ################################################################
 
 tw="pigment {LightWood} normal {agate .5 scale 4 bump_size .1}"
+tw=Texture("pigment {image_map {png \"murTerre.png\"}}").move(Map.linear(X+Y,X+Z,X+Y+Z)).move(Map.scale(7.24,7.277,7.24))
+#tw=Texture("pigment {image_map {png \"chaux.png\"}}").move(Map.linear(X+Y,X+Z,X+Y+Z)).move(Map.scale(6.24,6.277,6.24))
+#tw=Texture("pigment {image_map {png \"chaux.png\"}}").move(Map.linear(X+Y,X+Z,X+Y+Z))#.move(Map.scale(.24,.277,.24))
+#tw=Texture("pigment {image_map {png \"chaux.png\"}}").move(Map.linear(X+Y,X+Z,X+Y+Z))#.move(Map.scale(.24,.277,.24))
+tw=Texture("pigment {image_map {png \"sandWhite.png\"}}  finish {diffuse 1.3}").move(Map.linear(X+Y,X+Z,X+Y+Z)).move(Map.scale(1.7124,1.71277,1.724))
 #texFloor=Texture("Yellow_Pine " ).move(Map.linear(6*X,.3*Z,10*Y))
 texFloor=Texture("pigment {Grey}")
 texFloor.enhance("normal { function {mortar1(x,y,z,1)} bump_size .2}")
 texFloor.move(Map.linear(-X,Y,Z))
 texFloor2=Texture(" pigment  { checker    pigment { granite color_map { [0 rgb 1][1 rgb .9] } }    pigment { granite color_map { [0 rgb .9][1 rgb .7] } }  }")
 texFloor2.move(Map.linear(.8*X,.8*Y,.8*Y))
+travertin=Texture("pigment {image_map {png \"travertin.png\"}}")
+stoveTexture=Texture("pigment {image_map {png \"poele.png\"}}")
+
+#oakTexture=Texture("pigment {image_map {png \"chene.png\"}}")
+tableTexture=oakTexture.move(Map.linear(Y,X,Z))
 
 tableBump="normal {agate .5 scale 4 bump_size .2}"
+
 handleTexture=Texture("New_Brass finish{ambient 0.05 specular 2}","handleTexture")
 stoveFinish="finish {ambient 0.05 brilliance 30}"
 texDoor=Texture( "pigment {BrightGold} finish{brilliance 1.8}")
+texDoor=Texture("pigment {image_map {png \"wood.png\"}} finish {diffuse .6}").move(Map.flipXZ()*Map.scale(1.7,1.7,1.7))
 lampFinish="finish {ambient .2 diffuse 2} normal{agate .5 scale .1 bump_size .1}"
 texCeil=Texture("pigment {White} finish {ambient .3 }")
+chairTexture=Texture("pigment {image_map {png \"chene2.png\"}} finish {diffuse .6}")#.move(Map.scale(2,2,2))
 
 ################################################################
 #                Objects
@@ -100,10 +113,13 @@ room.ceiling.new_texture(texCeil)
 
 myTile=RoundBox.from_dimensions(.4,.4,.02,.005)
 myTile.new_texture(Texture("T_Stone4"))
-tiling=Tiling(myTile,jointWidth=.01,jointHeight=.01,xnumber=23,ynumber=10,polyline=floorPolyline)#.move(.001*Z)
-tiling.hooked_on(origin+.001*Z).glued_on(room)
-tiling.glued_on(room)
-room.floor.visibility=0
+myTile.new_texture(travertin)
+#tiling=Tiling(myTile,jointWidth=.01,jointHeight=.01,xnumber=23,ynumber=10,polyline=floorPolyline)#.move(.001*Z)
+#tiling.hooked_on(origin+.001*Z).glued_on(room)
+#tiling.glued_on(room)
+#tiling.visibility=0
+room.floor.visibility=1
+room.floor.new_texture(travertin)
 ground.visibility=0
 
 
@@ -138,6 +154,8 @@ room.add_perpendicular_wall(3,distance=.08,wallLength=.9,thickness=.16,measureme
 room.add_perpendicular_wall(3,distance=1.88,wallLength=.9,thickness=.08,measurementType="a",height=None).new_texture(tw)
 room.add_perpendicular_wall(3,distance=1.6,wallLength=1.1,thickness=.08,measurementType="a",offset=.95,height=None).new_texture(tw)
 room.add_perpendicular_wall(3,distance=2.3,wallLength=1.1,thickness=.08,measurementType="a",offset=.95,height=None).new_texture(tw)
+for w in room.walls:
+    w.new_texture(tw)
 door1=room.add_door(wallNumber=8,wlength=.83,wheight=2.15,wdepth=.1,deltaLength=1.45,handleTexture=handleTexture).new_texture(texDoor)
 door1.name="porte1"
 door1.new_texture(tex)
@@ -168,7 +186,7 @@ corridorLamp=Lamp(shadowless=False).hooked_on(origin+2.5*Z+8*X+3.15*Y).glued_on(
 
 
 
-table=Table(1.2,.8,.7,.03).colored("Khaki").above(origin+4.8*X+1.5*Y).glued_on(room).add_to_texture(tableBump)
+table=Table(1.2,.8,.7,.03).new_texture(tableTexture).above(origin+4.8*X+1.5*Y).glued_on(room).add_to_texture(tableBump)
 table.name="table"
 table.add_hook("glass1",table.point(.5,.5,1))
 glass1=Glass()
@@ -178,24 +196,33 @@ glass1.hooked_on(table).glued_on(table).translate(.1*Y)
 glass2.hooked_on(table).glued_on(table).translate(.2*X)
 glass3.hooked_on(table).glued_on(table).translate(-.2*X)
 
-chair1=Chair().colored("Khaki").above(origin+4.5*X+1.87*Y+.4*Z).glued_on(table)
+chair1=Chair().new_texture(chairTexture).above(origin+4.5*X+1.87*Y+.4*Z).glued_on(table)
 chair2=chair1.copy()
-chair2.colored("Khaki").above(origin+5*X+1.8*Y+.4*Z).glued_on(table)
-chair2=Chair().colored("Khaki").above(origin+4.5*X+1*Y+.4*Z).glued_on(table).self_rotate(3)
-chair2=Chair().colored("Khaki").above(origin+5*X+1*Y+.4*Z).glued_on(table).self_rotate(3.5)
+chair2.new_texture(chairTexture).above(origin+5*X+1.8*Y+.4*Z).glued_on(table)
+chair2=Chair().new_texture(chairTexture).above(origin+4.5*X+1*Y+.4*Z).glued_on(table).self_rotate(3)
+chair2=Chair().new_texture(chairTexture).above(origin+5*X+1*Y+.4*Z).glued_on(table).self_rotate(3.5)
 table.translate(.82*X)
 stovePosistionOnFloor=origin+7.50*X+2.3*Y
 stove=Stove().glued_on(room).self_rotate(-math.pi/2)
 stove.name="stove"
 stove.translate(stovePosistionOnFloor-stove.floorPoint)
 stove.spacer.texture.enhance(stoveFinish)
+#stove.new_texture(stoveTexture)
+
+cabinet=Cabinet().select_hook("hookToFloor").hooked_on(origin)
+cabinet.pirotate(Z,-.5).glued_on(room)
+pointOnWall4=room.walls[4].insideBaseLine().point(.2,"p")
+cabinet.select_hook("backHook").self_gtranslate(pointOnWall4,vec=X).translate(-.04*X)
+cabinet.select_hook("backHook").self_gtranslate(pointOnWall4,vec=Y).translate(.3*Y)
+
 
 camera.projection="orthographic"
 camera.projection="perspective"
 #camera.location=origin+1.6*X+1.5*Y+1.62*Z
-camera.location=entrance-3.9*X+1*Y-.3*Z
+camera.location=entrance-3.6*X+1.8*Y-.3*Z
 #camera.location=entrance-3.9*X-10*Y-.3*Z
 camera.actors=[room,ground] # what is seen by the camera
+#camera.actors=[room.walls]
 #camera.actors=[tiling]
 #camera.actors=[ls]
 #camera.lookAt=origin
@@ -207,6 +234,6 @@ camera.angle=1.07
 
 #print("a la fin",room.floor.texture.smallString)
 camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
-camera.show # show the photo, ie calls povray. 
+#camera.show # show the photo, ie calls povray. 
 #print (globVars.TextureString)
 #print(room.texture.smallString)

@@ -52,9 +52,26 @@ def _translate_object(self,*args):
     #print(povrayshoot.object_string_recursive(self,cameras.Camera()))
     return self
 
+def _gtranslate_object(self,vec,p1,p2):
+    """
+    translates self along a translation t with vector v such that  t(p1),p2 are in a common plane orthogonal to v
+    """
+    w=vec.copy().normalize()
+    delta=(p2-p1).dot(w)
+    self.translate(delta*w)
+    return self
+
+
+
 def _rotate_object(self,axis,angle):
     self.move(Map.rotation(axis,angle))
     return self
+
+def _pirotate_object(self,axis,angle):
+    self.rotate(axis,math.pi*angle)
+    return self
+
+
 
 def _scale_object(self,fx=1,fy=1,fz=1,xVector=X,yVector=Y, zVector=Z,fixedPoint=T):
     self.move(Map.scale(fx=fx,fy=fy,fz=fz,xVector=xVector,
@@ -91,8 +108,6 @@ def _init_object(self,*args,**kwargs):
     self.children=[]
     self.parent=[]
     #from material import Texture
-    import material
-    self.texture=material.defaultTexture()
     self.csgOperations=[]
     #print (allObjects)
     #print(self)
@@ -103,7 +118,9 @@ def _init_object(self,*args,**kwargs):
     #   not isinstance(self,MassPoint):
 
 ObjectInWorld.translate=_translate_object
+ObjectInWorld.gtranslate=_gtranslate_object
 ObjectInWorld.rotate=_rotate_object
+ObjectInWorld.pirotate=_pirotate_object
 ObjectInWorld.scale=_scale_object
 ObjectInWorld.__init__=_init_object
 ObjectInWorld.__new__=_new_object

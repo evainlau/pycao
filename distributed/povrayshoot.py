@@ -131,19 +131,25 @@ def texture_string(self,camera):
     if self.visibility<camera.visibilityLevel:
         string=" no_shadow no_image no_reflection \n"
     else:
-        return texture_string_cameraless(self.texture)
+        return texture_string_cameraless(self)
 
-def texture_string_cameraless(myTexture):
+def texture_string_cameraless(self):
     "Returns a string describing the texture of the object"
     string=""
-    if myTexture.name:
-        string+=myTexture.name
+    moveString=""
+    if not hasattr(self,"texture"):
+        return ""
     else:
-        string+=myTexture.smallString
-    string+=" matrix "+povrayMatrix(myTexture.moveMap)
-    string=" texture { "+string+" }\n"
-    return string
-    
+        myTexture=self.texture
+        if hasattr(myTexture,"moveMap"):
+            moveString=" matrix "+povrayMatrix(myTexture.moveMap)
+        if hasattr(myTexture,"name") and myTexture.name:
+            string+=myTexture.name +moveString
+        else:
+            string+=myTexture.declaration_string_bracketless()+moveString+"}"
+        string=" texture { "+string+" }\n"
+        return string
+
 
 
 def matrix_string(self):
