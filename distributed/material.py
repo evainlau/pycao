@@ -12,21 +12,41 @@ from lights import *
 
 
 """
-PNFITem = a string + a moveMap attribute (not for finish)
-Titem= [ a list of PNFT items ]+ a moveMap. Only the first element may be a texture, in which case it is a named texture. 
-Only the texture items of the form [ namedTexture ] require a move map. For the unnamed textures, the elements of the list 
-are accessible and the movement is transmitted to them. 
+################
+Objects considered
+################
+PNFITem = a string called smallsting+ a facultative moveMap attribute ( Fitems never have this attribute)
+Titem= [ a list of PNFT items ]+ a moveMap. Only the first element may be a texture, in which case it is a named texture
+accessed with an iedentfier. A texture is defined by its list of elements, execpt for the texture at the base 
+of the recursion which are defined by a string and that we call stringy. Non stringy textures are called recursive, they
+correspond to lists with lengths at least 2. 
 
-input(PNF item)= a string (Called smallstring below) which may  conaini, and even be reduced to a named (by Povray or Pycao) PNF item. 
-No keyword like "pigment" or surrounding braces at the ends of the string. 
-input(Titem)= a sequence of( PFNT items or inputs of PNF(notT)items ) or a one word string for previously defined povray textures.
+################                
+Moving textures
+################
+
+Methods to move an element:
+PNF itemss and stringy TItems: change the movemap
+Non stringy tItems: move each item in the list
+
+################
+INPUT 
+################
+* string Titems and PNF items : the smallstring which is a sting considered by povray without the pigment{..} or texture{...} 
+surrounding it. May also be the name of a previously defined (in the code or in pivray) PNFT item .
+
+* Recursive T-item : the list of items it contains. 
 In particular, there is no string in the input besides the special case of predefined povray texture (they are called "stringy" below).
 Summing up, we have roughly input=strings for PNF-items and items not string for T-items.
 
-naming a texture is equivalent to declare it to povray and using the name therefore. Makes the povray code more readable. 
-Once an item has been name, it is still possible to move it. Technically, In the declaration corresponding to the named item, 
-the moveMap is not included to keep further movements manageable and to keep the povray code more 
-readable with products of matrices rather than the many operands of the product. 
+################
+Naming and declaration
+################
+Each structure can be declared to make the povray code more readable. What a structure is named, 
+it is automatically declared as a by product. At the moment it is declared, it becomes stringy. 
+Sometimes, it is necessary to declare a name to be compatible with povray's internals. 
+The name built  automatically depends on the pidname and the date to avoid collisions 
+when the same object is declared several times. 
 
 Some textures (like the cubic pattern), don't support finishes 
 or matrix identifier (povray limitation), but they can be 
@@ -34,21 +54,56 @@ declared and then enhanced by a finish or moved.
 Correspondingly, these textures must be named to be 
 operational with our formalism.  
 
-if named or stringy
-outputString(PNFT item)=  PNFTkeyword { name facultativeMoveMap }
-else
-outputString(PNF item)= PNFkeyword { smallstring moveMap }
-outputString(T item)=Texture { concatenation of reducedoutputString of eachPNFT item }. 
-The reduced outputString is the outputString, except if the first entry is  T-item. 
 Povray does not admit a string like "texture {texture {keyword matrixMove} otherItems}" but only 
-"texture { nameOfDeclaredTexture otherItems}" 
-thus we have to build ourselves a named texture "a la volee" which is an equivalent to texture {keyword matrixMove}.
-We break the rule saying that we don't include movemaps in the declaration, but since this occurs 
-only when we produce the pov file, it does not bring any complexity in the hierarchy and manipulation of items.
+"texture { nameOfDeclaredTexture otherItems}". Thus some automatic declaration is 
+sometimes required to fullfill povray input format. 
 
-longstrings are defined similarly for pnft items as classname+{+shortstring + moveMap}
+
+################
+Outputs
+################
+
+All objects considered here, aka pnft items, must produce a string to povray at different occasions. The string depdends on 
+- whether the objecti is declared in povray or not (solved by changing the smallString atribute when declaring an object)
+- the context ( in a declaration string or nested within a surronding texture in povrayshoot ( unnestedstring et nestedstring) 
+- the instance (PNF items have different rules than T items)
+- if we want to include the displacement matrinx  or not in the  string ( withMove=True or False) 
+
+___________________________________________________________________________________________________________________________________________
+          |                                                        |                                                                     |
+          |             unnamed                                    |                          named                                      |
+__________________________________________________________________________________________________________________________________________
+          |                                                        |                                                                     |
+          |         pigment {smallstring moveString}               |                 pigment {name movestring}                           |
+          |                                                        |                                                                     |
+          |         texture {smallstring moveStrting} (stringy)    |                 texture {name movestring}                           |
+unnnested                 
+          |   texture{nestedOutput(t1)...} for t=[t1,...]          |               (A named texture is stringy, thus non recursive)      |
+______________________________________________________________________________________________________________________________
+          |                                                        |                                                                     |
+          |           pigment { smallstring movestring}            |                     pigment {name movestring}                       |
+          |                                                        |                                                                     |
+nested    |
+          |          impossible for textures which must            |                     name ( no movestring possible                   |
+          |          appear as named textures when                 |                     the move string must be included                |
+          |          nested inside a englobing texture             |                     in the declaration of name)                     |
+          |                                                        |                                                                     |
+          |                                                        |                   (emed textures are not recursive )                |
+________________________________________________________________________________________________________________________________
+
+################
+Enhancements
+################
+
 When a pnft item has been named, its shortstring is equal to its name. To enhance, we enhance the shortstring
-for pnf items and we add an element to the list in the case of textures. 
+for pnf items and we add an element to the list in the case of textures (stringy or recursive)
+
+################
+Implementation details
+################
+To homonegeize the code for stringy and recursive textures, the class Texture derives from list and 
+for a stringy instance, we init by i.append(i). This sounds strange but this is very efficient, 
+as it gives a perfect identification between i and [i]. 
 
 """
 
