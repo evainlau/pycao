@@ -9,7 +9,7 @@ from compound import *
 import povrayshoot 
 from cameras import *
 from lights import *
-
+import povrayshoot
 
 """
 ################
@@ -109,47 +109,40 @@ as it gives a perfect identification between i and [i].
 
 
 class PNFTItem(object):#PNF means Pigment,Normal or Finish or texture
-            
-    def named(self,name,withMove=False):
-        self.name=name
-        nameDeclared=self.name
-        if withMove:
-            nameDeclared+="WithMove"
-        globvars.TextureString+="\n#declare "+nameDeclared+" = "+self.declaration_string(withMove=withMove)
-        self.smallString=self.name
-        if isinstance(self,Texture):
-            self.stringy=True 
+
+    def build_and_get_idname(self):
+        """ constructs a string based on time to be used as identifier """
+        import time
+        return Id+str(int(round(time.time() * 100000)))
+
+    def moveString(self):
+        if hasattr(self,"moveMap"):
+            moveString=" matrix "+povrayshoot.povrayMatrix(self.moveMap)
+        else: moveString=" "
+
+    def declare(self, name=None, withMove=True):
+        if name is None:
+            name=self.build_and_get_idname()
+            globvars.TextureString+="\n#declare "+nameDeclared+" = "+self.unnested_output(withMove=withMove)
+        self=self.__class__(name) #reinitialisation from the name
         return self
 
-    def declaration_string_bracketless(self,withMove=False):
-        string=self.__class__.__name__.lower()+" {"+self.get_smallString(withMove=withMove)
-        if withMove and hasattr(self,"moveMap"):
-            import povrayshoot
-            string+=" matrix "+povrayshoot.povrayMatrix(self.moveMap)
-        return  string
-
-    
-    def declaration_string(self,withMove=False):
-        return  self.declaration_string_bracketless(withMove=withMove)+"}"
+    def output_from_smallstring(self,withMove):
+        return =self.__class__.__name__.lower()+" {"+self.smallstring+" "+self.moveString()+"\}"
 
     def __str__(self):
-        return  self.declaration_string(withMove=True)
+        return  self.output_from_smallstring(withMove=True)
 
+    
 class PNFItem(PNFTItem):#PNF means Pigment,Normal or Finish
     def __init__(self,string):
-        "Builds a instance from the given string. Computes a name if the name option is not filled"
-        global globvars
-        self.smallString=string # the 'small' povray string ie. without the surrounding Pigment{} or Normal{} or Finish{} or Texture{} 
+        self.smallString=string # the 'small' povray string ie. without the surrounding Pigment{} or Normal{} or Finish{} 
 
-    def get_smallString(self,withMove=False):
-        ret=self.smallString
-        if withMove and hasattr(self,"moveMap"):
-            import povrayshoot
-            ret+=" matrix "+povrayshoot.povrayMatrix(self.moveMap)
-        return ret
+    def nested_output(self,withMove):
+        return self.output_from_smallstring(withMove=withMove)
 
-    def get_reducedString(self,withMove):
-        return self.declaration_string(withMove)
+    def unnested_output(self,withMove):
+        return self.output_from_smallstring(withMove=withMove)
         
     def enhance(self,stringOrPNFItem):
         """
@@ -193,19 +186,33 @@ class Texture(PNFTItem,list):
 
     def get_smallString(self,withMove=False):# seems that it is always called with withMove=True in practice. Argument useful for PNF but not T-items ?
         # The first item may be a named texture
-        return " ".join([entry.get_reducedString(withMove=withMove) for entry in self])
+        return " ".join([])
 
+    def nested_output(self,withMove):
+        # must return the name, so build the name if necessery
+        if hasattr(self,moveMap) or len(self)>1 or (len(self)=1 and len(self.smallstring.split())>1):
+            self.declare(withMove=True)
+        return self.smallString
+
+    def unnested_output(self,withMove):
+        if len(self)==1: #stringy case
+            return self.output_from_smallstring(withMove)
+        else: #recursive case
+            string=" ".join([entry.nested_output(withMove=withMove) for entry in self])
+            return "texture {"+string+"}"
+        return self.output_from_smallstring(withMove=withMove)
+        
     
 
 
     def move(self,mape):
-        if self.stringy: # defined by a string, no recursion occurs
+        if len(self)==1: # stringy, no recursion occurs
             try:
                 self.moveMap=mape*self.moveMap
             except: #probably not moved yet and no movemap defined
                 self.moveMap=mape
             return self
-        else:
+        else: #non stringy 
             [entry.move(mape) for entry in self]
 
     def __new__(cls,*args,**kwargs):
@@ -213,27 +220,24 @@ class Texture(PNFTItem,list):
             
     def __init__(self,*args):
         if len(args)==1 and isinstance(args[0],str):
-            self.stringy=True #?? not used it seems
-            print("les args")
-            for l in args:
-                print(l )
-            print("fin")
+            #self.stringy=True #?? not used it seems
+            #print("les args")
+            #for l in args:
+            #    print(l )
+            #print("fin")
             self.smallString=args[0] # the 'small' povray string ie. without the surrounding Pigment{} or Normal{} or Finish{} or Texture{}
             def sms(withMove=False):
                 """ This function computes a string which is a valid for the declared texture
                 builds a name declares and declares the string with the identifier name. 
                 then returns the name
                 """
-                idName="IdAuto"+str(id(self))
-                if withMove and hasattr(self,"moveMap"):
-                    import povrayshoot
-                    moveString=" matrix "+povrayshoot.povrayMatrix(self.moveMap)
-                else: moveString=" "
+                idName=self.build_and_get_idname()
+                moveString=self.get_moveString()
                 declareString="\n#declare " +idName +" = texture{"+self.smallString+ moveString+"}\n"
                 print("la declare string pour l'entree ", args[0],"est", declareString)
                 globvars.TextureString+=declareString
                 return idName
-            self.get_reducedString=sms
+            self.nested_output=sms
             self.append(self)
         else:
             self.stringy=False
