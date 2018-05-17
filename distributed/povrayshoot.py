@@ -28,6 +28,7 @@ from aliases import *
 from genericwithmaths import *
 from elaborate import *
 from compound import *
+import material
 
 def name_comment_string(self):
     try:
@@ -148,8 +149,11 @@ def texture_string_cameraless(self):
         # else:
         #     string+=myTexture.declaration_string_bracketless()+moveString+"}"
         #string=" texture { "+string+" }\n"
-        return  self.texture.declaration_string(withMove=True)
-
+        #print self
+        #print hasattr(self,"texture")
+        if hasattr(self,"texture") and self.texture is not None:
+            return  self.texture.unnested_output(withMove=True)
+        else: return  " "
 
 
 
@@ -338,11 +342,13 @@ def camera_string(camera):
             " look_at "+ povrayVector(camera.lookAt) +" }\n\n"
     return string
 
+
 def render(camera):
     booklet = open(camera.file, "w")
     booklet.write(camera.preamble_string())
     booklet.write(globvars.userDefinedFunctions)
     booklet.write(camera_string(camera))
+    material.build_textures_for_list(camera.actors)
     booklet.write(globvars.TextureString)
     booklet.write(camera.povraylights+"\n")
     for light in camera.lights:

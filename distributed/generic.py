@@ -285,23 +285,6 @@ class ObjectInWorld(object):
         cylPercage=ICylinder(segment,radius)
         return self.amputed_by(cylPercage,throwShapeAway=True)
 
-    def colored(self,color):
-        " color should be a string known to povray"
-        import material
-        p=material.Pigment(color)
-        #print(p.smallString)
-        if hasattr(self,"texture"):
-            t=self.texture.enhance(p)
-            #print(t)
-        else:
-            import material
-            t=material.Texture(p)
-        #print(self.texture.smallString)
-        #print("phasname",p.name)
-        self.new_texture(t)#keep it for the childs in csg
-        #print("in colored",t.smallString)
-        return self
-
     # def colored(self,color):
     #     self.colored_alone(color)
     #     if hasattr(self,"csgOperations") and len(self.csgOperations)>0:

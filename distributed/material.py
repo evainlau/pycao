@@ -32,7 +32,7 @@ Non stringy tItems: move each item in the list
 ################
 INPUT 
 ################
-* string Titems and PNF items : the smallstring which is a sting considered by povray without the pigment{..} or texture{...} 
+* string Titems and PNF items : the smallString which is a sting considered by povray without the pigment{..} or texture{...} 
 surrounding it. May also be the name of a previously defined (in the code or in pivray) PNFT item .
 
 * Recursive T-item : the list of items it contains. 
@@ -65,7 +65,7 @@ Outputs
 
 All objects considered here, aka pnft items, must produce a string to povray at different occasions. The string depdends on 
 - whether the objecti is declared in povray or not (solved by changing the smallString atribute when declaring an object)
-- the context ( in a declaration string or nested within a surronding texture in povrayshoot ( unnestedstring et nestedstring) 
+- the context ( in a declaration string or nested within a surronding texture in povrayshoot ( unnested_output et nested_output) 
 - the instance (PNF items have different rules than T items)
 - if we want to include the displacement matrinx  or not in the  string ( withMove=True or False) 
 
@@ -74,14 +74,14 @@ ________________________________________________________________________________
           |             unnamed                                    |                          named                                      |
 __________________________________________________________________________________________________________________________________________
           |                                                        |                                                                     |
-          |         pigment {smallstring moveString}               |                 pigment {name movestring}                           |
+          |         pigment {smallString moveString}               |                 pigment {name movestring}                           |
           |                                                        |                                                                     |
-          |         texture {smallstring moveStrting} (stringy)    |                 texture {name movestring}                           |
+          |         texture {smallString moveStrting} (stringy)    |                 texture {name movestring}                           |
 unnnested                 
           |   texture{nestedOutput(t1)...} for t=[t1,...]          |               (A named texture is stringy, thus non recursive)      |
 ______________________________________________________________________________________________________________________________
           |                                                        |                                                                     |
-          |           pigment { smallstring movestring}            |                     pigment {name movestring}                       |
+          |           pigment { smallString movestring}            |                     pigment {name movestring}                       |
           |                                                        |                                                                     |
 nested    |
           |          impossible for textures which must            |                     name ( no movestring possible                   |
@@ -98,13 +98,6 @@ Enhancements
 When a pnft item has been named, its shortstring is equal to its name. To enhance, we enhance the shortstring
 for pnf items and we add an element to the list in the case of textures (stringy or recursive)
 
-################
-Implementation details
-################
-To homonegeize the code for stringy and recursive textures, the class Texture derives from list and 
-for a stringy instance, we init by i.append(i). This sounds strange but this is very efficient, 
-as it gives a perfect identification between i and [i]. 
-
 """
 
 
@@ -113,25 +106,28 @@ class PNFTItem(object):#PNF means Pigment,Normal or Finish or texture
     def build_and_get_idname(self):
         """ constructs a string based on time to be used as identifier """
         import time
-        return Id+str(int(round(time.time() * 100000)))
+        return "Id"+str(int(round(time.time() * 100000)))
 
     def moveString(self):
         if hasattr(self,"moveMap"):
             moveString=" matrix "+povrayshoot.povrayMatrix(self.moveMap)
         else: moveString=" "
+        return moveString
 
     def declare(self, name=None, withMove=True):
         if name is None:
             name=self.build_and_get_idname()
-            globvars.TextureString+="\n#declare "+nameDeclared+" = "+self.unnested_output(withMove=withMove)
-        self=self.__class__(name) #reinitialisation from the name
+        globvars.TextureString+="\n#declare "+name+" = "+self.unnested_output(withMove=withMove)
+        self.__init__(name) #reinitialisation from the name
         return self
 
-    def output_from_smallstring(self,withMove):
-        return =self.__class__.__name__.lower()+" {"+self.smallstring+" "+self.moveString()+"\}"
+    def output_from_small_string(self,withMove):
+        return self.__class__.__name__.lower()+" {"+self.smallString+" "+self.moveString()+"}"
 
     def __str__(self):
-        return  self.output_from_smallstring(withMove=True)
+        #print(len(self))
+        #print(self.__class__)
+        return  self.unnested_output(withMove=True)
 
     
 class PNFItem(PNFTItem):#PNF means Pigment,Normal or Finish
@@ -139,10 +135,10 @@ class PNFItem(PNFTItem):#PNF means Pigment,Normal or Finish
         self.smallString=string # the 'small' povray string ie. without the surrounding Pigment{} or Normal{} or Finish{} 
 
     def nested_output(self,withMove):
-        return self.output_from_smallstring(withMove=withMove)
+        return self.output_from_small_string(withMove=withMove)
 
     def unnested_output(self,withMove):
-        return self.output_from_smallstring(withMove=withMove)
+        return self.output_from_small_string(withMove=withMove)
         
     def enhance(self,stringOrPNFItem):
         """
@@ -184,111 +180,77 @@ class Finish(PNFItem):
 
 class Texture(PNFTItem,list):
 
-    def get_smallString(self,withMove=False):# seems that it is always called with withMove=True in practice. Argument useful for PNF but not T-items ?
-        # The first item may be a named texture
-        return " ".join([])
 
     def nested_output(self,withMove):
         # must return the name, so build the name if necessery
-        if hasattr(self,moveMap) or len(self)>1 or (len(self)=1 and len(self.smallstring.split())>1):
-            self.declare(withMove=True)
-        return self.smallString
+        #print("theSmallString")
+        return self.smallString 
 
     def unnested_output(self,withMove):
-        if len(self)==1: #stringy case
-            return self.output_from_smallstring(withMove)
+        if self.stringy:
+            #print("yes stringy")
+            #print(self.smallString)
+            return self.output_from_small_string(withMove)
         else: #recursive case
+            #print("inUnnested non stringy le with move vaut",withMove)
             string=" ".join([entry.nested_output(withMove=withMove) for entry in self])
             return "texture {"+string+"}"
-        return self.output_from_smallstring(withMove=withMove)
-        
-    
+
+    def maybe_declare_first_argument(self):
+            if not self.stringy and isinstance(self[0],Texture) and (hasattr(self[0],"moveMap") or (not self[0].stringy) or  len(self[0].smallString.split())>1):
+                self.declare(withMove=True)
 
 
     def move(self,mape):
-        if len(self)==1: # stringy, no recursion occurs
+        if self.stringy: # stringy, no recursion occurs
             try:
                 self.moveMap=mape*self.moveMap
             except: #probably not moved yet and no movemap defined
                 self.moveMap=mape
-            return self
         else: #non stringy 
             [entry.move(mape) for entry in self]
-
+        return self
+            
     def __new__(cls,*args,**kwargs):
         return list.__new__(cls)
             
     def __init__(self,*args):
+        #if len(args)==0:
+        #    raise nameError("0 argument")
         if len(args)==1 and isinstance(args[0],str):
             #self.stringy=True #?? not used it seems
             #print("les args")
             #for l in args:
             #    print(l )
             #print("fin")
+            self.stringy=True
             self.smallString=args[0] # the 'small' povray string ie. without the surrounding Pigment{} or Normal{} or Finish{} or Texture{}
-            def sms(withMove=False):
-                """ This function computes a string which is a valid for the declared texture
-                builds a name declares and declares the string with the identifier name. 
-                then returns the name
-                """
-                idName=self.build_and_get_idname()
-                moveString=self.get_moveString()
-                declareString="\n#declare " +idName +" = texture{"+self.smallString+ moveString+"}\n"
-                print("la declare string pour l'entree ", args[0],"est", declareString)
-                globvars.TextureString+=declareString
-                return idName
-            self.nested_output=sms
-            self.append(self)
+            #self.append(self)
         else:
+            #print(args)
             self.stringy=False
             for entry in args:
                 self.append(entry)
-
+            #self.maybe_declare_first_argument
 
     @staticmethod
     def from_colorkw(ckw):
         return Texture("pigment {color "+ckw+"}")
 
-            
-#     @staticmethod
-#     def from_list(pnflist,name=""):
-#         """ in the list, there should be at most one Texture instance. The list is reorded so that string instances go to the end 
-#         to be consistent with povray Texture syntax """
-#         built=Texture.__new__(Texture)
-#         if not name:
-#             name="Id"+str(id(built))
-#         begin=""
-#         end=""
-#         middle=""
-#         for entry in pnflist:
-#             if isinstance(entry,str): #should be a PNF Item short long string or a transform map
-#                 end=end+" "+entry
-#             elif isinstance(entry,Texture): # the only texture, at the beginning
-#                 begin=entry.name+" "
-#             elif isinstance(entry,Pigment) or isinstance(entry,Normal) or isinstance(entry,Finish):
-#                 middle=middle+" "+entry.name
-#             else: 
-#                 raise NameError("The entry in the list is neither a Texture,Pigment,a Normal nor a Finish")
-#         outstring=begin+" "+middle+" "+end
-#         built.__init__(outstring,name)
-#         return built
-# ;
 
-
-
-    def enhance(self,listeOrItem):
-        import povrayshoot
-        if isinstance(listeOrItem,list):
-            for entry in listeOrItem:
-                self.enhance(entry)
-        elif isinstance(listeOrItem,PNFItem):
-            try:
-                self.append(listeOrItem)
-            except: #probably no texture yet
-                self.texture=Texture(listeOrItem)
-        else:
-            print (type(listeOrItem),listeOrItem)
-            raise NameError("The Texture should be enhances with a list,a PNF item, or a string")
+    def enhance(self,pnfitem):
+        #print("enhanced by",pnfitem)
+        if isinstance(pnfitem,PNFTItem):
+            if not self.stringy:
+                self.append(pnfitem)
+            else:
+                self.append(self.copy())
+                self.append(pnfitem)
+                self.stringy=False #unuseful I think, but clarifies
+                #self.maybe_declare_first_argument()
+        else: raise NameError("A structure is enhanced by a texture, a pigment, or a finish, not "+type(pnfitem).__name__)
+        #print("inenhance")
+        #print(type(self[0]))
         return self
 
     def copy(self):#no deepcopy needed since contains only strings
@@ -334,28 +296,53 @@ def _add_to_texture(self,value):
     return self
 
 
-def _get_textures(self,textureset=None,withChildren=True):
-    if textureset is None:
-        textureset=[]
+def _get_textures(self,texturelist=None,withChildren=True,maybeDeclare=False):
+    if texturelist is None:
+        texturelist=[]
     try:
-        textureset.append(self.texture)
+        texturelist.append(self.texture)
+        if maybeDeclare:
+            self.texture.maybe_declare_first_argument()
         pass
     except: # no texture
         pass
     if hasattr(self,"csgOperations") and len(self.csgOperations)>0:
         for op in self.csgOperations:
-            slaves=op.csgSlaves
-            for slave  in slaves :
-                toAdd=slave.get_textures()
-                for entry in toAdd:
-                    if id(entry) not in [id(entry) for entry in textureset]:#id necessary to avoid infinite loop
-                        textureset.append(entry)
+            for slave  in op.csgSlaves :
+                for entry in slave.get_textures():
+                    if entry not in texturelist:#id necessary to avoid infinite loop
+                        texturelist.append(entry)
+                        if maybeDeclare:
+                            entry.maybe_declare_first_argument()
+                        
                 #except: pass # notexture for the slave
     if withChildren:
         for c in self.children:
-            c.get_textures(textureset=textureset)
-    return textureset
-    
+            c.get_textures(texturelist=texturelist,maybeDeclare=maybeDeclare)
+    return texturelist
+
+def build_textures_for_list(liste):
+    texturelist=[]
+    for entry in liste:
+        entry.get_textures(texturelist,withChildren=True,maybeDeclare=True)
+    return texturelist
+
+def _colored(self,color):
+    " color should be a string known to povray"
+    p=Pigment(color)
+    #print(p.smallString)
+    if hasattr(self,"texture"):
+        t=self.texture.enhance(p)
+        #print(t)
+        #print(self.texture)
+    else:
+        t=Texture(p)
+        self.new_texture(t)#keep it for the childs in csg    #print(self.texture.smallString)
+    #print("phasname",p.name)
+    #print("in colored",t.smallString)
+    return self
+
+ObjectInWorld.colored=_colored
 ObjectInWorld.new_texture=_new_texture
 ObjectInWorld.add_to_texture=_add_to_texture
 ObjectInWorld.get_textures=_get_textures
@@ -382,8 +369,11 @@ oakPlanarTexture1="texture{pigment {image_map {png \"chene.png\"  }} rotate -90*
 oakPlanarTexture2="texture{pigment {image_map {png \"chene.png\"  }} rotate -90*x } ," #the grain is along Y
 oakPlanarTexture3="texture{pigment {image_map {png \"chene.png\"  }}  } ," #the grain is along Y
 colorTexture="texture{ pigment{color rgb<1.0 , 0.4, 0.0>}}"
-#oakPlanarPigment=" color rgb<1.0, 0.0, 0.0>," 
-oakCubicTexture=Texture("cubic "+ oakPlanarTexture1 + oakPlanarTexture2 + oakPlanarTexture3+oakPlanarTexture1+oakPlanarTexture2+oakPlanarTexture3).named("cubicOak")
+#oakPlanarPigment=" color rgb<1.0, 0.0, 0.0>,"
+#print ("avtOKT")
+#oakCubicTexture=Texture("cubic "+ oakPlanarTexture1 + oakPlanarTexture2 + oakPlanarTexture3+oakPlanarTexture1+oakPlanarTexture2+oakPlanarTexture3).declare("cubicOak")
+#print("apresOKT")
 oakCylindricalTexture=Texture("pigment {image_map {png \"chene.png\" map_type 2 }}")
 oakTexture=Texture("pigment {image_map {png \"chene.png\" }}")
+oakCubicTexture=oakTexture
 wengeTexture=Texture("pigment {image_map {png \"wenge.png\" }}")

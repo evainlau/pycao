@@ -210,7 +210,7 @@ class Window(Compound):
         self.add_box("windowBox",frame2.box())
 
 class Door(Compound):
-    def __init__(self,dx=.9,dy=.03,dz=2.15,reverseHandle=False,holeBorder=0.1,doorhandle=None,handleTexture=None):
+    def __init__(self,dx=.9,dy=.03,dz=2.15,reverseHandle=False,holeBorder=0.1,doorhandle=None,handleTexture="New_Brass"):
         """dx,dy,dz are the length,depth,height respectivly, the holeBorder is difference between the door and the hole
         The option reverseHandle is set to change the handle position from left to Right """
         
@@ -593,7 +593,7 @@ def Cabinet(width=.5,upheight=.4,botheight=.3,depth=.3,thickness=.02,borderWidth
     ret=Compound()
     if frameTexture is None:
         frameTexture=oakCubicTexture.copy()
-        frameTexture.named("Id"+str(id(ret)))
+        frameTexture.declare()
     if drawerTexture is None:
         drawerTexture=wengeTexture.copy().move(Map.linear(.2*Z,Y,3*X))
     up=FramedGlass(width=width,height=upheight,thickness=thickness,borderWidth=borderWidth,texture=frameTexture).select_axis("openingAxis")

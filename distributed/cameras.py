@@ -96,7 +96,6 @@ class Camera(Primitive):
     def pov_to_png(self):
         #same as show for string computation except always -D
         if self.technology=="povray":
-            print(self.imageHeight,"est la hauteur")
             command="povray"
             options=""
             options+=" "

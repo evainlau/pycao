@@ -82,12 +82,13 @@ stoveTexture=Texture("pigment {image_map {png \"poele.png\"}}")
 #oakTexture=Texture("pigment {image_map {png \"chene.png\"}}")
 tableTexture=oakTexture.move(Map.linear(Y,X,Z))
 
+
 tableBump=Normal("agate .5 scale 4 bump_size .2")
 
 handleTexture=Texture("New_Brass finish{ambient 0.05 specular 2}")
 stoveFinish=Finish( "ambient 0.05 brilliance 30")
 texDoor=Texture( "pigment {BrightGold} finish{brilliance 1.8}")
-texDoor=Texture("pigment {image_map {png \"wood.png\"}} finish {diffuse .6}").move(Map.flipXZ()*Map.scale(1.7,1.7,1.7))
+texDoor=Texture("pigment {image_map {png \"wood.png\"}} finish {diffuse .6}").move(Map.flipXZ()*Map.scale(1.7,1.7,1.7)).declare("texDoor")
 lampFinish2=Normal("agate .5 scale .1 bump_size .1")
 lampFinish=Finish ("ambient .2 diffuse 2")
 texCeil=Texture("pigment {White} finish {ambient .3 }")
@@ -133,12 +134,12 @@ backDoor=room.add_door(wallNumber=1,wlength=.9,wheight=2.15,wdepth=.1,deltaLengt
 room.add_window(wallNumber=2,wlength=1,wheight=1.06,wdepth=.1,deltaLength=1.37,deltaHeigth=1.10).colored("White")
 room.add_window(wallNumber=2,wlength=.7,wheight=1.05,wdepth=.1,deltaLength=3.57,deltaHeigth=1.10).colored("White")
 room.add_window(wallNumber=3,wlength=.7,wheight=.7,wdepth=.1,deltaLength=2.57,deltaHeigth=1.60).colored("White")
+
 outsideDoor=room.add_door(wallNumber=4,wlength=.9,wheight=2.15,wdepth=.1,deltaLength=.13,deltaHeigth=0,reverseHandle=True,handleTexture=handleTexture).new_texture(texDoor)
 outsideDoor.add_porthole()
 outsideDoor.window.frame.rgbed([.8,.8,.6])
 outsideDoor.name="outsideDoor"
-tex=outsideDoor.texture.enhance(Normal(" {brick brick_size 1.5 mortar .05} ")).move(Map.linear(X,Y,2*Z))
-outsideDoor.new_texture(tex)
+
 ls=LightSwitch().parallel_to(-1*room.walls[4].insideVector())
 ls.hooked_on(room.walls[4].insideBaseLine().point(.2,"p")+1.1*Z).glued_on(room)
 
@@ -159,7 +160,7 @@ for w in room.walls:
     w.new_texture(tw)
 door1=room.add_door(wallNumber=8,wlength=.83,wheight=2.15,wdepth=.1,deltaLength=1.45,handleTexture=handleTexture).new_texture(texDoor)
 door1.name="porte1"
-door1.new_texture(tex)
+door1.new_texture(texDoor)
 
 
 
@@ -174,9 +175,7 @@ sun.rgbColor=[1,1,1]
 livingLamp=Lamp().hooked_on(floorCenter-1.7*Y+2.5*Z).glued_on(ground).add_to_texture(lampFinish)
 livingLamp.add_to_texture(lampFinish2) # a light
 corridorLamp=Lamp(shadowless=False).hooked_on(origin+2.5*Z+8*X+3.15*Y).glued_on(room).add_to_texture(lampFinish)
-print(livingLamp.texture[0])
-print(livingLamp.texture[1])
-print(livingLamp.texture)
+
 #kitchenLamp=Lamp().hooked_on(origin+2.5*Z+2*X+1.5*Y).glued_on(room)
 #unseenLamp=Light().hooked_on(floorCenter-1*Y+1.2*Z+2*X).glued_on(ground) # a light
 #unseenLamp.color="rgb <1,1,1>"
@@ -191,7 +190,7 @@ print(livingLamp.texture)
 
 
 
-table=Table(1.2,.8,.7,.03).new_texture(tableTexture).above(origin+4.8*X+1.5*Y).glued_on(room).add_to_texture(tableBump)
+table=Table(1.2,.8,.7,.03).new_texture(tableTexture.copy()).above(origin+4.8*X+1.5*Y).glued_on(room).add_to_texture(tableBump)
 table.name="table"
 table.add_hook("glass1",table.point(.5,.5,1))
 glass1=Glass()
@@ -239,6 +238,6 @@ camera.angle=1.07
 
 #print("a la fin",room.floor.texture.smallString)
 camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
-camera.show # show the photo, ie calls povray. 
+#camera.show # show the photo, ie calls povray. 
 #print (globVars.TextureString)
 #print(room.texture.smallString)
