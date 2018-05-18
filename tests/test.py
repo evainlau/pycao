@@ -104,12 +104,8 @@ feet.below(support)
 cabinet=Compound()
 cabinet.add_list_to_compound([mainPart,support,feet,top])
 cabinet.add_box("mp",mainPart.box())
-actor=Cabinet().hooked_on(origin).light_level(2)
+actor=Cabinet().hooked_on(origin)
 
-z=actor.texture[0]
-print()
-print(z)
-print(povrayshoot.texture_string_cameraless(z))
 #FramedStub()
 #actor=actor.feet
 #print(top.frame.box())

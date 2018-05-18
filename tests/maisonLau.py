@@ -65,11 +65,11 @@ globvars.userDefinedFunctions+=myFonc
 ################################################################
 
 
-tw=Texture("pigment {image_map {png \"murTerre.png\"}}").move(Map.linear(X+Y,X+Z,X+Y+Z)).move(Map.scale(7.24,7.277,7.24))
+#tw=Texture("pigment {image_map {png \"murTerre.png\"}}").move(Map.linear(X+Y,X+Z,X+Y+Z)).move(Map.scale(7.24,7.277,7.24))
 #tw=Texture("pigment {image_map {png \"chaux.png\"}}").move(Map.linear(X+Y,X+Z,X+Y+Z)).move(Map.scale(6.24,6.277,6.24))
 #tw=Texture("pigment {image_map {png \"chaux.png\"}}").move(Map.linear(X+Y,X+Z,X+Y+Z))#.move(Map.scale(.24,.277,.24))
 #tw=Texture("pigment {image_map {png \"chaux.png\"}}").move(Map.linear(X+Y,X+Z,X+Y+Z))#.move(Map.scale(.24,.277,.24))
-tw=Texture("pigment {image_map {png \"sandWhite.png\"}}  finish {diffuse 1.3}").move(Map.linear(X+Y,X+Z,X+Y+Z)).move(Map.scale(1.7124,1.71277,1.724))
+tw=Texture("pigment {image_map {png \"sand.png\"}}  finish {diffuse 1.3}").move(Map.linear(X+Y,X+Z,X+Y+Z)).move(Map.scale(1.7124,1.71277,1.724))
 #texFloor=Texture("Yellow_Pine " ).move(Map.linear(6*X,.3*Z,10*Y))
 texFloor=Texture("pigment {Grey}")
 texFloor.enhance(Pigment("normal { function {mortar1(x,y,z,1)} bump_size .2}"))
@@ -236,6 +236,7 @@ camera.angle=1.07
 #for light in camera.lights:
 #    print(light.povray_string())
 
+camera.quality=0
 #print("a la fin",room.floor.texture.smallString)
 camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
 #camera.show # show the photo, ie calls povray. 

@@ -186,7 +186,7 @@ class Texture(PNFTItem,list):
         #print("theSmallString")
         return self.smallString 
 
-    def unnested_output(self,withMove):
+    def unnested_output(self,withMove=True):
         if self.stringy:
             #print("yes stringy")
             #print(self.smallString)
@@ -365,15 +365,34 @@ material.unleash([c,d])
 #    return Texture("pigment {Yellow}")
 
 
-oakPlanarTexture1="texture{pigment {image_map {png \"chene.png\"  }} rotate -90*y } ," #the grain is along Y
-oakPlanarTexture2="texture{pigment {image_map {png \"chene.png\"  }} rotate -90*x } ," #the grain is along Y
-oakPlanarTexture3="texture{pigment {image_map {png \"chene.png\"  }}  } ," #the grain is along Y
+def cubic_oak(scale1,scale2):
+    """
+    This function returns a texture for a cube of dimension of the parameters and grain Vector in the Z direction. 
+    The file "chene.png" may be replaced by an other file where the grain vector is in the Y direction. 
+    """
+    pigment1=Pigment("image_map {png \"chene.png\" }").move(Map.scale(2*scale1,2*scale2,2*scale3)).move(Map.translation(scale1*Y))
+    pigment2=Pigment("image_map {png \"chene.png\" }").move(Map.scale(2*scale1,2*scale2,2*scale3)).move(Map.translation(scale1*Y))
+    pigment3=Pigment("image_map {png \"chene.png\" }").move(Map.scale(2*scale1,2*scale2,2*scale3)).move(Map.translation(scale1*Y))
+    #oakPlanarTexture1="texture{pigment {} rotate -90*y rotate 90*x scale "+str(scale1)+"} ," #the grain is along Y
+    #oakPlanarTexture2="texture{pigment {image_map {png \"chene.png\"  }} rotate -90*x scale "+str(scale2)+"} ,"
+    #oakPlanarTexture3="texture{pigment {image_map {png \"chene.png\"  }} scale " +str(scale3)+" } ," 
+    oakPlanarTexture1=Texture(pigment1).move(Map.rotation(Y,math.pi*.5)).move(Map.rotation(X,math.pi*.5)).unnested_output()+" ,"
+    oakPlanarTexture2=Texture(pigment2).move(Map.rotation(X,math.pi*.5)).unnested_output()+" ,"
+    oakPlanarTexture3=Texture(pigment3).unnested_output()+" ,"
+    oakCubicTexture=Texture("cubic "+ oakPlanarTexture1 + oakPlanarTexture2 + oakPlanarTexture3+oakPlanarTexture1+oakPlanarTexture2+oakPlanarTexture3)#.declare("cubicOak")
+    return oakCubicTexture
+    
+oakImage=Pigment("image_map {png \"chene.png\" }").move(Map.rotation(Y,math.pi/2)).move(Map.rotation(X,math.pi/2))
+scale1=.3
+scale2=.6
+scale3=3
 colorTexture="texture{ pigment{color rgb<1.0 , 0.4, 0.0>}}"
 #oakPlanarPigment=" color rgb<1.0, 0.0, 0.0>,"
 #print ("avtOKT")
-#oakCubicTexture=Texture("cubic "+ oakPlanarTexture1 + oakPlanarTexture2 + oakPlanarTexture3+oakPlanarTexture1+oakPlanarTexture2+oakPlanarTexture3).declare("cubicOak")
+
+
 #print("apresOKT")
 oakCylindricalTexture=Texture("pigment {image_map {png \"chene.png\" map_type 2 }}")
 oakTexture=Texture("pigment {image_map {png \"chene.png\" }}")
-oakCubicTexture=oakTexture
+#oakCubicTexture=oakTexture
 wengeTexture=Texture("pigment {image_map {png \"wenge.png\" }}")

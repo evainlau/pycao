@@ -9,7 +9,7 @@ from material import *
 import povrayshoot 
 from cameras import *
 from lights import *
-
+import material
 
 class Wall(Prism):
     """ Class for walls, not necessarily rectangular or vertical, but the base is a tetragon 
@@ -419,27 +419,32 @@ def WoodStud(dimx,dimy,dimz,grainVector=None,texture=None):
     if grainVector is None:
         grainVector=Z
     if texture is None:
-        texture=oakCubicTexture#.move(Map.scale(1/dimx,1/dimy,1/dimz))
-    c=Cube.from_dimensions(1,1,1)
+        import material
+        texture=material.cubic_oak(.5,.5).move(Map.scale(dimx,dimy,dimz))
+        #print(texture)
+#        texturex=oakCubicTexture.copy()#.move(Map.scale(1/dimx,1/dimy,1/dimz))
+#        texturey=oakCubicTexture.copy()#.move(Map.scale(1/dimx,1/dimy,1/dimz))
+#        texturez=oakCubicTexture.copy()#.move(Map.scale(1/dimx,1/dimy,1/dimz))
+    #c=Cube.from_dimensions(1,1,1)
+    c=Cube.from_dimensions(dimx,dimy,dimz)
     c.translate(origin-c.center)
     M=Map.rotational_difference(grainVector,Z)
     c.move(M)
     c.new_texture(texture)
     c.move(M.inverse())
-    c.scale(dimx,dimy,dimz)
+    #c.scale(dimx,dimy,dimz)
     c.translate(dimx/2*X+dimy/2*Y+dimz/2*Z)
     return c
 
 def RoundedWoodStud(dimx,dimy,dimz,radius=.005,grainVector=Z,texture=None):
     if texture is None:
-        texture=oakCubicTexture
-    c=RoundBox.from_dimensions(dimx,dimy,dimz,radius).move(Map.scale(1/dimx,1/dimy,1/dimz))
+        texture=material.cubic_oak(.5,.5).move(Map.scale(dimx,dimy,dimz))
+    c=RoundBox.from_dimensions(dimx,dimy,dimz,radius)
     c.translate(origin-c.center)
     M=Map.rotational_difference(grainVector,Z)
     c.move(M)
     c.new_texture(texture)
     c.move(M.inverse())
-    c.scale(dimx,dimy,dimz)
     c.translate(dimx/2*X+dimy/2*Y+dimz/2*Z)
     return c
 
@@ -447,8 +452,8 @@ def WoodBoard(xdim,ydim,thickness,xnumber=2,grainVector=Z,texture=None):
     """ 
     returns a board in the xy plane obtained by tiling in the x direction
     """
-    if texture is None:
-        texture=oakCubicTexture
+    #if texture is None:
+    #    texture=material.cubic_oak(xdim,ydim,thickness).move(Map.scale(xdimx,ydim,thickness))
     c=WoodStud(xdim,ydim,thickness,grainVector=grainVector,texture=texture)
     return c#Tiling(c,jointWidth=-.0001,jointHeight=0,xnumber=xnumber,ynumber=1,polyline=None)
 
@@ -591,9 +596,9 @@ def FramedStub(width=.4,height=.3,thickness=.01,borderWidth=.05,frameTexture=Non
 #def Cabinet(width=.5,upheight=.4,botheight=.3,depth=.3,thickness=.02,borderWidth=.06,feetheight=.1,feetSize=.1,frameTexture="DMFLightOak scale .03",drawerTexture="DMFDarkOak scale .03"):
 def Cabinet(width=.5,upheight=.4,botheight=.3,depth=.3,thickness=.02,borderWidth=.06,feetheight=.1,feetSize=.1,frameTexture=None,drawerTexture=None):
     ret=Compound()
-    if frameTexture is None:
-        frameTexture=oakCubicTexture.copy()
-        frameTexture.declare()
+    #if frameTexture is None:
+    #    frameTexture=oakCubicTexture.copy()
+    #    frameTexture.declare()
     if drawerTexture is None:
         drawerTexture=wengeTexture.copy().move(Map.linear(.2*Z,Y,3*X))
     up=FramedGlass(width=width,height=upheight,thickness=thickness,borderWidth=borderWidth,texture=frameTexture).select_axis("openingAxis")
