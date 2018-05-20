@@ -70,6 +70,7 @@ globvars.userDefinedFunctions+=myFonc
 #tw=Texture("pigment {image_map {png \"chaux.png\"}}").move(Map.linear(X+Y,X+Z,X+Y+Z))#.move(Map.scale(.24,.277,.24))
 #tw=Texture("pigment {image_map {png \"chaux.png\"}}").move(Map.linear(X+Y,X+Z,X+Y+Z))#.move(Map.scale(.24,.277,.24))
 tw=Texture("pigment {image_map {png \"sand.png\"}}  finish {diffuse 1.3}").move(Map.linear(X+Y,X+Z,X+Y+Z)).move(Map.scale(1.7124,1.71277,1.724))
+tw=Texture("pigment {image_map {png \"murTerre.png\"}}  finish {diffuse 1.3}").move(Map.linear(X+Y,X+Z,X+Y+Z)).move(Map.scale(1.7124,1.71277,1.724))
 #texFloor=Texture("Yellow_Pine " ).move(Map.linear(6*X,.3*Z,10*Y))
 texFloor=Texture("pigment {Grey}")
 texFloor.enhance(Pigment("normal { function {mortar1(x,y,z,1)} bump_size .2}"))

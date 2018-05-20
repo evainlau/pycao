@@ -168,7 +168,26 @@ class PNFItem(PNFTItem):#PNF means Pigment,Normal or Finish
 class Pigment(PNFItem):
     def __init__(self,string):
         super(Pigment,self).__init__(string)
-    
+
+    @staticmethod
+    def from_photo(pngfilepath,dimx=1.,dimy=1.,normal=None,corner=None):
+        """returns a pigment which is a a wall paper on each plane z=cte, 
+        and the photo is a rectangle of size dimx by dimy on this plane. 
+        If normal is given, the wallpapers are planes orthogonal to the normal vector instead of planes z=cte.
+        If corner is given, the wall papers are translated so that the bottom left corner of the photo appears at corner. 
+        """
+        if dimx is None: dimx=1. # mabe coming from other subroutines 
+        if dimy is None: dimy=1.
+        p=Pigment("image_map {png \""+pngfilepath+"\" }").move(Map.linear(dimx*X,dimy*Y,Z))
+        if normal is not None:
+            mape=Map.rotational_difference(Z,normal)
+            p.move(mape)
+        if corner is not None:
+            map=Map.translation(corner-origin)
+            p.move(mape)
+        return p
+            
+                  
 class Normal(PNFItem):
     def __init__(self,string):
         super(Normal,self).__init__(string)
@@ -257,6 +276,52 @@ class Texture(PNFTItem,list):
         memo=dict()
         return copy.deepcopy(self,memo)    
 
+    @staticmethod
+    def from_cubic_photos(dimx,dimy,dimz,photo1=None,photo2=None,photo3=None,photo4=None,photo5=None,photo6=None,xscaleFactor=None,yscaleFactor=None,grainVector=Z):
+        """
+        This function returns a texture to be applied to a cube of dimension of the parameters     centered at origin.
+        The grain Vector is by default in the Z direction, ie. the four facets around the Z axis have an orientation like pictures 
+        glued around the 4 walls of a building. May be replaced by X or Y in the parameters.
+        Photos are given in png format by their path.
+        photo1,2,3,4,5,6 correspond to face -X,-Y,-Z,X,Y,Z. Photo1 must be given. If missing the other photos are copied from the opposite face
+        or from photo1. 
+        The scaleFactore acts on the image (for instance to make the grain of the wood more or less dense.
+        """
+        if photo2 is None:
+            photo2=photo1
+        if photo3 is None:
+            photo3=photo1
+        if photo4 is None:
+            photo4=photo1
+        if photo5 is None:
+            photo5=photo2
+        if photo6 is None:
+            photo6=photo3
+        if grainVector==X:
+            mape=Map.linear(Z,Y,X)
+            d=dimx;dimx=dimz;dimz=d
+        if grainVector==Y:
+            mape=Map.linear(X,Z,Y)
+            d=dimy;dimy=dimz;dimz=d
+        s=xscaleFactor
+        t=yscaleFactor
+        pigment1=Pigment.from_photo(photo1,s,t).move(Map.affine(-1./dimy*X,1/dimz*Y,Z,(.5+dimy*2.)*X+(.5+dimz*2.)*Y))
+        pigment2=Pigment.from_photo(photo2,s,t).move(Map.affine(-1./dimx*X,1/dimz*Y,Z,(.5+dimx*2.)*X+(.5+dimz*2.)*Y))
+        pigment3=Pigment.from_photo(photo3,s,t).move(Map.affine(-1./dimx*X,1/dimy*Y,Z,(.5+dimx*2.)*X+(.5+dimy*2.)*Y))
+        pigment4=Pigment.from_photo(photo4,s,t).move(Map.affine(-1./dimy*X,1/dimz*Y,Z,(.5+dimx*2.)*X+(.5+dimy*2.)*Y))
+        pigment5=Pigment.from_photo(photo5,s,t).move(Map.affine(-1./dimx*X,1/dimz*Y,Z,(.5+dimx*2.)*X+(.5+dimy*2.)*Y))
+        pigment6=Pigment.from_photo(photo6,s,t).move(Map.affine(-1./dimx*X,1/dimy*Y,Z,(.5+dimx*2.)*X+(.5+dimy*2.)*Y))
+        planarTexture1=Texture(pigment1).move(Map.rotation(Y,math.pi*.5)).move(Map.rotation(X,math.pi*.5)).unnested_output()
+        planarTexture4=Texture(pigment4).move(Map.rotation(Y,math.pi*.5)).move(Map.rotation(X,math.pi*.5)).unnested_output()
+        planarTexture2=Texture(pigment2).move(Map.rotation(X,math.pi*.5)).unnested_output()
+        planarTexture5=Texture(pigment5).move(Map.rotation(X,math.pi*.5)).unnested_output()
+        planarTexture3=Texture(pigment3).unnested_output()
+        planarTexture6=Texture(pigment6).unnested_output()
+        cubicTex=Texture("cubic "+ planarTexture1 +" ,"+ planarTexture2 +" ,"+ planarTexture3+" ,"+planarTexture4+" ,"+planarTexture5+" ,"+planarTexture6) 
+        cubicTex.move(Map.scale(dimx,dimy,dimz))
+        if grainVector==Y or grainVector==X:
+            cubicTex.move(mape)
+        return cubicTex
 
 
 def unleash(liste):
@@ -364,16 +429,26 @@ material.unleash([c,d])
 #def defaultTexture():
 #    return Texture("pigment {Yellow}")
 
+photo1="image_map {png \"hugoMathisRobin.png\"}"
+photo2="image_map {png \"annivHugo.png\"}"
+photo3="image_map {png \"chene.png\" }"
 
-def cubic_oak(scale1,scale2):
+#pigment3=Pigment("image_map {png \"chene.png\" }").move(Map.scale(2*scale1,2*scale2,1)).move(Map.translation(scale1*Y))
+
+ 
+
+
+
+def cubic_oak(scale1,scale2,scale3):
     """
     This function returns a texture for a cube of dimension of the parameters and grain Vector in the Z direction. 
     The file "chene.png" may be replaced by an other file where the grain vector is in the Y direction. 
     """
-    pigment1=Pigment("image_map {png \"chene.png\" }").move(Map.scale(2*scale1,2*scale2,2*scale3)).move(Map.translation(scale1*Y))
-    pigment2=Pigment("image_map {png \"chene.png\" }").move(Map.scale(2*scale1,2*scale2,2*scale3)).move(Map.translation(scale1*Y))
-    pigment3=Pigment("image_map {png \"chene.png\" }").move(Map.scale(2*scale1,2*scale2,2*scale3)).move(Map.translation(scale1*Y))
-    #oakPlanarTexture1="texture{pigment {} rotate -90*y rotate 90*x scale "+str(scale1)+"} ," #the grain is along Y
+    print(scale1,scale2/2.,"sc1 et 2")
+    pigment1=Pigment(photo3).move(Map.affine(-scale2*X,scale3*Y,Z,(.5+1/scale2*2.)*X+(.5+1/scale3*2.)*Y))#-scale2/8.*X+scale3/8.*Y))#1*(scale1*X+scale2*Y)))
+    pigment2=Pigment(photo3).move(Map.affine(-scale1*X,scale3*Y,Z,(.5+1/scale1*2.)*X+(.5+1/scale3*2.)*Y))
+    pigment3=Pigment(photo3).move(Map.affine(-scale1*X,scale2*Y,Z,(.5+1/scale1*2.)*X+(.5+1/scale2*2.)*Y))
+    #oakPlanarTannivHugo.pngexture1="texture{pigment {} rotate -90*y rotate 90*x scale "+str(scale1)+"} ," #the grain is along Y
     #oakPlanarTexture2="texture{pigment {image_map {png \"chene.png\"  }} rotate -90*x scale "+str(scale2)+"} ,"
     #oakPlanarTexture3="texture{pigment {image_map {png \"chene.png\"  }} scale " +str(scale3)+" } ," 
     oakPlanarTexture1=Texture(pigment1).move(Map.rotation(Y,math.pi*.5)).move(Map.rotation(X,math.pi*.5)).unnested_output()+" ,"
@@ -383,9 +458,9 @@ def cubic_oak(scale1,scale2):
     return oakCubicTexture
     
 oakImage=Pigment("image_map {png \"chene.png\" }").move(Map.rotation(Y,math.pi/2)).move(Map.rotation(X,math.pi/2))
-scale1=.3
-scale2=.6
-scale3=3
+#scale1=.3
+#scale2=.6
+#scale3=3
 colorTexture="texture{ pigment{color rgb<1.0 , 0.4, 0.0>}}"
 #oakPlanarPigment=" color rgb<1.0, 0.0, 0.0>,"
 #print ("avtOKT")

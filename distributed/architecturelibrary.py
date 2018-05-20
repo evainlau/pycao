@@ -413,57 +413,53 @@ class Tiling(Compound):
             self.intersected_by(Prism.from_polyline_vector(polyline.translate(-10000*Z),20000*Z))
 
 
-
-
-def WoodStud(dimx,dimy,dimz,grainVector=None,texture=None):
+def RoundedWoodStud(dimx,dimy,dimz,grainVector=None,woodPhoto=None,xscaleFactor=None,yscaleFactor=None,radius=.005):
+    return WoodStud(dimx,dimy,dimz,grainVector=grainVector,woodPhoto=woodPhoto,xscaleFactor=xscaleFactor,yscaleFactor=yscaleFactor,rounded=radius)
+    
+def WoodStud(dimx,dimy,dimz,grainVector=None,woodPhoto=None,xscaleFactor=None,yscaleFactor=None,rounded=0):
     if grainVector is None:
         grainVector=Z
-    if texture is None:
-        import material
-        texture=material.cubic_oak(.5,.5).move(Map.scale(dimx,dimy,dimz))
+    if woodPhoto is None:
+        woodPhoto="chene.png"
+        xscaleFactor=.2
+        yscaleFactor=2
+    texture=Texture.from_cubic_photos(dimx,dimy,dimz,woodPhoto,xscaleFactor=xscaleFactor,yscaleFactor=yscaleFactor)
         #print(texture)
 #        texturex=oakCubicTexture.copy()#.move(Map.scale(1/dimx,1/dimy,1/dimz))
 #        texturey=oakCubicTexture.copy()#.move(Map.scale(1/dimx,1/dimy,1/dimz))
 #        texturez=oakCubicTexture.copy()#.move(Map.scale(1/dimx,1/dimy,1/dimz))
     #c=Cube.from_dimensions(1,1,1)
-    c=Cube.from_dimensions(dimx,dimy,dimz)
+    if rounded>0:
+        c=RoundBox.from_dimensions(dimx,dimy,dimz,radius=rounded)
+    else:
+        c=Cube.from_dimensions(dimx,dimy,dimz)
     c.translate(origin-c.center)
     M=Map.rotational_difference(grainVector,Z)
     c.move(M)
     c.new_texture(texture)
     c.move(M.inverse())
     #c.scale(dimx,dimy,dimz)
-    c.translate(dimx/2*X+dimy/2*Y+dimz/2*Z)
+    c.translate(dimx/2.*X+dimy/2.*Y+dimz/2.*Z)
     return c
 
-def RoundedWoodStud(dimx,dimy,dimz,radius=.005,grainVector=Z,texture=None):
-    if texture is None:
-        texture=material.cubic_oak(.5,.5).move(Map.scale(dimx,dimy,dimz))
-    c=RoundBox.from_dimensions(dimx,dimy,dimz,radius)
-    c.translate(origin-c.center)
-    M=Map.rotational_difference(grainVector,Z)
-    c.move(M)
-    c.new_texture(texture)
-    c.move(M.inverse())
-    c.translate(dimx/2*X+dimy/2*Y+dimz/2*Z)
-    return c
 
-def WoodBoard(xdim,ydim,thickness,xnumber=2,grainVector=Z,texture=None):
+def WoodBoard(xdim,ydim,thickness,xnumber=2,grainVector=Z):
     """ 
     returns a board in the xy plane obtained by tiling in the x direction
     """
     #if texture is None:
     #    texture=material.cubic_oak(xdim,ydim,thickness).move(Map.scale(xdimx,ydim,thickness))
-    c=WoodStud(xdim,ydim,thickness,grainVector=grainVector,texture=texture)
+    c=WoodStud(xdim,ydim,thickness,grainVector=grainVector)
     return c#Tiling(c,jointWidth=-.0001,jointHeight=0,xnumber=xnumber,ynumber=1,polyline=None)
 
 class PictureFrame(Compound):
     def __init__(self,width,height,thickness,borderWidth,normalVector=Y,radius=.005,texture=None):
         self.name="pictureFrame"
         self.borderWidth=borderWidth
-        l1=RoundedWoodStud(width,borderWidth,2*thickness,radius=radius,grainVector=X,texture=texture).named("l1")
+        l1=RoundedWoodStud(width,borderWidth,2*thickness,radius=radius,grainVector=X).named("l1")
         l3=l1.copy().translate((height-borderWidth)*Y).named("l3")
-        l2=RoundedWoodStud(borderWidth,height,2*thickness,radius=radius,grainVector=Y,texture=texture).named("l2")
+        l3=l1.copy().translate((height-borderWidth)*Y).named("l3")
+        l2=RoundedWoodStud(borderWidth,height,2*thickness,radius=radius,grainVector=Y).named("l2")
         l4=l2.copy().translate((width-borderWidth)*X).named("l4")
         plane1=plane.from_3_points(origin,origin+Z,origin+X+Y)
         if plane1.half_space_contains(origin+X):
@@ -511,9 +507,57 @@ class PictureFrame(Compound):
 
     def get_stub(self,texture=None):
         dim=self.dimensions
+        d=WoodStud(dim[0]-2*self.borderWidth,dim[1],dim[2]-2*self.borderWidth,grainVector=X)
+        d.translate(self.center-d.center)
+        return d
+
+
+class PictureFrame2(Compound):
+    def __init__(self,width,height,thickness,borderWidth,normalVector=Y,radius=.005,texture=None):
+        self.name="pictureFrame"
+        self.borderWidth=borderWidth
+        l1=WoodStud(width,borderWidth,2*thickness,grainVector=X,texture=texture).named("l1")
+        #l3=l1.copy()#.translate((height-borderWidth)*Y).named("l3")
+        #l2=RoundedWoodStud(borderWidth,height,2*thickness,radius=radius,grainVector=Y,texture=texture).named("l2")
+        #l4=l2.copy().translate((width-borderWidth)*X).named("l4")
+        #print(l4.texture==l3.texture)
+        #plane1=plane.from_3_points(origin,origin+Z,origin+X+Y)
+        #if plane1.half_space_contains(origin+X):
+        #    plane1.reverse()
+        #print(l1.texture is l3.texture)
+        #print(l1.texture)
+        self.add_box("globalBox",Cube(origin+thickness*Z,origin+width*X+height*Y+2*thickness*Z).box())
+        self.add_list_to_compound([["l1",l1]])
+        #self.texture=l2.texture
+
+        #self.add_axis("normalAxis",self.segment(.5,.5,None,"ppp"))
+        #self.parallel_to(normalVector)
+
+
+
+        #if not normalVector==Z:
+        #    mape=Map.rotational_difference(Z,normalVector)
+        #    self.move(mape)
+    def get_drawer(self,drawerDepth=.3,openingAmount=0.5,thickness=.02,texture=None):
+        dim=self.dimensions
+        d=Drawer(dimx=dim[0]-2*self.borderWidth,dimy=drawerDepth,dimz=dim[2]-2*self.borderWidth,thickness=thickness,texture=texture)
+        d.translate(self.center-d.center)
+        return d
+
+    def get_glass(self,thickness=.002):
+        dim=self.dimensions
+        d=Cube.from_dimensions(dim[0]-2*self.borderWidth,thickness,dim[2]-2*self.borderWidth)
+        #print (d)
+        #print("was le cube")
+        d.translate(self.center-d.center).new_texture("Glass3")
+        return d
+
+    def get_stub(self,texture=None):
+        dim=self.dimensions
         d=WoodStud(dim[0]-2*self.borderWidth,dim[1],dim[2]-2*self.borderWidth,grainVector=X,texture=texture)
         d.translate(self.center-d.center)
         return d
+
 
     
 def CabinetStorey(b0,b1,b2,b3):
@@ -549,9 +593,9 @@ def CabinetStorey(b0,b1,b2,b3):
     return c
 
 def Drawer(dimx,dimy,dimz,thickness,slidingAxis=Y,texture=None):
-    b0=WoodBoard(dimx,thickness,dimz-thickness,grainVector=X,texture=texture).named("DrawerFrontPanel")
-    b2=WoodBoard(dimx,thickness,dimz-thickness,grainVector=X,texture=texture).named("DrawerBackPanel")
-    b1=WoodBoard(dimy-2*thickness,thickness,dimz-thickness,grainVector=X,texture=texture).named("DrawerLeftPanel")
+    b0=WoodBoard(dimx,thickness,dimz-thickness,grainVector=X).named("DrawerFrontPanel")
+    b2=WoodBoard(dimx,thickness,dimz-thickness,grainVector=X).named("DrawerBackPanel")
+    b1=WoodBoard(dimy-2*thickness,thickness,dimz-thickness,grainVector=X).named("DrawerLeftPanel")
     b3=b1.copy().named("DrawerRightPanel")
     c=CabinetStorey(b0,b1,b2,b3)
     b=WoodBoard(dimx,dimy,thickness,grainVector=Y)
@@ -610,19 +654,19 @@ def Cabinet(width=.5,upheight=.4,botheight=.3,depth=.3,thickness=.02,borderWidth
     f=FrameBox(up.box().points+bot.box().points)
     frontFace.add_box("globalBox",f)
     dim=f.dimensions
-    b1=WoodStud(dimx=depth-2*thickness,dimy=dim[1],dimz=dim[2],grainVector=Z,texture=frameTexture)
+    b1=WoodStud(dimx=depth-2*thickness,dimy=dim[1],dimz=dim[2],grainVector=Z)
     #pourquoi ne marche pas avec *dim ?
-    b2=WoodStud(dimx=dim[0],dimy=dim[1],dimz=dim[2],grainVector=Z,texture=frameTexture)
+    b2=WoodStud(dimx=dim[0],dimy=dim[1],dimz=dim[2],grainVector=Z)
     b3=b1.copy()
     mainPart=CabinetStorey(frontFace,b1,b2,b3)
     dim=mainPart.dimensions
-    support=WoodStud(dim[0]+.015,dim[1]+.015,.01,texture=frameTexture)
+    support=WoodStud(dim[0]+.015,dim[1]+.015,.01)
     mainPart.above(support)
     top=FramedStub(width=dim[0]+.015,height=dim[1]+.015,thickness=.01,borderWidth=borderWidth,frameTexture=drawerTexture,stubTexture=frameTexture)
     top.parallel_to(Z)
     top.activeBox.reorder()
     top.above(mainPart)
-    feet=WoodStud(dim[0],dim[1],2*feetheight,texture=frameTexture)
+    feet=WoodStud(dim[0],dim[1],2*feetheight)
     toCut1=RoundedWoodStud((1-2*feetSize)*dim[0],dim[1]+1,1*feetheight,radius=.4*feetheight)
     toCut1.translate(feet.center-toCut1.center)
     toCut2=RoundedWoodStud(dim[0]+1,(1-2*feetSize)*dim[1],1*feetheight,radius=.4*feetheight)

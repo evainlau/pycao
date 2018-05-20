@@ -515,8 +515,8 @@ class RoundBox(Elaborate):
     self.point(): returns a point in the box in appropriate coordinates (cf the doc of frameBox)
 
     Constructor:
-    RoundBox(start,end,wireRadius,merge), start,end are opposite corners of the Cube
-    RoundBox(x,y,z,wireRadius,merge)  
+    RoundBox(start,end,radius,merge), start,end are opposite corners of the Cube
+    RoundBox(x,y,z,radius,merge)  
     """
     def __init__(self,*args,**kwargs):
         """
@@ -528,7 +528,7 @@ class RoundBox(Elaborate):
             self.parts=Object()
             self.parts.start=args[0]
             self.parts.end=args[1]
-            self.wireRadius=args[2] #The radius at creation,may change with a non orthogonal map
+            self.radius=args[2] #The radius at creation,may change with a non orthogonal map
             self.merge=args[3]
             # self.markers
             self.markers=Object()
@@ -541,11 +541,11 @@ class RoundBox(Elaborate):
             point(args[0],args[1],args[2])
             self.__init__(origin,point(args[0],args[1],args[2]),args[3],args[4])
     @staticmethod
-    def from_dimensions(x=1,y=1,z=1,wireRadius=.1,merge=False):#an alias for code readability
-        return RoundBox(x,y,z,wireRadius,merge)
+    def from_dimensions(x=1,y=1,z=1,radius=.1,merge=False):#an alias for code readability
+        return RoundBox(x,y,z,radius,merge)
     @staticmethod
-    def from_list_of_points(start=origin,end=point(1,1,1),wireRadius=.1,merge=True):#an alias for code readability
-        return RoundBox(start,end,wireRadius,merge)
+    def from_list_of_points(start=origin,end=point(1,1,1),radius=.1,merge=True):#an alias for code readability
+        return RoundBox(start,end,radius,merge)
 
         
     def __str__(self):

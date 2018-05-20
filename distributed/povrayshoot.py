@@ -197,7 +197,7 @@ def object_string_but_CSG(self,camera):
         if self.merge:
             merge="0"
         else: merge="1"
-        radius=str(self.wireRadius)
+        radius=str(self.radius)
         string+="object{Round_Box (\n"+povrayVector(self.parts.start)+","+povrayVector(self.parts.end)+","+radius+","+merge+")"+ " "+modifier_string(self,camera)+"}\n"
     elif isinstance(self,Sphere) :
         string+="sphere {\n"+povrayVector(self.parts.center)+","+str(self.parts.radius)+" "+modifier_string(self,camera)+"}\n"
