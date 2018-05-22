@@ -72,11 +72,33 @@ def _pirotate_object(self,axis,angle):
     return self
 
 
-
 def _scale_object(self,fx=1,fy=1,fz=1,xVector=X,yVector=Y, zVector=Z,fixedPoint=T):
     self.move(Map.scale(fx=fx,fy=fy,fz=fz,xVector=xVector,
                         yVector=yVector, zVector=zVector,fixedPoint=fixedPoint))
     return self
+
+
+
+def flipXY(self):
+    return self.move(Map.linear(Y,X,Z))
+
+def flipXZ(self):
+    return self.move(Map.linear(Z,Y,X))
+
+def flipYZ(self):
+    return self.move(Map.linear(X,Z,Y))
+
+def flipX(self):
+    return self.move(Map.linear(-X,Y,Z))
+
+def flipY(self):
+    return self.move(Map.linear(X,-Y,Z))
+
+def flipZ(self):
+    return self.move(Map.linear(X,Y,-Z))
+
+
+
 
 
 @staticmethod
@@ -124,6 +146,12 @@ ObjectInWorld.pirotate=_pirotate_object
 ObjectInWorld.scale=_scale_object
 ObjectInWorld.__init__=_init_object
 ObjectInWorld.__new__=_new_object
+ObjectInWorld.flipZ=flipZ
+ObjectInWorld.flipY=flipY
+ObjectInWorld.flipX=flipX
+ObjectInWorld.flipXY=flipXY
+ObjectInWorld.flipXZ=flipXZ
+ObjectInWorld.flipYZ=flipYZ
 #object.is_vector=is_vector_object
 #object.is_point=is_point_object
 

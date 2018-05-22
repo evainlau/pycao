@@ -57,6 +57,7 @@ from architecturelibrary import *
 # a plane represented graphically as a half space 
 ground=plane(Z,origin) # a plane with normal the vector Z=vector(0,0,1) containing the origin
 ground.colored('DarkGreen') # The possible colors are the colors described in colors.inc in povray or a rgb color. 
+ground.new_texture(Texture.from_photo("travertin.png",symmetric=True).scale(.6,.6,1))
 ground.name="plan"
 
 #wall=Room(Polyline([origin,X,X+Y,Y,-2*X,-Y])).colored("Yellow")
@@ -104,8 +105,8 @@ feet.below(support)
 cabinet=Compound()
 cabinet.add_list_to_compound([mainPart,support,feet,top])
 cabinet.add_box("mp",mainPart.box())
+#actor=Cabinet().pirotate(Z,0.6).hooked_on(origin)
 actor=Cabinet().hooked_on(origin)
-
 #FramedStub()
 #actor=actor.feet
 #print(top.frame.box())
@@ -128,7 +129,7 @@ camera.zoom(1)
 
 camera.angle=0.94
 camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
-#camera.show # show the photo, ie calls povray. 
+camera.show # show the photo, ie calls povray. 
 #print(actor.center)
 #print(actor.box())
 #print(actor.box().point(0,0,1,"ppp"))

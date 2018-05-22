@@ -101,7 +101,7 @@ for pnf items and we add an element to the list in the case of textures (stringy
 """
 
 
-class PNFTItem(object):#PNF means Pigment,Normal or Finish or texture
+class PNFTItem(ObjectInWorld):#PNF means Pigment,Normal or Finish or texture
 
     def build_and_get_idname(self):
         """ constructs a string based on time to be used as identifier """
@@ -119,6 +119,8 @@ class PNFTItem(object):#PNF means Pigment,Normal or Finish or texture
             name=self.build_and_get_idname()
         globvars.TextureString+="\n#declare "+name+" = "+self.unnested_output(withMove=withMove)
         self.__init__(name) #reinitialisation from the name
+        if withMove and hasattr(self,"moveMap"):
+            del self.moveMap
         return self
 
     def output_from_small_string(self,withMove):
@@ -137,7 +139,7 @@ class PNFItem(PNFTItem):#PNF means Pigment,Normal or Finish
     def nested_output(self,withMove):
         return self.output_from_small_string(withMove=withMove)
 
-    def unnested_output(self,withMove):
+    def unnested_output(self,withMove=True):
         return self.output_from_small_string(withMove=withMove)
         
     def enhance(self,stringOrPNFItem):
@@ -170,15 +172,57 @@ class Pigment(PNFItem):
         super(Pigment,self).__init__(string)
 
     @staticmethod
-    def from_photo(pngfilepath,dimx=1.,dimy=1.,normal=None,corner=None):
+    def from_photo(pngfilepath,dimx=1.,dimy=1.,normal=None,center=None,symmetric=False):
         """returns a pigment which is a a wall paper on each plane z=cte, 
         and the photo is a rectangle of size dimx by dimy on this plane. 
         If normal is given, the wallpapers are planes orthogonal to the normal vector instead of planes z=cte.
-        If corner is given, the wall papers are translated so that the bottom left corner of the photo appears at corner. 
+        If center is given, the wall papers are translated so that the center of the photo appears there. 
         """
         if dimx is None: dimx=1. # mabe coming from other subroutines 
         if dimy is None: dimy=1.
-        p=Pigment("image_map {png \""+pngfilepath+"\" }").move(Map.linear(dimx*X,dimy*Y,Z))
+        p=Pigment("image_map {png \""+pngfilepath+"\" }")
+        if symmetric:
+            p=p.symmetrised_copy()
+        if center is not None:
+            map=Map.translation(center-.5*X-.5*Y-.5*Z)
+            p.move(map)
+        p.move(Map.linear(dimx*X,dimy*Y,Z))
+        if normal is not None:
+            mape=Map.rotational_difference(Z,normal)
+            p.move(mape)
+        return p
+
+    @staticmethod
+    def from_square(p1=None,p2=None,p3=None,p4=None):
+        """ 
+        corresponds to the povray square pattern
+        """
+        if p1 is None: p1=Pigment("Red")
+        if p2 is None: p2=Pigment("Green")
+        if p3 is None: p3=Pigment("Blue")
+        if p4 is None: p4=Pigment("Yellow")
+        argument="square "+" ".join([p.unnested_output(withMove=True) for p in [p1,p2,p3,p4]])
+        return Pigment(argument)
+    
+    def symmetrised_copy(self,dimx=1,dimy=1,normal=None,corner=None):
+        """
+        input=a pigment in the plane x,y  in the square with opposite corners 0,0 and 1,1
+        output by default=a pigment in the square with opposite corners 0,0 and 1,1 obtained by symmetrisation
+        if dimx and dimy are filled, the square is redimensioned to a rectangle
+        If normal is given, the wallpapers are planes orthogonal to the normal vector instead of planes z=cte.
+        If corner is given, the wall papers are translated so that the bottom left corner of the photo appears at corner. 
+        """
+        M=Map.rotation(X,math.pi/2)
+        p1=self.move(M) # from the xy plane to the xz plane
+        p4=p1.copy().flipX()
+        #print("p1p2")
+        #print(p1)
+        #print(p2)
+        p3=p1.copy().flipZ().flipX()
+        p2=p1.copy().flipZ()
+        p=Pigment.from_square(p1,p2,p3,p4)
+        p.move(M.inverse())#back to the xy plane
+        p.scale(.5*dimx,.5*dimy,1)
         if normal is not None:
             mape=Map.rotational_difference(Z,normal)
             p.move(mape)
@@ -186,8 +230,7 @@ class Pigment(PNFItem):
             map=Map.translation(corner-origin)
             p.move(mape)
         return p
-            
-                  
+   
 class Normal(PNFItem):
     def __init__(self,string):
         super(Normal,self).__init__(string)
@@ -277,15 +320,20 @@ class Texture(PNFTItem,list):
         return copy.deepcopy(self,memo)    
 
     @staticmethod
-    def from_cubic_photos(dimx,dimy,dimz,photo1=None,photo2=None,photo3=None,photo4=None,photo5=None,photo6=None,xscaleFactor=None,yscaleFactor=None,grainVector=Z):
+    def from_photo(pngfilepath,dimx=1.,dimy=1.,normal=None,center=None,symmetric=False):
+        p=Pigment.from_photo(pngfilepath=pngfilepath,dimx=dimx,dimy=dimy,normal=normal,center=center,symmetric=symmetric)
+        return Texture(p)
+        
+    @staticmethod
+    def from_cubic_photos(dimx,dimy,dimz,photo1=None,photo2=None,photo3=None,photo4=None,photo5=None,photo6=None,xscale=None,yscale=None,grainVector=Z,symmetric=True):
         """
         This function returns a texture to be applied to a cube of dimension of the parameters     centered at origin.
         The grain Vector is by default in the Z direction, ie. the four facets around the Z axis have an orientation like pictures 
         glued around the 4 walls of a building. May be replaced by X or Y in the parameters.
         Photos are given in png format by their path.
-        photo1,2,3,4,5,6 correspond to face -X,-Y,-Z,X,Y,Z. Photo1 must be given. If missing the other photos are copied from the opposite face
+        photos 1,2,3,4,5,6 correspond to face -X,-Y,-Z,X,Y,Z. Photo1 must be given. If missing the other photos are copied from the opposite face
         or from photo1. 
-        The scaleFactore acts on the image (for instance to make the grain of the wood more or less dense.
+        The scalee acts on the image (for instance to make the grain of the wood more or less dense.
         """
         if photo2 is None:
             photo2=photo1
@@ -298,32 +346,42 @@ class Texture(PNFTItem,list):
         if photo6 is None:
             photo6=photo3
         if grainVector==X:
-            mape=Map.linear(Z,Y,X)
-            d=dimx;dimx=dimz;dimz=d
+             d=dimx;dimx=dimz;dimz=d
+             ret=Texture.from_cubic_photos(dimx,dimy,dimz,photo1=photo3,photo2=photo2,photo3=photo1,photo4=photo6,photo5=photo5,photo6=photo1,xscale=xscale,yscale=yscale,grainVector=Z,symmetric=symmetric)
+             return ret.flipXZ()
         if grainVector==Y:
-            mape=Map.linear(X,Z,Y)
             d=dimy;dimy=dimz;dimz=d
-        s=xscaleFactor
-        t=yscaleFactor
-        pigment1=Pigment.from_photo(photo1,s,t).move(Map.affine(-1./dimy*X,1/dimz*Y,Z,(.5+dimy*2.)*X+(.5+dimz*2.)*Y))
-        pigment2=Pigment.from_photo(photo2,s,t).move(Map.affine(-1./dimx*X,1/dimz*Y,Z,(.5+dimx*2.)*X+(.5+dimz*2.)*Y))
-        pigment3=Pigment.from_photo(photo3,s,t).move(Map.affine(-1./dimx*X,1/dimy*Y,Z,(.5+dimx*2.)*X+(.5+dimy*2.)*Y))
-        pigment4=Pigment.from_photo(photo4,s,t).move(Map.affine(-1./dimy*X,1/dimz*Y,Z,(.5+dimx*2.)*X+(.5+dimy*2.)*Y))
-        pigment5=Pigment.from_photo(photo5,s,t).move(Map.affine(-1./dimx*X,1/dimz*Y,Z,(.5+dimx*2.)*X+(.5+dimy*2.)*Y))
-        pigment6=Pigment.from_photo(photo6,s,t).move(Map.affine(-1./dimx*X,1/dimy*Y,Z,(.5+dimx*2.)*X+(.5+dimy*2.)*Y))
-        planarTexture1=Texture(pigment1).move(Map.rotation(Y,math.pi*.5)).move(Map.rotation(X,math.pi*.5)).unnested_output()
-        planarTexture4=Texture(pigment4).move(Map.rotation(Y,math.pi*.5)).move(Map.rotation(X,math.pi*.5)).unnested_output()
-        planarTexture2=Texture(pigment2).move(Map.rotation(X,math.pi*.5)).unnested_output()
-        planarTexture5=Texture(pigment5).move(Map.rotation(X,math.pi*.5)).unnested_output()
+            ret=Texture.from_cubic_photos(dimx,dimy,dimz,photo1=photo1,photo2=photo3,photo3=photo3,photo4=photo4,photo5=photo6,photo6=photo5,xscale=xscale,yscale=yscale,grainVector=Z,symmetric=symmetric)
+            return ret.flipYZ()
+        if not grainVector==Z:
+            raise NameError("The grain Vector must be X,Y or Z")
+        s=xscale
+        t=yscale
+        pigment1=Pigment.from_photo(photo1,s,t,normal=X,center=origin,symmetric=symmetric)
+        pigment1.rotate(X,math.pi/2).scale(1./dimx,1./dimy,1./dimz)
+        pigment2=Pigment.from_photo(photo2,s,t,normal=Y,center=origin,symmetric=symmetric)
+        pigment2.rotate(Y,math.pi).scale(1./dimx,1./dimy,1./dimz)
+        pigment3=Pigment.from_photo(photo3,s,t,normal=Z,center=origin,symmetric=symmetric)
+        pigment3.scale(1./dimx,1./dimy,1./dimz)
+        pigment4=Pigment.from_photo(photo4,s,t,normal=X,center=origin,symmetric=symmetric)
+        pigment4.rotate(X,math.pi/2).scale(1./dimx,1./dimy,1./dimz)
+        pigment5=Pigment.from_photo(photo5,s,t,normal=Y,center=origin,symmetric=symmetric)
+        pigment5.rotate(Y,math.pi).scale(1./dimx,1./dimy,1./dimz)
+        pigment6=Pigment.from_photo(photo6,s,t,normal=Z,center=origin,symmetric=symmetric).scale(1./dimx,1./dimy,1./dimz)
+        planarTexture1=Texture(pigment1).unnested_output()
+        planarTexture4=Texture(pigment4).unnested_output()
+        planarTexture2=Texture(pigment2).unnested_output()
+        planarTexture5=Texture(pigment5).unnested_output()
         planarTexture3=Texture(pigment3).unnested_output()
         planarTexture6=Texture(pigment6).unnested_output()
         cubicTex=Texture("cubic "+ planarTexture1 +" ,"+ planarTexture2 +" ,"+ planarTexture3+" ,"+planarTexture4+" ,"+planarTexture5+" ,"+planarTexture6) 
         cubicTex.move(Map.scale(dimx,dimy,dimz))
-        if grainVector==Y or grainVector==X:
-            cubicTex.move(mape)
         return cubicTex
 
 
+
+
+    
 def unleash(liste):
     texture=liste[0].texture
     for obj in liste:
@@ -332,8 +390,12 @@ def unleash(liste):
     newtexture=texture.copy()
     for obj in liste:
         obj.new_texture(newtexture)
-
-def _new_texture(self,texture):
+def remove_texture(self):
+    try:
+        del self.texture
+    except: pass
+    return self
+def new_texture(self,texture):
     if isinstance(texture,str):#then should be a povray name texture
         texture=Texture(texture)
     self.texture=texture
@@ -341,10 +403,10 @@ def _new_texture(self,texture):
         for op in self.csgOperations:
             slaves=op.csgSlaves
             for slave  in slaves :
-                _new_texture(slave,texture)
+                new_texture(slave,texture)
     return self
 
-def _add_to_texture(self,value):
+def add_to_texture(self,value):
     if hasattr(self,"texture"):
         self.texture.enhance(value)
     else:
@@ -364,18 +426,15 @@ def _add_to_texture(self,value):
 def _get_textures(self,texturelist=None,withChildren=True,maybeDeclare=False):
     if texturelist is None:
         texturelist=[]
-    try:
+    if hasattr(self,"texture"):
         texturelist.append(self.texture)
         if maybeDeclare:
             self.texture.maybe_declare_first_argument()
-        pass
-    except: # no texture
-        pass
     if hasattr(self,"csgOperations") and len(self.csgOperations)>0:
         for op in self.csgOperations:
             for slave  in op.csgSlaves :
                 for entry in slave.get_textures():
-                    if entry not in texturelist:#id necessary to avoid infinite loop
+                    if id(entry) not in [id(t) for t in texturelist]:#id necessary since textures with the same entries may be different
                         texturelist.append(entry)
                         if maybeDeclare:
                             entry.maybe_declare_first_argument()
@@ -407,11 +466,33 @@ def _colored(self,color):
     #print("in colored",t.smallString)
     return self
 
+
+def _rgbed(self,list):
+    #print("inrgbed1",self.texture.smallString)
+    p=Pigment("color rgb <"+str(list[0])+","+str(list[1])+","+str(list[2])+">")
+    if hasattr(self,"texture"):
+        t=self.texture.enhance(p)
+    else:
+        t=Texture(p)
+    self.new_texture(t) #for the csg childs
+    return self
+
+def _light_level(self,value):
+    ambient=value*defaultAmbientMultiplier
+    diffuse=value*defaultDiffuseMultiplier
+    finish=Finish("ambient "+str(ambient)+" diffuse "+str(diffuse))        
+    self.add_to_texture(finish)
+    return self
+
+
+
 ObjectInWorld.colored=_colored
-ObjectInWorld.new_texture=_new_texture
-ObjectInWorld.add_to_texture=_add_to_texture
+ObjectInWorld.remove_texture=remove_texture
+ObjectInWorld.new_texture=new_texture
+ObjectInWorld.add_to_texture=add_to_texture
 ObjectInWorld.get_textures=_get_textures
-        
+ObjectInWorld.light_level=_light_level
+ObjectInWorld.rgbed=_rgbed
 """
 unleash code tested:
 c=Sphere(origin,.1)
@@ -444,7 +525,7 @@ def cubic_oak(scale1,scale2,scale3):
     This function returns a texture for a cube of dimension of the parameters and grain Vector in the Z direction. 
     The file "chene.png" may be replaced by an other file where the grain vector is in the Y direction. 
     """
-    print(scale1,scale2/2.,"sc1 et 2")
+    #print(scale1,scale2/2.,"sc1 et 2")
     pigment1=Pigment(photo3).move(Map.affine(-scale2*X,scale3*Y,Z,(.5+1/scale2*2.)*X+(.5+1/scale3*2.)*Y))#-scale2/8.*X+scale3/8.*Y))#1*(scale1*X+scale2*Y)))
     pigment2=Pigment(photo3).move(Map.affine(-scale1*X,scale3*Y,Z,(.5+1/scale1*2.)*X+(.5+1/scale3*2.)*Y))
     pigment3=Pigment(photo3).move(Map.affine(-scale1*X,scale2*Y,Z,(.5+1/scale1*2.)*X+(.5+1/scale2*2.)*Y))

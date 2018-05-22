@@ -280,7 +280,7 @@ def object_string_alone(self,camera):
         todo=self.csgOperations.pop()
     except:
         return object_string_but_CSG(self,camera)
-    slavesCopie=copy.copy(todo.csgSlaves)
+    slavesCopie=[copy.deepcopy(entry) for entry in todo.csgSlaves]
     #for slave in slavesCopie:
     #    print(slave) 
     #print("copie",len(slavesCopie))
@@ -309,8 +309,12 @@ def object_string_alone(self,camera):
             retour=""
     elif todo.csgKeyword=="difference" or todo.csgKeyword=="intersection":
         if len(visibleSlaves)>0:
-            #print("visib0",visibleSlaves[0].visibility)
-            retour= todo.csgKeyword+ " {"+object_string_alone(self,camera)+" ".join([object_string_alone(slave,camera) for slave in visibleSlaves]) +" }"
+            if hasattr(todo,"keepTexture") and todo.keepTexture==True:
+                keepString=" cutaway_textures "
+            else:
+                keepString=""
+                #print("visib0",visibleSlaves[0].visibility)
+            retour= todo.csgKeyword+ " {"+object_string_alone(self,camera)+" ".join([object_string_alone(slave,camera) for slave in visibleSlaves]) +keepString+" }"
         else:
             retour=object_string_alone(self,camera)
     else:

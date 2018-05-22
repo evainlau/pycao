@@ -65,35 +65,27 @@ globvars.userDefinedFunctions+=myFonc
 ################################################################
 
 
-#tw=Texture("pigment {image_map {png \"murTerre.png\"}}").move(Map.linear(X+Y,X+Z,X+Y+Z)).move(Map.scale(7.24,7.277,7.24))
-#tw=Texture("pigment {image_map {png \"chaux.png\"}}").move(Map.linear(X+Y,X+Z,X+Y+Z)).move(Map.scale(6.24,6.277,6.24))
-#tw=Texture("pigment {image_map {png \"chaux.png\"}}").move(Map.linear(X+Y,X+Z,X+Y+Z))#.move(Map.scale(.24,.277,.24))
-#tw=Texture("pigment {image_map {png \"chaux.png\"}}").move(Map.linear(X+Y,X+Z,X+Y+Z))#.move(Map.scale(.24,.277,.24))
-tw=Texture("pigment {image_map {png \"sand.png\"}}  finish {diffuse 1.3}").move(Map.linear(X+Y,X+Z,X+Y+Z)).move(Map.scale(1.7124,1.71277,1.724))
-tw=Texture("pigment {image_map {png \"murTerre.png\"}}  finish {diffuse 1.3}").move(Map.linear(X+Y,X+Z,X+Y+Z)).move(Map.scale(1.7124,1.71277,1.724))
+tw=Texture.from_photo("betonRose.png",symmetric=True).move(Map.linear(X+Y,X+Z,X+Y+Z)).move(Map.scale(.5124,.51277,.524))
 #texFloor=Texture("Yellow_Pine " ).move(Map.linear(6*X,.3*Z,10*Y))
-texFloor=Texture("pigment {Grey}")
-texFloor.enhance(Pigment("normal { function {mortar1(x,y,z,1)} bump_size .2}"))
-texFloor.move(Map.linear(-X,Y,Z))
-texFloor2=Texture(" pigment  { checker    pigment { granite color_map { [0 rgb 1][1 rgb .9] } }    pigment { granite color_map { [0 rgb .9][1 rgb .7] } }  }")
-texFloor2.move(Map.linear(.8*X,.8*Y,.8*Y))
-travertin=Texture("pigment {image_map {png \"travertin.png\"}}")
+
+travertin=Texture.from_photo("travertin.png",symmetric=True)
 stoveTexture=Texture("pigment {image_map {png \"poele.png\"}}")
 
 #oakTexture=Texture("pigment {image_map {png \"chene.png\"}}")
-tableTexture=oakTexture.move(Map.linear(Y,X,Z))
+tableTexture=Texture.from_photo("chene.png").flipXY()
 
 
 tableBump=Normal("agate .5 scale 4 bump_size .2")
 
 handleTexture=Texture("New_Brass finish{ambient 0.05 specular 2}")
 stoveFinish=Finish( "ambient 0.05 brilliance 30")
-texDoor=Texture( "pigment {BrightGold} finish{brilliance 1.8}")
-texDoor=Texture("pigment {image_map {png \"wood.png\"}} finish {diffuse .6}").move(Map.flipXZ()*Map.scale(1.7,1.7,1.7)).declare("texDoor")
+texDoor=Texture.from_photo("door.png",symmetric=True).declare("texDoor")
 lampFinish2=Normal("agate .5 scale .1 bump_size .1")
 lampFinish=Finish ("ambient .2 diffuse 2")
 texCeil=Texture("pigment {White} finish {ambient .3 }")
-chairTexture=Texture("pigment {image_map {png \"chene2.png\"}} finish {diffuse .6}")#.move(Map.scale(2,2,2))
+chairTexture=Texture.from_photo("chene2.png",symmetric=True)#.move(Map.scale(2,2,2))
+chairSeatTexture=Texture.from_photo("cuir.png",symmetric=True).scale(.2,.2,.2)
+
 
 ################################################################
 #                Objects
@@ -109,7 +101,6 @@ room.add_to_texture(Normal("agate .5 scale 1 bump_size .05"))
 rommTexture=room.walls[0]
 unleash([room.floor])
 room.floor.name="myFloor"
-room.floor.new_texture(texFloor2)
 room.ceiling.name="Ceiling"
 room.ceiling.new_texture(texCeil)
 
@@ -136,7 +127,7 @@ room.add_window(wallNumber=2,wlength=1,wheight=1.06,wdepth=.1,deltaLength=1.37,d
 room.add_window(wallNumber=2,wlength=.7,wheight=1.05,wdepth=.1,deltaLength=3.57,deltaHeigth=1.10).colored("White")
 room.add_window(wallNumber=3,wlength=.7,wheight=.7,wdepth=.1,deltaLength=2.57,deltaHeigth=1.60).colored("White")
 
-outsideDoor=room.add_door(wallNumber=4,wlength=.9,wheight=2.15,wdepth=.1,deltaLength=.13,deltaHeigth=0,reverseHandle=True,handleTexture=handleTexture).new_texture(texDoor)
+outsideDoor=room.add_door(wallNumber=4,wlength=.9,wheight=2.15,wdepth=.1,deltaLength=.13,deltaHeigth=0,reverseHandle=True,handleTexture=handleTexture).new_texture(texDoor.copy().flipXZ().flipYZ())
 outsideDoor.add_porthole()
 outsideDoor.window.frame.rgbed([.8,.8,.6])
 outsideDoor.name="outsideDoor"
@@ -201,11 +192,12 @@ glass1.hooked_on(table).glued_on(table).translate(.1*Y)
 glass2.hooked_on(table).glued_on(table).translate(.2*X)
 glass3.hooked_on(table).glued_on(table).translate(-.2*X)
 
-chair1=Chair().new_texture(chairTexture).above(origin+4.5*X+1.87*Y+.4*Z).glued_on(table)
+chair1=Chair().new_texture(tableTexture.copy()).above(origin+4.5*X+1.87*Y+.4*Z).glued_on(table)
+chair1.seat.new_texture(chairSeatTexture)
 chair2=chair1.copy()
-chair2.new_texture(chairTexture).above(origin+5*X+1.8*Y+.4*Z).glued_on(table)
-chair2=Chair().new_texture(chairTexture).above(origin+4.5*X+1*Y+.4*Z).glued_on(table).self_rotate(3)
-chair2=Chair().new_texture(chairTexture).above(origin+5*X+1*Y+.4*Z).glued_on(table).self_rotate(3.5)
+chair2.above(origin+5*X+1.8*Y+.4*Z).glued_on(table)
+chair2=chair1.copy().above(origin+4.5*X+1*Y+.4*Z).glued_on(table).self_rotate(3)
+chair2=chair1.copy().above(origin+5*X+1*Y+.4*Z).glued_on(table).self_rotate(3.5)
 table.translate(.82*X)
 stovePosistionOnFloor=origin+7.50*X+2.3*Y
 stove=Stove().glued_on(room).self_rotate(-math.pi/2)

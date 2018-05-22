@@ -1729,16 +1729,24 @@ class Map(np.ndarray):
         M=Map.linear(_to_vector(a),_to_vector(b),_to_vector(c))
         return M
 
-    @property
+    @staticmethod
     def flipXY():
         return Map.linear(Y,X,Z)
-
     @staticmethod
     def flipXZ():
-        return Map.from_permutation(2,1,0)
-    @property
+        return Map.linear(Z,Y,X)
+    @staticmethod
     def flipYZ():
-        return Map.from_permutation(0,2,1)
+        return Map.linear(X,Z,Y)
+    @staticmethod
+    def flipX():
+        return Map.linear(-X,Y,Z)
+    @staticmethod
+    def flipY():
+        return Map.linear(X,-Y,Z)
+    @staticmethod
+    def flipZ():
+        return Map.linear(X,Y,-Z)
     
 class Rotation(Map):
     """ 
