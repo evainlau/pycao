@@ -58,6 +58,7 @@ from architecturelibrary import *
 ground=plane(Z,origin) # a plane with normal the vector Z=vector(0,0,1) containing the origin
 ground.colored('DarkGreen') # The possible colors are the colors described in colors.inc in povray or a rgb color. 
 ground.new_texture(Texture.from_photo("travertin.png",symmetric=True).scale(.6,.6,1))
+ground.new_texture(Texture.from_photo("parquet1.png",symmetric=True).scale(2.6,2.6,1))
 ground.name="plan"
 
 #wall=Room(Polyline([origin,X,X+Y,Y,-2*X,-Y])).colored("Yellow")

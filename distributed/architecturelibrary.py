@@ -436,17 +436,17 @@ def WoodStud(dimx,dimy,dimz,grainVector=None,photo=None,xscale=None,yscale=None,
     return c
 
 
-def WoodBoard(xdim,ydim,thickness,xnumber=2,grainVector=Z):
+def WoodBoard(xdim,ydim,thickness,xnumber=2,grainVector=Z,photo=None):
     """ 
     returns a board in the xy plane obtained by tiling in the x direction
     """
     #if texture is None:
     #    texture=material.cubic_oak(xdim,ydim,thickness).move(Map.scale(xdimx,ydim,thickness))
-    c=WoodStud(xdim,ydim,thickness,grainVector=grainVector)
+    c=WoodStud(xdim,ydim,thickness,grainVector=grainVector,photo=photo)
     return c#Tiling(c,jointWidth=-.0001,jointHeight=0,xnumber=xnumber,ynumber=1,polyline=None)
 
 class PictureFrame(Compound):
-    def __init__(self,width,height,thickness,borderWidth,normalVector=Y,radius=.005,texture=None):
+    def __init__(self,width,height,thickness,borderWidth,normalVector=Y,radius=.005,photo=None):
         self.name="pictureFrame"
         self.borderWidth=borderWidth
         l1=RoundedWoodStud(width,borderWidth,1*thickness,radius=radius,grainVector=X).named("l1")
@@ -474,16 +474,16 @@ class PictureFrame(Compound):
         #[ob.amputed_by(plane.from_coeffs(0,0,1,-thickness)) for ob in [l1,l2,l3,l4]]
         self.add_box("globalBox",Cube(origin+0*thickness*Z,origin+width*X+height*Y+1*thickness*Z).box())
         self.add_list_to_compound([l1,l2,l3,l4])
-        #self.texture=l2.texture
+
 
         self.add_axis("normalAxis",self.segment(.5,.5,None,"ppp"))
         self.parallel_to(normalVector)
         self.activeBox.reorder()
 
 
-    def get_drawer(self,drawerDepth=.3,openingAmount=0.5,thickness=.02,texture=None):
+    def get_drawer(self,drawerDepth=.3,openingAmount=0.5,thickness=.02,photo=None):
         dim=self.dimensions
-        d=Drawer(dimx=dim[0]-2*self.borderWidth,dimy=drawerDepth,dimz=dim[2]-2*self.borderWidth,thickness=thickness,texture=texture)
+        d=Drawer(dimx=dim[0]-2*self.borderWidth,dimy=drawerDepth,dimz=dim[2]-2*self.borderWidth,thickness=thickness,photo=photo)
         d.translate(self.center-d.center)
         return d
 
@@ -495,9 +495,9 @@ class PictureFrame(Compound):
         d.translate(self.center-d.center).new_texture("Glass3")
         return d
 
-    def get_stub(self,texture=None):
+    def get_stub(self,photo=None):
         dim=self.dimensions
-        d=WoodStud(dim[0]-2*self.borderWidth,dim[1],dim[2]-2*self.borderWidth,grainVector=X)
+        d=WoodStud(dim[0]-2*self.borderWidth,dim[1],dim[2]-2*self.borderWidth,grainVector=X,photo=photo)
         d.translate(self.center-d.center)
         return d
 
@@ -534,13 +534,13 @@ def CabinetStorey(b0,b1,b2,b3):
     c.add_box("globalBox",FrameBox([b0.point(0,0,0,"ppp"),b2.point(0,0,1,"ppp")]))
     return c
 
-def Drawer(dimx,dimy,dimz,thickness,slidingAxis=Y,texture=None):
-    b0=WoodBoard(dimx,thickness,dimz-thickness,grainVector=X).named("DrawerFrontPanel")
-    b2=WoodBoard(dimx,thickness,dimz-thickness,grainVector=X).named("DrawerBackPanel")
-    b1=WoodBoard(dimy-2*thickness,thickness,dimz-thickness,grainVector=X).named("DrawerLeftPanel")
+def Drawer(dimx,dimy,dimz,thickness,slidingAxis=Y,photo=None):
+    b0=WoodBoard(dimx,thickness,dimz-thickness,grainVector=X,photo=photo).named("DrawerFrontPanel")
+    b2=WoodBoard(dimx,thickness,dimz-thickness,grainVector=X,photo=photo).named("DrawerBackPanel")
+    b1=WoodBoard(dimy-2*thickness,thickness,dimz-thickness,grainVector=X,photo=photo).named("DrawerLeftPanel")
     b3=b1.copy().named("DrawerRightPanel")
     c=CabinetStorey(b0,b1,b2,b3)
-    b=WoodBoard(dimx,dimy,thickness,grainVector=Y)
+    b=WoodBoard(dimx,dimy,thickness,grainVector=Y,photo=photo)
     c.above(b)
     ret=Compound()
     ret.add_list_to_compound([b,c])
@@ -548,17 +548,17 @@ def Drawer(dimx,dimy,dimz,thickness,slidingAxis=Y,texture=None):
     ret.add_axis("slidingAxis",ret.segment(.5,None,.5,"ppp"))
     return ret
     
-def FramedDrawer(width=.4,height=.3,thickness=.01,borderWidth=.05,drawerDepth=.3,openingAmount=0,frameTexture=None,drawerTexture=None):
-    frame=PictureFrame(width=width,height=height,thickness=thickness,borderWidth=borderWidth,radius=.005,texture=frameTexture)
-    drawer=frame.get_drawer(drawerDepth=drawerDepth,texture=drawerTexture)
+def FramedDrawer(width=.4,height=.3,thickness=.01,borderWidth=.05,drawerDepth=.3,openingAmount=0,framePhoto=None,drawerPhoto=None):
+    frame=PictureFrame(width=width,height=height,thickness=thickness,borderWidth=borderWidth,radius=.005,photo=framePhoto)
+    drawer=frame.get_drawer(drawerDepth=drawerDepth,photo=drawerPhoto)
     drawer.translate(frame.center-drawer.center)
     c=Compound()
     c.add_list_to_compound([["frame",frame],["drawer",drawer]])
     c.add_box("frameBox",frame.box())
     return c
 
-def FramedGlass(width=.4,height=.3,thickness=.01,borderWidth=.05,texture=None,opening="right"):
-    frame=PictureFrame(width=width,height=height,thickness=thickness,borderWidth=borderWidth,texture=texture,radius=.005)
+def FramedGlass(width=.4,height=.3,thickness=.01,borderWidth=.05,photo=None,opening="right"):
+    frame=PictureFrame(width=width,height=height,thickness=thickness,borderWidth=borderWidth,photo=photo,radius=.005)
     glass=frame.get_glass()
     glass.translate(frame.center-glass.center)
     c=Compound()
@@ -569,9 +569,9 @@ def FramedGlass(width=.4,height=.3,thickness=.01,borderWidth=.05,texture=None,op
     else: c.add_axis("openingAxis",frame.segment(1,1,None,"ppp"))
     return c
 
-def FramedStub(width=.4,height=.3,thickness=.01,borderWidth=.05,frameTexture=None,stubTexture=None):
-    frame=PictureFrame(width=width,height=height,thickness=thickness,borderWidth=borderWidth,texture=frameTexture,radius=.005)
-    stub=frame.get_stub(texture=stubTexture)
+def FramedStub(width=.4,height=.3,thickness=.01,borderWidth=.05,framePhoto=None,stubPhoto=None):
+    frame=PictureFrame(width=width,height=height,thickness=thickness,borderWidth=borderWidth,photo=framePhoto,radius=.005)
+    stub=frame.get_stub(photo=stubPhoto)
     stub.translate(frame.center-stub.center).named("topstub")
     c=Compound()
     c.add_list_to_compound([["frame",frame],["stub",stub]])
@@ -579,15 +579,13 @@ def FramedStub(width=.4,height=.3,thickness=.01,borderWidth=.05,frameTexture=Non
     c.add_axis("normalDirection",c.frame.axis())
     return c
 
-def Cabinet(width=.5,upheight=.4,botheight=.3,depth=.3,thickness=.02,borderWidth=.06,feetheight=.1,feetSize=.1,frameTexture=None,drawerTexture=None):
+def Cabinet(width=.5,upheight=.4,botheight=.3,depth=.3,thickness=.02,borderWidth=.06,feetheight=.1,feetSize=.1,framePhoto=None,drawerPhoto=None):
     ret=Compound()
-    #if frameTexture is None:
-    #    frameTexture=oakCubicTexture.copy()
-    #    frameTexture.declare()
-    if drawerTexture is None:
-        drawerTexture=wengeTexture.copy().move(Map.linear(.2*Z,Y,3*X))
-    up=FramedGlass(width=width,height=upheight,thickness=thickness,borderWidth=borderWidth,texture=frameTexture).select_axis("openingAxis")
-    bot=FramedDrawer(width=width,height=botheight,thickness=thickness,borderWidth=borderWidth,openingAmount=0,frameTexture=frameTexture,drawerTexture=drawerTexture)
+    #if framePhoto is None:
+    #    framePhoto=oakCubicPhoto.copy()
+    #    framePhoto.declare()
+    up=FramedGlass(width=width,height=upheight,thickness=thickness,borderWidth=borderWidth,photo=framePhoto).select_axis("openingAxis")
+    bot=FramedDrawer(width=width,height=botheight,thickness=thickness,borderWidth=borderWidth,openingAmount=0,framePhoto=framePhoto,drawerPhoto=drawerPhoto)
     bot.drawer.self_translate(.4)
     up.above(bot).translate(0.007*Z)
     frontFace=Compound()
@@ -603,7 +601,7 @@ def Cabinet(width=.5,upheight=.4,botheight=.3,depth=.3,thickness=.02,borderWidth
     dim=mainPart.dimensions
     support=WoodStud(dim[0]+.015,dim[1]+.015,.01)
     mainPart.above(support)
-    top=FramedStub(width=dim[0]+.015,height=dim[1]+.015,thickness=.01,borderWidth=borderWidth,frameTexture=drawerTexture,stubTexture=frameTexture)
+    top=FramedStub(width=dim[0]+.015,height=dim[1]+.015,thickness=.01,borderWidth=borderWidth,framePhoto=drawerPhoto,stubPhoto=drawerPhoto)
     top.parallel_to(Z)
     top.activeBox.reorder()
     top.above(mainPart)

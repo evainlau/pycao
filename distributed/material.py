@@ -506,49 +506,6 @@ material.unleash([d,e])
 d.colored("Green")
 material.unleash([c,d])
 """
-        
-#def defaultTexture():
-#    return Texture("pigment {Yellow}")
 
-photo1="image_map {png \"hugoMathisRobin.png\"}"
-photo2="image_map {png \"annivHugo.png\"}"
-photo3="image_map {png \"chene.png\" }"
-
-#pigment3=Pigment("image_map {png \"chene.png\" }").move(Map.scale(2*scale1,2*scale2,1)).move(Map.translation(scale1*Y))
 
  
-
-
-
-def cubic_oak(scale1,scale2,scale3):
-    """
-    This function returns a texture for a cube of dimension of the parameters and grain Vector in the Z direction. 
-    The file "chene.png" may be replaced by an other file where the grain vector is in the Y direction. 
-    """
-    #print(scale1,scale2/2.,"sc1 et 2")
-    pigment1=Pigment(photo3).move(Map.affine(-scale2*X,scale3*Y,Z,(.5+1/scale2*2.)*X+(.5+1/scale3*2.)*Y))#-scale2/8.*X+scale3/8.*Y))#1*(scale1*X+scale2*Y)))
-    pigment2=Pigment(photo3).move(Map.affine(-scale1*X,scale3*Y,Z,(.5+1/scale1*2.)*X+(.5+1/scale3*2.)*Y))
-    pigment3=Pigment(photo3).move(Map.affine(-scale1*X,scale2*Y,Z,(.5+1/scale1*2.)*X+(.5+1/scale2*2.)*Y))
-    #oakPlanarTannivHugo.pngexture1="texture{pigment {} rotate -90*y rotate 90*x scale "+str(scale1)+"} ," #the grain is along Y
-    #oakPlanarTexture2="texture{pigment {image_map {png \"chene.png\"  }} rotate -90*x scale "+str(scale2)+"} ,"
-    #oakPlanarTexture3="texture{pigment {image_map {png \"chene.png\"  }} scale " +str(scale3)+" } ," 
-    oakPlanarTexture1=Texture(pigment1).move(Map.rotation(Y,math.pi*.5)).move(Map.rotation(X,math.pi*.5)).unnested_output()+" ,"
-    oakPlanarTexture2=Texture(pigment2).move(Map.rotation(X,math.pi*.5)).unnested_output()+" ,"
-    oakPlanarTexture3=Texture(pigment3).unnested_output()+" ,"
-    oakCubicTexture=Texture("cubic "+ oakPlanarTexture1 + oakPlanarTexture2 + oakPlanarTexture3+oakPlanarTexture1+oakPlanarTexture2+oakPlanarTexture3)#.declare("cubicOak")
-    return oakCubicTexture
-    
-oakImage=Pigment("image_map {png \"chene.png\" }").move(Map.rotation(Y,math.pi/2)).move(Map.rotation(X,math.pi/2))
-#scale1=.3
-#scale2=.6
-#scale3=3
-colorTexture="texture{ pigment{color rgb<1.0 , 0.4, 0.0>}}"
-#oakPlanarPigment=" color rgb<1.0, 0.0, 0.0>,"
-#print ("avtOKT")
-
-
-#print("apresOKT")
-oakCylindricalTexture=Texture("pigment {image_map {png \"chene.png\" map_type 2 }}")
-oakTexture=Texture("pigment {image_map {png \"chene.png\" }}")
-#oakCubicTexture=oakTexture
-wengeTexture=Texture("pigment {image_map {png \"wenge.png\" }}")

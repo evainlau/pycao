@@ -68,7 +68,7 @@ globvars.userDefinedFunctions+=myFonc
 tw=Texture.from_photo("betonRose.png",symmetric=True).move(Map.linear(X+Y,X+Z,X+Y+Z)).move(Map.scale(.5124,.51277,.524))
 #texFloor=Texture("Yellow_Pine " ).move(Map.linear(6*X,.3*Z,10*Y))
 
-travertin=Texture.from_photo("travertin.png",symmetric=True)
+travertin=Texture.from_photo("travertin.png",symmetric=True)#.scale(3,3,1)
 stoveTexture=Texture("pigment {image_map {png \"poele.png\"}}")
 
 #oakTexture=Texture("pigment {image_map {png \"chene.png\"}}")
