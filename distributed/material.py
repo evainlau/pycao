@@ -15,34 +15,56 @@ import povrayshoot
 ################
 Objects considered
 ################
-PNFITem = a string called smallsting+ a facultative moveMap attribute ( Fitems never have this attribute)
-Titem= [ a list of PNFT items ]+ a moveMap. Only the first element may be a texture, in which case it is a named texture
-accessed with an iedentfier. A texture is defined by its list of elements, execpt for the texture at the base 
-of the recursion which are defined by a string and that we call stringy. Non stringy textures are called recursive, they
+The textures in Povray are a bit messy. The following tries to define an implementatin in pycao which 
+is workable easily ( for instance for zooming the textures, overriding them partially, gluing them so that they follow 
+a moving objects.... ) , yet being compatible  with povray without headaches. There is a balance between 
+a complete python approach which would generate an unworkable ugly povray code, and a gentle povray code,  
+including declarations of stuctures for readability, but carrying the corresponding limitations ( for instance,  Povray does 
+not admit a string like "texture {texture {keyword matrixMove} otherItems}" but only  
+"texture { nameOfDeclaredTexture otherItems}". Thus some automatic declaration is 
+sometimes required to fullfill povray input format. )
+
+
+A texture is a recursive structure. It is defined by its list of elements. The texture at the base 
+of the recursion are defined by a string and  we call them stringy textures. Non stringy textures are called recursive, they
 correspond to lists with lengths at least 2. 
+
+In contrast to textures, pigments, normal and finishes (PNF) are not recursive. But they can be used recursivly once they are embedded 
+in a texture. 
+
+Formally,
+PNF ITem = P(igment)N(ormal)(or)F(inish)Item=elementary entity corresponding to a pigment or normal or finish in povray=  a string called smallsting+ a facultative moveMap attribute ( Finish items never have a move map)
+Titem= T(exture)Item= [ a list of PNF or T items ]+ a moveMap. Only the first element may be a texture, in which case it is a named texture
+accessed with an identifier ( for povray compatibility). For recursive Titems, the move map is identity (each element in the list is moved individually).
+
+Obviously, this is limitative as T=[Texture1,Texture2] is not allowed is not a valid input whereas T=[nameOfDeclaredTexture1, item1 of texture2, item2 of textur2...]
+is valid. A fully recursive definition of textures may be possible in the future, but it requires some more code for povray compatibility. One needs to flatten out 
+the recursive tree to build a string understandable by povray.  This is not difficult, but if we flatten out everything, the povray code becomes terrific and ugly.  Thus for the moment, I keep this limitation with readable povray code as I don't have a clear view of what I want.  The problem is : what to do with texture{ namedTexture1, namedTexture2 } whereas povray does not allow two named textures. 
+
+
+################
+INPUT 
+################
+* stringy Titems and PNF items : the smallString which is a sting considered by povray without the pigment{..} or texture{...} 
+surrounding it. May also be the name of a previously defined (in the code or in pivray) PNFT item .
+
+* Recursive T-item : the list of items it contains.  Each element in the list is a pycao object defined before or a string corresponding 
+to a predefined povray texture, or a string for a pycao object declared to povray (see below).
+Summing up, we have roughly input=strings for PNF-items, a string for stringy T-items, ( converted to a list with a unique element by pycao), 
+ lists for recursive T-items.
 
 ################                
 Moving textures
 ################
 
 Methods to move an element:
-PNF itemss and stringy TItems: change the movemap
-Non stringy tItems: move each item in the list
-
-################
-INPUT 
-################
-* string Titems and PNF items : the smallString which is a sting considered by povray without the pigment{..} or texture{...} 
-surrounding it. May also be the name of a previously defined (in the code or in pivray) PNFT item .
-
-* Recursive T-item : the list of items it contains. 
-In particular, there is no string in the input besides the special case of predefined povray texture (they are called "stringy" below).
-Summing up, we have roughly input=strings for PNF-items and items not string for T-items.
+PNF items and stringy TItems: change the movemap
+Non stringy TItems: move each item in the list
 
 ################
 Naming and declaration
 ################
-Each structure can be declared to make the povray code more readable. What a structure is named, 
+Each structure can be declared to make the povray code more readable. When a structure is named, 
 it is automatically declared as a by product. At the moment it is declared, it becomes stringy. 
 Sometimes, it is necessary to declare a name to be compatible with povray's internals. 
 The name built  automatically depends on the pidname and the date to avoid collisions 
@@ -54,9 +76,6 @@ declared and then enhanced by a finish or moved.
 Correspondingly, these textures must be named to be 
 operational with our formalism.  
 
-Povray does not admit a string like "texture {texture {keyword matrixMove} otherItems}" but only 
-"texture { nameOfDeclaredTexture otherItems}". Thus some automatic declaration is 
-sometimes required to fullfill povray input format. 
 
 
 ################
@@ -195,7 +214,7 @@ class Pigment(PNFItem):
     @staticmethod
     def from_square(p1=None,p2=None,p3=None,p4=None):
         """ 
-        corresponds to the povray square pattern
+        corresponds to the povray square pattern. Useful for a piece of wood for instance where the pigment depend on the face.
         """
         if p1 is None: p1=Pigment("Red")
         if p2 is None: p2=Pigment("Green")
@@ -383,6 +402,7 @@ class Texture(PNFTItem,list):
 
     
 def unleash(liste):
+    """ useful if a texture applies to o1, o2,... and you want to move o2,o3.. with the texture without changing the texture of o1.  Then unleash o2,o3..."""
     texture=liste[0].texture
     for obj in liste:
         if not obj.texture==texture:
@@ -390,11 +410,13 @@ def unleash(liste):
     newtexture=texture.copy()
     for obj in liste:
         obj.new_texture(newtexture)
+        
 def remove_texture(self):
     try:
         del self.texture
     except: pass
     return self
+
 def new_texture(self,texture):
     if isinstance(texture,str):#then should be a povray name texture
         texture=Texture(texture)
