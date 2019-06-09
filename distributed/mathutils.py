@@ -742,7 +742,7 @@ class PiecewiseCurve(list,Primitive,ParametrizedCurve):
         parameters:
         points=list of points.
         This is an interpolated curve through the points p_0,\dots,p_n in argument. 
-        The tangent at pi is parallel to p_{i+1}-p_i. 
+        The tangent at pi is parallel to p_{i+1}-p_{i-1}. 
         Technically, between pi and pi+1, 2 points qi and ri are inserted and 
         the curve number i in the compound is the Bezier Curve with points pi,qi,ri,pi+1. 
         For any i, the pair of points (p_i,p_{i+2}) should contain 2 distinct points otherwise 
@@ -1648,6 +1648,8 @@ class Map(np.ndarray):
         elif is_vector(axis):
             myVector = axis
             N=Map.translation(T).view(Map)
+        else:
+            raise NameError('Error of type for axis is:'+str(type(axis)))
         angle = np.asarray(angle)
         myVector = myVector/math.sqrt(np.dot(myVector, myVector))
         a = math.cos(angle/2)

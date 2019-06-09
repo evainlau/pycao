@@ -6,10 +6,10 @@
 
 
 import os 
-pycaoDir=os.environ["dirsubversion"]+"/articlesEtRechercheEnCours/pycao/distributed"
+#pycaoDir=os.environ["dirsubversion"]+"/articlesEtRechercheEnCours/pycao/distributed"
 import sys
 from os.path import expanduser
-sys.path.append(pycaoDir)
+#sys.path.append(pycaoDir)
 #print (pycaoDir)
 import math
 import copy

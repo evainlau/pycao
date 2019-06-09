@@ -66,6 +66,7 @@ globvars.userDefinedFunctions+=myFonc
 
 
 tw=Texture.from_photo("betonRose.png",symmetric=True).move(Map.linear(X+Y,X+Z,X+Y+Z)).move(Map.scale(.5124,.51277,.524))
+tw=Texture.from_photo("murTerreModif.png",symmetric=True).move(Map.linear(X+Y,X+Z,X+Y+Z)).move(Map.scale(1.9515124,1.951277,1.9524))
 #texFloor=Texture("Yellow_Pine " ).move(Map.linear(6*X,.3*Z,10*Y))
 
 travertin=Texture.from_photo("travertin.png",symmetric=True)#.scale(3,3,1)
@@ -213,6 +214,9 @@ cabinet.select_hook("backHook").self_gtranslate(pointOnWall4,vec=X).translate(-.
 cabinet.select_hook("backHook").self_gtranslate(pointOnWall4,vec=Y).translate(.3*Y)
 
 
+camera.imageHeight=2000 # in pixels
+camera.imageWidth=3000
+
 camera.projection="orthographic"
 camera.projection="perspective"
 #camera.location=origin+1.6*X+1.5*Y+1.62*Z
@@ -229,9 +233,9 @@ camera.angle=1.07
 #for light in camera.lights:
 #    print(light.povray_string())
 
-camera.quality=0
+camera.quality=7
 #print("a la fin",room.floor.texture.smallString)
 camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
-#camera.show # show the photo, ie calls povray. 
+camera.show # show the photo, ie calls povray. 
 #print (globVars.TextureString)
 #print(room.texture.smallString)
