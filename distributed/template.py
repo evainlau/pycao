@@ -51,22 +51,22 @@ from lights import *
 
 # a plane represented graphically as a half space 
 ground=plane(Z,origin) # a plane with normal the vector Z=vector(0,0,1) containing the origin
-ground.color='Gray' # The possible colors are the colors described in colors.inc in povray or a rgb color. 
+ground.colored('Gray') # The possible colors are the colors described in colors.inc in povray or a rgb color. 
 
 wall=Cube(1,2,3) # The two opposite corners of the cube are origin and point(1,2,3)
-wall.color="Brown"
+wall.colored('Brown')
 wall.move_at(origin+1.5*Z) # the cube is moved above the plane
 
 cyl=Cylinder(start=origin+2*Y,end=origin+2*Y+Z,radius=0.5) # a vertical Cylinder
-cyl.color='SpicyPink'
+cyl.colored('SpicyPink')
 
 axis=Segment(point(0,4,0),point(0,4,1))
 cyl2=ICylinder(axis,0.5) #an infinite cylinder of radius 0.5
-cyl2.material="pigment { brick Black Green brick_size 2 mortar 0.2 }"
+cyl2.new_texture("pigment { brick Black Green brick_size 2 mortar 0.2 }")
 
 
 s=Sphere(point(0,6,0),1)
-s.color='<1.5,0.5,0.5,1,0>'
+s.rgbed(1.5,0.5,0.5,1)# three rgb colors + facultative transparency
 
 
 light=Light() # a light
