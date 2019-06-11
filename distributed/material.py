@@ -489,9 +489,15 @@ def _colored(self,color):
     return self
 
 
-def _rgbed(self,list):
+def _rgbed(self,*args):
     #print("inrgbed1",self.texture.smallString)
-    p=Pigment("color rgb <"+str(list[0])+","+str(list[1])+","+str(list[2])+">")
+    if len(args)==1:#then arguments given as a list wich is args[0]
+        textArgs=[str(t) for t in args[0]]
+    else:
+        textArgs=[str(t) for t in args]
+    argument=",".join(textArgs)
+    print(argument)
+    p=Pigment("color rgb <"+argument+">")
     if hasattr(self,"texture"):
         t=self.texture.enhance(p)
     else:
