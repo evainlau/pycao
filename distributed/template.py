@@ -19,17 +19,14 @@
 
 
 pycaoDir="/home/laurent/subversion/articlesEtRechercheEnCours/pycao/pycaogit"
+pycaoDir="/users/evain/subversion/articlesEtRechercheEnCours/pycao/pycaogit/distributed"
+import sys
+sys.path.append(pycaoDir)
+
 
 """
                 MODULES IMPORT
 """
-
-
-import os 
-import sys
-from os.path import expanduser
-sys.path.append(pycaoDir)
-import math
 
 
 
@@ -45,38 +42,57 @@ from cameras import *
 from lights import *
 
 
+###############################
+# By default, lights you will append in the file  are appended to existing cameras. So probably 
+# you want to leave the first line defining the camera at the beginning of the file
+
+
+camera=Camera()
+light=Light().hooked_on(camera.hook()+3*X-Z) # a light located close to the camera
+light.glued_on(camera) # the light will follow the camera, so that you will get light on your objects
+
+
+#######################################
+
 """
                 SCENE DESCRIPTION
 """
 
+
+
+
+
 # a plane represented graphically as a half space 
 ground=plane(Z,origin) # a plane with normal the vector Z=vector(0,0,1) containing the origin
-ground.colored('Gray') # The possible colors are the colors described in colors.inc in povray or a rgb color. 
+ground.colored('Gray') # The possible colors are the colors described in colors.inc in povray or a rgb color as in the exemple below. 
 
-wall=Cube(1,2,3) # The two opposite corners of the cube are origin and point(1,2,3)
+wall=Cube(2,.5,1.5) # The two opposite corners of the cube are origin and point(1,2,3)
 wall.colored('Brown')
-wall.move_at(origin+1.5*Z) # the cube is moved above the plane
+myPoint=wall.point(0.5,0.5,0) # this is the point in the middle ( coordinates=.5)  X and Y, and below (coordinate 0 for Z). 
+wall.add_hook("bottom",myPoint) # A hook with name "bottom" is added to the wall and is selected as the active hook. of the wall. 
+wall.hooked_on(origin) # the wall is moved by moving its active hook to the origin, ie. the bottom of the wall goes to the origin
 
-cyl=Cylinder(start=origin+2*Y,end=origin+2*Y+Z,radius=0.5) # a vertical Cylinder
+cyl=Cylinder(start=origin+2*X,end=origin+2*X+Z,radius=0.5) # a vertical Cylinder
 cyl.colored('SpicyPink')
 
-axis=Segment(point(0,4,0),point(0,4,1))
+axis=Segment(point(4,0,0),point(4,0,1))
 cyl2=ICylinder(axis,0.5) #an infinite cylinder of radius 0.5
 cyl2.new_texture("pigment { brick Black Green brick_size 2 mortar 0.2 }")
 
 
-s=Sphere(point(0,6,0),1)
-s.rgbed(1.5,0.5,0.5,1)# three rgb colors + facultative transparency
+s=Sphere(point(6,0,0),1)
+s.rgbed(1.5,0.5,0.5,1)# three rgb colors. The fourthe entry of the rgbed function is facultative, giving transparency
 
 
-light=Light() # a light
-light.location=(origin+6.8*Z-2*X+Y)
 
-camera=Camera()
-camera.location=origin-5*X+0*Y+2*Z
-camera.povraylights="light_source {<"+ str(light.location[0])+","+str(light.location[1])+","+str(light.location[2])+ "> color White " + "}\n\n"
+
+#################################################
+#  Now, what you see
+#################################################
+
+camera.hooked_on(origin-4*Y+2*Z)  # the positive y are in front of us so we put the camera in negative y. 
 camera.actors=[wall,ground,cyl,cyl2,s] # what is seen by the camera
-camera.lookAt=cyl.center
+camera.lookAt=cyl.point(.5,.5,.5) # look at the center of cyl
 camera.zoom(0.1)
 camera.imageHeight=800 # in pixels
 camera.imageWidth=900 

@@ -55,7 +55,9 @@ class Camera(Primitive):
         self.lookAt=point(0,0,0)
         self.sky=vector(0,0,1)# the upper vector in the photo
         self.directFrame=True  # By default, direct frame with Z vertical,X on the right, Y in front of us
-        self.location=point(0,-4,2)  # sensible for units in meters. the positive y are in front of us. 
+        self.location=point(0,-4,2)  # Do not move the camera with this variable otherwise glued_objects won't follow
+                                     # Use camera.hooked_on(point) instead
+        self.add_hook("location",self.location)
         self.actors=[]
         self.filmAllActors=filmAllActorsDefault
         self.file=myPovFile # the place to store the photo

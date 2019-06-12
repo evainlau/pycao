@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-myPovFile="/tmp/pycaoOutput.pov" # the place to store the photo
+myPovFile="pycaoOutput.pov" # the place to store the photo
 defaultImageHeight=620 # in pixels
 defaultImageWidth=900
 filmAllActorsDefault=False # Not to change, since there are bugs at the moment in some objects which show up too many parts
@@ -30,16 +30,20 @@ screwPositiveRotations=True # ie rotation(axis,angle) "screws" when one looks  t
 ################################################################
 #    Lights and colors
 ################################################################
-defaultLightType="spotlight"
-# Ambient
-defaultAmbientRgb=[.507,.507,.507]
-defaultAmbientRgbIntensity=1.2
-# lights with shadow
+defaultLightType="" # . By default, a usual pointlight defined by the empty string.  Spotlight is possible
+
+# Ambient ligth : so that objects are visible even if you don't add lights in your scene. Gives no shadow. Gives ligth on
+# every part of your object. Similar to a diffuse ligth in a room
+defaultAmbientRgb=[0.507,0.507,.507] # rgb colors of the ambient light
+defaultAmbientRgbIntensity=1.2 # intensity=multiplier for the above rgb colors
+
+## Some lights give shadow and some don't. Values by default for these lights. 
+# lights with shadow 
 shadowlightDefaultRgb=[.522,.522,.522]
-defaultShadowlightRgbIntensity=1.2# Same thing for lights with shadow
+defaultShadowlightRgbIntensity=.8# intensity=multiplier for the above rgb colors
 # lights without shadow
 shadowlesslightDefaultRgb=[.322,.322,.322]
-defaultShadowlesslightRgbIntensity=.6# Same thing for lights without shadow
+defaultShadowlesslightRgbIntensity=.6# intensity=multiplier for the above rgb colors
 # usual solid objects
 defaultRgb=[.25,.25,0]
 defaultRgbIntensity=1
