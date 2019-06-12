@@ -24,8 +24,8 @@ class ViewerWindow(Gtk.Window):
 
     # les callback
     def show_camera_info(self):
-        string="camera.location=point("+str(math.ceil(self.camera.location[0]*100)/100)+","+str(
-            math.ceil(self.camera.location[1]*100)/100)+","+str(math.ceil(self.camera.location[2]*100)/100)+")"
+        string="camera.hooked_on(point("+str(math.ceil(self.camera.location[0]*100)/100)+","+str(
+            math.ceil(self.camera.location[1]*100)/100)+","+str(math.ceil(self.camera.location[2]*100)/100)+"))"
         string+="\n"
         string+="camera.lookAt=point("+str(math.ceil(self.camera.lookAt[0]*100)/100)+","+str(
             math.ceil(self.camera.lookAt[1]*100)/100)+","+str(math.ceil(self.camera.lookAt[2]*100)/100)+")"

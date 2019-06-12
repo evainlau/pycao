@@ -496,7 +496,6 @@ def _rgbed(self,*args):
     else:
         textArgs=[str(t) for t in args]
     argument=",".join(textArgs)
-    print(argument)
     p=Pigment("color rgb <"+argument+">")
     if hasattr(self,"texture"):
         t=self.texture.enhance(p)

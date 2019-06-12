@@ -43,9 +43,9 @@ class Light(ObjectInWorld):
         else:
             self.info.rgbIntensity=defaultShadowlightRgbIntensity
         if not shadow:
-            self.info.rgb=shadowlightDefaultRgb
-        else:
             self.info.rgb=shadowlesslightDefaultRgb
+        else:
+            self.info.rgb=shadowlightDefaultRgb
         self.lightType=lightType
         self.shadow=shadow
         for camera in cameraList:
