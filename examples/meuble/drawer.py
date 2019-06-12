@@ -19,7 +19,7 @@
 
 import os 
 if os.environ['ordi']=="ordiFac":
-    pycaoDir="/users/evain/subversion/articlesEtRechercheEnCours/pycao/distributed"
+    pycaoDir="/users/evain/subversion/articlesEtRechercheEnCours/pycao/pycaogit/distributed"
 else:
     pycaoDir="/home/laurent/subversion/articlesEtRechercheEnCours/pycao/pycaogit/distributed"
 #
@@ -30,9 +30,7 @@ else:
 """
 
 
-import os 
 import sys
-from os.path import expanduser
 sys.path.append(pycaoDir)
 import math
 
@@ -56,43 +54,39 @@ from architecturelibrary import *
 
 # a plane represented graphically as a half space 
 ground=plane(Z,origin) # a plane with normal the vector Z=vector(0,0,1) containing the origin
-ground.colored('DarkGreen') # The possible colors are the colors described in colors.inc in povray or a rgb color. 
-ground.new_texture(Texture.from_photo("travertin.png",symmetric=True).scale(.6,.6,1))
 ground.new_texture(Texture.from_photo("parquet1.png",symmetric=True).scale(2.6,2.6,1))
 ground.name="plan"
 
-#wall=Room(Polyline([origin,X,X+Y,Y,-2*X,-Y])).colored("Yellow")
 
-
-
-
-
-l=Light(origin+3*Z-Y)
 
 feetheight=.1
 feetSize=.1
+
+## the front face and the drawer , 
 up=FramedGlass(width=.5,height=.4,thickness=.02,borderWidth=.06)
-bot=FramedDrawer(width=.5,height=.3,thickness=.02,borderWidth=.06,openingAmount=0)
+bot=FramedDrawer(width=.5,height=.3,thickness=.02,borderWidth=.06,openingAmount=1.15)
 up.above(bot)
 frontFace=Compound()
 frontFace.add_list_to_compound([["up",up],["bot",bot]])
+## a box containing the front face:
 f=FrameBox(up.box().points+bot.box().points)
 frontFace.add_box("globalBox",f)
 dim=f.dimensions
+### now the part behind the front face, using the dimension of the box. 
 b1=WoodStud(dimx=.3,dimy=dim[1],dimz=dim[2],grainVector=Z)
-#pourquoi ne marche pas avec *dim ?
 b2=WoodStud(dimx=dim[0],dimy=dim[1],dimz=dim[2],grainVector=Z)
 b3=b1.copy()
 mainPart=CabinetStorey(frontFace,b1,b2,b3)
 dim=mainPart.dimensions
+#now a support for what we drew
 support=WoodStud(dim[0]+.015,dim[1]+.015,.01)
 mainPart.above(support)
+# and atop
 top=FramedStub(width=dim[0]+.015,height=dim[1]+.015,thickness=.01,borderWidth=.07)
 top.parallel_to(Z)
 top.activeBox.reorder()
 top.above(mainPart)
-#dimx=.3,dimy=dim[1],dimz=dim[2],
-
+# and feet below the support
 feet=WoodStud(dim[0],dim[1],2*feetheight)
 toCut1=RoundedWoodStud((1-2*feetSize)*dim[0],dim[1]+1,2*feetheight+.001,radius=.4*feetheight)
 toCut1.translate(feet.center-toCut1.center)
@@ -106,12 +100,12 @@ feet.below(support)
 cabinet=Compound()
 cabinet.add_list_to_compound([mainPart,support,feet,top])
 cabinet.add_box("mp",mainPart.box())
+bottom=feet.box().point(.5,.5,0)
+cabinet.translate(origin-bottom)
+
 #actor=Cabinet().pirotate(Z,0.6).hooked_on(origin)
-actor=Cabinet().hooked_on(origin)
-#FramedStub()
-#actor=actor.feet
-#print(top.frame.box())
-#print(top.stub.box())
+#actor=Cabinet().hooked_on(origin)
+actor=cabinet
 
 
 camera=Camera()
@@ -119,18 +113,13 @@ camera.projection="perspective"
 camera.filmAllActors=False
 camera.location=origin-0.8*X-1.*Y+1*Z
 l=Light(origin-4*Y+10*Z-3*X)
-#camera.povraylights="light_source {<"+ str(light.location[0])+","+str(light.location[1])+","+str(light.location[2])+ "> color White " + "}\n\n"
-#camera.actors=[wall,ground,cyl,cyl2,s] # what is seen by the camera
-#camera.actors=[table.c13,table.c12,table.s1] # what is seen by the camera#\\
 camera.actors=[actor,ground]#,floor2]#,ground] # what is seen by the camera
 #ground.visibility=0
 camera.lookAt=actor.center#origin
 camera.zoom(1)
 
-
-camera.angle=0.94
+camera.quality=11
+camera.povraypath=pycaoDir+"/../images/"
 camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
 camera.show # show the photo, ie calls povray. 
-#print(actor.center)
-#print(actor.box())
-#print(actor.box().point(0,0,1,"ppp"))
+

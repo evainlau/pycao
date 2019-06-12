@@ -50,7 +50,7 @@ class Camera(Primitive):
         self.ambientColor=None
         self.imageHeight=defaultImageHeight # in pixels
         self.imageWidth=defaultImageWidth
-        self.angle=(20./180.*math.pi)  #  use camera.zoom() to change
+        self.angle=(.25*math.pi)  #  use camera.zoom() to change
 		#the angle without computation headache involving tangents
         self.lookAt=point(0,0,0)
         self.sky=vector(0,0,1)# the upper vector in the photo
@@ -68,7 +68,7 @@ class Camera(Primitive):
         self.povraylights=""
         self.quality=9 #
         self.silent=True # to display or not a lot of information when self.show is called
-        self.defaultDistance=3 # The distance from the point looked at in left/right... views
+        self.defaultDistance=3 # The distance from the point looked at in left/right... views of the viewer
         camerasInScene.append(self)
     def move_alone(self,M):
         self.location=M*self.location
@@ -88,6 +88,7 @@ class Camera(Primitive):
             else :
                 options+="-D "
             options+="+H"+str(self.imageHeight)+ " +W"+str(self.imageWidth) +" "
+            options+="Library_Path="+self.povraypath+" "
             options+="+Q"+str(self.quality)+" "
             if self.silent:
                 options+="-GD -GF -GR -GS -GW -GA "
@@ -103,7 +104,8 @@ class Camera(Primitive):
             options+=" "
             options+="-D "
             options+="+H"+str(self.imageHeight)+ " +W"+str(self.imageWidth) +" "
-            options+="+Q"+str(self.quality)
+            options+="+Q"+str(self.quality)+" "
+            options+="Library_Path="+self.povraypath+" "
             if self.silent:
                 options+="-GD -GF -GR -GS -GW -GA "
             subprocess.call([command,options,self.file])

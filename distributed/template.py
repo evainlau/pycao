@@ -20,6 +20,7 @@
 
 pycaoDir="/home/laurent/subversion/articlesEtRechercheEnCours/pycao/pycaogit"
 pycaoDir="/users/evain/subversion/articlesEtRechercheEnCours/pycao/pycaogit/distributed"
+
 import sys
 sys.path.append(pycaoDir)
 
@@ -27,7 +28,6 @@ sys.path.append(pycaoDir)
 """
                 MODULES IMPORT
 """
-
 
 
 from uservariables import *
@@ -40,6 +40,9 @@ from compound import *
 import povrayshoot 
 from cameras import *
 from lights import *
+from material import *
+
+
 
 
 ###############################
@@ -66,22 +69,22 @@ light.glued_on(camera) # the light will follow the camera, so that you will get 
 ground=plane(Z,origin) # a plane with normal the vector Z=vector(0,0,1) containing the origin
 ground.colored('Gray') # The possible colors are the colors described in colors.inc in povray or a rgb color as in the exemple below. 
 
-wall=Cube(2,.5,1.5) # The two opposite corners of the cube are origin and point(1,2,3)
-wall.colored('Brown')
+wall=Cube(2,.5,1.5).colored('Brown') # A wall given by a cube of prescribed dimension
 myPoint=wall.point(0.5,0.5,0) # this is the point in the middle ( coordinates=.5)  X and Y, and below (coordinate 0 for Z). 
 wall.add_hook("bottom",myPoint) # A hook with name "bottom" is added to the wall and is selected as the active hook. of the wall. 
 wall.hooked_on(origin) # the wall is moved by moving its active hook to the origin, ie. the bottom of the wall goes to the origin
 
-cyl=Cylinder(start=origin+2*X,end=origin+2*X+Z,radius=0.5) # a vertical Cylinder
-cyl.colored('SpicyPink')
+
+# a vertical cylinder
+cyl=Cylinder(start=origin+2*X,end=origin+2*X+Z,radius=0.5).colored('SpicyPink')
 
 axis=Segment(point(4,0,0),point(4,0,1))
-cyl2=ICylinder(axis,0.5) #an infinite cylinder of radius 0.5
-cyl2.new_texture("pigment { brick Black Green brick_size 2 mortar 0.2 }")
+#an infinite cylinder of radius 0.5
+cyl2=ICylinder(axis,0.5).new_texture("pigment { brick Black Green brick_size 2 mortar 0.2 }")
 
 
 s=Sphere(point(6,0,0),1)
-s.rgbed(1.5,0.5,0.5,1)# three rgb colors. The fourthe entry of the rgbed function is facultative, giving transparency
+s.rgbed(1.5,0.5,0.5,1)# three rgb colors. The fourth entry of the rgbed function is facultative, giving transparency
 
 
 
@@ -90,13 +93,16 @@ s.rgbed(1.5,0.5,0.5,1)# three rgb colors. The fourthe entry of the rgbed functio
 #  Now, what you see
 #################################################
 
-camera.hooked_on(origin-4*Y+2*Z)  # the positive y are in front of us so we put the camera in negative y. 
-camera.actors=[wall,ground,cyl,cyl2,s] # what is seen by the camera
-camera.lookAt=cyl.point(.5,.5,.5) # look at the center of cyl
-camera.zoom(0.1)
-camera.imageHeight=800 # in pixels
-camera.imageWidth=900 
 
+camera.hooked_on(origin-4*Y+2*Z)  # the positive y are in front of us because the camera is located in negative Y and we look at  a point close to the origin
+camera.lookAt=cyl.point(.5,.5,.5) # look at the center of cyl
+camera.actors=[wall,ground,cyl,cyl2,s] # what is seen by the camera
+camera.file="pycaoOutput.pov" # A name for the povray file that will be generated
+camera.povraypath=pycaoDir+"images/"
+camera.zoom(0.15)
+camera.imageHeight=800 # in pixels
+camera.imageWidth=1200 
+camera.quality=9 # a number between 0 and 11,  Consider using a lower quality setting if you're just testing your scene
 
 camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
 camera.show # show the photo, ie calls povray. 
