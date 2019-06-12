@@ -130,7 +130,7 @@ room.add_window(wallNumber=3,wlength=.7,wheight=.7,wdepth=.1,deltaLength=2.57,de
 
 outsideDoor=room.add_door(wallNumber=4,wlength=.9,wheight=2.15,wdepth=.1,deltaLength=.13,deltaHeigth=0,reverseHandle=True,handleTexture=handleTexture).new_texture(texDoor.copy().flipXZ().flipYZ())
 outsideDoor.add_porthole()
-outsideDoor.window.frame.rgbed([.8,.8,.6])
+outsideDoor.window.frame.rgbed(.8,.8,.6)
 outsideDoor.name="outsideDoor"
 
 ls=LightSwitch().parallel_to(-1*room.walls[4].insideVector())
