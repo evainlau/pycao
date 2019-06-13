@@ -168,6 +168,7 @@ def _hooked_on(self,other):
 
 
 def _move_at(self,*location):
+    # HIGHLY deprecated. DO NOT USE PLEASE. ADD A hook and use _hooke_on
     from aliases import point
     #print(len(location))
     #print(location)
@@ -249,7 +250,7 @@ def _show_box(self):
     return self
 
 ObjectInWorld.hooked_on=_hooked_on
-ObjectInWorld.move_at=_move_at
+ObjectInWorld.move_at=_move_at #     # HIGHLY deprecated. DO NOT USE PLEASE. ADD A hook and use hooked_on please
 ObjectInWorld.below=_move_below
 ObjectInWorld.above=_move_above
 ObjectInWorld.in_front_of=_move_in_front_of

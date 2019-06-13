@@ -18,7 +18,7 @@
 
 
 
-pycaoDir="/home/laurent/subversion/articlesEtRechercheEnCours/pycao/pycaogit"
+#pycaoDir="/home/laurent/subversion/articlesEtRechercheEnCours/pycao/pycaogit"
 pycaoDir="/users/evain/subversion/articlesEtRechercheEnCours/pycao/pycaogit/distributed"
 
 import sys
@@ -97,8 +97,8 @@ s.rgbed(1.5,0.5,0.5,1)# three rgb colors. The fourth entry of the rgbed function
 camera.hooked_on(origin-4*Y+2*Z)  # the positive y are in front of us because the camera is located in negative Y and we look at  a point close to the origin
 camera.lookAt=cyl.point(.5,.5,.5) # look at the center of cyl
 camera.actors=[wall,ground,cyl,cyl2,s] # what is seen by the camera
-camera.file="pycaoOutput.pov" # A name for the povray file that will be generated
-camera.povraypath=pycaoDir+"images/"
+camera.file="pycaoOutput.pov" # A name for the povray file that will be generated. Must end with .pov
+camera.povraypath=pycaoDir+"images/" # where you put your images,photos for the textures
 camera.zoom(0.15)
 camera.imageHeight=800 # in pixels
 camera.imageWidth=1200 

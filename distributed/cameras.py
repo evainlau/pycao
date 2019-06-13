@@ -66,6 +66,7 @@ class Camera(Primitive):
         self.technology="povray" #  only possibility at the moment
         self.lights=[]
         self.povraylights=""
+        self.povraypath=""
         self.quality=9 #
         self.silent=True # to display or not a lot of information when self.show is called
         self.defaultDistance=3 # The distance from the point looked at in left/right... views of the viewer
