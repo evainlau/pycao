@@ -37,6 +37,8 @@ from elaborate import ICylinder
 """
 ################################################################
 
+
+
 def _translate_object(self,*args):
     #print(Map.translation(*args)*Map.identity)
     #print ("dans translate")
@@ -85,6 +87,58 @@ def _scale_object(self,fx=1,fy=1,fz=1,xVector=X,yVector=Y, zVector=Z,fixedPoint=
                         yVector=yVector, zVector=zVector,fixedPoint=fixedPoint))
     return self
 
+def _parallel_to(self,other,fixed=None):
+    if  is_vector(other):
+        goal=other
+    elif hasattr(other,"axis"):
+        goal=other.axis().vector
+    elif hasattr(other,vector):
+        goal=other.vector
+    else: raise nameError("other should be a vector, a segment, or an object with an axis")
+    if is_vector(self):
+        start=self
+    elif hasattr(self,"axis"):
+        start=self.axis().vector
+    elif hasattr(self,vector):
+        start=vector
+    else: raise nameError("self should be a vector, a segment, or an object with an axis")
+    M=Map.rotational_difference(start,goal)
+    if fixed is not None:
+        myVec=fixed-point(0,0,0)
+        N=Map.translation(myVec)
+        P=Map.translation(-myVec)
+        M=N*M*P
+    self.move(M)
+    return self
+
+def _grotate(self,ax,o1,o2):
+    if isinstance(ax,Segment):
+        rotaxis=ax
+    else:
+        rotaxis=ax.axis()
+    if  is_point(o1):
+        p1=o1
+    elif hasattr(o1,"hook"):
+        p1=o1.hook()
+    else: raise nameError("o1 should be a point or an object with a hook")
+    if  is_point(o2):
+        p2=o2
+    elif hasattr(o1,"hook"):
+        p2=o2.hook()
+    else: raise nameError("o2 should be a point or an object with a hook")
+    vec1=(p1-rotaxis.p1).cross(rotaxis.vector)
+    vec2=(p2-rotaxis.p1).cross(rotaxis.vector)
+    print(vec1,vec1.__class__)
+    print(vec2,vec2.__class__)
+    print(o2)
+    angle=vec1.angle_to(vec2,rotaxis.vector)
+    print("L angle est ", angle)
+    M=Map.rotation(rotaxis,angle)
+    self.move(M)
+    return self
+    
+def _self_grotate(self,o2):
+    return self._rotate(self.axis(),self.hook(),o2)
 
 
 def flipXY(self):
@@ -150,6 +204,8 @@ def _init_object(self,*args,**kwargs):
 ObjectInWorld.translate=_translate_object
 ObjectInWorld.gtranslate=_gtranslate_object
 ObjectInWorld.rotate=_rotate_object
+ObjectInWorld.grotate=_grotate
+ObjectInWorld.self_grotate=_self_grotate
 ObjectInWorld.pirotate=_pirotate_object
 ObjectInWorld.scale=_scale_object
 ObjectInWorld.__init__=_init_object
@@ -258,6 +314,7 @@ def _show_box(self):
     return self
 
 ObjectInWorld.hooked_on=_hooked_on
+ObjectInWorld.parallel_to=_parallel_to
 ObjectInWorld.move_at=_move_at #     # HIGHLY deprecated. DO NOT USE PLEASE. ADD A hook and use hooked_on please
 ObjectInWorld.below=_move_below
 ObjectInWorld.above=_move_above

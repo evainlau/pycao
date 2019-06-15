@@ -214,7 +214,7 @@ class MassPoint(np.ndarray,Primitive):
         M=Map.linear_rotation(vaxis,angle)
         toVanish=M*self.normalized_copy()-goal.normalized_copy() # it is zero if the angle is correct, and with norm 2|sin(angle)| otherwise
         if toVanish.norm>math.fabs(math.sin(angle)):
-            angle=angle+math.pi
+            angle=-angle#+math.pi
         return angle
     # other methods
 

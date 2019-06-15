@@ -410,26 +410,7 @@ class ObjectInWorld(object):
         self.move(M)
         return self
 
-    def parallel_to(self,other):
-        import mathutils
-        if  mathutils.is_vector(other):
-            goal=other
-        elif hasattr(other,"axis"):
-            goal=other.axis().vector
-        elif hasattr(other,vector):
-            goal=other.vector
-        else: raise nameError("other should be a vector, a segment, or an object with an axis")
-        if mathutils.is_vector(self):
-            start=self
-        elif hasattr(self,"axis"):
-            start=self.axis().vector
-        elif hasattr(self,vector):
-            start=vector
-        else: raise nameError("self should be a vector, a segment, or an object with an axis")
-        M=mathutils.Map.rotational_difference(start,goal)
-        self.move(M)
-        return self
-
+ 
     def box(self,name=None): #will be overwritten for some objects construcing their own boxes
         if name is None:
             return self.activeBox.copy()
