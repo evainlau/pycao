@@ -531,7 +531,7 @@ class ObjectInWorld(object):
         return self.rotate(self.axis(),math.pi*angle)
 
     def self_degrotate(self,angle):
-        return self.rotate(self.axis(),math.pi*angle/90)
+        return self.rotate(self.axis(),math.pi*angle/180)
 
     
     def self_translate(self,amount,type="p"):
