@@ -18,8 +18,8 @@
 
 
 
-pycaoDir="/home/laurent/subversion/articlesEtRechercheEnCours/pycao/pycaogit/distributed"
-#pycaoDir="/users/evain/subversion/articlesEtRechercheEnCours/pycao/pycaogit/distributed"
+#pycaoDir="/home/laurent/subversion/articlesEtRechercheEnCours/pycao/pycaogit/distributed"
+pycaoDir="/users/evain/subversion/articlesEtRechercheEnCours/pycao/pycaogit/distributed"
 
 import sys
 sys.path.append(pycaoDir)
@@ -120,12 +120,3 @@ if 1>0:
 #  Now, what you see
 #################################################
 
-
-"""
-parallel_to, with invariant point, ajouter une boule rouge et verte et tester, tester de mettre les 2 aiguilles parallel
-
-Pour les points:
-grotate(objet1OuPoint1,objet2OuPoint2,centre de rotation=None)
-self_grotate(Objet2ouVect2,
-
-"""
