@@ -8,7 +8,7 @@ here are the tools.
 Linear and affine maps
 ----------------------------------
 
-To make a translation of vector v=Vector(x,y,z) or a rotation
+To make a translation of vector v=Vector(x,y,z) or a rotation in radians.
 
 .. code-block:: python
 
@@ -36,6 +36,7 @@ describe any affine map. The syntax is
 
    M=Map.affine(a,b,c,w)
    c.move(M)
+
 which is equivalent to 
 
 .. code-block:: python
@@ -44,9 +45,6 @@ which is equivalent to
    N=Map.translation(w)
    c.move(N*M)
 
-Rotations
-
-..code-block:: python
 
 Rotations
 --------------
@@ -55,32 +53,37 @@ Rotations
 		
    mathutils.Map.rotational_difference(start,goal)  
 
- is the linear rotation sending the vector start to the vector goal
+is the linear rotation sending the vector start to the vector
+goal. We have seen that 
 
 .. code-block:: python
 
    axis=line(point1,point2)
    c.rotate(axis,angleInRadians)
 
-for a simple rotaion in radian. If you want to use
-the axis selected for the object implicitly: 
+for a simple rotaion in radians. If you want to use
+the axis selected for the object implicitly, add "self": 
    
 .. code-block:: python
 
    c.self_rotate(angle):
 
 Rotations with multiple of math.pi implicit if you are tired to
-typeset math.pi. 	
+typeset math.pi.
+
 .. code-block:: python	
 
-   def self_pirotate(self,angle):
-        return self.rotate(self.axis(),math.pi*angle)
+   c.self_pirotate(angle)
+   
+is equivalent to c.rotate(c.axis(),math.pi*angle)
 
-A rotation in degrees	
+For a  rotation in degrees
+
 .. code-block:: python			
 	
-    def self_degrotate(self,angle):
-        return self.rotate(self.axis(),math.pi*angle/90)
+    c.self_degrotate(self,angle)
+
+is equivalent to c.rotate(self.axis(),math.pi*angle/180)
 
 
 
