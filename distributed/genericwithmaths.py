@@ -138,7 +138,7 @@ def _grotate(self,ax,o1,o2):
     return self
     
 def _self_grotate(self,o2):
-    return self._rotate(self.axis(),self.hook(),o2)
+    return self.grotate(self.axis(),self.hook(),o2)
 
 
 def flipXY(self):

@@ -1,5 +1,3 @@
-# a illusrer
-
 """
     This is Pycao, a modeler and raytracer interpreter for 3D drawings
     Copyright (C) 2015  Laurent Evain
@@ -70,32 +68,25 @@ ground=plane(Z,origin) # a plane with normal the vector Z=vector(0,0,1) containi
 ground.colored('SeaGreen') # The possible colors are the colors described in colors.inc in povray or a rgb color as in the exemple below. 
 
 clock=Cylinder(start=origin, end=origin+.03*Z,radius=.21).colored("Gray")
-s=Sphere(origin+.2*X+.2*Y,.03).colored("Blue")
+blueSphere=Sphere(origin+.2*X+.2*Y,.03).colored("Blue")
+pinkSphere=Sphere(origin-.3*X+.1*Y,.03).colored("Pink")
 top=clock.point(.5,.5,1)
-clock.add_hook("top",top)
+clock.add_hook("top",top+.002*Z)
 smallWatchHand=Cube(.12,.02,.001).colored("Red").add_axis("axisOfRotation",line(origin,origin+Z))
 smallWatchHand.add_hook("end",smallWatchHand.point(1,0,0))
-smallWatchHand.add_hook("centerOfRotation",origin)
-smallWatchHand.add_axis("along",line(origin,origin+X))
-smallWatchHand.hooked_on(top+.001*Z)
-longWatchHand=Cube(.005,.16,.001).rgbed(.1,.6,.3).add_axis("axisOfRotation",line(origin,origin+Z)).add_hook("centerOfRotation",origin)
+smallWatchHand.add_hook("centerOfRotation",smallWatchHand.point(0,0.5,0)).hooked_on(clock)
+smallWatchHand.add_axis("along",line(smallWatchHand.hook("centerOfRotation"),X))
+#smallWatchHand.hooked_on(top+.001*Z)
+longWatchHand=Cube(.005,.16,.001).rgbed(.1,.6,.3).add_axis("axisOfRotation",line(origin,origin+Z))
+longWatchHand.add_hook("centerOfRotation",longWatchHand.point(.5,0,0)).hooked_on(smallWatchHand.hook("centerOfRotation")+.002*Z)
 longWatchHand.hooked_on(smallWatchHand.hook()+.003*Z)
 longWatchHand.add_axis("along",line(origin,origin+Y))
-window=Cylinder(start=origin, end=origin+.03*Z,radius=.195).rgbed(.21,.21,.21,10)
-window.add_hook("bottom",window.point(.5,.5,0)).hooked_on(clock.hook()+.001*Z)
-smallWatchHand.parallel_to(longWatchHand,fixed=smallWatchHand.hook())
-longWatchHand.parallel_to(-X+Y,fixed=longWatchHand.hook())
-smallWatchHand.select_axis("axisOfRotation")
-smallWatchHand.select_hook("end")
-smallWatchHand.grotate(smallWatchHand.axis(),smallWatchHand.hook(),s.center)
-#################################################
-#  Now, what you see
-#################################################
+
 
 
 camera.hooked_on(origin-.6*Y+1*Z)  # the positive y are in front of us because the camera is located in negative Y and we look at
 camera.lookAt=origin # look at the center of cyl
-camera.actors=[ground,clock,top,smallWatchHand,longWatchHand,s]#,window] # what is seen by the camera
+camera.actors=[ground,clock,top,smallWatchHand,longWatchHand,blueSphere,pinkSphere] # what is seen by the camera
 #camera.actors=[longWatchHand]
 camera.file="pycaoOutput.pov" # A name for the povray file that will be generated. Must end with .pov
 camera.povraypath=pycaoDir+"images/" # where you put your images,photos for the textures
@@ -106,27 +97,35 @@ camera.quality=9 # a number between 0 and 11,  Consider using a lower quality se
 
 light=Light().hooked_on(camera.hook()+3*X) # a light located close to the camera                                                                            
 camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
-camera.show # show the photo, ie calls povray. 
+
+if 1>0:
+    camera.file="rotationInitial.pov"
+    camera.shoot
+    camera.show
+    smallWatchHand.parallel_to(longWatchHand,fixed=smallWatchHand.hook())
+    camera.file="rotationParallel1.pov"
+    camera.shoot
+    camera.show
+    longWatchHand.parallel_to(blueSphere.center-pinkSphere.center,fixed=longWatchHand.hook())
+    camera.file="rotationParallel2.pov"
+    camera.shoot
+    camera.show
+    smallWatchHand.select_axis("axisOfRotation")
+    smallWatchHand.select_hook("end")
+    smallWatchHand.self_grotate(blueSphere.center)
+    camera.file="rotationGrotate.pov"
+    camera.shoot
+    camera.show
+#################################################
+#  Now, what you see
+#################################################
 
 
 """
-Pour les vecteurs:
-mathutils.Map.rotational_difference(start,goal)  
 parallel_to, with invariant point, ajouter une boule rouge et verte et tester, tester de mettre les 2 aiguilles parallel
 
 Pour les points:
 grotate(objet1OuPoint1,objet2OuPoint2,centre de rotation=None)
 self_grotate(Objet2ouVect2,
-
-Dans les maths
-    def self_rotate(self,angle):
-        return self.rotate(self.axis(),angle)
-
-    def self_pirotate(self,angle):
-        return self.rotate(self.axis(),math.pi*angle)
-
-    def self_degrotate(self,angle):
-        return self.rotate(self.axis(),math.pi*angle/90)
-
 
 """
