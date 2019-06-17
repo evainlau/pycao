@@ -88,7 +88,7 @@ is equivalent to c.rotate(self.axis(),math.pi*angle/180)
 
 
 
-Shorticuts
+Shortcuts
 -------------------
 
 Shortcuts for scaling or for inverting axes:

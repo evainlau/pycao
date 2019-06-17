@@ -241,7 +241,7 @@ class ObjectInWorld(object):
         self.csgOperations.append(csgOperation)
         return self
 
-    def amputed_by2(self,cuttingShape,throwShapeAway=True,keepTexture=True):
+    def amputed_by2(self,cuttingShape,throwShapeAway=True,keepTexture=True,takeCopy=False):
         """
         cut self using the substraction of cuttingShape, where cuttingShape=object or listOfObjects
         The cuttingShape is made invisible after the cutting operation if throwShapeAway=True
@@ -249,25 +249,26 @@ class ObjectInWorld(object):
         # I make a copy so that I can move the cutting shape independently of self later on
         #print("type")
         #print(type(cuttingShape))
-        if not isinstance(cuttingShape,list):
-            cuttingShape=[cuttingShape]
-        if keepTexture and hasattr(self,"texture"):
-            copie=[tool.copy().new_texture(self.texture) for tool in cuttingShape]
+        if takeCopy:
+            toCut=cuttingShape.copy()
         else:
-            copie=[tool.copy() for tool in cuttingShape]
-        #print("mat",copie.materials,cuttingShape.materials)
+            toCut=cuttingShape
+        if not isinstance(toCut,list):
+            toCut=[toCut]
+        if keepTexture and hasattr(self,"texture"):
+            [tool.new_texture(self.texture) for tool in toCut]
+        #print("mat",copie.materials,toCut.materials)
         #print("Les outils de coupe")
         #print([tool.children for tool in copie])
-        [tool.make_invisible() for tool in copie]
-        [tool.glued_on(self) for tool in copie]# Then I can move self and the intersection remains OK 
+        [tool.glued_on(self) for tool in toCut]# Then I can move self and the intersection remains OK 
         if throwShapeAway:
-            if isinstance(cuttingShape,list):
-                [tool.make_invisible() for tool in cuttingShape]
+            if isinstance(toCut,list):
+                [tool.make_invisible() for tool in toCut]
             else:
-                cuttingShape.make_invisible()
+                toCut.make_invisible()
         csgOperation=Object()
         csgOperation.csgKeyword="difference"
-        csgOperation.csgSlaves=copie
+        csgOperation.csgSlaves=toCut
         self.csgOperations.append(csgOperation)
         return self
 
