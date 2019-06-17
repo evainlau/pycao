@@ -210,7 +210,7 @@ class ObjectInWorld(object):
             c.make_invisible()
 
 
-    def amputed_by(self,cuttingShape,throwShapeAway=True,keepTexture=True):
+    def amputed_by(self,cuttingShape,throwShapeAway=True,keepTexture=True,takeCopy=False,glued=True):
         """
         cut self using the substraction of cuttingShape, where cuttingShape=object or listOfObjects
         The cuttingShape is made invisible after the cutting operation if throwShapeAway=True
@@ -219,32 +219,34 @@ class ObjectInWorld(object):
         #print("type")
         #print(type(cuttingShape))
         if not isinstance(cuttingShape,list):
-            cuttingShape=[cuttingShape]
-        if keepTexture and hasattr(self,"texture"):
-            copie=[tool.copy().remove_texture() for tool in cuttingShape]
+            toCut1=[cuttingShape]
         else:
-            copie=[tool.copy() for tool in cuttingShape]
+            toCut1=cuttingShape
+        if takeCopy:
+            toCut=[t.copy() for t in toCut1]
+        else:
+            toCut=toCut1
+        if keepTexture and hasattr(self,"texture"):
+            toCut=[tool.remove_texture() for tool in toCut]
         #print("mat",copie.materials,cuttingShape.materials)
         #print("Les outils de coupe")
         #print([tool.children for tool in copie])
-        [tool.make_invisible() for tool in copie]
-        [tool.glued_on(self) for tool in copie]# Then I can move self and the intersection remains OK 
+        if glued:
+            [tool.glued_on(self) for tool in toCut]# Then I can move self and the intersection remains OK 
         if throwShapeAway:
-            if isinstance(cuttingShape,list):
-                [tool.make_invisible() for tool in cuttingShape]
-            else:
-                cuttingShape.make_invisible()
+            [tool.make_invisible() for tool in toCut]
         csgOperation=Object()
         csgOperation.csgKeyword="difference"
-        csgOperation.csgSlaves=copie
+        csgOperation.csgSlaves=toCut
         csgOperation.keepTexture=keepTexture
         self.csgOperations.append(csgOperation)
         return self
 
-    def amputed_by2(self,cuttingShape,throwShapeAway=True,keepTexture=True,takeCopy=False):
+    def amputed_by2(self,cuttingShape,throwShapeAway=True,keepTexture=True,takeCopy=False,glued=True):
         """
         cut self using the substraction of cuttingShape, where cuttingShape=object or listOfObjects
         The cuttingShape is made invisible after the cutting operation if throwShapeAway=True
+        keepTexture mean the intersectED tool keep its texture. 
         """
         # I make a copy so that I can move the cutting shape independently of self later on
         #print("type")
@@ -253,14 +255,13 @@ class ObjectInWorld(object):
             toCut=cuttingShape.copy()
         else:
             toCut=cuttingShape
-        if not isinstance(toCut,list):
-            toCut=[toCut]
         if keepTexture and hasattr(self,"texture"):
             [tool.new_texture(self.texture) for tool in toCut]
         #print("mat",copie.materials,toCut.materials)
         #print("Les outils de coupe")
         #print([tool.children for tool in copie])
-        [tool.glued_on(self) for tool in toCut]# Then I can move self and the intersection remains OK 
+        if glued:
+            [tool.glued_on(self) for tool in toCut]# Then I can move self and the intersection remains OK 
         if throwShapeAway:
             [tool.make_invisible() for tool in toCut]
         csgOperation=Object()
@@ -269,42 +270,43 @@ class ObjectInWorld(object):
         self.csgOperations.append(csgOperation)
         return self
 
-    def intersected_by(self,cuttingShape,throwShapeAway=True,keepTexture=True):
+    def intersected_by(self,cuttingShape,throwShapeAway=True,keepTexture=True,takeCopy=False,glued=True):
         """
         cut self using the intersection with cuttingShape
         The cuttingShape is made invisible after the cutting operation if throwShapeAway=True
+        keepTexture mean that the Intersected tools keep their textures. 
         """
         # I make a copy so that I can move the cutting shape independently of self later on
         #print("in intersected by")
         if not isinstance(cuttingShape,list):
-            cuttingShape=[cuttingShape]
-           #print(cuttingShape)
-           #print(type(cuttingShape[0]))
-        copie=[]
-        for tool in cuttingShape:
-            memo=dict()
-            theCopy=copy.deepcopy(tool,memo)
-            if keepTexture and hasattr(self,"texture"):
-                theCopy.new_texture(self.texture)
+            toCut1=[cuttingShape]
+        else:
+            toCut1=cuttingShape
+        if takeCopy:
+            toCut=[t.copy() for t in toCut1]
+        else:
+            toCut=toCut1
+        if keepTexture and hasattr(self,"texture"):
+            #toCut=[tool.remove_texture() for tool in toCut]
+            [tool.new_texture(self.texture) for tool in toCut]
+        #copie=[]
+        #for tool in toCut:
+        #    memo=dict()
+        #    theCopy=copy.deepcopy(tool,memo)
+        #    if keepTexture and hasattr(self,"texture"):
+        #        theCopy.new_texture(self.texture)
             #else:
             #    pass
                 #print("Not TexturedAsSelf")
-            copie.append(theCopy)
-        #print("mat",copie.materials,cuttingShape.materials)
-        [tool.make_invisible() for tool in copie]
-        #comp=Compound()
-        #comp.add_to_compound(self)
-        #[comp.add_to_compound(tool) for tool in copie]# Then I can move self and the intersection remains OK
-        #self=comp
-        [tool.glued_on(self) for tool in copie]# Then I can move self and the intersection remains OK 
+         #   copie.append(theCopy)
+        #print("mat",copie.materials,toCut.materials)
+        if glued:
+            [tool.glued_on(self) for tool in toCut]# Then I can move self and the intersection remains OK 
         if throwShapeAway:
-            if isinstance(cuttingShape,list):
-                [tool.make_invisible() for tool in cuttingShape]
-            else:
-                cuttingShape.make_invisible()
+            [tool.make_invisible() for tool in toCut]
         csgOperation=Object()
         csgOperation.csgKeyword="intersection"
-        csgOperation.csgSlaves=copie
+        csgOperation.csgSlaves=toCut
         self.csgOperations.append(csgOperation)
         return self
 
