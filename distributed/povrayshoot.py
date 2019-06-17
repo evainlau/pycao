@@ -280,7 +280,8 @@ def object_string_alone(self,camera):
         todo=self.csgOperations.pop()
     except:
         return object_string_but_CSG(self,camera)
-    slavesCopie=[copy.deepcopy(entry) for entry in todo.csgSlaves]
+    #slavesCopie=[copy.deepcopy(entry) for entry in todo.csgSlaves]
+    slavesCopie=[entry.copy() for entry in todo.csgSlaves]
     #for slave in slavesCopie:
     #    print(slave) 
     #print("copie",len(slavesCopie))
@@ -359,7 +360,15 @@ def render(camera):
         booklet.write(light.povray_string())
     import gc
     if camera.filmAllActors:
-        camera.actors+=[p for p in groupPhoto if p.parent==[] ]
+        camera.actors=[]
+        for p in groupPhoto:
+            #print("p et son parent")
+            #print(p)
+            #print(p.parent)
+            if p.parent==[]:
+                camera.actors.append(p)
+        #print("la liste des acteurs",camera.actors)
+        #camera.actors+=[p for p in  if p.parent==[] ]
     #for light in camera.lights:
     #    booklet.write("light_source {"+ povrayVector(light.location)+ " color White " + "}\n\n")
     for component in camera.actors:

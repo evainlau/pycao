@@ -73,25 +73,7 @@ class ElaborateOrCompound(ObjectInWorld):
             #setattr(self,marker,self.marker)
 
 
-            #return self
 
-
-            
-    def copy(self):
-        #return super(ElaborateOrCompound).__deepcopy__(self).markers_as_functions()
-        #print (self.csgOperations)
-        memo={}
-        a=copy.deepcopy(self,memo)
-        #if hasattr(a,"markers"):
-        #    try:
-        #        print("copyMarkers",self.name)
-        #    except: pass
-        #    a.markers_as_functions()
-        #print(a.csgOperations)
-        #print (self.csgOperations)
-        #a.markers_as_functions()
-        #print (self.csgOperations)
-        return a
 
 
 class Elaborate(ElaborateOrCompound):
@@ -473,7 +455,9 @@ class Cube(Elaborate):
             self.markers.end=self.parts.end
             #self.markers.box=FrameBox(listOfPoints=[self.parts.start,self.parts.end])
             self.add_box("globalBox",FrameBox(listOfPoints=[self.parts.start,self.parts.end]))
+            #print("avantCreation Box")
             self.markers_as_functions()
+            #print("apresCreaBox")
         elif len(args)==3:
             v=vector(args)
             self.__init__(origin,origin+v)

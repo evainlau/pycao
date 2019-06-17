@@ -28,8 +28,8 @@ from mathutils import *
 from aliases import *
 #import aliases
 from elaborate import ICylinder
-
-
+import material
+import lights
 ################################################################
 """
                 Adding some elements in the class ObjectInWorld
@@ -128,11 +128,11 @@ def _grotate(self,ax,o1,o2):
     else: raise nameError("o2 should be a point or an object with a hook")
     vec1=(p1-rotaxis.p1).cross(rotaxis.vector)
     vec2=(p2-rotaxis.p1).cross(rotaxis.vector)
-    print(vec1,vec1.__class__)
-    print(vec2,vec2.__class__)
-    print(o2)
+    #print(vec1,vec1.__class__)
+    #print(vec2,vec2.__class__)
+    #print(o2)
     angle=vec1.angle_to(vec2,rotaxis.vector)
-    print("L angle est ", angle)
+    #print("L angle est ", angle)
     M=Map.rotation(rotaxis,angle)
     self.move(M)
     return self
@@ -195,7 +195,7 @@ def _init_object(self,*args,**kwargs):
     self.csgOperations=[]
     #print (allObjects)
     #print(self)
-    if  ((isinstance(self,ObjectInWorld) and not isinstance(self,Primitive)) \
+    if  ((isinstance(self,ObjectInWorld) and not isinstance(self,Primitive) and not isinstance(self,material.PNFTItem) and not isinstance(self,lights.Light)) \
         or isinstance(self,AffinePlane) \
         or isinstance(self, ParametrizedCurve)):
         groupPhoto.append(self)
@@ -291,10 +291,6 @@ def _show_box(self):
     # the above planes are slightly moved from their real location to avoid a dirty display when self has a face on one of the planes.
     colors=["Red","Scarlet","Green","ForestGreen","Cyan","Blue"]
     for i in range(6):
-        #print(i)
-        #print(liste)
-        #print(liste[i])
-        print(colors[i])
         liste[i].colored(colors[i])
     cube=liste.pop().intersected_by(liste,keepTexture=False).glued_on(self)
     for i in range(3):

@@ -262,10 +262,7 @@ class ObjectInWorld(object):
         #print([tool.children for tool in copie])
         [tool.glued_on(self) for tool in toCut]# Then I can move self and the intersection remains OK 
         if throwShapeAway:
-            if isinstance(toCut,list):
-                [tool.make_invisible() for tool in toCut]
-            else:
-                toCut.make_invisible()
+            [tool.make_invisible() for tool in toCut]
         csgOperation=Object()
         csgOperation.csgKeyword="difference"
         csgOperation.csgSlaves=toCut
@@ -345,8 +342,10 @@ class ObjectInWorld(object):
         return self.box().dimensions
     @property
     def center(self):
+        #print("avant box")
         return self.box().point(0.5,0.5,0.5,"ppp")
-
+        
+    
     def against(self,other, selfFace1,otherFace1,selfFace2,otherFace2,offset=(0,0,0),adjustEdges=None,adjustAxis=None):
         """
         Moves self against other, using the faces of self.box() and other.box().
@@ -415,7 +414,8 @@ class ObjectInWorld(object):
     def box(self,name=None): #will be overwritten for some objects construcing their own boxes
         if name is None:
             return self.activeBox.copy()
-        else :return getattr(self.dicobox,name).copy()
+        else :
+            return getattr(self.dicobox,name).copy()
     def axis(self,name=None): #will be overwritten for some objects construcing their own boxes
         if name is None:
             return self.activeAxis.copy()
@@ -575,6 +575,12 @@ class ObjectInWorld(object):
         self.activeHook=getattr(self.dicohook,name)
         return self
 
-    def copy(self):
+    def copy(self,withoutParent=True):
+        if withoutParent and hasattr(self,'parent'):
+            copyParent=self.parent
+            self.parent=[]
         memo=dict()
-        return copy.deepcopy(self,memo)
+        toReturn=copy.deepcopy(self,memo)
+        if withoutParent and hasattr(self,'parent'):
+            self.parent=copyParent
+        return toReturn

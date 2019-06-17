@@ -45,16 +45,8 @@ from generic import *
 ################################################################
 
 class Primitive(ObjectInWorld):
-    def copy(self):
-        #print("in copy prim")
-        #return super(ElaborateOrCompound).__deepcopy__(self).markers_as_functions()
-        #print (self.csgOperations)
-        memo={}
-        a=copy.deepcopy(self,memo)
-        #print(a.csgOperations)
-        #print (self.csgOperations)
-        #print (self.csgOperations)
-        return a
+    pass
+
 
 
 
@@ -84,9 +76,16 @@ class MassPoint(np.ndarray,Primitive):
     def __array_finalize__(self,*args,**kwargs):
         ObjectInWorld.__init__(self)
 
-    def copy(self):
+
+    def copy(self,withoutParent=True): # reecriture a cause du pb deepcopy de ndarray, see below
+        if withoutParent and hasattr(self,'parent'):
+            copyParent=self.parent
+            self.parent=[]
         memo=dict()
-        return self.__deepcopy__(memo)
+        toReturn=self.__deepcopy__(memo)
+        if withoutParent and hasattr(self,"parent"):
+            self.parent=copyParent
+        return toReturn
         
     def __deepcopy__(self,memo):
         # I have to rewrite this because ndarray.deepcopy applies and forgets to copy the arguments
@@ -1092,7 +1091,6 @@ class FrameBox(Base):
         - the 3 vectors of the frame are positive multiples of xDirection,yDirection,zDirection
         - If zDirection is not filled, it is the cross product of xDirection and yDirection
         """
-
         #print("xdri,ydir",xDirection,yDirection)
         if zDirection is None:
             zDirection=vector(np.cross(xDirection[0:3],yDirection[0:3]))
@@ -1117,7 +1115,6 @@ class FrameBox(Base):
         self.origin=self.points[0]
         listeVecteursInit=[self.points[i+1]-self.points[0] for i in range(3)]
         super(FrameBox,self).__init__(*listeVecteursInit,v3=self.points[0])
-        
         #self.parts=[self[i] for i in range(0,3)]+[self.points]+[self.canToBase]
         # Remark: self[3]=self.origin is a pointer to self.points[0], and self.origin is a pointer 
         # so there is no harm in considering only i<3 in move alone below. 

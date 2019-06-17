@@ -38,6 +38,7 @@ class Compound(ElaborateOrCompound):
     A class for objects for compound objects, which share a move_alone function 
     """
     def __new__(cls,*args,**kwargs):
+        #print("DANS NEW compound")
         comp=ElaborateOrCompound.__new__(cls,*args,**kwargs)
         csgOperation=Object()
         csgOperation.csgKeyword="union"
@@ -52,19 +53,24 @@ class Compound(ElaborateOrCompound):
         - or a sublist [name,objectInworld], where name is a string. 
         In the second case, the subobject will be accessible with self.name
         """
+        #ObjectInWorld.__init__(self)
         for slave in slavesList:
+            #print("avantAJout")
             self.add_to_compound(slave)
-
+            #print("apresAJout")
 
     def add_to_compound(self,slave):
         "add a slave to the compound where slave is an objectInWorld or a list [name,ObjectInWorld]"
         if isinstance(slave,ObjectInWorld):
+            #print("avantAjoutindiv")
             self.csgOperations[0].csgSlaves+=[slave]
+            #print("apresAjoutIndiv")
         else :
             name=slave[0]
             slave=slave[1]
             setattr(self,name,slave)
             self.csgOperations[0].csgSlaves+=[slave]
+        slave.parent=self# not really correct. The purpose is to not include this twice in camera.filmallactors
     def add_list_to_compound(self,myList):
         for ob in myList:
             self.add_to_compound(ob) 
