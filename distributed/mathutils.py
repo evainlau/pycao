@@ -1291,14 +1291,14 @@ class FrameBox(Base):
         return(v)
 
 
-    def segment(self,x=None,y=None,z=None,frame="aa"):
+    def boxline(self,x=None,y=None,z=None,frame="pp"):
         """
         Returns a segment obtained by intersection of a line parallel to an edge with self.
         For instance, an input x=2,y=None,z=3 means that 
         y is the axis of the line and x are z are the coordinates of the line in a face 
         orthogonal to the axis y. The coordinates of x,z are interpreted as absolute,negative or 
-        proportional depending on the parameter frame. By default, frame="aa" meaning both
-        coordinates are absolute.
+        proportional depending on the parameter frame. By default, frame="pp" meaning both
+        coordinates are proportional.
         """
         local=[x,y,z]
         dimSelf=self.dimensions[0:3]
@@ -1317,7 +1317,11 @@ class FrameBox(Base):
             globalCoordinates[k]=self.point(localCoordinates[k][0],localCoordinates[k][1],localCoordinates[k][2],"ppp")
         return Segment(globalCoordinates[0],globalCoordinates[1])
 
-
+    def segment(self,*args,**kwargs):
+        ''' DEPRECATED
+        '''
+        raise NameError('Deprecated. Replace Self.segment with self.line')
+    
     def plane(self,face,coord,frame="a"):
         """
         Returns the plane parallel to face, containing the point whose coordinate on the transversal line is coord. 

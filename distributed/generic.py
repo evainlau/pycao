@@ -333,10 +333,17 @@ class ObjectInWorld(object):
     def point(self,*args,**kwargs):
         return self.box().point(*args,**kwargs)
 
+    def boxline(self,*args,**kwargs):
+        return self.box().boxline(*args,**kwargs)
+
     def segment(self,*args,**kwargs):
-        return self.box().segment(*args,**kwargs)
+        raise NameError('deprecated. Use self.boxLine instead of self.segment')
 
     def plane(self,*args,**kwargs):
+        raise NameError('deprecated. Use self.boxplane instead of self.plane')
+
+    
+    def boxplane(self,*args,**kwargs):
         return self.box().plane(*args,**kwargs)
 
     @property
