@@ -797,12 +797,12 @@ def to_visualize_curves(self,radius=0.1,steps=100,color="Yellow",color2="Green")
     for time in range(0,steps,1):
         p=self(1./steps*time)
         s=Sphere(p,radius)
-        s.color=color
+        s.colored(color)
         s.glued_on(self)
     if self.__class__== Polyline or self.__class__== BezierCurve:
-        for point in self:
+        for point in self.controlPoints():
             s=Sphere(point,2*radius)
-            s.color=color2
+            s.colored(color2)
             s.glued_on(self)
 
 ParametrizedCurve.show=to_visualize_curves

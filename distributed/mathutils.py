@@ -521,37 +521,70 @@ class AffinePlaneWithEquation(AffinePlane,np.ndarray):
             return False
         
 
+class FunctionCurve(ObjectInWorld):
+    def __call__(self,t):
+        return self.initialParametrizing(t)
+    def __init__(self,f):
+        #myCurve=ObjectInWorld.__new__(cls)
+        #ObjectInWorld.__init__(self)
+        raise NameError('Deprecated: use ParametrizedCurve instead of FunctionCurve')
+        self.initialParametrizing=f
+
         
-class ParametrizedCurve():
+        
+class ParametrizedCurve(Primitive):
     """
     A class to factorize the methods common to all types of curves ( polyline,BezierCurve,PiecewiseCurve)
 
+    Basically, a curve is a __call__ attribute built from a function attribute and a matrix M  to move the curve. 
+    Technically, it would be possible to include everything in the __call__ but with many movements on the curve this 
+    would lead to very recursive functions. It is more optimized to chnange the matrix M and rebuild the 
+    __call__ when the curve is moved. 
+
     """
+    def __call__(self,t):
+        return self.mapFromOrigin*self.function(t)
+
+        
+    def __init__(self,function,mapFromOrigin=None):
+        """
+        Returns the function f seen as a Parametric curve object
+        moved with the map mapFromOrigin
+        """
+        ObjectInWorld.__init__(self)
+        if not mapFromOrigin:
+            mapFromOrigin=Map.identity()
+        self.function=function
+        self.mapFromOrigin=mapFromOrigin
+
+        
+
+    
+    
     @staticmethod
-    def from_function(f):
-        myCurve=ParametrizedCurve()
-        myCurve.__call__=f
-        return myCurve
+    def from_function(f,mapFromOrigin=None):
+        raise NameError('Deprecated. Replace ParametrizedCurve.from_function(f,M) with ParametrizedCurve(f,M)')
 
     
     @staticmethod
     def relativeToAbsolute(relativeList):
-        #print("0",relativeList)
+        """
+        A curve is usually defined by control points, where the list of control points is 
+        an absolute list (points) or a relative lists (points or vectors). This function 
+        builds the absolute list from the relative list. 
+
+        relativeList=a sequence a=[a0,a1...] with type(a[i]) =point or vector
+        output= absolute list= a sequence b=[b0,bi...] with type(bi)=point. For the formulas b[i]=a[i] 
+        if a[i]=point and b[i]=b[i-1]+[a[i] if a[i] is a vector. If a[0] is a vector, b[0]=origin+a[0].
+        """
         if is_vector(relativeList[0]):
             relativeList[0]=origin+relativeList[0]
         else:
             relativeList[0]=relativeList[0]+0*X # not to share points between objects
-                #print(relativeList[0])
-                #print("changed 0")
         for i in range(1,len(relativeList)):
             if is_vector(relativeList[i]):
-                #print(i,relativeList[i])
-                #print(i-1,relativeList[i-1])
                 relativeList[i]=relativeList[i]+relativeList[i-1]
-                #print(relativeList[i])
-                #print("changed")
             elif is_point(relativeList[i]):
-                #print("not changed")
                 relativeList[i]=relativeList[i].copy()
             else:
                 raise NameError('relativeList['+str(i)+'] must be a point or vector')
@@ -561,99 +594,125 @@ class ParametrizedCurve():
         """
         Replaces the parametrize curve C(t) by C(g(t))  where g is a function corresponding to the change of parameter
         """
-        oldCall=curve.__call__
         def composition(self,t):
-            return oldCall(g(t))
-        curve.__call__=types.MethodType(composition, curve)
-        return curve
+            return self.function(g(t))
+        myCurve.function=composition
+        myCurve.buildCall()
+        return myCurve
+
 
         
-    def speed(curve,t,epsilon=0.00000001):
+    def speed(curve,t,epsilon=0.00000001,mini=0,maxi=1):
         """
-        The speed vector at time t
+        The speed vector at time t for a function with parameters t in [mini,maxi]
         """
-        if t>epsilon and t<1-epsilon:
+        if t>mini and t<maxi-epsilon:
             return (curve(t+epsilon)-curve(t-epsilon))/2/epsilon
-        elif t>1-epsilon:
+        elif t>maxi-epsilon or t==maxi-epsilon:
             return (curve(t)-curve(t-epsilon))/epsilon
         else:
             return (curve(t+epsilon)-curve(t))/epsilon
 
-class FunctionCurve(ObjectInWorld,ParametrizedCurve):
-    """ a class for curve defined by a function"""
-    def __call__(self,t):
-        return self.initialParametrizing(t)
-    def __init__(self,f):
-        #myCurve=ObjectInWorld.__new__(cls)
-        #ObjectInWorld.__init__(self)
-        self.initialParametrizing=f
-
 
     def move_alone(curve,M):
-        oldCall=curve.__call__
-        def composition(self,t):
-            return M*oldCall(t)
-        curve.__call__=types.MethodType(composition, curve)
+        curve.mapFromOrigin=M*curve.mapFromOrigin
         return curve
 
     def __deepcopy__(self,memo):
+        ### When is it used ? Why did I do the copy by hand ? 
         myFunc=self.__call__
         theCopy=FunctionCurve(myFunc)
         memo[id(self)] = theCopy
         for k, v in self.__dict__.items():
             setattr(theCopy, k, copy.deepcopy(v, memo))
         return theCopy
+
+    def controlPoints(self):
+        """
+        only if the curve is a list containing control points
+        """
+        return [self.mapFromOrigin*p for p in self]
+    def lengths(self):
+        """
+        only valid if the curve is a list containing control points
+        """
+        lengthsList=[]
+        contPoints=self.controlPoints()
+        for i in range(len(self)-1):
+            lengthsList.append((contPoints[i+1]-contPoints[i]).norm)
+        return lengthsList
+    def segments(self):
+        """
+        only valid if the curve is a list containing control points
+        """
+        segmentsList=[]
+        contPoints=self.controlPoints()
+        for i in range(len(self)-1):
+            segmentsList.append(Segment(contPoints[i],contPoints[i+1]))
+        return segmentsList
+    def angles(self):
+        """
+        only valid if the curve is a list containing control points
+        """
+        anglesList=[]
+        contPoints=self.controlPoints()
+        for i in range(len(self)-2):
+            anglesList.append(Triangle(contPoints[i],contPoints[i+1],contPoints[i+2]).angle(1))
+        return anglesList
+
+    
         
-        
-class Polyline(list,Primitive,ParametrizedCurve):
+class Polyline(list,ParametrizedCurve):
     """ A class for polylines p0,...,pn ie the curve which is the union of segments p_i,p_{i+1}
     The sequence p_i is defined as a relative list, ie. the user may enter points or vectors and data are cast to the expected type as usual. 
+    
 
     Constructors:
     Polyline(relativelist)
     relativelist: a list of points or vectors. 
- 
+    
+
     Methods: 
     self.lengths: [distance(p0,p1),distance(p1,p2)...]
     self.angles:[angle(p0,p1,p2),angle(p1,p2,p3),...,angle(p_{n-2},p_{n-1},p_n)]
-    self.__call__(t): the parametrized point at time t. 
+    self.segments(): [Segment(p0,p1),Segment(p1,p2),...]
+    self(t): the parametrized point at time t. 
+    self.controlPoints()=the list of control Points (different from self as a list is the polyline has been moved)
     self.show(): builds spheres along the curve for visualization
     """
-    def  __call__(self,time):
-        segmentDuration=1./(len(self)-1)
-        leftPointIndex=int(floor(time*(len(self)-1)))
-        #print(leftPointIndex)
-        #print(self)
-        if leftPointIndex==len(self)-1:
-            return self[-1]
-        timeLeftFromIndex=time-leftPointIndex*segmentDuration
-        fractionOfSegment=timeLeftFromIndex*(len(self)-1)#=timeLef/segmentDuratio
-        return (1-fractionOfSegment)*self[leftPointIndex]+fractionOfSegment*self[leftPointIndex+1]
+    # def  __call__(self,time):
+    #     segmentDuration=1./(len(self)-1)
+    #     leftPointIndex=int(floor(time*(len(self)-1)))
+    #     #print(leftPointIndex)
+    #     #print(self)
+    #     if leftPointIndex==len(self)-1:
+    #         return self[-1]
+    #     timeLeftFromIndex=time-leftPointIndex*segmentDuration
+    #     fractionOfSegment=timeLeftFromIndex*(len(self)-1)#=timeLef/segmentDuratio
+    #     return (1-fractionOfSegment)*self[leftPointIndex]+fractionOfSegment*self[leftPointIndex+1]
     def __new__(cls,*args,**kwargs):
         return list.__new__(cls)
     def __init__(self,relativeList):
+        if len(relativeList)==1:
+            raise NameError('A polyline needs at least 2 points')
+        absoluteList=ParametrizedCurve.relativeToAbsolute(relativeList)
         self += ParametrizedCurve.relativeToAbsolute(relativeList)
-        ObjectInWorld.__init__(self)
-    def lengths(self):
-        lengthsList=[]
-        for i in range(len(self)-1):
-            lengthsList.append((self[i+1]-self[i]).norm)
-        return lengthsList
-    def segments(self):
-        segmentsList=[]
-        for i in range(len(self)-1):
-            segmentsList.append(Segment(self[i],self[i+1]))
-        return segmentsList
-    def angles(self):
-        anglesList=[]
-        for i in range(len(self)-2):
-            anglesList.append(Triangle(self[i],self[i+1],self[i+2]).angle(1))
-        return anglesList
+        def  initCallFunction(time):
+            segmentDuration=1./(len(self)-1)# all segements take the same time, thus faster on longer segements.
+            leftPointIndex=int(floor(time*(len(self)-1)))
+            #print(leftPointIndex)
+            #print(self)
+            if leftPointIndex==len(self)-1:
+                return self[-1]
+            timeLeftFromIndex=time-leftPointIndex*segmentDuration
+            fractionOfSegment=timeLeftFromIndex*(len(self)-1)#=timeLef/segmentDuratio
+            return (1-fractionOfSegment)*self[leftPointIndex]+fractionOfSegment*self[leftPointIndex+1]
+        ParametrizedCurve.__init__(self,initCallFunction)        
     def __str__(self):
-        return "Polyline  with control points "+", ".join([str(point) for point in self ])+"."
-    def move_alone(self,M):
-        [point.move_alone(M) for point in self ]
-        return self
+        return "Polyline  with control points "+", ".join([str(point) for point in self.contPoints() ])+"."
+#    def move_alone(self,M):
+#        [point.move_alone(M) for point in self ]
+#        return self
     def normal(self):
         """ assumes that the polyline is included in a plane to give the normal vector"""
         segments=self.segments()
@@ -665,7 +724,7 @@ class Polygon(Polyline):
     """ a polygon is a closed polyline included in a plane. In contrast to polylines, it is seen by the camera """
     pass
     
-class BezierCurve(list,Primitive,ParametrizedCurve):
+class BezierCurve(list,ParametrizedCurve):
     """ A class for BezierCurve p0,...,pn ie this is the parametrized curve sum B^n_i(t) p_i with B^{n}_i(t)=(i choose n)(1-t)^i t^{n-i}
     In particular, this curve starts at p0 with tangent proportional to p1-p0 and ends at pn with tangent proportional to pn-p_{n-1} 
     The sequence p_i is defined as a relative list, ie. the user may enter points or vectors and data are cast to the expected type as usual. 
@@ -677,40 +736,32 @@ class BezierCurve(list,Primitive,ParametrizedCurve):
     Methods: 
     self.lengths: [distance(p0,p1),distance(p1,p2)...]
     self.angles:[angle(p0,p1,p2),angle(p1,p2,p3),...,angle(p_{n-2},p_{n-1},p_n)]
-    self.__call__(t): the parametrized point at time t. 
+    self.(t): the parametrized point at time t. 
+    self.controlPoints: the list with the controlPoints 
     """
     def __new__(cls,*args,**kwargs):
-        return list.__new__(cls)
+        toReturn=list.__new__(cls)
+        return toReturn
     def __init__(self,relativeList):
         self += ParametrizedCurve.relativeToAbsolute(relativeList)
-        ObjectInWorld.__init__(self)
-    def lengths(self):
-        lengthsList=[]
-        for i in range(len(self)-1):
-            lengthsList.append((self[i+1]-self[i]).norm)
-        return lengthsList
-    def angles(self):
-        anglesList=[]
-        for i in range(len(self)-2):
-            anglesList.append(Triangle(self[i],self[i+1],self[i+2]).angle(1))
-        return anglesList
-    def __call__(self,time):
-        output=0*Z
-        for i in range(len(self)):
-            output+=scipy.special.binom(len(self)-1, i)*((time)**i)*((1-time)**(len(self)-1-i))*self[i]
-            #print i
-            #print output
-        return output
+        def initCall(time):
+            output=0*Z
+            for i in range(len(self)):
+                output+=scipy.special.binom(len(self)-1, i)*((time)**i)*((1-time)**(len(self)-1-i))*self[i]
+                #print i
+                #print output
+            return output
+        ParametrizedCurve.__init__(self,initCall)        
     def __str__(self):
-        return "Bezier curve with control points "+", ".join([str(point) for point in self ])+"."
-    def move_alone(self,M):
-        [point.move_alone(M) for point in self ]
-        return self
+        return "Bezier curve with control points "+", ".join([str(point.move_alone(self.mapFromOrigin) for point in self )])+"."
+#    def move_alone(self,M):
+#        [point.move_alone(M) for point in self ]
+#        return self
     #@staticmethod
     #def linear(*args):
 
 
-class PiecewiseCurve(list,Primitive,ParametrizedCurve):
+class PiecewiseCurve(list,ParametrizedCurve):
     """ 
     A class for piecewise curves C=[C0,\dots,Cn-1]. Ci is a polyline or Bezier curve, 
     and the end point of Ci is the initial point of C_{i+1} so that the curve is connected. 
@@ -1564,7 +1615,7 @@ class Map(np.ndarray):
     Map.scale(fx=1,fy=1,fz=1,xVector=X,  yVector=Y, zVector=Z,fixedPoint=origin):
     Map.from_base_to_base(self,base1,base2) : Returns a map sending base1 to base2. 
     Map.rotational_difference(start=None,end=None), start, and end: 2 vectors
-    Map.identity
+    Map.identity()
     """
 
     def __new__(cls,v0,v1,v2,w):
@@ -1576,6 +1627,7 @@ class Map(np.ndarray):
 
     def __init__(self,*args):
         pass
+
 
 
     def __mul__(self,other):
@@ -1597,7 +1649,7 @@ class Map(np.ndarray):
 
     def is_orthogonal(self):
         # returns true is self is orthogonal as a float matrix. 
-        return np.allclose((self)[0:3,0:3].dot(np.transpose(self)[0:3,0:3]),(Map.identity)[0:3,0:3])
+        return np.allclose((self)[0:3,0:3].dot(np.transpose(self)[0:3,0:3]),(Map.identity())[0:3,0:3])
 
     @staticmethod
     def linear(v0,v1,v2):
@@ -1615,7 +1667,9 @@ class Map(np.ndarray):
         translationVector[3]=1
         return( Map(v0,v1,v2,translationVector))
 
-
+    @staticmethod
+    def identity():
+        return Map(np.array([1.,0.,0.,0.]),np.array([0.,1.,0.,0.]),np.array([0.,0.,1.,0.]),np.array([0.,0.,0.,1.]))
 
     @staticmethod
     def translation(*args):
@@ -1835,6 +1889,10 @@ origin=T
 
 
 Base.canonical=Base(X,Y,Z,T)
-Map.identity=Map.affine(X,Y,Z,T)
+#@staticmethod
+#def identityFunction():
+#    return Map.affine(X,Y,Z,T)
+#setattr(Map,"identity",identityFunction)
+#Map.identity=identityFunction
 
 

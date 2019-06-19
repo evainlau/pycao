@@ -179,7 +179,7 @@ def _init_object(self,*args,**kwargs):
 #        self.materials.append(kwargs["material"])
 #    else:
 #        self.materials.append(DEFAULT_COLOR)
-    self.mapFromParts=Map.identity
+    self.mapFromParts=Map.identity()
     if "booleanVisibility" in keys:
         self.visibility=kwargs["visibility"]
     else:
