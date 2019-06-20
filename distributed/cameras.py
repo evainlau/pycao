@@ -83,7 +83,7 @@ class Camera(Primitive):
         if self.technology=="povray":
             command="povray"
             options=""
-            options+="+A"
+            options+="+A "
             if Camera.showImage:
                 options+="+P "
             else :

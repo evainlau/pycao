@@ -557,14 +557,9 @@ class ParametrizedCurve(Primitive):
         self.function=function
         self.mapFromOrigin=mapFromOrigin
 
-        
-
-    
-    
     @staticmethod
     def from_function(f,mapFromOrigin=None):
         raise NameError('Deprecated. Replace ParametrizedCurve.from_function(f,M) with ParametrizedCurve(f,M)')
-
     
     @staticmethod
     def relativeToAbsolute(relativeList):
@@ -590,17 +585,15 @@ class ParametrizedCurve(Primitive):
                 raise NameError('relativeList['+str(i)+'] must be a point or vector')
         return relativeList
         
-    def  reparametrize(curve,g):
+    def  reparametrize(self,g):
         """
-        Replaces the parametrize curve C(t) by C(g(t))  where g is a function corresponding to the change of parameter
+        Replaces the parametrize curve self(t) by C(g(t))  where g is a function corresponding to the change of parameter
         """
-        def composition(self,t):
-            return self.function(g(t))
-        myCurve.function=composition
-        myCurve.buildCall()
-        return myCurve
-
-
+        f=self.function
+        def composition(t):
+            return f(g(t))
+        self.function=composition
+        return self
         
     def speed(curve,t,epsilon=0.00000001,mini=0,maxi=1):
         """
@@ -618,14 +611,14 @@ class ParametrizedCurve(Primitive):
         curve.mapFromOrigin=M*curve.mapFromOrigin
         return curve
 
-    def __deepcopy__(self,memo):
-        ### When is it used ? Why did I do the copy by hand ? 
-        myFunc=self.__call__
-        theCopy=FunctionCurve(myFunc)
-        memo[id(self)] = theCopy
-        for k, v in self.__dict__.items():
-            setattr(theCopy, k, copy.deepcopy(v, memo))
-        return theCopy
+    # def __deepcopy__(self,memo):
+    #     ### When is it used ? Why did I do the copy by hand ? 
+    #     myFunc=self.__call__
+    #     theCopy=ParametrizedCurve(myFunc)
+    #     memo[id(self)] = theCopy
+    #     for k, v in self.__dict__.items():
+    #         setattr(theCopy, k, copy.deepcopy(v, memo))
+    #     return theCopy
 
     def controlPoints(self):
         """
@@ -784,10 +777,14 @@ class PiecewiseCurve(list,ParametrizedCurve):
     def __str__(self):
         return "Compound curve with  the following curves:\n"+", \n".join([str(curve) for curve in self ])+"."
     def move_alone(self,M):
-        [point.move_alone(M) for point in self ]
+        [curve.move_alone(M) for curve in self ]
         return self
+    def controlPoints(self):
+        return [curve.controlPoints()[0] for curve in self]+[self[-1].controlPoints()[3]]
+
+        
     @staticmethod
-    def fromInterpolation(points,closedCurve=False):
+    def from_interpolation(controlPoints,closeCurve=False,speedConstants=[1,1],approachSpeeds=[],leavingSpeeds=[]):
         """ 
         parameters:
         points=list of points.
@@ -798,59 +795,68 @@ class PiecewiseCurve(list,ParametrizedCurve):
         For any i, the pair of points (p_i,p_{i+2}) should contain 2 distinct points otherwise 
         the tangent at p_{i+1}$ is not defined. 
         """
-        if (len(points)<3):
-            raise NameError('Need At least 3 points for the compound Curve')
-        #print(points)
+        points=[p.copy() for p in controlPoints ]
         ParametrizedCurve.relativeToAbsolute(points)
-        #print(points)
+        if closeCurve:
+            points.append(points[0].copy())
+        l=len(approachSpeeds); m=len(leavingSpeeds); lp=len(points)
+        if (lp<3):
+            raise NameError('Need At least 3 points for the compound Curve')
+
+        if l>0 and l != lp: raise NameError('length of approachSpeeds and leavingSpeeds are zero or equal to len(points)')
+        if m>0 and m != lp: raise NameError('length of approachSpeeds and leavingSpeeds are zero or equal to len(points)')
+        if l==0: approachSpeeds=[.45]*lp
+        if m==0: leavingSpeeds=[.45]*lp
         listeCurve=[]
+        #if 1>0:
         try:
             # first curve
-            if not closedCurve:
-                v0=(points[2]-points[0]).normalize()
-                length=0.25*(points[1]-points[0]).norm
-                q=points[1]-length*v0
-                listeCurve.append(BezierCurve([points[0],q,q,points[1]]))
-            else:
-                v0=(points[1]-points[-2]).normalize()
-                v1=(points[2]-points[0]).normalize()
-                length=0.25*(points[1]-points[0]).norm
-                q=points[0]+length*v0
-                r=points[1]-length*v1
+            rightVector=(points[2]-points[0]).normalize()
+            rightLength=speedConstants[1]*approachSpeeds[1]*(points[1]-points[0]).norm
+            r=points[1]-rightLength*rightVector
+            if closeCurve:
+                leftVector=(points[1]-points[-2]).normalize()
+                leftLength=speedConstants[0]*leavingSpeeds[0]*(points[1]-points[0]).norm
+                q=points[0]+leftLength*leftVector
                 listeCurve.append(BezierCurve([points[0],q,r,points[1]]))
+            else:
+                listeCurve.append(BezierCurve([points[0],r,r,points[1]]))
             #intermediate curves 
-            for i in range(len(points)-3):
+            for i in range(lp-3):
                 #print("log du milieu",i)
                 #print("in fpl",[points[i],points[i+1],points[i+2],points[i+3]])
-                v0=(points[i+2]-points[i]).normalize()
-                v1=(points[i+3]-points[i+1]).normalize()
-                length=0.25*(points[i+2]-points[i+1]).norm
-                q=points[i+1]+length*v0
-                r=points[i+2]-length*v1
+                leftVector=(points[i+2]-points[i]).normalize()
+                rightVector=(points[i+3]-points[i+1]).normalize()
+                leftLength=speedConstants[0]*leavingSpeeds[i+1]*(points[i+2]-points[i+1]).norm
+                rightLength=speedConstants[1]*approachSpeeds[i+2]*(points[i+2]-points[i+1]).norm
+                q=points[i+1]+leftLength*leftVector
+                r=points[i+2]-rightLength*rightVector
                 listeCurve.append(BezierCurve([points[i+1],q,r,points[i+2]]))
             # last curve
-            if not closedCurve:
-                v0=(points[-1]-points[-3]).normalize()
-                length=0.25*(points[-1]-points[-2]).norm
-                q=points[-2]+length*v0
-                listeCurve.append(BezierCurve([points[-2],q,q,points[-1]]))
-            else:
-                v0=(points[-1]-points[-3]).normalize()
-                v1=(points[1]-points[-2]).normalize()
-                length=0.25*(points[-1]-points[-2]).norm
-                q=points[-2]+length*v0
-                r=points[-1]-length*v1
+            leftVector=(points[-1]-points[-3]).normalize()
+            leftLength=speedConstants[0]*leavingSpeeds[-2]*(points[-1]-points[-2]).norm
+            print(leftLength)
+            q=points[-2]+leftLength*leftVector
+            if closeCurve:
+                rightVector=(points[1]-points[-2]).normalize()
+                rightLength=speedConstants[1]*approachSpeeds[-1]*(points[-1]-points[-2]).norm
+                r=points[-1]-rightLength*rightVector
                 listeCurve.append(BezierCurve([points[-2],q,r,points[-1]]))
+                #from  elaborate import Sphere
+                #Sphere(q,.1).colored('Red'); Sphere(r,.1).colored('Violet')
+            else:
+                listeCurve.append(BezierCurve([points[-2],q,q,points[-1]]))
+            return PiecewiseCurve(listeCurve)            
         except:
             raise NameError('Error In Piecewise Curve.Maybe two points p_i,p_{i+2} are equal, in which case the tangent at p_{i+1} is not defined')
-        return PiecewiseCurve(listeCurve)
+
     
     def  __call__(self,time):
         if (time>=1):# if >,probably because of floating numbers and should be 1
             #print("ici")
             return self[-1].__call__(1)
         else:
-            #print(self)
+            print(self)
             #print(floor(len(self)*time))
             curveNumber=int(floor(len(self)*time))
             timeInCurve=len(self)*time-curveNumber

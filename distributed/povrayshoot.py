@@ -112,6 +112,7 @@ def name_comment_string(self):
 def povrayVector(p):
     return("<"+str(p[0])+","+str(p[1])+","+str(p[2])+">")
 
+
 def point_to_povray2d(p,i,j):
     " casts a vector v to the string '<v[i],v[j]>'"
     return("<"+str(p[i])+","+str(p[j])+">")
@@ -367,7 +368,7 @@ def render(camera):
             #print(p.parent)
             if p.parent==[]:
                 camera.actors.append(p)
-        print("la liste des acteurs",camera.actors)
+        #print("la liste des acteurs",camera.actors)
         #camera.actors+=[p for p in  if p.parent==[] ]
     #for light in camera.lights:
     #    booklet.write("light_source {"+ povrayVector(light.location)+ " color White " + "}\n\n")

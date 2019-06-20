@@ -354,7 +354,7 @@ class Torus(Elaborate):
                 return start.rotate(axis=Segment(center,center+normale),angle=-t)
         #creation du torus self
         self=Torus(radius,internalRadius,normale,center)
-        self.circle=FunctionCurve(circle_function).glued_on(self)
+        self.circle=ParametrizedCurve(circle_function).glued_on(self)
         if cut is True:
             #print(normale)
             #print("center",center)
@@ -799,10 +799,15 @@ def to_visualize_curves(self,radius=0.1,steps=100,color="Yellow",color2="Green")
         s=Sphere(p,radius)
         s.colored(color)
         s.glued_on(self)
-    if self.__class__== Polyline or self.__class__== BezierCurve:
+    #if  self.__class__== Polyline or self.__class__== BezierCurve:
+    try:
+    #if 1>0:
         for point in self.controlPoints():
             s=Sphere(point,2*radius)
             s.colored(color2)
             s.glued_on(self)
-
+        return self
+    except:
+        # does not raise since maybe the first block is useful
+        print('Error, hum probably no control points on your curve')
 ParametrizedCurve.show=to_visualize_curves
