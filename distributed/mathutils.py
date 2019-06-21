@@ -774,15 +774,13 @@ class PiecewiseCurve(list,ParametrizedCurve):
     Methods: 
     self.__call__(time): returns the point parametrized by time t. 
     """
-    def __new__(cls,curvesList,*args,**kwargs):
+    def __new__(cls,*args,**kwargs):
         l=list.__new__(cls)
-        for each in curvesList:
-            l.append(each)
         return l
-    def __init__(self,listOfCurves,initFunction):
-        # in __new__ self has been populated by the list of Curuves
-        # now we add the initial param and an emplty list of reparam
-        ParametrizedCurve.__init__(self,initFunction)
+    def __init__(self,*args,**kwargs):
+        for each in kwargs["curvesList"]:
+            self.append(each)
+        ParametrizedCurve.__init__(self,kwargs["initFunction"])
 
     def __str__(self):
         return "Compound curve with  the following curves:\n"+", \n".join([str(curve) for curve in self ])+"."
@@ -872,7 +870,7 @@ class PiecewiseCurve(list,ParametrizedCurve):
                     #print (curveNumber)
                     #print (self[curveNumber])
                     return self[curveNumber].__call__(timeInCurve)          
-            return PiecewiseCurve(listeCurve,initFunction=initFunc)            
+            return PiecewiseCurve(curvesList=listeCurve,initFunction=initFunc)            
         #except:
          #   raise NameError('Error In Piecewise Curve.Maybe two points p_i,p_{i+2} are equal, in which case the tangent at p_{i+1} is not defined')
 
