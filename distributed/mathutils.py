@@ -543,7 +543,10 @@ class ParametrizedCurve(Primitive):
 
     """
     def __call__(self,t):
-        return self.mapFromOrigin*self.function(t)
+        time=t
+        for f in self.reparametrizations:
+            time=f(time)
+        return self.mapFromOrigin*self.function(time)
 
         
     def __init__(self,function,mapFromOrigin=None):
@@ -552,6 +555,7 @@ class ParametrizedCurve(Primitive):
         moved with the map mapFromOrigin
         """
         ObjectInWorld.__init__(self)
+        self.reparametrizations=[]
         if not mapFromOrigin:
             mapFromOrigin=Map.identity()
         self.function=function
@@ -589,10 +593,11 @@ class ParametrizedCurve(Primitive):
         """
         Replaces the parametrize curve self(t) by C(g(t))  where g is a function corresponding to the change of parameter
         """
-        f=self.function
-        def composition(t):
-            return f(g(t))
-        self.function=composition
+        self.reparametrizations.append(g)
+        # f=self.function
+        # def composition(t):
+        #     return f(g(t))
+        # self.function=composition
         return self
         
     def speed(curve,t,epsilon=0.00000001,mini=0,maxi=1):
@@ -769,11 +774,16 @@ class PiecewiseCurve(list,ParametrizedCurve):
     Methods: 
     self.__call__(time): returns the point parametrized by time t. 
     """
-    def __new__(cls,*args,**kwargs):
-        return list.__new__(cls)
-    def __init__(self,listOfCurves):
-        ObjectInWorld.__init__(self)
-        super(PiecewiseCurve,self).__init__(listOfCurves)
+    def __new__(cls,curvesList,*args,**kwargs):
+        l=list.__new__(cls)
+        for each in curvesList:
+            l.append(each)
+        return l
+    def __init__(self,listOfCurves,initFunction):
+        # in __new__ self has been populated by the list of Curuves
+        # now we add the initial param and an emplty list of reparam
+        ParametrizedCurve.__init__(self,initFunction)
+
     def __str__(self):
         return "Compound curve with  the following curves:\n"+", \n".join([str(curve) for curve in self ])+"."
     def move_alone(self,M):
@@ -808,8 +818,8 @@ class PiecewiseCurve(list,ParametrizedCurve):
         if l==0: approachSpeeds=[.45]*lp
         if m==0: leavingSpeeds=[.45]*lp
         listeCurve=[]
-        #if 1>0:
-        try:
+        if 1>0:
+        #try:
             # first curve
             rightVector=(points[2]-points[0]).normalize()
             rightLength=speedConstants[1]*approachSpeeds[1]*(points[1]-points[0]).norm
@@ -846,17 +856,36 @@ class PiecewiseCurve(list,ParametrizedCurve):
                 #Sphere(q,.1).colored('Red'); Sphere(r,.1).colored('Violet')
             else:
                 listeCurve.append(BezierCurve([points[-2],q,q,points[-1]]))
-            return PiecewiseCurve(listeCurve)            
-        except:
-            raise NameError('Error In Piecewise Curve.Maybe two points p_i,p_{i+2} are equal, in which case the tangent at p_{i+1} is not defined')
+            # def de la fonction init
+            def initFunc(t):
+                time=t
+                for f in self.reparametrizations:
+                    time=f(time)
+                if (time>=1):# if >,probably because of floating numbers and should be 1
+                    #print("ici")
+                    return self[-1].__call__(1)
+                else:
+                    #print(self)
+                    #print(floor(len(self)*time))
+                    curveNumber=int(floor(len(self)*time))
+                    timeInCurve=len(self)*time-curveNumber
+                    #print (curveNumber)
+                    #print (self[curveNumber])
+                    return self[curveNumber].__call__(timeInCurve)          
+            return PiecewiseCurve(listeCurve,initFunction=initFunc)            
+        #except:
+         #   raise NameError('Error In Piecewise Curve.Maybe two points p_i,p_{i+2} are equal, in which case the tangent at p_{i+1} is not defined')
 
     
-    def  __call__(self,time):
+    def  __call__(self,t):
+        time=t
+        for f in self.reparametrizations:
+            time=f(time)
         if (time>=1):# if >,probably because of floating numbers and should be 1
             #print("ici")
             return self[-1].__call__(1)
         else:
-            print(self)
+            #print(self)
             #print(floor(len(self)*time))
             curveNumber=int(floor(len(self)*time))
             timeInCurve=len(self)*time-curveNumber
