@@ -167,7 +167,9 @@ def flipZ(self):
 def _new_object(cls,*args,**kwargs):
     #dico={hook.name:hook for hook in hooks}
     self=super(ObjectInWorld,cls).__new__(cls)
-    ObjectInWorld.__init__(self,args,kwargs)
+    ObjectInWorld.__init__(self,args,kwargs) # on multiple inheritance, __new__ is not called so some empty initialisation that should be in __new__ are deported to __init__(self,...)
+    # The other alternative would be to rewrite differently the __new__ passing self as an argument to some of them. It would be more coherent as we really create an "empty" object. However, this
+    # would interfere badly with the copy.deepcopy() which calls __new__ with no arguments usually. 
     return self
 
 def _init_object(self,*args,**kwargs):

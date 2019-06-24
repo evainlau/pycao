@@ -689,7 +689,9 @@ class Polyline(list,ParametrizedCurve):
     #     fractionOfSegment=timeLeftFromIndex*(len(self)-1)#=timeLef/segmentDuratio
     #     return (1-fractionOfSegment)*self[leftPointIndex]+fractionOfSegment*self[leftPointIndex+1]
     def __new__(cls,*args,**kwargs):
-        return list.__new__(cls)
+        l=list.__new__(cls)
+        ObjectInWorld.__init__(l)
+        return l
     def __init__(self,relativeList):
         if len(relativeList)==1:
             raise NameError('A polyline needs at least 2 points')
@@ -776,7 +778,9 @@ class PiecewiseCurve(list,ParametrizedCurve):
     """
     def __new__(cls,*args,**kwargs):
         l=list.__new__(cls)
+        ObjectInWorld.__init__(l)
         return l
+    
     def __init__(self,*args,**kwargs):
         for each in kwargs["curvesList"]:
             self.append(each)
@@ -843,7 +847,6 @@ class PiecewiseCurve(list,ParametrizedCurve):
             # last curve
             leftVector=(points[-1]-points[-3]).normalize()
             leftLength=speedConstants[0]*leavingSpeeds[-2]*(points[-1]-points[-2]).norm
-            print(leftLength)
             q=points[-2]+leftLength*leftVector
             if closeCurve:
                 rightVector=(points[1]-points[-2]).normalize()

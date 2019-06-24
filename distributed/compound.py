@@ -107,16 +107,18 @@ class Compound(ElaborateOrCompound):
 class Lathe(Elaborate):
     """
     Class for Lathe objects
-
+    By default, the Lathe occurs around the Y-axis
+    The curve is assumed to have points of the form [x,y,0] with x>0
+    If not, the control points are projected to get z=0
     """
     def __init__(self,curve):
-        # The curve is assumed to have points of the form [0,y,z]
+        #  and the Lathe is around the Y axis.
         self.parts=Object()
         self.parts.curve=curve
         self.markers=Object()
         self.markers.box=FrameBox(listOfPoints=[eachPoint for eachPoint in curve ])
         self.markers_as_functions()
-        self.move_alone(Map.affine(X,Z,Y,origin))
+        #self.move_alone(Map.affine(X,Z,Y,origin)) Bad idea, need to conjugate if I want to change the axis
     @staticmethod
     def fromPolyline(curve):
         return Lathe(curve)

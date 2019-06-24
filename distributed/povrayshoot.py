@@ -220,7 +220,7 @@ def object_string_but_CSG(self,camera):
         elif isinstance(self.parts.curve,BezierCurve):
             latheType="bezier_spline"
         string+="lathe {\n"+latheType+" "+str(len(self.parts.curve))+"\n"
-        for p in self.parts.curve: string+=","+point_to_povray2d(p,1,2)
+        for p in self.parts.curve: string+=","+point_to_povray2d(p,0,1)
         string+=modifier_string(self,camera)+"}\n"
     elif isinstance(self,RuledSurface):
         string+="mesh2 { vertex_vectors { "+str(2*len(self.parts.timeList1))+"\n"
