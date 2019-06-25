@@ -77,7 +77,7 @@ class MassPoint(np.ndarray,Primitive):
         ObjectInWorld.__init__(self)
 
 
-    def copy(self,withoutParent=True): # reecriture a cause du pb deepcopy de ndarray, see below
+    def clone(self,withoutParent=True): # reecriture a cause du pb deepcopy de ndarray, see below
         if withoutParent and hasattr(self,'parent'):
             copyParent=self.parent
             self.parent=[]
@@ -188,7 +188,7 @@ class MassPoint(np.ndarray,Primitive):
             #print("self",self)
             raise NameError('norm is applied to a Vector, self is '+str(type(self)))
 
-    def normalized_copy(self):
+    def normalized_clone(self):
         """ returns a vector positivly proportional to self with norm 1 """
         if self[3]==0:
             return 1./self.norm*self
@@ -211,7 +211,7 @@ class MassPoint(np.ndarray,Primitive):
         cosine= np.dot(goal,self)/np.linalg.norm(self)/np.linalg.norm(goal) # -> cosine of the angle
         angle = np.arccos(np.clip(cosine, -1, 1))
         M=Map.linear_rotation(vaxis,angle)
-        toVanish=M*self.normalized_copy()-goal.normalized_copy() # it is zero if the angle is correct, and with norm 2|sin(angle)| otherwise
+        toVanish=M*self.normalized_clone()-goal.normalized_clone() # it is zero if the angle is correct, and with norm 2|sin(angle)| otherwise
         if toVanish.norm>math.fabs(math.sin(angle)):
             angle=-angle#+math.pi
         return angle
@@ -302,13 +302,16 @@ class Base(list,Primitive):
     Base.canonical : the canonical base Base(X,Y,Z,T)=Base(X,Y,Z,origin)
     """
 
-#    def __new__(cls,v0,v1,v2,v3):
-#        return ()
-
+    def clone(self):
+        return Primitive.clone(self)
+    
+    def __new__(cls,*args,**kwargs):
+        self=super(Base,cls).__new__(cls)
+        ObjectInWorld.__init__(self)
+        return self
 
     def __init__(self,v0,v1,v2,v3):
         super(Base,self).__init__([v0,v1,v2,v3])
-        ObjectInWorld.__init__(self)
         self.canToBase=np.concatenate((v0,v1,v2,v3)).reshape(4,4).T.view(Map)
         #self.parts=[self[i] for i in range(4)]+[self.canToBase]
 
@@ -584,7 +587,7 @@ class ParametrizedCurve(Primitive):
             if is_vector(relativeList[i]):
                 relativeList[i]=relativeList[i]+relativeList[i-1]
             elif is_point(relativeList[i]):
-                relativeList[i]=relativeList[i].copy()
+                relativeList[i]=relativeList[i].clone()
             else:
                 raise NameError('relativeList['+str(i)+'] must be a point or vector')
         return relativeList
@@ -807,10 +810,10 @@ class PiecewiseCurve(list,ParametrizedCurve):
         For any i, the pair of points (p_i,p_{i+2}) should contain 2 distinct points otherwise 
         the tangent at p_{i+1}$ is not defined. 
         """
-        points=[p.copy() for p in controlPoints ]
+        points=[p.clone() for p in controlPoints ]
         ParametrizedCurve.relativeToAbsolute(points)
         if closeCurve:
-            points.append(points[0].copy())
+            points.append(points[0].clone())
         l=len(approachSpeeds); m=len(leavingSpeeds); lp=len(points)
         if (lp<3):
             raise NameError('Need At least 3 points for the compound Curve')
@@ -1035,7 +1038,7 @@ class Polyhedral(AffinePlaneWithEquation):
     
     def __new__(cls,listOfPlanes):
         #print([plane.children for plane in listOfPlanes])
-        myList=[ myPlane.copy() for myPlane in listOfPlanes ]
+        myList=[ myPlane.clone() for myPlane in listOfPlanes ]
         #print([plane.children for plane in myList])
         poly=myList.pop()
         #print(poly.children)
@@ -1109,11 +1112,11 @@ class Segment(AffineLineWithVectorDirector):
 
     def  point(self,x,coordinateType="p"):
         if coordinateType=="a":
-            return self.p1+x*self.vector.normalized_copy()
+            return self.p1+x*self.vector.normalized_clone()
         elif coordinateType=="p":
             return self.p1+x*self.vector
         elif coordinateType=="n":
-            return self.p2-x*self.vector.normalized_copy()
+            return self.p2-x*self.vector.normalized_clone()
         
     @property
     def norm(self):
@@ -1122,11 +1125,11 @@ class Segment(AffineLineWithVectorDirector):
     def __str__(self):
         return( "Line through"+str(self.p1)+" and "+str(self.p2)+" direction: "+str(self.vector))
     def prolonged_on_left(self,x):
-        self.p1=self.p1-x*self.vector.normalized_copy()
+        self.p1=self.p1-x*self.vector.normalized_clone()
         self.vector=self.p2-self.p1
         return self
     def prolonged_on_right(self,x):
-        self.p1=self.p1-x*self.vector.normalized_copy()
+        self.p1=self.p1-x*self.vector.normalized_clone()
         self.vector=self.p2-self.p1
         return self
 
@@ -1226,7 +1229,7 @@ class FrameBox(Base):
         """
         changes the vector i in 0,1,2 of the framebox to its opposite. The cube associated to the framebox is unchanged.
         """
-        p=self.points[i+1].copy()
+        p=self.points[i+1].clone()
         vec=self[i]
         for j in range(4):
             self.points[j]+=vec
@@ -1407,7 +1410,7 @@ class FrameBox(Base):
     def segment(self,*args,**kwargs):
         ''' DEPRECATED
         '''
-        raise NameError('Deprecated. Replace Self.segment with self.line')
+        raise NameError('Deprecated. Replace Self.segment with self.boxline')
     
     def plane(self,face,coord,frame="a"):
         """
@@ -1699,7 +1702,7 @@ class Map(np.ndarray):
         """
         The affine map which sends the canonical base to vo,v1,v2 and translation w
         """
-        translationVector=w.copy()
+        translationVector=w.clone()
         translationVector[3]=1
         return( Map(v0,v1,v2,translationVector))
 
@@ -1715,7 +1718,7 @@ class Map(np.ndarray):
         - a vector
         """
         if len(args)==1:
-            w=args[0].copy()
+            w=args[0].clone()
         else:
             w=vector(*args)
         w[3]=1

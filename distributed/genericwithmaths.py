@@ -58,7 +58,7 @@ def _gtranslate_object(self,vec,p1,p2):
     """
     translates self along a translation t with vector v such that  t(p1),p2 are in a common plane orthogonal to v
     """
-    w=vec.copy().normalize()
+    w=vec.clone().normalize()
     if is_point(p1):
         start=p1
     else:

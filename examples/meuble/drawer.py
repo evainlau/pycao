@@ -75,7 +75,7 @@ dim=f.dimensions
 ### now the part behind the front face, using the dimension of the box. 
 b1=WoodStud(dimx=.3,dimy=dim[1],dimz=dim[2],grainVector=Z)
 b2=WoodStud(dimx=dim[0],dimy=dim[1],dimz=dim[2],grainVector=Z)
-b3=b1.copy()
+b3=b1.clone()
 mainPart=CabinetStorey(frontFace,b1,b2,b3)
 dim=mainPart.dimensions
 #now a support for what we drew
@@ -83,6 +83,7 @@ support=WoodStud(dim[0]+.015,dim[1]+.015,.01)
 mainPart.above(support)
 # and atop
 top=FramedStub(width=dim[0]+.015,height=dim[1]+.015,thickness=.01,borderWidth=.07)
+top2=FramedStub(width=dim[0]+.015,height=dim[1]+.015,thickness=.01,borderWidth=.07)
 top.parallel_to(Z)
 top.activeBox.reorder()
 top.above(mainPart)
@@ -115,8 +116,10 @@ camera.location=origin-0.8*X-1.*Y+1*Z
 l=Light(origin-4*Y+10*Z-3*X)
 camera.actors=[actor,ground]#,floor2]#,ground] # what is seen by the camera
 #ground.visibility=0
+#camera.actors=[top2.frame]
 camera.lookAt=actor.center#origin
-camera.zoom(1)
+#camera.lookAt=origin
+camera.zoom(.7)
 
 camera.quality=11
 camera.povraypath=pycaoDir+"/../images/"

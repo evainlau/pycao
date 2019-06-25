@@ -50,7 +50,7 @@ class ViewerWindow(Gtk.Window):
         self.camera.lookAt+=vector
         self.camera_string_to_file()
     def move_forward(self,widget,value):
-        self.camera.location+=value*(self.camera.lookAt-self.camera.location).normalized_copy()
+        self.camera.location+=value*(self.camera.lookAt-self.camera.location).normalized_clone()
         self.camera_string_to_file()
     def hlook_at(self,widget,value):
         self.camera.compute_frame_vectors()

@@ -65,9 +65,9 @@ class Skeleton(ObjectInWorld):
         # Information for Joints only (not bones)
         for input in jointsInput:
             myJoint=input[4]
-            myJoint.position=input[3].copy()
+            myJoint.position=input[3].clone()
             myJoint.name=input[0]
-            if len(input)>5: myJoint.rotationVector=input[5].copy()
+            if len(input)>5: myJoint.rotationVector=input[5].clone()
             setattr(joints,myJoint.name,myJoint)
             #an alias to speeed-up input for the end-user
             setattr(self,input[0],myJoint)
@@ -237,13 +237,15 @@ class Body(Skeleton):
         head=Cylinder(origin,origin+(headZSize-headCirconference/math.pi/2)*Z,headCirconference/math.pi/2).against(neck,-Z,-Z,X,X).colored("Green")
         upperHead=Sphere(origin,headCirconference/math.pi/2).above(head).translate(-headCirconference/math.pi/2*Z).glued_on(head).colored("Green")
         for word in ["ankle","knee","pelvis"]:
+            print("left"+word.title()+"=Sphere(origin,"+str(eval(word+"Radius"))+").move_at(origin+"+str(eval(word+"Height"))+"*Z-"
+                 +str(leftRightLegAxes*.5)+"*X).colored(\"Red\")")
             exec("left"+word.title()+"=Sphere(origin,"+str(eval(word+"Radius"))+").move_at(origin+"+str(eval(word+"Height"))+"*Z-"
                  +str(leftRightLegAxes*.5)+"*X).colored(\"Red\")")
-            exec("right"+word.title()+"=left"+word.title()+".copy().translate("+str(leftRightLegAxes)+"*X)")
+            exec("right"+word.title()+"=left"+word.title()+".clone().translate("+str(leftRightLegAxes)+"*X)")
         for word in ["shoulder","elbow","wrist"]:
             exec("left"+word.title()+"=Sphere(origin,"+str(eval(word+"Radius"))+").move_at(origin+"+str(eval(word+"Height"))+"*Z-"
                  +str(leftRightArmAxes*.5)+"*X).colored(\"Red\")")
-            exec("right"+word.title()+"=left"+word.title()+".copy().translate("+str(leftRightArmAxes)+"*X)")
+            exec("right"+word.title()+"=left"+word.title()+".clone().translate("+str(leftRightArmAxes)+"*X)")
 
             
         leftFoot=Cube(footSize[0],footSize[1],ankleHeight).colored("Blue")
@@ -254,8 +256,8 @@ class Body(Skeleton):
         leftFoot.to_Ankle=leftFoot.point(.5,yDistanceAnkleToe,1,"pnp")
         leftFoot.translate(leftAnkle.center-leftFoot.to_Ankle)
         leftSole=Cube(footSize[0],footSize[1],shoeSole).below(leftFoot).glued_on(leftFoot).colored("Orange")
-        rightFoot=leftFoot.copy().translate(leftRightLegAxes*X)
-        rightSole=leftSole.copy().translate(leftRightLegAxes*X).glued_on(rightFoot)
+        rightFoot=leftFoot.clone().translate(leftRightLegAxes*X)
+        rightSole=leftSole.clone().translate(leftRightLegAxes*X).glued_on(rightFoot)
 
         slaves=[ Cylinder(origin+i*.20*handWidth*Y,origin+i*.25*handWidth*Y+.5*hand*Z,handThickness*.5) for i in range(4)]
         fingers=Compound(slaves)
@@ -268,7 +270,7 @@ class Body(Skeleton):
         leftHand.below(leftWrist)
 
         
-        rightHand=leftHand.copy()
+        rightHand=leftHand.clone()
         #rightThumb=Cylinder(origin,origin+.3*hand*X,.5*handThickness).on_left_of(rightHand,adjustEdges=Z).colored("Blue").glued_on(rightHand)
         rightHand.below(rightWrist)
 
@@ -288,9 +290,9 @@ class Body(Skeleton):
         trunk.below(neck)
 
         for word in ["Tibia","Femur"]:
-            exec("right"+word.title()+"=left"+word.title()+".copy().translate("+str(leftRightLegAxes)+"*X)")
+            exec("right"+word.title()+"=left"+word.title()+".clone().translate("+str(leftRightLegAxes)+"*X)")
         for word in ["Humerus","Cubitus"]:
-            exec("right"+word.title()+"=left"+word.title()+".copy().translate("+str(leftRightArmAxes)+"*X)")
+            exec("right"+word.title()+"=left"+word.title()+".clone().translate("+str(leftRightArmAxes)+"*X)")
         bones=[["leftFoot",leftFoot],["rightFoot",rightFoot],["leftTibia",leftTibia],["rightTibia",rightTibia],["leftFemur",leftFemur],["rightFemur",rightFemur],["trunk",trunk],["head",head],["leftHumerus",leftHumerus],["rightHumerus",rightHumerus],["leftCubitus",leftCubitus],["rightCubitus",rightCubitus],["leftHand",leftHand],["rightHand",rightHand]]
         joints=[
             ["leftAnkle","leftFoot","leftTibia",leftAnkle.center,leftAnkle],
@@ -313,7 +315,7 @@ class Body(Skeleton):
         self.pelvisRadius=pelvisRadius
 
 #s.handle.translate(Z)
-#s.redJoint.rotationVector=Z.copy()
+#s.redJoint.rotationVector=Z.clone()
 #print(s.redJoint.rotationVector,"sredJoint.vector")
 #s.muscle_on_joint(s.redJoint,math.pi/8,keepParallel=[s.pinkJoint],toggleJoint=False)
 

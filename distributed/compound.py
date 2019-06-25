@@ -146,8 +146,8 @@ class FrameAxis(Compound):
 
     """
     def __init__(self,start,end,cylinderPercentage,cylinderRadius,arrowRadius):
-        start=start.copy()
-        end=end.copy()
+        start=start.clone()
+        end=end.clone()
         endCylinder=(1-cylinderPercentage)*start+cylinderPercentage*end
         cyl=Cylinder(start,endCylinder,cylinderRadius)
         #cyl.color=color
@@ -189,7 +189,7 @@ class BentCylinder(Compound):
             # it remains to compute the first tangent
             c=Circle.from_2_points_and_tangent(listOfPoints[1],listOfPoints[0],tangents[0])
             mape=Map.rotational_difference(listOfPoints[1]-c.center,listOfPoints[0]-c.center)
-            tangents=[tangents[0].copy().remove_children().move_alone(mape)]+tangents
+            tangents=[tangents[0].clone().remove_children().move_alone(mape)]+tangents
         # Now I add the last tangent
         oddNumberOfPoints= (len(listOfPoints)% 2 == 1)
         endWithCylinder=( startWithTorus == oddNumberOfPoints)
@@ -199,7 +199,7 @@ class BentCylinder(Compound):
         else:
             c=Circle.from_2_points_and_tangent(listOfPoints[nbp-2],listOfPoints[nbp-1],tangents[nbp-2])
             mape=Map.rotational_difference(listOfPoints[nbp-2]-c.center,listOfPoints[nbp-1]-c.center)
-            tangents.append(tangents[nbp-2].copy().remove_children().move_alone(mape))
+            tangents.append(tangents[nbp-2].clone().remove_children().move_alone(mape))
         # construction du slave(start,tangentStart,end,tangentEnd)
         def buildSlave(start,tangentStart,end,tangentEnd):
             if tangentStart==tangentEnd:
@@ -287,7 +287,7 @@ class ThickTriangle(Compound):
     def __init__(self,p1,p2,p3,r1,r2,r3,rn=None,rnn=None,pointOrVectorOnNOrmalSide=None):
         myplane=plane.from_3_points(p1,p2,p3)
         if pointOrVectorOnNOrmalSide is None:
-            normal=myplane.normal.normalized_copy()
+            normal=myplane.normal.normalized_clone()
         s1=Sphere(p1,r1)
         s2=Sphere(p2,r2)
         s3=Sphere(p3,r3)

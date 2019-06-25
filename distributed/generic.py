@@ -215,7 +215,7 @@ class ObjectInWorld(object):
         cut self using the substraction of cuttingShape, where cuttingShape=object or listOfObjects
         The cuttingShape is made invisible after the cutting operation if throwShapeAway=True
         """
-        # I make a copy so that I can move the cutting shape independently of self later on
+        # I make a clone so that I can move the cutting shape independently of self later on
         #print("type")
         #print(type(cuttingShape))
         if not isinstance(cuttingShape,list):
@@ -223,7 +223,7 @@ class ObjectInWorld(object):
         else:
             toCut1=cuttingShape
         if takeCopy:
-            toCut=[t.copy() for t in toCut1]
+            toCut=[t.clone() for t in toCut1]
         else:
             toCut=toCut1
         if keepTexture and hasattr(self,"texture"):
@@ -252,7 +252,7 @@ class ObjectInWorld(object):
         #print("type")
         #print(type(cuttingShape))
         if takeCopy:
-            toCut=cuttingShape.copy()
+            toCut=cuttingShape.clone()
         else:
             toCut=cuttingShape
         if keepTexture and hasattr(self,"texture"):
@@ -283,7 +283,7 @@ class ObjectInWorld(object):
         else:
             toCut1=cuttingShape
         if takeCopy:
-            toCut=[t.copy() for t in toCut1]
+            toCut=[t.clone() for t in toCut1]
         else:
             toCut=toCut1
         if keepTexture and hasattr(self,"texture"):
@@ -337,7 +337,7 @@ class ObjectInWorld(object):
         return self.box().boxline(*args,**kwargs)
 
     def segment(self,*args,**kwargs):
-        raise NameError('deprecated. Use self.boxLine instead of self.segment')
+        raise NameError('deprecated. Use self.boxline instead of self.segment')
 
     def plane(self,*args,**kwargs):
         raise NameError('deprecated. Use self.boxplane instead of self.plane')
@@ -384,7 +384,7 @@ class ObjectInWorld(object):
             #I have to be careful here because the argument adjustAxis, may be a child of self or not.
         # Thus I make a copy so that I am sure this is not a child
         if adjustAxis is not None:
-            selfAxisCopy=adjustAxis[0].copy()
+            selfAxisCopy=adjustAxis[0].clone()
             selfAxisCopy.move_alone(M)
             newAxis=[selfAxisCopy,adjustAxis[1]]
         else:
@@ -422,17 +422,17 @@ class ObjectInWorld(object):
  
     def box(self,name=None): #will be overwritten for some objects construcing their own boxes
         if name is None:
-            return self.activeBox.copy()
+            return self.activeBox.clone()
         else :
-            return getattr(self.dicobox,name).copy()
+            return getattr(self.dicobox,name).clone()
     def axis(self,name=None): #will be overwritten for some objects construcing their own boxes
         if name is None:
-            return self.activeAxis.copy()
-        else: return getattr(self.dicoaxis,name).copy()
+            return self.activeAxis.clone()
+        else: return getattr(self.dicoaxis,name).clone()
     def hook(self,name=None): #will be overwritten for some objects construcing their own boxes
         if name is None:
-            return self.activeHook.copy()
-        else: return getattr(self.dicohook,name).copy()
+            return self.activeHook.clone()
+        else: return getattr(self.dicohook,name).clone()
 
     
     def add_box(self,name,framebox):
@@ -448,7 +448,13 @@ class ObjectInWorld(object):
             if hasattr(self,"box"):
                 dicobox.initialBox=self.box
             setattr(self,"dicobox",dicobox)
-        self.activeBox=framebox.copy().glued_on(self)
+        self.activeBox=framebox.clone()
+        #print("cii")
+        #raise NameError(str(isinstance(self.activeBox,ObjectInWorld)))
+        #raise NameError(str(type(self.activeBox)))
+        #print(self.activeBox.__dict__)
+
+        self.activeBox.glued_on(self)
         setattr(self.dicobox,name,self.activeBox)
         return self
 
@@ -470,7 +476,7 @@ class ObjectInWorld(object):
             if hasattr(self,"axis"):
                 dicoaxis.initialAxis=self.axis
             setattr(self,"dicoaxis",dicoaxis)
-        self.activeAxis=line.copy().glued_on(self)
+        self.activeAxis=line.clone().glued_on(self)
         setattr(self.dicoaxis,name,self.activeAxis)
         return self
 
@@ -484,7 +490,7 @@ class ObjectInWorld(object):
         if not hasattr(self,"dicohook"):
             dicohook=Object() 
             setattr(self,"dicohook",dicohook)
-        self.activeHook=hpoint.copy().glued_on(self)
+        self.activeHook=hpoint.clone().glued_on(self)
         setattr(self.dicohook,name,self.activeHook)
         return self
 
@@ -546,7 +552,7 @@ class ObjectInWorld(object):
     
     def self_translate(self,amount,type="p"):
         if type=="p": vec=amount* self.axis().vector
-        elif type=="a": vec=amount*self.axis().vector.normalized_copy()
+        elif type=="a": vec=amount*self.axis().vector.normalized_clone()
         else: return NameError("Type should be a or p")
         return self.translate(vec)
 
@@ -584,7 +590,7 @@ class ObjectInWorld(object):
         self.activeHook=getattr(self.dicohook,name)
         return self
 
-    def copy(self,withoutParent=True):
+    def clone(self,withoutParent=True):
         if withoutParent and hasattr(self,'parent'):
             copyParent=self.parent
             self.parent=[]

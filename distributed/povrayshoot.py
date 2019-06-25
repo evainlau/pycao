@@ -238,8 +238,8 @@ def object_string_but_CSG(self,camera):
             #normal=(xi-yi).cross((xip-xi))
             normal=(xi-yi).cross((self.parts.curve1.speed(self.parts.timeList1[i])))
             #print(normal,"normal")
-            #print(normal.normalized_copy())
-            #print(normal.normalized_copy())
+            #print(normal.normalized_clone())
+            #print(normal.normalized_clone())
             string+=","+povrayVector(normal)
             if i==len(self.parts.timeList1) - 2: string+=","+povrayVector(normal)
         for i in xrange(len(self.parts.timeList1) - 1):
@@ -282,7 +282,7 @@ def object_string_alone(self,camera):
     except:
         return object_string_but_CSG(self,camera)
     #slavesCopie=[copy.deepcopy(entry) for entry in todo.csgSlaves]
-    slavesCopie=[entry.copy() for entry in todo.csgSlaves]
+    slavesCopie=[entry.clone() for entry in todo.csgSlaves]
     #for slave in slavesCopie:
     #    print(slave) 
     #print("copie",len(slavesCopie))

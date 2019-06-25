@@ -125,15 +125,15 @@ class Camera(Primitive):
         self.angle=2*math.atan((cameraWidth/x))
 
     def compute_frame_vectors(self):
-        self.frontVector=(self.lookAt-self.location).normalized_copy()
+        self.frontVector=(self.lookAt-self.location).normalized_clone()
         self.rightVector=self.frontVector.cross(self.sky)
         if  not self.rightVector == 0*X:
-            self.rightVector=self.rightVector.normalized_copy()
+            self.rightVector=self.rightVector.normalized_clone()
         else:
             self.rightVector=X
             if  (self.frontVector.cross(self.frontVector) == 0*X):
                 self.rightVector=Y
-        self.upVector=- self.frontVector.cross(self.rightVector).normalized_copy()
+        self.upVector=- self.frontVector.cross(self.rightVector).normalized_clone()
         if not self.directFrame:
             self.rightVector=-self.rightVector
     ################################################################

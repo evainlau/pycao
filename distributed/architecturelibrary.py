@@ -29,7 +29,7 @@ class Wall(Prism):
         self.markers.center=0.25*(polyline[0]+polyline[3]+polyline[1]+polyline[2])+.5*verticalVector # aka the line on the floor in the middle of the wall
         self.markers.outsideBaseLine=Segment(polyline[2],polyline[3]) # the intersection of the floor and the exterior wall. The points are the extremal points of this line
         self.markers.insideBaseLine=Segment(polyline[0],polyline[1])
-        self.markers.verticalVector=verticalVector.copy() # alread accessible by self.prismDirection but more readable alias in the context of walls
+        self.markers.verticalVector=verticalVector.clone() # alread accessible by self.prismDirection but more readable alias in the context of walls
         insideVector=self.markers.outsideBaseLine.vector.cross(verticalVector).normalize()
         if (self.markers.insideBaseLine.p1-self.markers.outsideBaseLine.p2).dot(insideVector) < 0:
             insideVector=-insideVector
@@ -88,9 +88,9 @@ class Room(Compound):
         for index,segment in enumerate(floor.segments()):
             lw=Object()
             #lw.armature=segment
-            lw.insideVector=segment.vector.normalized_copy().rotate(-verticalVector,math.pi/2)
-            lw.insideWall=segment.copy().translate(lw.insideVector*insideThickness)
-            lw.outsideWall=segment.copy().translate(-lw.insideVector*outsideThickness)
+            lw.insideVector=segment.vector.normalized_clone().rotate(-verticalVector,math.pi/2)
+            lw.insideWall=segment.clone().translate(lw.insideVector*insideThickness)
+            lw.outsideWall=segment.clone().translate(-lw.insideVector*outsideThickness)
             lw.name="wall"+str(index)
             logicalWalls.append(lw)
         for windex,logicalWall in enumerate(logicalWalls):
@@ -107,7 +107,7 @@ class Room(Compound):
             theWall.rgbed(rgb)
             walls.append(theWall)
         floor=Polygon(outPoints).translate(0.000000001*verticalVector).colored("OldGold") # translation so that it is above the outside floor
-        ceiling=floor.copy().translate(height*verticalVector).colored("White")
+        ceiling=floor.clone().translate(height*verticalVector).colored("White")
         floor.name="Ceiling"
         liste=[["wall"+str(i),wall] for i,wall in enumerate(walls)]
         Compound.__init__(self,liste+[["ceiling",ceiling],["floor",floor]])
@@ -121,9 +121,9 @@ class Room(Compound):
         w=Window(wlength,wdepth,wheight,wthickness)
         wall=self.walls[wallNumber]
         if fromOutside:
-            windowCenter=wall.outsideBaseLine().point(deltaLength+0.5*wlength,"n")+(deltaHeigth+.5*wheight)*wall.verticalVector().normalized_copy()+wall.insideVector().normalize()*wall.thickness
+            windowCenter=wall.outsideBaseLine().point(deltaLength+0.5*wlength,"n")+(deltaHeigth+.5*wheight)*wall.verticalVector().normalized_clone()+wall.insideVector().normalize()*wall.thickness
         else:
-            windowCenter=wall.insideBaseLine().point(deltaLength+0.5*wlength,"a")+(deltaHeigth+.5*wheight)*wall.verticalVector().normalized_copy()
+            windowCenter=wall.insideBaseLine().point(deltaLength+0.5*wlength,"a")+(deltaHeigth+.5*wheight)*wall.verticalVector().normalized_clone()
         wall.add_apperture(w,windowCenter)
         self.windows.append(w)
         if glued:
@@ -138,9 +138,9 @@ class Room(Compound):
         w=Door(wlength,wdepth,wheight,reverseHandle,handleTexture=handleTexture)
         wall=self.walls[wallNumber]
         if fromOutside:
-            doorCenter=wall.outsideBaseLine().point(deltaLength+0.5*wlength,"n")+(deltaHeigth+.5*wheight)*wall.verticalVector().normalized_copy()+wall.insideVector().normalize()*wall.thickness
+            doorCenter=wall.outsideBaseLine().point(deltaLength+0.5*wlength,"n")+(deltaHeigth+.5*wheight)*wall.verticalVector().normalized_clone()+wall.insideVector().normalize()*wall.thickness
         else:
-            doorCenter=wall.insideBaseLine().point(deltaLength+0.5*wlength,"a")+(deltaHeigth+.5*wheight)*wall.verticalVector().normalized_copy()
+            doorCenter=wall.insideBaseLine().point(deltaLength+0.5*wlength,"a")+(deltaHeigth+.5*wheight)*wall.verticalVector().normalized_clone()
         wall.add_apperture(w,doorCenter)
         self.doors.append(w)
         if glued:
@@ -182,7 +182,7 @@ class Window2(Compound):
         hole=Cube(frame.point(holeBorder,-10000,holeBorder,"aaa"),frame.point(holeBorder,-10000,holeBorder,"nnn"))
         glass=Cube(frame.point(border,dy*.5-.001,border,"aaa"),frame.point(border,dy*.5-0.01,border,"nnn"))
         glass.new_texture(Texture("Glass"))
-        Compound.__init__(self,[frame,glass,["normal",Y.copy()]])
+        Compound.__init__(self,[frame,glass,["normal",Y.clone()]])
         self.hole=hole.glued_on(self)
         self.hole.visibility=0
         self.add_box("windowBox",frame.box())
@@ -204,7 +204,7 @@ class Window(Compound):
         glass=Cube(frame2.point(border,dy*.5-.001,border,"aaa"),frame2.point(border,dy*.5-0.01,border,"nnn"))
         glass.name="Window Glass"
         glass.new_texture(Texture("Glass"))
-        Compound.__init__(self,[["frame",frame],["glass",glass],["normal",Y.copy()]])
+        Compound.__init__(self,[["frame",frame],["glass",glass],["normal",Y.clone()]])
         self.hole=hole.glued_on(self)
         self.hole.visibility=0
         self.add_box("windowBox",frame2.box())
@@ -225,7 +225,7 @@ class Door(Compound):
             doorhandle=DoorHandle(handleTexture)
         doorhandle.glued_on(self)
         self.dhandle1=doorhandle
-        doorhandle2=doorhandle.copy().move(Map.linear(-X,Y,Z)).glued_on(self)
+        doorhandle2=doorhandle.clone().move(Map.linear(-X,Y,Z)).glued_on(self)
         self.dhandle2=doorhandle2
         hole=Cube(frame.point(holeBorder,-10000,holeBorder,"aaa"),frame.point(holeBorder,-10000,holeBorder,"nnn"))
         #glass=Cube(frame.point(border,dy*.5-.001,border,"aaa"),frame.point(border,dy*.5-0.01,border,"nnn"))
@@ -239,7 +239,7 @@ class Door(Compound):
             doorhandle.self_rotate(math.pi)
         doorhandle.translate(handlePointToLock1-doorhandle.handlePoint)
         doorhandle2.translate(handlePointToLock2-doorhandle2.handlePoint)
-        Compound.__init__(self,[frame,["normal",Y.copy()]])
+        Compound.__init__(self,[frame,["normal",Y.clone()]])
         self.hole=hole.glued_on(self)
         self.hole.visibility=0
         self.add_box("windowBox",frame.box())
@@ -248,7 +248,7 @@ class Door(Compound):
     def add_porthole(self,texture=Texture("Cork")): # type = winoow or doord
         w=RoundWindow(radius=.2,depth=.15,border=.02,texture=texture)
         #print(self.box().segment(None,.5,.5,"ppp"))
-        mape=Map.rotational_difference(w.normal,self.box().segment(.5,None,1.6,"ppa").vector)
+        mape=Map.rotational_difference(w.normal,self.box().boxline(.5,None,1.6,"ppa").vector)
         w.move(mape)
         w.translate(self.point(.5,.5,1.6,"ppa")-w.frame.axis().point(.5,"p"))
         self.amputed_by(w.hole)
@@ -262,7 +262,7 @@ class RoundWindow(Compound):
         """ border is the size of the border of the window """ 
         frame=Cylinder(start=origin,end=origin+depth*Y,radius=radius,length=None,booleanOpen=False)
         frame.new_texture(texture)
-        self.normal=Y.copy()
+        self.normal=Y.clone()
         toCut=Cylinder(start=origin-Y,end=origin+depth*Y+Y,radius=radius-border,length=None,booleanOpen=False)
         toCut.new_texture(texture)
         frame.amputed_by(toCut)
@@ -313,7 +313,7 @@ class Chair(Compound):
             self.add_to_compound(leg)
         self.center_on_floor=seat.point(.5,.5,.5,"ppp")
         self.center_on_floor[2]=0
-        axis=seat.segment(.5,.5,None,"ppp")
+        axis=seat.boxline(.5,.5,None,"ppp")
         self.add_axis("axeVertical",axis)
         self.add_box("",seat.box())
 
@@ -331,7 +331,7 @@ class Stove(Compound):
         cylEnd=cylstart+(roomHeight-.61)*Z
         cyl=Cylinder(cylstart,cylEnd,.08).new_texture(texture)
         self.add_list_to_compound([["door",door],["spacer",spacer],fireplace,spacer2,cyl,["floorPoint",floorPoint]])
-        self.add_axis("axis",fireplace.segment(.5,.5,None,"ppp"))
+        self.add_axis("axis",fireplace.boxline(.5,.5,None,"ppp"))
 
 class DoorHandle(Compound):
     def __init__(self,texture=Texture("New_Brass"),left=True):
@@ -341,7 +341,7 @@ class DoorHandle(Compound):
         top.translate(.05*Z)
         start=middle.point(.5,-1,.75,"ppp")
         axis=Cylinder.from_point_vector(start,-.03*Y,.01)
-        verticalAxis=middle.segment(.5,.5,None,"ppp")
+        verticalAxis=middle.boxline(.5,.5,None,"ppp")
         start=start-.02*Y
         handle=Torus.from_3_points(start,start+.03*X,start+.07*X-.02*Z,.01)
         handlePoint=middle.point(.5,1,.75,"ppp")
@@ -380,7 +380,7 @@ class LightSwitch(Compound):
         self.new_texture("pigment {White}")
         support.new_texture("pigment {Grey}")
         self.add_box("default",base.box())
-        self.add_axis("outsideVector",self.box().segment(.5,None,.5,"ppp"))
+        self.add_axis("outsideVector",self.box().boxline(.5,None,.5,"ppp"))
         self.add_hook("to_wall",self.box().point(.5,1,.5,"ppp"))
 
 
@@ -398,9 +398,9 @@ class Tiling(Compound):
         zdim=(q-p)[2]
         for i in range(xnumber):
             for j in range(ynumber):
-                ntile=tile.copy()
+                ntile=tile.clone()
                 ntile.translate(origin-p+i*(xdim+jointWidth)*X+j*(ydim+jointWidth)*Y)
-                tcop=ntile.copy()
+                tcop=ntile.clone()
                 self.add_to_compound(tcop)
         if jointHeight >0:
             mortar=Cube(origin,origin+xnumber*(xdim+jointWidth)*X+ynumber*(ydim+jointWidth)*Y+jointHeight*Z).colored("Black")
@@ -450,33 +450,33 @@ class PictureFrame(Compound):
         self.name="pictureFrame"
         self.borderWidth=borderWidth
         l1=RoundedWoodStud(width,borderWidth,1*thickness,radius=radius,grainVector=X).named("l1")
-        l1=l1.copy()
-        l3=l1.copy().translate((height-borderWidth)*Y).named("l3")
+        #l1=l1.clone()
+        l3=l1.clone().translate((height-borderWidth)*Y).named("l3")
         l2=RoundedWoodStud(borderWidth,height,1*thickness,radius=radius,grainVector=Y).named("l2")
-        l4=l2.copy().translate((width-borderWidth)*X).named("l4")
+        l4=l2.clone().translate((width-borderWidth)*X).named("l4")
         plane1=plane.from_3_points(origin,origin+Z,origin+X+Y)
         if plane1.half_space_contains(origin+X):
             plane1.reverse()
-        l1.amputed_by(plane1)
-        l2.amputed_by(plane1.copy().reverse())
+        l1.amputed_by(plane1,takeCopy=True)
+        l2.amputed_by(plane1.clone().reverse())
         plane1.translate(l3.point(1,1,1,"ppp")-origin)
         l4.amputed_by(plane1)
-        l3.amputed_by(plane1.copy().reverse())
+        l3.amputed_by(plane1.clone().reverse())
         plane2=plane.from_3_points(origin,origin+Z,origin-X+Y)
         if plane2.half_space_contains(origin+X+Y):
             plane2.reverse()
-        plane3=plane2.copy().translate(width*X)
+        plane3=plane2.clone().translate(width*X)
         plane2.translate(height*Y)
-        l2.amputed_by(plane2.copy().reverse())
+        l2.amputed_by(plane2.clone().reverse())
         l3.amputed_by(plane2)
-        l1.amputed_by(plane3.copy().reverse())
+        l1.amputed_by(plane3.clone().reverse())
         l4.amputed_by(plane3)
         #[ob.amputed_by(plane.from_coeffs(0,0,1,-thickness)) for ob in [l1,l2,l3,l4]]
         self.add_box("globalBox",Cube(origin+0*thickness*Z,origin+width*X+height*Y+1*thickness*Z).box())
         self.add_list_to_compound([l1,l2,l3,l4])
 
 
-        self.add_axis("normalAxis",self.segment(.5,.5,None,"ppp"))
+        self.add_axis("normalAxis",self.boxline(.5,.5,None,"ppp"))
         self.parallel_to(normalVector)
         self.activeBox.reorder()
 
@@ -538,14 +538,14 @@ def Drawer(dimx,dimy,dimz,thickness,slidingAxis=Y,photo=None):
     b0=WoodBoard(dimx,thickness,dimz-thickness,grainVector=X,photo=photo).named("DrawerFrontPanel")
     b2=WoodBoard(dimx,thickness,dimz-thickness,grainVector=X,photo=photo).named("DrawerBackPanel")
     b1=WoodBoard(dimy-2*thickness,thickness,dimz-thickness,grainVector=X,photo=photo).named("DrawerLeftPanel")
-    b3=b1.copy().named("DrawerRightPanel")
+    b3=b1.clone().named("DrawerRightPanel")
     c=CabinetStorey(b0,b1,b2,b3)
     b=WoodBoard(dimx,dimy,thickness,grainVector=Y,photo=photo)
     c.above(b)
     ret=Compound()
     ret.add_list_to_compound([b,c])
     ret.add_box("globalBox",FrameBox([origin,origin+dimx*X+dimy*Y+dimz*Z]))
-    ret.add_axis("slidingAxis",ret.segment(.5,None,.5,"ppp"))
+    ret.add_axis("slidingAxis",ret.boxline(.5,None,.5,"ppp"))
     return ret
     
 def FramedDrawer(width=.4,height=.3,thickness=.01,borderWidth=.05,drawerDepth=.3,openingAmount=0,framePhoto=None,drawerPhoto=None):
@@ -565,8 +565,8 @@ def FramedGlass(width=.4,height=.3,thickness=.01,borderWidth=.05,photo=None,open
     c.add_list_to_compound([["frame",frame],["glass",glass]])
     c.add_box("frameBox",frame.box())
     if opening=="right":
-        c.add_axis("openingAxis",frame.segment(1,1,None,"ppp"))
-    else: c.add_axis("openingAxis",frame.segment(1,1,None,"ppp"))
+        c.add_axis("openingAxis",frame.boxline(1,1,None,"ppp"))
+    else: c.add_axis("openingAxis",frame.boxline(1,1,None,"ppp"))
     return c
 
 def FramedStub(width=.4,height=.3,thickness=.01,borderWidth=.05,framePhoto=None,stubPhoto=None):
@@ -582,7 +582,7 @@ def FramedStub(width=.4,height=.3,thickness=.01,borderWidth=.05,framePhoto=None,
 def Cabinet(width=.5,upheight=.4,botheight=.3,depth=.3,thickness=.02,borderWidth=.06,feetheight=.1,feetSize=.1,framePhoto=None,drawerPhoto=None):
     ret=Compound()
     #if framePhoto is None:
-    #    framePhoto=oakCubicPhoto.copy()
+    #    framePhoto=oakCubicPhoto.clone()
     #    framePhoto.declare()
     up=FramedGlass(width=width,height=upheight,thickness=thickness,borderWidth=borderWidth,photo=framePhoto).select_axis("openingAxis")
     bot=FramedDrawer(width=width,height=botheight,thickness=thickness,borderWidth=borderWidth,openingAmount=0,framePhoto=framePhoto,drawerPhoto=drawerPhoto)
@@ -596,7 +596,7 @@ def Cabinet(width=.5,upheight=.4,botheight=.3,depth=.3,thickness=.02,borderWidth
     b1=WoodStud(dimx=depth-2*thickness,dimy=dim[1],dimz=dim[2],grainVector=Z)
     #pourquoi ne marche pas avec *dim ?
     b2=WoodStud(dimx=dim[0],dimy=dim[1],dimz=dim[2],grainVector=Z)
-    b3=b1.copy()
+    b3=b1.clone()
     mainPart=CabinetStorey(frontFace,b1,b2,b3)
     dim=mainPart.dimensions
     support=WoodStud(dim[0]+.015,dim[1]+.015,.01)

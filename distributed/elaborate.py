@@ -117,7 +117,7 @@ class Prism(Elaborate):
         map2=map2Inverse.inverse()
         composeMap=map2*map1
         composeMapInverse=map1Inverse*map2Inverse
-        polyline1=polyline.copy().move(composeMap)
+        polyline1=polyline.clone().move(composeMap)
         p=Prism.__new__(cls,polyline1,height=1).move(composeMapInverse)
         Prism.__init__(p,polyline1)
         p.prismDirection=vector
@@ -396,8 +396,8 @@ class Torus(Elaborate):
         If acute is true, the constructor returns torus.intersected_by(polyhedral(P1,P2)) otherwise returns torus.amputed_by(polyhedral(P1,P2)) 
         
         """
-        p1=point1.copy()
-        p2=point2.copy()
+        p1=point1.clone()
+        p2=point2.clone()
         plane1=AffinePlaneWithEquation(self.center,self.center+self.normal(),p1)
         plane2=AffinePlaneWithEquation(self.center,self.center+self.normal(),p2)
         if not plane1.half_space_contains(p2):
@@ -554,7 +554,7 @@ class Sphere(Elaborate):
         self.parts=Object()
         self.markers=Object()
         if len(args)==2:
-            self.parts.center=args[0].copy()
+            self.parts.center=args[0].clone()
             self.parts.radius=float(args[1])
         elif len(args)==4:
             self.parts.center=point(args[0],args[1],args[2])
@@ -765,8 +765,8 @@ class RuledSurface(Elaborate):
         Creates a ruled Surface  from a Closed curve by "filling the hole" with lines. The curve is divided into the first half C1 
         and the second halt C2. The ruled surface is the join between c1 and c2. 
         """
-        firstHalf=curve.copy().reparametrize(lambda x:0.5*x)
-        secondHalf=curve.copy().reparametrize(lambda x:0.5+0.5*x)
+        firstHalf=curve.clone().reparametrize(lambda x:0.5*x)
+        secondHalf=curve.clone().reparametrize(lambda x:0.5+0.5*x)
         return RuledSurface(firstHalf,secondHalf,quality=quality)
     
     def __str__(self):

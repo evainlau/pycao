@@ -53,17 +53,17 @@ class BearingSupport(Compound):
         bearingSupport=Cube(width,width+2*cylinder.radius,metalThickness)
         leftWall=Cube(height,width+cylinder.radius,metalThickness)
         #print(leftWall.segment(.5,None,.5,"ppp"),cylinder.radius)
-        toCut=ICylinder(leftWall.segment(0.5,0,None,"ppp"),cylinder.radius)
+        toCut=ICylinder(leftWall.boxline(0.5,0,None,"ppp"),cylinder.radius)
         leftWall.amputed_by(toCut)
         leftWall.against(bearingSupport,X,X,Y,Y,adjustEdges=Y)
-        rightWall=leftWall.copy().move(Map.linear(-X,Y,Z)).against(bearingSupport,X,-X,Y,Y,adjustEdges=Y)
+        rightWall=leftWall.clone().move(Map.linear(-X,Y,Z)).against(bearingSupport,X,-X,Y,Y,adjustEdges=Y)
         frontWall=Cube(width,height,metalThickness).against(bearingSupport,-Y,-Y,X,X)
         #workshopCut=Cube(height,height,metalThickness).colored("Black").against(leftWall,-Y,-Y,X,X)
-        leftLine=bearingSupport.segment(0,None,1,"ppp")
+        leftLine=bearingSupport.boxline(0,None,1,"ppp")
         leftWall.rotate(leftLine,math.pi/2)
-        rightLine=bearingSupport.segment(1,None,1,"ppp")
+        rightLine=bearingSupport.boxline(1,None,1,"ppp")
         rightWall.rotate(rightLine,-math.pi/2)
-        frontLine=bearingSupport.segment(None,1,1,"ppp")
+        frontLine=bearingSupport.boxline(None,1,1,"ppp")
         frontWall.rotate(frontLine,math.pi/2)
         pointOnBearingAxis=frontWall.center-metalThickness*Y-.5*width*Y
         bearingAxis=Segment(pointOnBearingAxis,Z)
@@ -75,7 +75,7 @@ class BearingSupport(Compound):
         self.add_axis("steering",bearingAxis)
 
     def place_on_axis(self,segment,height,front=Y):
-        #print(segment)
+        #print(boxline)
         #print("axis")
         #print(self.axis())
         pointOnAxis=Point.from_plane_and_line(plane(Z,point(0,0,height)),segment)
@@ -90,17 +90,17 @@ class BearingSupport(Compound):
 class Crank(Compound):
     def __init__(self,length=.17, width=.03,depth=.01,pedalHoleDiameter=.02,squareSideLength=.01,color="Yellow"):
         cyl1=Cylinder(origin,origin+depth*Y,.5*width)
-        cyl2=cyl1.copy().translate(length*X)
+        cyl2=cyl1.clone().translate(length*X)
         myCube=Cube(length,depth,width)
         myCube.translate(cyl1.center-myCube.point(0,.5,.5, "ppp"))
         Compound.__init__(self,[cyl1,cyl2,["cube",myCube]])
         self.color=color
         self.add_axis("pedalAxis",cyl1.axis())
-        self.add_axis("crankLongAxis",myCube.segment(None,.5,.5,"ppp"))
+        self.add_axis("crankLongAxis",myCube.boxline(None,.5,.5,"ppp"))
         self.add_axis("bottomBracketAxis",cyl2.axis())
         toCut=ICylinder(cyl1.axis(),pedalHoleDiameter/2)
         self.amputed_by(toCut)
-        self.holeCenter=cyl1.center.copy().glued_on(self)
+        self.holeCenter=cyl1.center.clone().glued_on(self)
         
 class Pedal(Compound):
     def __init__(self,width=.08,depth=.055,height=.01,axisDiameter=.02,offset=.03,pedalColor="Yellow",axisColor="Grey"):
@@ -119,10 +119,10 @@ class Crankset(Compound,ObjectInWorld):
            bbAxis=crank.axis()
            crank.select_axis("crankLongAxis")
            axisAlong=crank.axis()
-           crank2=crank.copy()
+           crank2=crank.clone()
            crank2.rotate(bbAxis,math.pi)
            crank2.rotate(axisAlong,math.pi).translate(+1*interCranksDistance*Y)
-           ped2=ped.copy().rotate(bbAxis,math.pi).rotate(axisAlong,math.pi).translate(+1*interCranksDistance*Y)
+           ped2=ped.clone().rotate(bbAxis,math.pi).rotate(axisAlong,math.pi).translate(+1*interCranksDistance*Y)
            c=Cylinder(origin,origin+(interCranksDistance+.04)*Z,bbAxisRadius).colored(bbAxisColor)
            c.screw_on(bbAxis,adjustAlong=[c.center,.5*crank2.holeCenter+.5*crank.holeCenter,])
            plate=Sprocket(55).colored(plateColor)
@@ -221,7 +221,7 @@ class FrontWheel(Compound):
         plaque1=Cylinder(origin,origin+0.0002*Y,hubExternalRadius)
         plaque1.color=hubColor
         plaque1.against(hub,Y,Y,X,X)
-        plaque2=plaque1.copy()
+        plaque2=plaque1.clone()
         plaque2.against(hub,-Y,-Y,X,X)
         self.slaves=[["tyre",tyre],rim,plaque1,plaque2,["hub",hub],["axis",wheelPhysicalAxis]]
 
@@ -241,9 +241,9 @@ class FrontWheel(Compound):
 
         # otherSpokes via rotation.
         for i in range(int(numberOfSpokes/2)):
-            spoke1=leftSpoke.copy()
+            spoke1=leftSpoke.clone()
             self.slaves.append(spoke1.rotate(tyre.axis(),4*math.pi/numberOfSpokes*i))
-            spoke2=rightSpoke.copy()
+            spoke2=rightSpoke.clone()
             self.slaves.append(spoke2.rotate(tyre.axis(),4*math.pi/numberOfSpokes*(i+0.5)))
         Compound.__init__(self,self.slaves)
         b=FrameBox([tyre.point(0,0,0),tyre.point(1,1,1),hub.point(0,0,0),hub.point(1,1,1)])
@@ -281,7 +281,7 @@ class RearWheel(Compound):
         plaque1=Cylinder(origin,origin+0.0002*Y,hubExternalRadius)
         plaque1.color=hubColor
         plaque1.against(hub,Y,Y,X,X)
-        plaque2=plaque1.copy()
+        plaque2=plaque1.clone()
         plaque2.against(hub,-Y,-Y,X,X)
         self.slaves=[["tyre",tyre],rim,plaque1,plaque2,["hub",hub],["axis",wheelPhysicalAxis]]
         myCassette.against(plaque1,-Y,-Y,X,X)
@@ -303,9 +303,9 @@ class RearWheel(Compound):
 
         # otherSpokes via rotation.
         for i in range(int(numberOfSpokes/2)):
-            spoke1=leftSpoke.copy()
+            spoke1=leftSpoke.clone()
             self.slaves.append(spoke1.rotate(tyre.axis(),4*math.pi/numberOfSpokes*i))
-            spoke2=rightSpoke.copy()
+            spoke2=rightSpoke.clone()
             self.slaves.append(spoke2.rotate(tyre.axis(),4*math.pi/numberOfSpokes*(i+0.5)))
         Compound.__init__(self,self.slaves)
         b=FrameBox([tyre.point(0,0,0),tyre.point(1,1,1),hub.point(0,0,0),hub.point(1,1,1),myCassette.point(0,0,0),myCassette.point(1,1,1)])
@@ -317,7 +317,7 @@ class Fork(Compound):
     def __init__(self,legLength=.3,upperTubeRadius=.02,lowerTubeRadius=.01,headLength=.1,headRadius=.02,entrax=.1):
         upperLeftLeg=origin+legLength*Z
         leftLeg=Cone(origin,upperLeftLeg,lowerTubeRadius,upperTubeRadius)
-        rightLeg=leftLeg.copy().translate(entrax *X)
+        rightLeg=leftLeg.clone().translate(entrax *X)
         upperRoundPart=Torus(entrax*.5,upperTubeRadius,Y,origin+legLength*Z+.5*entrax*X).amputed_by(plane(Z,upperLeftLeg))
         lowerHead=upperLeftLeg+.5*entrax*X+.5*entrax*Z
         slaves=[leftLeg,rightLeg,upperRoundPart]

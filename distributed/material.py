@@ -201,7 +201,7 @@ class Pigment(PNFItem):
         if dimy is None: dimy=1.
         p=Pigment("image_map {png \""+pngfilepath+"\" }")
         if symmetric:
-            p=p.symmetrised_copy()
+            p=p.symmetrised_clone()
         if center is not None:
             map=Map.translation(center-.5*X-.5*Y-.5*Z)
             p.move(map)
@@ -223,7 +223,7 @@ class Pigment(PNFItem):
         argument="square "+" ".join([p.unnested_output(withMove=True) for p in [p1,p2,p3,p4]])
         return Pigment(argument)
     
-    def symmetrised_copy(self,dimx=1,dimy=1,normal=None,corner=None):
+    def symmetrised_clone(self,dimx=1,dimy=1,normal=None,corner=None):
         """
         input=a pigment in the plane x,y  in the square with opposite corners 0,0 and 1,1
         output by default=a pigment in the square with opposite corners 0,0 and 1,1 obtained by symmetrisation
@@ -233,12 +233,12 @@ class Pigment(PNFItem):
         """
         M=Map.rotation(X,math.pi/2)
         p1=self.move(M) # from the xy plane to the xz plane
-        p4=p1.copy().flipX()
+        p4=p1.clone().flipX()
         #print("p1p2")
         #print(p1)
         #print(p2)
-        p3=p1.copy().flipZ().flipX()
-        p2=p1.copy().flipZ()
+        p3=p1.clone().flipZ().flipX()
+        p2=p1.clone().flipZ()
         p=Pigment.from_square(p1,p2,p3,p4)
         p.move(M.inverse())#back to the xy plane
         p.scale(.5*dimx,.5*dimy,1)
@@ -325,7 +325,7 @@ class Texture(PNFTItem,list):
             if not self.stringy:
                 self.append(pnfitem)
             else:
-                self.append(self.copy())
+                self.append(self.clone())
                 self.append(pnfitem)
                 self.stringy=False #unuseful I think, but clarifies
                 #self.maybe_declare_first_argument()
@@ -334,7 +334,7 @@ class Texture(PNFTItem,list):
         #print(type(self[0]))
         return self
 
-    def copy(self):#no deepcopy needed since contains only strings
+    def clone(self):#no deepcopy needed since contains only strings
         memo=dict()
         return copy.deepcopy(self,memo)    
 
@@ -407,7 +407,7 @@ def unleash(liste):
     for obj in liste:
         if not obj.texture==texture:
             raise NameError("All objects must share the same texture to unleash it")
-    newtexture=texture.copy()
+    newtexture=texture.clone()
     for obj in liste:
         obj.new_texture(newtexture)
         
