@@ -257,7 +257,7 @@ def object_string_but_CSG(self,camera):
     elif isinstance(self,Prism) :
         #print(self)
         #string+="prism {\n  "+str(self.height(1))+","+str(self.height(2))+","+str(self.povrayNumberOfPoints)+",".join([point_to_povray2d(p,0,2) for p in self.polyline1]+[point_to_povray2d(p,0,2) for p in self.polyline2] )+" "+modifier_string(self,camera)+" }\n"
-        string+="prism {\n  "+str(self.height1)+","+str(self.height2)+" , "+str(self.povrayNumberOfPoints)+","+",".join([point_to_povray2d(p,0,2) for p in self.polyline1] )+" "+" \n"
+        string+="prism {\n  "+self.splineType+" "+str(self.height1)+","+str(self.height2)+" , "+str(self.povrayNumberOfPoints)+","+",".join([point_to_povray2d(p,0,2) for p in self.curve1] )+" "+" \n"
         string+=modifier_string(self,camera)+"}\n"
     elif isinstance(self,Polygon) :
         string+="polygon{"+str(len(self))+",+"

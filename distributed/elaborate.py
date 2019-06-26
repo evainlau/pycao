@@ -86,24 +86,27 @@ class Elaborate(ElaborateOrCompound):
     
 
 class Prism(Elaborate):
-    def __init__(self,polyline1,height=1,splineType="linear",sweepType="linear"):
-        """A class for prisms.
+    def __init__(self,curve,height=1,splineType="linear",sweepType="linear"):
+        """A class for prisms. Is it useful ? The prism is very limited in povray. Ruled surfaces seem more powerful. 
+        If performance is an issue. A parametric function will do the trick.
 
         Constructor
-        polyline1=a polyline in a plane y=cte and all the points of the polyline are distinct
+        curve=a polyline or a 4-points Bezier curve in a plane y=cte and all the points of the polyline are distinct
         returns the Prism with faces polyline1 and polyline1.translated(height *Y)
-        splineType=linear ( to be implemented in future:  quadratic or cubic or bezier for the interpolation between points)
+        splineType=linear or bezier ( to be implemented in future:  quadratic or cubic or bezier for the interpolation between points)
         sweepType=linear ( to be implemented : conic. With conic only one height is sufficient (see povray doc). )
         """
-        self.splineType=splineType
+        if splineType=="bezier":
+            self.splineType="bezier_spline"
+        else: self.splineType="linear_spline"
         self.sweepType=sweepType
-        self.polyline1=polyline1
+        self.curve1=curve
         # suppressing the follwing 2 lines because of rounding pbs
         #if (self.polyline1[0] != self.polyline1[-1]).any():
         #    raise NameError("The first and last point of the underlying splines must be equal in a prism")
-        self.height1=self.polyline1[0][1]
+        self.height1=self.curve1[0][1]
         self.height2=self.height1+height
-        self.povrayNumberOfPoints=len(polyline1)
+        self.povrayNumberOfPoints=len(curve)
 
         
     @classmethod
@@ -122,7 +125,9 @@ class Prism(Elaborate):
         Prism.__init__(p,polyline1)
         p.prismDirection=vector
         return p
-        
+
+
+    
 class Cylinder(Elaborate):
     """
     Class for bounded cylinders
