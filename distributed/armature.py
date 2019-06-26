@@ -124,7 +124,7 @@ class Skeleton(ObjectInWorld):
             def move_with_join_fixed(angle,rotationVector=None,toggleJoint=False):
                     return Skeleton.muscle_on_joint(self,joint,angle,rotationVector,toggleJoint)
             return move_with_join_fixed
-        for jointName,jointValue in self.joints.__dict__.iteritems():
+        for jointName,jointValue in self.joints.__dict__.items():
             setattr(self.bend,jointName,fixing_joint_in_move(self,jointValue))
 #        listTmp=[]
  #       i=0
@@ -236,16 +236,18 @@ class Body(Skeleton):
         neck=Cylinder(origin+(topShoulder-.0)*Z,origin+bottomMentonHeight*Z,neckCirconference/math.pi/2).colored("Red")
         head=Cylinder(origin,origin+(headZSize-headCirconference/math.pi/2)*Z,headCirconference/math.pi/2).against(neck,-Z,-Z,X,X).colored("Green")
         upperHead=Sphere(origin,headCirconference/math.pi/2).above(head).translate(-headCirconference/math.pi/2*Z).glued_on(head).colored("Green")
+        myTab=dict()# dirty hack to avoid the exec pb in __init__ in python3. 
         for word in ["ankle","knee","pelvis"]:
-            print("left"+word.title()+"=Sphere(origin,"+str(eval(word+"Radius"))+").move_at(origin+"+str(eval(word+"Height"))+"*Z-"
-                 +str(leftRightLegAxes*.5)+"*X).colored(\"Red\")")
-            exec("left"+word.title()+"=Sphere(origin,"+str(eval(word+"Radius"))+").move_at(origin+"+str(eval(word+"Height"))+"*Z-"
-                 +str(leftRightLegAxes*.5)+"*X).colored(\"Red\")")
-            exec("right"+word.title()+"=left"+word.title()+".clone().translate("+str(leftRightLegAxes)+"*X)")
+            #exec("left"+word.title()+"=Sphere(origin,"+str(eval(word+"Radius"))+").move_at(origin+"+str(eval(word+"Height"))+"*Z-"
+                 #+str(leftRightLegAxes*.5)+"*X).colored(\"Red\")")
+            myTab["left"+word.title()]=Sphere(origin,eval(word+"Radius")).move_at(origin+eval(word+"Height")*Z-leftRightLegAxes*.5*X).colored("Red")
+            myTab["right"+word.title()]=myTab["left"+word.title()].clone().translate(leftRightLegAxes*X)
+            #exec("right"+word.title()+"=left"+word.title()+".clone().translate("+str(leftRightLegAxes)+"*X)")
         for word in ["shoulder","elbow","wrist"]:
-            exec("left"+word.title()+"=Sphere(origin,"+str(eval(word+"Radius"))+").move_at(origin+"+str(eval(word+"Height"))+"*Z-"
-                 +str(leftRightArmAxes*.5)+"*X).colored(\"Red\")")
-            exec("right"+word.title()+"=left"+word.title()+".clone().translate("+str(leftRightArmAxes)+"*X)")
+            myTab["left"+word.title()]=Sphere(origin,eval(word+"Radius")).move_at(origin+eval(word+"Height")*Z-leftRightArmAxes*.5*X).colored("Red")
+            #exec("left"+word.title()+"=Sphere(origin,"+str(eval(word+"Radius"))+").move_at(origin+"+str(eval(word+"Height"))+"*Z-"
+                 #+str(leftRightArmAxes*.5)+"*X).colored(\"Red\")")
+            myTab["right"+word.title()]=myTab["left"+word.title()].clone().translate(leftRightArmAxes*X)
 
             
         leftFoot=Cube(footSize[0],footSize[1],ankleHeight).colored("Blue")
@@ -254,7 +256,7 @@ class Body(Skeleton):
         toCut=plane.from_3_points(leftFoot.point(0,.1,1),leftFoot.point(1,.1,1),leftFoot.point(.5,0,.2))
         leftFoot.amputed_by(toCut)
         leftFoot.to_Ankle=leftFoot.point(.5,yDistanceAnkleToe,1,"pnp")
-        leftFoot.translate(leftAnkle.center-leftFoot.to_Ankle)
+        leftFoot.translate(myTab["leftAnkle"].center-leftFoot.to_Ankle)
         leftSole=Cube(footSize[0],footSize[1],shoeSole).below(leftFoot).glued_on(leftFoot).colored("Orange")
         rightFoot=leftFoot.clone().translate(leftRightLegAxes*X)
         rightSole=leftSole.clone().translate(leftRightLegAxes*X).glued_on(rightFoot)
@@ -267,18 +269,18 @@ class Body(Skeleton):
         fingers.against(leftHand,Z,Z,X,Y).glued_on(leftHand)
         fingers.rotate(Segment(leftHand.point(0,.5,0),leftHand.point(1,.5,0)),-math.pi/7)
         #lefthThumb=Cylinder(origin,origin+.3*hand*X,.5*handThickness).on_right_of(leftHand,adjustEdges=Z).colored("Blue").glued_on(leftHand)
-        leftHand.below(leftWrist)
+        leftHand.below(myTab["leftWrist"])
 
         
         rightHand=leftHand.clone()
         #rightThumb=Cylinder(origin,origin+.3*hand*X,.5*handThickness).on_left_of(rightHand,adjustEdges=Z).colored("Blue").glued_on(rightHand)
-        rightHand.below(rightWrist)
+        rightHand.below(myTab["rightWrist"])
 
-        leftTibia=Cone(leftAnkle.center,leftKnee.center,tibiaLowerCirconference/math.pi/2,tibiaUpperCirconference/math.pi/2).colored("Yellow")
-        leftFemur=Cone(leftKnee.center,leftPelvis.center,femurLowerCirconference/math.pi/2,femurUpperCirconference/math.pi/2).colored("Yellow")
+        myTab["leftTibia"]=Cone(myTab["leftAnkle"].center,myTab["leftKnee"].center,tibiaLowerCirconference/math.pi/2,tibiaUpperCirconference/math.pi/2).colored("Yellow")
+        myTab["leftFemur"]=Cone(myTab["leftKnee"].center,myTab["leftPelvis"].center,femurLowerCirconference/math.pi/2,femurUpperCirconference/math.pi/2).colored("Yellow")
         
-        leftHumerus=Cone(leftElbow.center,leftShoulder.center,humerusLowerCirconference/math.pi/2,humerusUpperCirconference/math.pi/2).colored("Violet")
-        leftCubitus=Cone(leftWrist.center,leftElbow.center,cubitusLowerCirconference/math.pi/2,cubitusUpperCirconference/math.pi/2).colored("Violet")
+        myTab["leftHumerus"]=Cone(myTab["leftElbow"].center,myTab["leftShoulder"].center,humerusLowerCirconference/math.pi/2,humerusUpperCirconference/math.pi/2).colored("Violet")
+        myTab["leftCubitus"]=Cone(myTab["leftWrist"].center,myTab["leftElbow"].center,cubitusLowerCirconference/math.pi/2,cubitusUpperCirconference/math.pi/2).colored("Violet")
 
         trunk=Cone(origin,origin+(topShoulder-pelvisHeight)*Z,trunkLowerCirconference/math.pi/2,trunkUpperCirconference/math.pi/2).colored("Yellow")
         myRadius=0.51*(topShoulder-pelvisHeight)
@@ -290,24 +292,24 @@ class Body(Skeleton):
         trunk.below(neck)
 
         for word in ["Tibia","Femur"]:
-            exec("right"+word.title()+"=left"+word.title()+".clone().translate("+str(leftRightLegAxes)+"*X)")
+            myTab["right"+word.title()]=myTab["left"+word.title()].clone().translate(leftRightLegAxes*X)
         for word in ["Humerus","Cubitus"]:
-            exec("right"+word.title()+"=left"+word.title()+".clone().translate("+str(leftRightArmAxes)+"*X)")
-        bones=[["leftFoot",leftFoot],["rightFoot",rightFoot],["leftTibia",leftTibia],["rightTibia",rightTibia],["leftFemur",leftFemur],["rightFemur",rightFemur],["trunk",trunk],["head",head],["leftHumerus",leftHumerus],["rightHumerus",rightHumerus],["leftCubitus",leftCubitus],["rightCubitus",rightCubitus],["leftHand",leftHand],["rightHand",rightHand]]
+            myTab["right"+word.title()]=myTab["left"+word.title()].clone().translate(leftRightArmAxes*X)
+        bones=[["leftFoot",leftFoot],["rightFoot",rightFoot],["leftTibia",myTab["leftTibia"]],["rightTibia",myTab["rightTibia"]],["leftFemur",myTab["leftFemur"]],["rightFemur",myTab["rightFemur"]],["trunk",trunk],["head",head],["leftHumerus",myTab["leftHumerus"]],["rightHumerus",myTab["rightHumerus"]],["leftCubitus",myTab["leftCubitus"]],["rightCubitus",myTab["rightCubitus"]],["leftHand",leftHand],["rightHand",rightHand]]
         joints=[
-            ["leftAnkle","leftFoot","leftTibia",leftAnkle.center,leftAnkle],
-            ["rightAnkle","rightFoot","rightTibia",rightAnkle.center,rightAnkle],
-            ["leftKnee","leftTibia","leftFemur",leftKnee.center,leftKnee],
-            ["rightKnee","rightTibia","rightFemur",rightKnee.center,rightKnee],
-            ["leftPelvis","leftFemur","trunk",leftPelvis.center,leftPelvis],
-            ["rightPelvis","rightFemur","trunk",rightPelvis.center,rightPelvis],
+            ["leftAnkle","leftFoot","leftTibia",myTab["leftAnkle"].center,myTab["leftAnkle"]],
+            ["rightAnkle","rightFoot","rightTibia",myTab["rightAnkle"].center,myTab["rightAnkle"]],
+            ["leftKnee","leftTibia","leftFemur",myTab["leftKnee"].center,myTab["leftKnee"]],
+            ["rightKnee","rightTibia","rightFemur",myTab["rightKnee"].center,myTab["rightKnee"]],
+            ["leftPelvis","leftFemur","trunk",myTab["leftPelvis"].center,myTab["leftPelvis"]],
+            ["rightPelvis","rightFemur","trunk",myTab["rightPelvis"].center,myTab["rightPelvis"]],
             ["neck","head","trunk",neck.center,neck],
-            ["leftShoulder","leftHumerus","trunk",leftShoulder.center,leftShoulder],
-            ["rightShoulder","rightHumerus","trunk",rightShoulder.center,rightShoulder],
-            ["leftElbow","leftCubitus","leftHumerus",leftElbow.center,leftElbow],
-            ["rightElbow","rightCubitus","rightHumerus",rightElbow.center,rightElbow],
-            ["leftWrist","leftHand","leftCubitus",leftWrist.center,leftWrist],
-            ["rightWrist","rightHand","rightCubitus",rightWrist.center,rightWrist]]
+            ["leftShoulder","leftHumerus","trunk",myTab["leftShoulder"].center,myTab["leftShoulder"]],
+            ["rightShoulder","rightHumerus","trunk",myTab["rightShoulder"].center,myTab["rightShoulder"]],
+            ["leftElbow","leftCubitus","leftHumerus",myTab["leftElbow"].center,myTab["leftElbow"]],
+            ["rightElbow","rightCubitus","rightHumerus",myTab["rightElbow"].center,myTab["rightElbow"]],
+            ["leftWrist","leftHand","leftCubitus",myTab["leftWrist"].center,myTab["leftWrist"]],
+            ["rightWrist","rightHand","rightCubitus",myTab["rightWrist"].center,myTab["rightWrist"]]]
         ancestor="trunk"
         Skeleton.__init__(self,joints,bones,ancestor)
         self.muscle_on_joint(self.rightWrist,-math.pi/4,Z)
