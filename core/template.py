@@ -70,6 +70,7 @@ ground=plane(Z,origin) # a plane with normal the vector Z=vector(0,0,1) containi
 ground.colored('Gray') # The possible colors are the colors described in colors.inc in povray or a rgb color as in the exemple below. 
 
 wall=Cube(2,.5,1.5).colored('Brown') # A wall given by a cube of prescribed dimension
+# in the following line, the notation object.point(x,y,z) means that the coordinates are relative to ojbect, they are not absolute coordinates
 myPoint=wall.point(0.5,0.5,0) # this is the point in the middle ( coordinates=.5)  X and Y, and below (coordinate 0 for Z). 
 wall.add_hook("bottom",myPoint) # A hook with name "bottom" is added to the wall and is selected as the active hook. of the wall. 
 wall.hooked_on(origin) # the wall is moved by moving its active hook to the origin, ie. the bottom of the wall goes to the origin
@@ -78,6 +79,8 @@ wall.hooked_on(origin) # the wall is moved by moving its active hook to the orig
 # a vertical cylinder
 cyl=Cylinder(start=origin+2*X,end=origin+2*X+Z,radius=0.5).colored('SpicyPink')
 
+# In the following line, the coordinatte of the points are absolute coordinates, not relative to any object since the syntax
+# is point(x,y,z) and not object.point(x,y,z)
 axis=Segment(point(4,0,0),point(4,0,1))
 #an infinite cylinder of radius 0.5
 cyl2=ICylinder(axis,0.5).new_texture("pigment { brick Black Green brick_size 2 mortar 0.2 }")
@@ -97,7 +100,8 @@ s.rgbed(1.5,0.5,0.5,1)# three rgb colors. The fourth entry of the rgbed function
 camera.hooked_on(origin-4*Y+2*Z)  # the positive y are in front of us because the camera is located in negative Y and we look at  a point close to the origin
 camera.lookAt=cyl.point(.5,.5,.5) # look at the center of cyl
 camera.actors=[wall,ground,cyl,cyl2,s] # what is seen by the camera
-# uncomment the following line if you want to see all objects. It will override the previous line.
+# uncomment the following line if you want to see all objects without filling manually
+# the previous list camera.actors. It will override the previous line.
 #camera.filmAllActors=True # overrides the camera.actors list
 camera.file="pycaoOutput.pov" # A name for the povray file that will be generated. Must end with .pov
 camera.povraypath=pycaoDir+"images/" # where you put your images,photos for the textures

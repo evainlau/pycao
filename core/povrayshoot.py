@@ -231,7 +231,7 @@ def object_string_but_CSG(self,camera):
             string+=","+povrayVector(self.parts.curve2.__call__(t))
             #print self.parts.curve1.__call__(t)
         string+=" }\n   normal_vectors { "+str(2*len(self.parts.timeList1))
-        for i in xrange(len(self.parts.timeList1) - 1):
+        for i in range(len(self.parts.timeList1) - 1):
             xi,xip = self.parts.curve1.__call__(self.parts.timeList1[i]), self.parts.curve1.__call__(self.parts.timeList1[i + 1])
             yi=self.parts.curve2.__call__(self.parts.timeList2[i])
             #print("xi,yi,xip...",xi,yi,xip,xi-yi,xip-xi)
@@ -242,7 +242,7 @@ def object_string_but_CSG(self,camera):
             #print(normal.normalized_clone())
             string+=","+povrayVector(normal)
             if i==len(self.parts.timeList1) - 2: string+=","+povrayVector(normal)
-        for i in xrange(len(self.parts.timeList1) - 1):
+        for i in range(len(self.parts.timeList1) - 1):
             # same code as above, changing curve2 and curve1
             xi,xip = self.parts.curve2.__call__(self.parts.timeList1[i]), self.parts.curve2.__call__(self.parts.timeList1[i + 1])
             yi=self.parts.curve1.__call__(self.parts.timeList2[i+1])
@@ -250,7 +250,7 @@ def object_string_but_CSG(self,camera):
             string+=","+povrayVector(normal)
             if i==len(self.parts.timeList1) - 2: string+=","+povrayVector(normal)
         string+="   }\n   face_indices {"+str(2*len(self.parts.timeList1)-2)
-        for i in xrange(len(self.parts.timeList1)-1):
+        for i in range(len(self.parts.timeList1)-1):
             string+=",<" +str(i)+ ","+ str(i+1)+","+str(i+len(self.parts.timeList1))+">"
             string+=",<"+str(i+1)+","+str(i+len(self.parts.timeList1))+","+str(i+1+len(self.parts.timeList1))+">\n"
         string+="}\n"+modifier_string(self,camera)+"}\n"
@@ -282,7 +282,7 @@ def object_string_alone(self,camera):
     except:
         return object_string_but_CSG(self,camera)
     #slavesCopie=[copy.deepcopy(entry) for entry in todo.csgSlaves]
-    slavesCopie=[entry.clone() for entry in todo.csgSlaves]
+    slavesCopie=[entry.clone() for entry in todo.csgSlaves] #? should we clone without children here for efficiency ?? Probably
     #for slave in slavesCopie:
     #    print(slave) 
     #print("copie",len(slavesCopie))

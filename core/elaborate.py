@@ -417,8 +417,6 @@ class Torus(Elaborate):
             self.intersected_by(cuttingTool)
         else:
             result= self.amputed_by(Polyhedral(cuttingTool))
-        plane1.disappears()
-        plane2.disappears()
         return self
 
     @staticmethod
