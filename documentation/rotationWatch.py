@@ -18,8 +18,8 @@
 
 
 
-#pycaoDir="/home/laurent/subversion/articlesEtRechercheEnCours/pycao/pycaogit/distributed"
-pycaoDir="/users/evain/subversion/articlesEtRechercheEnCours/pycao/pycaogit/distributed"
+#pycaoDir="/home/laurent/subversion/articlesEtRechercheEnCours/pycao/pycaogit/core"
+pycaoDir="/users/evain/subversion/articlesEtRechercheEnCours/pycao/pycaogit/core"
 
 import sys
 sys.path.append(pycaoDir)
