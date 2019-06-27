@@ -67,7 +67,7 @@ class Light(ObjectInWorld):
             i=self.info.rgbIntensity
             r=self.info.rgb
             string="rgb <"+str(i*r[0])+","+str(i*r[1])+","+str(i*r[2])+"> "
-        else: return ""
+        else: return " "
         return "color "+string
     def povray_string(self):
         string="light_source {"+self.location_string()+ self.color_string()+ self.lightType +" "+ self.shadow_string()+"}\n"
