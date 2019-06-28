@@ -19,9 +19,9 @@
 
 import os 
 if os.environ['ordi']=="ordiFac":
-    pycaoDir="/users/evain/subversion/articlesEtRechercheEnCours/pycao/pycaogit/distributed"
+    pycaoDir="/users/evain/subversion/articlesEtRechercheEnCours/pycao/pycaogit/core/"
 else:
-    pycaoDir="/home/laurent/subversion/articlesEtRechercheEnCours/pycao/pycaogit/distributed"
+    pycaoDir="/home/laurent/subversion/articlesEtRechercheEnCours/pycao/pycaogit/core/"
 #
 
 

@@ -28,6 +28,7 @@ New in version 0.9:
 - Fully parametric coordinate free language for nearly all geometric operations
 - Enhanced interpolation curves with speed control at the control points
 - Amelioration of the Curve class for efficiency
+- Gestion of lights ameliorated 
 - Material module consistent with the Pycao approach with simplifying paradigms ( was a dirty hack to Povray precedently)
   
 

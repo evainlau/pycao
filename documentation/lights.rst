@@ -20,3 +20,24 @@ to declaire it at the beginning of the file and then add the lights.
 But you are free to do the way you want adding the camera
 at the end of the file and using myCamera.lights.append(myligth)
 if you prefer. 
+
+
+.. code-block:: python
+
+    p=Plane(Z,origin).colored("Grey")
+    c=Cube(1,1,1).colored("Bronze")
+    l=Light().hooked_on(origin+4*X+5*Z+2.8*Y) # a light. spotlight by Default, emitting everywhere around
+    l.colored("Red")
+    l.rgbed(0,1,0)
+    # Uncomment the following to remove shadow
+    #l.shadowlessed()
+    # A light which emits cone of lights with defined angles
+    l.spotlighted(fullLigthAngle=30,noLightAngle=60,look_at=origin)
+    # A light emitting cylinders of light
+    l.cylindered(fullLigthRadius=10,noLightRadius=20,look_at=origin)
+    # Back to point light
+    l.pointlighted()
+    # to decrease intensity with distance, ditance parameter is where half of the intensity is achieved. Then decreases fast with a high power
+    l.fade(distance=5,power=4)
+
+.. image:: ./lights.png

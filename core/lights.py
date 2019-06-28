@@ -34,45 +34,89 @@ class Light(ObjectInWorld):
     A light with a hook, added by default to the cameras already created.
     """
     def __init__(self,location=origin,shadow=True,lightType=defaultLightType,cameraList=camerasInScene):
-        if not hasattr(self,"info"):
-            self.info=Object()
         self.location=location
         self.add_hook("location",location)
         if not shadow:
-            self.info.rgbIntensity=defaultShadowlesslightRgbIntensity
+            self.rgbIntensity=defaultShadowlesslightRgbIntensity
         else:
-            self.info.rgbIntensity=defaultShadowlightRgbIntensity
+            self.rgbIntensity=defaultShadowlightRgbIntensity
         if not shadow:
-            self.info.rgb=shadowlesslightDefaultRgb
+            self.rgb=shadowlesslightDefaultRgb
         else:
-            self.info.rgb=shadowlightDefaultRgb
+            self.rgb=shadowlightDefaultRgb
         self.lightType=lightType
         self.shadow=shadow
         for camera in cameraList:
             camera.lights.append(self)
+    def colored(self,color):
+        self.color=color
+        return self
+    def rgbed(self,r,g,b):
+        self.rgb=[r,g,b]
+        self.color=None
+        return self
     def move_alone(self,M):
         self.location=M*self.location
         return self
-    def location_string(self):
+    def _location_string(self):
         return "<"+str(self.location[0])+","+str(self.location[1])+","+str(self.location[2])+">"
-    def shadow_string(self):
+    def _shadow_string(self):
         if not self.shadow:
-            return "shadowless "
+            return " shadowless "
         else:
+            return " "
+    def _light_type_string(self):
+        if self.lightType=="pointlight":
             return ""
-    def color_string(self):
-        if hasattr(self.info,"color")and self.info.color is not None:
-            string=self.info.color
-        elif hasattr(self.info,"rgb") and self.info.rgb is not None:
-            i=self.info.rgbIntensity
-            r=self.info.rgb
+        else:
+            return " "+self.lightType+" "
+    def _color_string(self):
+        if hasattr(self,"color")and self.color is not None:
+            string=self.color
+        elif hasattr(self,"rgb") and self.rgb is not None:
+            i=self.rgbIntensity
+            r=self.rgb
             string="rgb <"+str(i*r[0])+","+str(i*r[1])+","+str(i*r[2])+"> "
-        else: return " "
-        return "color "+string
+        else: return ""
+        return "color "+string+ " "
+    def _look_at_string(self):
+        if hasattr(self,"look_at"):
+            return " point_at "+povrayshoot.povrayVector(self.look_at)+" " 
+        else: return ""
+    def _fade_string(self):
+        if hasattr(self,"fadeInfo"):
+            return self.fadeInfo
+        else: return ""
+    def _option_string(self):
+        if hasattr(self,"povOptions"):
+            return self.povOptions
+        else: return ""        
     def povray_string(self):
-        string="light_source {"+self.location_string()+ self.color_string()+ self.lightType +" "+ self.shadow_string()+"}\n"
+        string="light_source {"+self._location_string()+ self._color_string()+ self._light_type_string() + self._option_string()+self._look_at_string()+self._fade_string()+self._shadow_string()+"}\n"
         return string
-
+    def pointlighted(self):
+        try:
+            self.lightType="pointlight"
+            delattr(self,"povOptions")
+            delattr(self,"look_at")
+        except:
+            pass # attributes not settled before, so delattr complains
+    def spotlighted(self,fullLigthAngle=30,noLightAngle=45,look_at=origin):
+        self.lightType="spotlight"
+        self.povOptions=" radius "+str(fullLigthAngle)+" falloff "+str(noLightAngle)+" "
+        self.look_at=look_at
+        return self
+    def cylindered(self,fullLigthRadius=1,noLightRadius=2,look_at=origin):
+        self.lightType="cylinder"
+        self.povOptions=" radius "+str(fullLigthRadius)+" falloff "+str(noLightRadius)+" "
+        self.look_at=look_at
+        return self
+    def shadowlessed(self,unshadow=True):
+        self.shadow=not unshadow
+        return self
+    def fade(self,distance=5,power=1):
+        self.fadeInfo=" fade_distance "+str(distance)+" fade_power "+str(power)+" "
+        return self
     
 class PhysicalLamp(Compound):
     """" returns an object with 2 hooks, one for the light, one for hanging on the wall/ceiling """
