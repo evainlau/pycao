@@ -30,6 +30,7 @@ New in version 0.9:
 - Amelioration of the Curve class for efficiency
 - Gestion of lights ameliorated 
 - Material module consistent with the Pycao approach with simplifying paradigms ( was a dirty hack to Povray precedently)
+- camera.filmAllActors debugged
   
 
 Roadmap to Version 1.0:

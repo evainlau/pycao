@@ -83,7 +83,7 @@ cyl=Cylinder(start=origin+2*X,end=origin+2*X+Z,radius=0.5).colored('SpicyPink')
 # is point(x,y,z) and not object.point(x,y,z)
 axis=Segment(point(4,0,0),point(4,0,1))
 #an infinite cylinder of radius 0.5
-cyl2=ICylinder(axis,0.5).new_texture("pigment { brick Black Green brick_size 2 mortar 0.2 }")
+cyl2=ICylinder(axis,0.5).textured("pigment { brick Black Green brick_size 2 mortar 0.2 }")
 
 
 s=Sphere(point(6,0,0),1)

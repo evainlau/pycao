@@ -256,7 +256,7 @@ class ObjectInWorld(object):
         else:
             toCut=cuttingShape
         if keepTexture and hasattr(self,"texture"):
-            [tool.new_texture(self.texture) for tool in toCut]
+            [tool.textured(self.texture) for tool in toCut]
         #print("mat",copie.materials,toCut.materials)
         #print("Les outils de coupe")
         #print([tool.children for tool in copie])
@@ -288,13 +288,13 @@ class ObjectInWorld(object):
             toCut=toCut1
         if keepTexture and hasattr(self,"texture"):
             #toCut=[tool.remove_texture() for tool in toCut]
-            [tool.new_texture(self.texture) for tool in toCut]
+            [tool.textured(self.texture) for tool in toCut]
         #copie=[]
         #for tool in toCut:
         #    memo=dict()
         #    theCopy=copy.deepcopy(tool,memo)
         #    if keepTexture and hasattr(self,"texture"):
-        #        theCopy.new_texture(self.texture)
+        #        theCopy.textured(self.texture)
             #else:
             #    pass
                 #print("Not TexturedAsSelf")

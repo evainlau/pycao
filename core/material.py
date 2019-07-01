@@ -127,39 +127,47 @@ class PNFTItem(ObjectInWorld):#PNF means Pigment,Normal or Finish or texture
         import time
         return "Id"+str(int(round(time.time() * 100000)))
 
-    def moveString(self):
+    def _moveString(self):
+        """
+        move String for povray Shoot
+        """
         if hasattr(self,"moveMap"):
-            moveString=" matrix "+povrayshoot.povrayMatrix(self.moveMap)
-        else: moveString=" "
-        return moveString
+            _moveString=" matrix "+povrayshoot.povrayMatrix(self.moveMap)
+        else: _moveString=" "
+        return _moveString
 
     def declare(self, name=None, withMove=True):
+        """
+        used to declare in the povray .pov file. The withMove option is used to 
+        declare the PNFTItem in its actual position rather than in the initial position. 
+        """
         if name is None:
             name=self.build_and_get_idname()
-        globvars.TextureString+="\n#declare "+name+" = "+self.unnested_output(withMove=withMove)
+        globvars.TextureString+="\n#declare "+name+" = "+self._unnested_output(withMove=withMove)
         self.__init__(name) #reinitialisation from the name
         if withMove and hasattr(self,"moveMap"):
             del self.moveMap
         return self
 
-    def output_from_small_string(self,withMove):
-        return self.__class__.__name__.lower()+" {"+self.smallString+" "+self.moveString()+"}"
+    def _output_from_small_string(self,withMove):
+        return self.__class__.__name__.lower()+" {"+self.smallString+" "+self._moveString()+"}"
 
     def __str__(self):
         #print(len(self))
         #print(self.__class__)
-        return  self.unnested_output(withMove=True)
+        return  self._unnested_output(withMove=True)
 
     
 class PNFItem(PNFTItem):#PNF means Pigment,Normal or Finish
     def __init__(self,string):
         self.smallString=string # the 'small' povray string ie. without the surrounding Pigment{} or Normal{} or Finish{} 
 
-    def nested_output(self,withMove):
-        return self.output_from_small_string(withMove=withMove)
+    def _nested_output(self,withMove):
+        #print(type(self))
+        return self._output_from_small_string(withMove=withMove)
 
-    def unnested_output(self,withMove=True):
-        return self.output_from_small_string(withMove=withMove)
+    def _unnested_output(self,withMove=True):
+        return self._output_from_small_string(withMove=withMove)
         
     def enhance(self,stringOrPNFItem):
         """
@@ -214,14 +222,17 @@ class Pigment(PNFItem):
     @staticmethod
     def from_square(p1=None,p2=None,p3=None,p4=None):
         """ 
+        Square pattern in the plane XY.
         corresponds to the povray square pattern. Useful for a piece of wood for instance where the pigment depend on the face.
         """
         if p1 is None: p1=Pigment("Red")
         if p2 is None: p2=Pigment("Green")
         if p3 is None: p3=Pigment("Blue")
         if p4 is None: p4=Pigment("Yellow")
-        argument="square "+" ".join([p.unnested_output(withMove=True) for p in [p1,p2,p3,p4]])
-        return Pigment(argument)
+        argument="square "+" ".join([p.flipYZ()._unnested_output(withMove=True) for p in [p1,p2,p3,p4]])
+        p=Pigment(argument)
+        #print("la smallstring",p.smallString)
+        return p.flipYZ()
     
     def symmetrised_clone(self,dimx=1,dimy=1,normal=None,corner=None):
         """
@@ -262,19 +273,19 @@ class Finish(PNFItem):
 class Texture(PNFTItem,list):
 
 
-    def nested_output(self,withMove):
+    def _nested_output(self,withMove):
         # must return the name, so build the name if necessery
         #print("theSmallString")
         return self.smallString 
 
-    def unnested_output(self,withMove=True):
+    def _unnested_output(self,withMove=True):
         if self.stringy:
             #print("yes stringy")
             #print(self.smallString)
-            return self.output_from_small_string(withMove)
+            return self._output_from_small_string(withMove)
         else: #recursive case
             #print("inUnnested non stringy le with move vaut",withMove)
-            string=" ".join([entry.nested_output(withMove=withMove) for entry in self])
+            string=" ".join([entry._nested_output(withMove=withMove) for entry in self])
             return "texture {"+string+"}"
 
     def maybe_declare_first_argument(self):
@@ -334,7 +345,7 @@ class Texture(PNFTItem,list):
         #print(type(self[0]))
         return self
 
-    def clone(self):#no deepcopy needed since contains only strings
+    def clone(self):#no deepcopy needed since contains only strings ?
         memo=dict()
         return copy.deepcopy(self,memo)    
 
@@ -387,12 +398,12 @@ class Texture(PNFTItem,list):
         pigment5=Pigment.from_photo(photo5,s,t,normal=Y,center=origin,symmetric=symmetric)
         pigment5.rotate(Y,math.pi).scale(1./dimx,1./dimy,1./dimz)
         pigment6=Pigment.from_photo(photo6,s,t,normal=Z,center=origin,symmetric=symmetric).scale(1./dimx,1./dimy,1./dimz)
-        planarTexture1=Texture(pigment1).unnested_output()
-        planarTexture4=Texture(pigment4).unnested_output()
-        planarTexture2=Texture(pigment2).unnested_output()
-        planarTexture5=Texture(pigment5).unnested_output()
-        planarTexture3=Texture(pigment3).unnested_output()
-        planarTexture6=Texture(pigment6).unnested_output()
+        planarTexture1=Texture(pigment1)._unnested_output()
+        planarTexture4=Texture(pigment4)._unnested_output()
+        planarTexture2=Texture(pigment2)._unnested_output()
+        planarTexture5=Texture(pigment5)._unnested_output()
+        planarTexture3=Texture(pigment3)._unnested_output()
+        planarTexture6=Texture(pigment6)._unnested_output()
         cubicTex=Texture("cubic "+ planarTexture1 +" ,"+ planarTexture2 +" ,"+ planarTexture3+" ,"+planarTexture4+" ,"+planarTexture5+" ,"+planarTexture6) 
         cubicTex.move(Map.scale(dimx,dimy,dimz))
         return cubicTex
@@ -401,15 +412,19 @@ class Texture(PNFTItem,list):
 
 
     
-def unleash(liste):
-    """ useful if a texture applies to o1, o2,... and you want to move o2,o3.. with the texture without changing the texture of o1.  Then unleash o2,o3..."""
+def unleash_texture(liste):
+    """ 
+    useful if a texture applies to o1, o2,... and you want to move o2,o3.. with the texture without changing the texture of o1.  Then unleash_texture o2,o3...
+    list is a list of obects sharing the same texture t. 
+    A copy of t is created and applied to each element in list. 
+    """
     texture=liste[0].texture
     for obj in liste:
         if not obj.texture==texture:
-            raise NameError("All objects must share the same texture to unleash it")
+            raise NameError("All objects must share the same texture to unleash_texture it")
     newtexture=texture.clone()
     for obj in liste:
-        obj.new_texture(newtexture)
+        obj.textured(newtexture)
         
 def remove_texture(self):
     try:
@@ -417,22 +432,31 @@ def remove_texture(self):
     except: pass
     return self
 
-def new_texture(self,texture):
-    if isinstance(texture,str):#then should be a povray name texture
+def textured(self,texture):
+    """
+    texture=a Texture or a string from which we can define a texture
+    Use add_to_texture to add a material (pigment, normal, or finish) from an non textured object
+    """
+    if isinstance(texture,str):#then should be a povray name texture or a list of PNF items
         texture=Texture(texture)
     self.texture=texture
     if hasattr(self,"csgOperations") and len(self.csgOperations)>0:
         for op in self.csgOperations:
             slaves=op.csgSlaves
             for slave  in slaves :
-                new_texture(slave,texture)
+                textured(slave,texture)
     return self
 
 def add_to_texture(self,value):
+    
     if hasattr(self,"texture"):
         self.texture.enhance(value)
+    elif isinstance(value,Texture):
+        self.textured(value)
+    elif isinstance(value,PNFItem):
+        self.textured(Texture(value))
     else:
-        self.texture=Texture(value)
+        raise NameError('Value should be a material or texture, but it is '+str(value.__class__))
     if hasattr(self,"csgOperations") and len(self.csgOperations)>0:
         for op in self.csgOperations:
             slaves=op.csgSlaves
@@ -483,7 +507,7 @@ def _colored(self,color):
         #print(self.texture)
     else:
         t=Texture(p)
-        self.new_texture(t)#keep it for the childs in csg    #print(self.texture.smallString)
+        self.textured(t)#keep it for the childs in csg    #print(self.texture.smallString)
     #print("phasname",p.name)
     #print("in colored",t.smallString)
     return self
@@ -501,7 +525,7 @@ def _rgbed(self,*args):
         t=self.texture.enhance(p)
     else:
         t=Texture(p)
-    self.new_texture(t) #for the csg childs
+    self.textured(t) #for the csg childs
     return self
 
 def _light_level(self,value):
@@ -515,24 +539,12 @@ def _light_level(self,value):
 
 ObjectInWorld.colored=_colored
 ObjectInWorld.remove_texture=remove_texture
-ObjectInWorld.new_texture=new_texture
+ObjectInWorld.textured=textured
 ObjectInWorld.add_to_texture=add_to_texture
 ObjectInWorld.get_textures=_get_textures
 ObjectInWorld.light_level=_light_level
 ObjectInWorld.rgbed=_rgbed
-"""
-unleash code tested:
-c=Sphere(origin,.1)
-d=Sphere(origin+.2*X,.1)
-e=Sphere(origin+.4*X,.1)
-d.texture=c.texture
-e.texture=c.texture
-c.colored("Blue")
-import material
-material.unleash([d,e])
-d.colored("Green")
-material.unleash([c,d])
-"""
+
 
 
  

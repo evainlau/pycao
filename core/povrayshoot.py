@@ -138,22 +138,22 @@ def texture_string(self,camera):
 def texture_string_cameraless(self):
     "Returns a string describing the texture of the object"
     string=""
-    moveString=""
+    _moveString=""
     if not hasattr(self,"texture"):
         return ""
     else:
         #myTexture=self.texture#
         # if hasattr(myTexture,"moveMap"):
-        #     moveString=" matrix "+povrayMatrix(myTexture.moveMap)
+        #     _moveString=" matrix "+povrayMatrix(myTexture.moveMap)
         # if hasattr(myTexture,"name") and myTexture.name:
-        #     string+=myTexture.name +moveString
+        #     string+=myTexture.name +_moveString
         # else:
-        #     string+=myTexture.declaration_string_bracketless()+moveString+"}"
+        #     string+=myTexture.declaration_string_bracketless()+_moveString+"}"
         #string=" texture { "+string+" }\n"
         #print self
         #print hasattr(self,"texture")
         if hasattr(self,"texture") and self.texture is not None:
-            return  self.texture.unnested_output(withMove=True)
+            return  self.texture._unnested_output(withMove=True)
         else: return  " "
 
 

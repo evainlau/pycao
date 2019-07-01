@@ -21,12 +21,10 @@
 """
 This file is used to interact with ipython.
 In a console, cd to the core directory of pycao, 
-where you find the file ipython.py
+where you find the file ipycao.py
 Then, type "ipython" or "ipython3"
 to launch ipython. When you have the python prompt, enter:
-  import sys
-  sys.path.append(".")
-  import ipython
+"run ipycao.py"
 
 THen you can ask information or source code on a function,class, variable ... 
 For instance, ?camera and ??camera to get the information on the camera class. 
