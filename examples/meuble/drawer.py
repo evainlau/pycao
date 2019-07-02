@@ -54,7 +54,7 @@ from architecturelibrary import *
 
 # a plane represented graphically as a half space 
 ground=plane(Z,origin) # a plane with normal the vector Z=vector(0,0,1) containing the origin
-ground.new_texture(Texture.from_photo("parquet1.png",symmetric=True).scale(2.6,2.6,1))
+ground.textured(Texture.from_photo("parquet1.png",symmetric=True).scale(2.6,2.6,1))
 ground.name="plan"
 
 
@@ -119,7 +119,7 @@ camera.actors=[actor,ground]#,floor2]#,ground] # what is seen by the camera
 #camera.actors=[top2.frame]
 camera.lookAt=actor.center#origin
 #camera.lookAt=origin
-camera.zoom(.7)
+camera.zoom(.85)
 
 camera.quality=11
 camera.povraypath=pycaoDir+"/../images/"

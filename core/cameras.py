@@ -102,7 +102,7 @@ class Camera(Primitive):
         if self.technology=="povray":
             command="povray"
             options=""
-            options+=" "
+            options+="+A "
             options+="-D "
             options+="+H"+str(self.imageHeight)+ " +W"+str(self.imageWidth) +" "
             options+="+Q"+str(self.quality)+" "

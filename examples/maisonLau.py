@@ -18,9 +18,9 @@
 
 import os 
 if os.environ['ordi']=="ordiFac":
-    pycaoDir="/users/evain/subversion/articlesEtRechercheEnCours/pycao/pycaogit/distributed"
+    pycaoDir="/users/evain/subversion/articlesEtRechercheEnCours/pycao/pycaogit/core/"
 else:
-    pycaoDir="/home/laurent/subversion/articlesEtRechercheEnCours/pycao/pycaogit/distributed"
+    pycaoDir="/home/laurent/subversion/articlesEtRechercheEnCours/pycao/pycaogit/core/"
 #
 """
                 MODULES IMPORT
@@ -100,27 +100,27 @@ room=Room(floorPolyline,insideThickness=.31)#.colored("LightWood")
 #room.light_level(1.5)
 room.add_to_texture(Normal("agate .5 scale 1 bump_size .05"))
 rommTexture=room.walls[0]
-unleash([room.floor])
+unleash_texture([room.floor])
 room.floor.name="myFloor"
 room.ceiling.name="Ceiling"
-room.ceiling.new_texture(texCeil)
+room.ceiling.textured(texCeil)
 
 
 myTile=RoundBox.from_dimensions(.4,.4,.02,.005)
-myTile.new_texture(Texture("T_Stone4"))
-myTile.new_texture(travertin)
+myTile.textured(Texture("T_Stone4"))
+myTile.textured(travertin)
 #tiling=Tiling(myTile,jointWidth=.01,jointHeight=.01,xnumber=23,ynumber=10,polyline=floorPolyline)#.move(.001*Z)
 #tiling.hooked_on(origin+.001*Z).glued_on(room)
 #tiling.glued_on(room)
 #tiling.visibility=0
 room.floor.visibility=1
-room.floor.new_texture(travertin)
+room.floor.textured(travertin)
 ground.visibility=0
 
 
 
 #tex=room.floor.texture.clone().enhance("
-#room.floor.new_texture(tex)
+#room.floor.textured(tex)
 #wall=RoundWindow(radius=1,depth=.1,border=.1,texture="Yellow_Pine")
 myWin=room.add_window(wallNumber=0,wlength=1.8,wheight=2.15,wdepth=.1,deltaLength=4.106,deltaHeigth=0).colored("White").named("myWin")
 backDoor=room.add_door(wallNumber=1,wlength=.9,wheight=2.15,wdepth=.1,deltaLength=5.756,deltaHeigth=0)#
@@ -128,7 +128,7 @@ room.add_window(wallNumber=2,wlength=1,wheight=1.06,wdepth=.1,deltaLength=1.37,d
 room.add_window(wallNumber=2,wlength=.7,wheight=1.05,wdepth=.1,deltaLength=3.57,deltaHeigth=1.10).colored("White")
 room.add_window(wallNumber=3,wlength=.7,wheight=.7,wdepth=.1,deltaLength=2.57,deltaHeigth=1.60).colored("White")
 
-outsideDoor=room.add_door(wallNumber=4,wlength=.9,wheight=2.15,wdepth=.1,deltaLength=.13,deltaHeigth=0,reverseHandle=True,handleTexture=handleTexture).new_texture(texDoor.clone().flipXZ().flipYZ())
+outsideDoor=room.add_door(wallNumber=4,wlength=.9,wheight=2.15,wdepth=.1,deltaLength=.13,deltaHeigth=0,reverseHandle=True,handleTexture=handleTexture).textured(texDoor.clone().flipXZ().flipYZ())
 outsideDoor.add_porthole()
 outsideDoor.window.frame.rgbed([.8,.8,.6])
 outsideDoor.name="outsideDoor"
@@ -139,21 +139,21 @@ ls.hooked_on(room.walls[4].insideBaseLine().point(.2,"p")+1.1*Z).glued_on(room)
 room.add_window(wallNumber=5,wlength=2.2,wheight=2.15,wdepth=.1,deltaLength=1.056,deltaHeigth=0).frame.colored("White")
 room.add_window(wallNumber=5,wlength=1.8,wheight=1.05,wdepth=.1,deltaLength=4.056,deltaHeigth=1.1).frame.colored("White")
 
-room.add_perpendicular_wall(0,distance=2.74,wallLength=2.70,thickness=.08,measurementType="a",height=None).new_texture(tw)
-room.add_perpendicular_wall(1,distance=3.73+.85,wallLength=1.67+1.47,thickness=.08,measurementType="a",height=None).new_texture(tw)
-room.add_perpendicular_wall(0,distance=3.31,wallLength=2.9,thickness=.08,measurementType="a",offset=3.73+.83,height=None).new_texture(tw)#wall8
-room.add_perpendicular_wall(1,distance=3.4,wallLength=1.67+1.47,thickness=.16,measurementType="n",height=None).new_texture(tw)
-room.add_perpendicular_wall(2,distance=2.94,wallLength=3.4,thickness=.08,measurementType="a",height=None).new_texture(tw)
-room.add_perpendicular_wall(2,distance=0.95,wallLength=2.86,thickness=.08,measurementType="n",offset=.75,height=None).new_texture(tw)
-room.add_perpendicular_wall(3,distance=.08,wallLength=.9,thickness=.16,measurementType="n",height=None).new_texture(tw)
-room.add_perpendicular_wall(3,distance=1.88,wallLength=.9,thickness=.08,measurementType="a",height=None).new_texture(tw)
-room.add_perpendicular_wall(3,distance=1.6,wallLength=1.1,thickness=.08,measurementType="a",offset=.95,height=None).new_texture(tw)
-room.add_perpendicular_wall(3,distance=2.3,wallLength=1.1,thickness=.08,measurementType="a",offset=.95,height=None).new_texture(tw)
+room.add_perpendicular_wall(0,distance=2.74,wallLength=2.70,thickness=.08,measurementType="a",height=None).textured(tw)
+room.add_perpendicular_wall(1,distance=3.73+.85,wallLength=1.67+1.47,thickness=.08,measurementType="a",height=None).textured(tw)
+room.add_perpendicular_wall(0,distance=3.31,wallLength=2.9,thickness=.08,measurementType="a",offset=3.73+.83,height=None).textured(tw)#wall8
+room.add_perpendicular_wall(1,distance=3.4,wallLength=1.67+1.47,thickness=.16,measurementType="n",height=None).textured(tw)
+room.add_perpendicular_wall(2,distance=2.94,wallLength=3.4,thickness=.08,measurementType="a",height=None).textured(tw)
+room.add_perpendicular_wall(2,distance=0.95,wallLength=2.86,thickness=.08,measurementType="n",offset=.75,height=None).textured(tw)
+room.add_perpendicular_wall(3,distance=.08,wallLength=.9,thickness=.16,measurementType="n",height=None).textured(tw)
+room.add_perpendicular_wall(3,distance=1.88,wallLength=.9,thickness=.08,measurementType="a",height=None).textured(tw)
+room.add_perpendicular_wall(3,distance=1.6,wallLength=1.1,thickness=.08,measurementType="a",offset=.95,height=None).textured(tw)
+room.add_perpendicular_wall(3,distance=2.3,wallLength=1.1,thickness=.08,measurementType="a",offset=.95,height=None).textured(tw)
 for w in room.walls:
-    w.new_texture(tw)
-door1=room.add_door(wallNumber=8,wlength=.83,wheight=2.15,wdepth=.1,deltaLength=1.45,handleTexture=handleTexture).new_texture(texDoor)
+    w.textured(tw)
+door1=room.add_door(wallNumber=8,wlength=.83,wheight=2.15,wdepth=.1,deltaLength=1.45,handleTexture=handleTexture).textured(texDoor)
 door1.name="porte1"
-door1.new_texture(texDoor)
+door1.textured(texDoor)
 
 
 
@@ -183,7 +183,7 @@ corridorLamp=Lamp(shadowless=False).hooked_on(origin+2.5*Z+8*X+3.15*Y).glued_on(
 
 
 
-table=Table(1.2,.8,.7,.03).new_texture(tableTexture.clone()).above(origin+4.8*X+1.5*Y).glued_on(room).add_to_texture(tableBump)
+table=Table(1.2,.8,.7,.03).textured(tableTexture.clone()).above(origin+4.8*X+1.5*Y).glued_on(room).add_to_texture(tableBump)
 table.name="table"
 table.add_hook("glass1",table.point(.5,.5,1))
 glass1=Glass()
@@ -193,8 +193,8 @@ glass1.hooked_on(table).glued_on(table).translate(.1*Y)
 glass2.hooked_on(table).glued_on(table).translate(.2*X)
 glass3.hooked_on(table).glued_on(table).translate(-.2*X)
 
-chair1=Chair().new_texture(tableTexture.clone()).above(origin+4.5*X+1.87*Y+.4*Z).glued_on(table)
-chair1.seat.new_texture(chairSeatTexture)
+chair1=Chair().textured(tableTexture.clone()).above(origin+4.5*X+1.87*Y+.4*Z).glued_on(table)
+chair1.seat.textured(chairSeatTexture)
 chair2=chair1.clone()
 chair2.above(origin+5*X+1.8*Y+.4*Z).glued_on(table)
 chair2=chair1.clone().above(origin+4.5*X+1*Y+.4*Z).glued_on(table).self_rotate(3)
@@ -205,7 +205,7 @@ stove=Stove().glued_on(room).self_rotate(-math.pi/2)
 stove.name="stove"
 stove.translate(stovePosistionOnFloor-stove.floorPoint)
 stove.spacer.texture.enhance(stoveFinish)
-#stove.new_texture(stoveTexture)
+#stove.textured(stoveTexture)
 
 cabinet=Cabinet().select_hook("hookToFloor").hooked_on(origin)
 cabinet.pirotate(Z,-.5).glued_on(room)
@@ -214,26 +214,24 @@ cabinet.select_hook("backHook").self_gtranslate(pointOnWall4,vec=X).translate(-.
 cabinet.select_hook("backHook").self_gtranslate(pointOnWall4,vec=Y).translate(.3*Y)
 
 
-camera.imageHeight=2000 # in pixels
-camera.imageWidth=3000
+camera.imageHeight=800 # in pixels
+camera.imageWidth=1200
 
-camera.projection="orthographic"
-camera.projection="perspective"
+camera.file="maisonLau.pov"
 #camera.location=origin+1.6*X+1.5*Y+1.62*Z
 camera.location=entrance-3.6*X+1.8*Y-.3*Z
 #camera.location=entrance-3.9*X-10*Y-.3*Z
-camera.actors=[room,ground] # what is seen by the camera
-#camera.actors=[room.walls]
+camera.actors=[room,room.ceiling] # what is seen by the camera
+#camera.filmAllActors=True
 #camera.actors=[tiling]
 #camera.actors=[ls]
 #camera.lookAt=origin
 camera.lookAt=entrance+1*Y-1.05*Z
-#camera.lookAt=origin
-camera.angle=1.07
+camera.zoom(.8)
 #for light in camera.lights:
 #    print(light.povray_string())
-print(camera.file)
-camera.quality=7
+camera.quality=11
+camera.povraypath=pycaoDir+"../images/" # where you put your images,photos for the textures
 #print("a la fin",room.floor.texture.smallString)
 camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
 camera.show # show the photo, ie calls povray. 

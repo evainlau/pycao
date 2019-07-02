@@ -15,6 +15,8 @@ class Wall(Prism):
     """ Class for walls, not necessarily rectangular or vertical, but the base is a tetragon 
     Points numbers 0,1 are by definition on the interior of the wall (numbers 2,3 are on the outside wall """
 
+
+    
     @classmethod
     def from_polyline_vector(cls,polyline,verticalVector,thickness=0,name=""):
         self=super(Wall,cls).from_polyline_vector(polyline,verticalVector)
@@ -160,7 +162,6 @@ class Room(Compound):
         basePointOutside=myWall.insideBaseLine().point(distance+delta,measurementType)+offset*vec
         endPointInside=basePointInside+wallLength*vec
         endPointOutside=basePointOutside+wallLength*vec
-        #print([basePointInside,endPointInside,basePointOutside,endPointOutside,basePointInside])
         wall=Wall.from_polyline_vector(Polyline([basePointInside,endPointInside,endPointOutside,basePointOutside,basePointInside]),self.height*Z,thickness=thickness)
         self.add_to_compound(wall)
         self.walls.append(wall)
@@ -258,7 +259,7 @@ class Door(Compound):
         
         
 class RoundWindow(Compound):
-    def __init__(self,radius,depth,border,texture=Texture("Yellow_Pine")):
+    def __init__(self,radius=.2,depth=.08,border=.02,texture=Texture(Pigment("Blue"))):
         """ border is the size of the border of the window """ 
         frame=Cylinder(start=origin,end=origin+depth*Y,radius=radius,length=None,booleanOpen=False)
         frame.textured(texture)
@@ -268,7 +269,7 @@ class RoundWindow(Compound):
         frame.amputed_by(toCut)
         glass=Cylinder(start=origin+(.5*depth-.01)*Y,end=origin+(.5*depth+.01)*Y,radius=radius-border,length=None,booleanOpen=False)
         glass.textured(Texture("Glass"))
-        self.hole=toCut.glued_on(self)
+        self.hole=toCut
         self.hole.visibility=0
         Compound.__init__(self,[["frame",frame],glass])
 

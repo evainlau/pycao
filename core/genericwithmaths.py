@@ -173,6 +173,7 @@ def _new_object(cls,*args,**kwargs):
     return self
 
 def _init_object(self,*args,**kwargs):
+    " put groupPhoto=False for not adding to groupPhoto"
     keys = sorted(kwargs.keys())
     if "name" in keys:
         self.name=kwargs["name"]
@@ -197,9 +198,10 @@ def _init_object(self,*args,**kwargs):
     self.csgOperations=[]
     #print (allObjects)
     #print(self)
+    # Adding, with no checking, duplicates remove when rendering
     if  ((isinstance(self,ObjectInWorld) and not isinstance(self,Primitive) and not isinstance(self,material.PNFTItem) and not isinstance(self,lights.Light)) \
-        or isinstance(self,AffinePlane) \
-        or isinstance(self, ParametrizedCurve)):
+         or isinstance(self,AffinePlane) \
+         or isinstance(self, ParametrizedCurve)):
         groupPhoto.append(self)
     #   not isinstance(self,MassPoint):
 

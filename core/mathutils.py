@@ -693,9 +693,13 @@ class Polyline(list,ParametrizedCurve):
     #     return (1-fractionOfSegment)*self[leftPointIndex]+fractionOfSegment*self[leftPointIndex+1]
     def __new__(cls,*args,**kwargs):
         l=list.__new__(cls)
-        ObjectInWorld.__init__(l)
         return l
-    def __init__(self,relativeList):
+    def __init__(self,relativeList,**kwargs):
+        #if not "groupPhoto" in kwargs.keys():
+       #     if  isinstance(self,Polygon):
+         #       kwargs["groupPhoto"]=True
+           # else:
+             #   kwargs["groupPhoto"]=False
         if len(relativeList)==1:
             raise NameError('A polyline needs at least 2 points')
         absoluteList=ParametrizedCurve.relativeToAbsolute(relativeList)
@@ -710,9 +714,10 @@ class Polyline(list,ParametrizedCurve):
             timeLeftFromIndex=time-leftPointIndex*segmentDuration
             fractionOfSegment=timeLeftFromIndex*(len(self)-1)#=timeLef/segmentDuratio
             return (1-fractionOfSegment)*self[leftPointIndex]+fractionOfSegment*self[leftPointIndex+1]
-        ParametrizedCurve.__init__(self,initCallFunction)        
+        ParametrizedCurve.__init__(self,initCallFunction)
     def __str__(self):
-        return "Polyline  with control points "+", ".join([str(point) for point in self.contPoints() ])+"."
+        return "Polyline curve with control points "+", ".join([str(point.clone().move_alone(self.mapFromOrigin)) for point in self ])+"."
+#        return "Polyline  with control points "+", ".join([str(point) for point in self.contPoints() ])+"."
 #    def move_alone(self,M):
 #        [point.move_alone(M) for point in self ]
 #        return self
@@ -756,7 +761,7 @@ class BezierCurve(list,ParametrizedCurve):
             return output
         ParametrizedCurve.__init__(self,initCall)        
     def __str__(self):
-        return "Bezier curve with control points "+", ".join([str(point.move_alone(self.mapFromOrigin) for point in self )])+"."
+        return "Bezier curve with control points "+", ".join([str(point.clone().move_alone(self.mapFromOrigin)) for point in self ])+"."
 #    def move_alone(self,M):
 #        [point.move_alone(M) for point in self ]
 #        return self

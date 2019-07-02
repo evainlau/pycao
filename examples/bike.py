@@ -1,6 +1,6 @@
 
 
-#pycaoDir="/home/laurent/subversion/evain/articlesEtRechercheEnCours/pycao/pycaogit/distributed"
+pycaoDir="/home/laurent/subversion/articlesEtRechercheEnCours/pycao/pycaogit/core/"
 #pycaoDir="/users/evain/subversion/articlesEtRechercheEnCours/pycao/pycaogit/distributed"
 
 
@@ -10,7 +10,7 @@
 
 
 import os 
-pycaoDir=os.environ["dirsubversion"]+"/articlesEtRechercheEnCours/pycao/pycaogit/distributed/"
+#pycaoDir=os.environ["dirsubversion"]+"/articlesEtRechercheEnCours/pycao/pycaogit/distributed/"
 import sys
 from os.path import expanduser
 sys.path.append(pycaoDir)
@@ -318,14 +318,15 @@ if 1>0:
    #camera.location=point(-2.17,1.14,1.62);camera.lookAt=point(0.1,-0.51,0.45);camera.angle=0.5
    #front View
    camera.location=point(-2.9,-0.51,0.45);camera.lookAt=point(0.08,-0.01,0.45);camera.angle=0.4
-   #camera.location=origin+.31*Y+0*X+2.8*Z;camera.zoom(.2861812525)
+   #camera.location=origin+.31*Y+0*X+2.8*Z;
+   camera.zoom(.2861812525)
    camera.actors=[body,seat,wheel1,wheel2,cyl1,cyl2,bs1,bs2,bs3,bs4,g,ped]
-   camera.actors=[seat,wheel1,wheel2,g,ped]
+   #camera.actors=[seat,wheel1,wheel2,g,ped]
    #camera.actors=[inRcyl]
    camera.povraylights=camera.povraylights+"  light_source {<"+str(camera.location[0])+","+str(camera.location[1])+","+str(camera.location[2])+">, rgb <.3,0.35,0.3>   }"
    camera.imageHeight=800 # in pixels
    camera.imageWidth=1000
-   camera.quality=9
+   camera.quality=11
    camera.shoot
    #print(seat.center)
    camera.silent=False

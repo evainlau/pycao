@@ -255,13 +255,13 @@ def object_string_but_CSG(self,camera):
             string+=",<"+str(i+1)+","+str(i+len(self.parts.timeList1))+","+str(i+1+len(self.parts.timeList1))+">\n"
         string+="}\n"+modifier_string(self,camera)+"}\n"
     elif isinstance(self,Prism) :
-        #print(self)
+        #print(self.curve1)
         #string+="prism {\n  "+str(self.height(1))+","+str(self.height(2))+","+str(self.povrayNumberOfPoints)+",".join([point_to_povray2d(p,0,2) for p in self.polyline1]+[point_to_povray2d(p,0,2) for p in self.polyline2] )+" "+modifier_string(self,camera)+" }\n"
         string+="prism {\n  "+self.splineType+" "+str(self.height1)+","+str(self.height2)+" , "+str(self.povrayNumberOfPoints)+","+",".join([point_to_povray2d(p,0,2) for p in self.curve1] )+" "+" \n"
         string+=modifier_string(self,camera)+"}\n"
     elif isinstance(self,Polygon) :
         string+="polygon{"+str(len(self))+",+"
-        for polygonPoint in self:
+        for polygonPoint in self.controlPoints():
             string+=povrayVector(polygonPoint)
         string+=modifier_string(self,camera)+"}\n"
     return string   
@@ -362,12 +362,14 @@ def render(camera):
     import gc
     if camera.filmAllActors:
         camera.actors=[]
+        camera.idactors=[]
         for p in groupPhoto:
             #print("p et son parent")
             #print(p)
             #print(p.parent)
-            if p.parent==[]:
+            if p.parent==[] and id(p) not in camera.idactors:
                 camera.actors.append(p)
+                camera.idactors.append(id(p))
         #print("la liste des acteurs",camera.actors)
         #camera.actors+=[p for p in  if p.parent==[] ]
     #for light in camera.lights:

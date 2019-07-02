@@ -100,14 +100,14 @@ class Prism(Elaborate):
             self.splineType="bezier_spline"
         else: self.splineType="linear_spline"
         self.sweepType=sweepType
-        self.curve1=curve
+        self.curve1=curve.controlPoints()
         # suppressing the follwing 2 lines because of rounding pbs
         #if (self.polyline1[0] != self.polyline1[-1]).any():
         #    raise NameError("The first and last point of the underlying splines must be equal in a prism")
         self.height1=self.curve1[0][1]
         self.height2=self.height1+height
         self.povrayNumberOfPoints=len(curve)
-
+        return self
         
     @classmethod
     def from_polyline_vector(cls,polyline,vector):
@@ -118,12 +118,13 @@ class Prism(Elaborate):
         intermediateVector=map1*vector        
         map2Inverse=Map.linear(X,intermediateVector,Z)
         map2=map2Inverse.inverse()
-        composeMap=map2*map1
+        composeMap=map2*map1 # this map sends the polyline to a plane y=cte using map1, and vector to Y. 
         composeMapInverse=map1Inverse*map2Inverse
         polyline1=polyline.clone().move(composeMap)
-        p=Prism.__new__(cls,polyline1,height=1).move(composeMapInverse)
-        Prism.__init__(p,polyline1)
-        p.prismDirection=vector
+        p=Prism.__new__(cls)
+        p.__init__(polyline1,height=1).move(composeMapInverse)
+        #Prism.__init__(p,polyline1)
+        #p.prismDirection=vector
         return p
 
 
@@ -797,6 +798,9 @@ def to_visualize_curves(self,radius=0.1,steps=100,color="Yellow",color2="Green")
     radius: the radius of the spheres
     color2: the color to mark the input points which are interpolated by the curve 
     """
+    toAdd=[self is x for x in groupPhoto] # this dirty hack because bad interferences with arrays in the list with "if x in groupPhoto"
+    if  not True in toAdd:
+        groupPhoto.append(self)
     for time in range(0,steps,1):
         p=self(1./steps*time)
         s=Sphere(p,radius)

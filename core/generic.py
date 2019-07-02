@@ -596,6 +596,8 @@ class ObjectInWorld(object):
             self.parent=[]
         memo=dict()
         toReturn=copy.deepcopy(self,memo)
+        if id(self) in [ id(x) for x in groupPhoto]:
+            groupPhoto.append(toReturn)
         if withoutParent and hasattr(self,'parent'):
             self.parent=copyParent
         return toReturn

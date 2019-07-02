@@ -243,15 +243,15 @@ class Pigment(PNFItem):
         If corner is given, the wall papers are translated so that the bottom left corner of the photo appears at corner. 
         """
         M=Map.rotation(X,math.pi/2)
-        p1=self.move(M) # from the xy plane to the xz plane
+        p1=self#.move(M) # from the xy plane to the xz plane
         p4=p1.clone().flipX()
         #print("p1p2")
         #print(p1)
         #print(p2)
-        p3=p1.clone().flipZ().flipX()
-        p2=p1.clone().flipZ()
+        p3=p1.clone().flipY().flipX()
+        p2=p1.clone().flipY()
         p=Pigment.from_square(p1,p2,p3,p4)
-        p.move(M.inverse())#back to the xy plane
+        #p.move(M.inverse())#back to the xy plane
         p.scale(.5*dimx,.5*dimy,1)
         if normal is not None:
             mape=Map.rotational_difference(Z,normal)
