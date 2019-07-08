@@ -229,11 +229,18 @@ class Cylinder(Elaborate):
         self.markers.axis=Segment(self.parts.start,self.parts.end)
         self.markers.start=self.parts.start
         self.markers.end=self.parts.end
-        """
+        
         M=Map.rotational_difference(self.parts.end-self.parts.start,Z)
-        corner1=M*self.parts.start-self.parts.radius*M*(Y+X)
-        corner2=M*self.parts.end+self.parts.radius*M*(Y+X)
-        self.markers.box=FrameBox(listOfPoints=[corner1,corner2]).move(M.inverse())
+        corner1=M*self.parts.start-self.parts.radius*(Y+X)
+        corner2=M*self.parts.end+self.parts.radius*(Y+X)
+        self.markers.box=FrameBox(listOfPoints=[corner1,corner2])
+        #print("la  box",self.markers.box)
+        self.markers.box.move(M.inverse())
+        self.markers.box.reorder()
+        #print("la  box apres",self.markers.box)
+        #print(M.inverse(),"was Minverse\n")
+        #print("avant reord",self.markers.box)
+        #self.markers.box.reorder()
         self.markers_as_functions()
         """
         M=Map.rotational_difference(Z,self.parts.end-self.parts.start)
@@ -241,7 +248,7 @@ class Cylinder(Elaborate):
         corner2=self.parts.end+self.parts.radius*M*(Y+X)
         self.markers.box=FrameBox(listOfPoints=[corner1,corner2])
         self.markers_as_functions()
-        
+        """
     @property
     def length(self):
         return (self.mapFromParts*(self.parts.end-self.parts.start)).norm

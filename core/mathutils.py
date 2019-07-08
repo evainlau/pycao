@@ -1256,8 +1256,10 @@ class FrameBox(Base):
             #print (self[i])
             #max_value = max(self[i])
             selfabs=[math.fabs(self[i][j]) for j in range(4)]
+            for j in perm:
+                selfabs[j]=0 # we don't want to take a direction already chosen
             perm.append(np.argmax(selfabs))
-        #print("permutation",perm)
+            #print("permutation",perm)
         permInverse=[]
         for i in range(3):
             permInverse.append(perm.index(i))

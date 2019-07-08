@@ -317,7 +317,7 @@ if 1>0:
    #perspectiveView
    #camera.location=point(-2.17,1.14,1.62);camera.lookAt=point(0.1,-0.51,0.45);camera.angle=0.5
    #front View
-   camera.location=point(-2.9,-0.51,0.45);camera.lookAt=point(0.08,-0.01,0.45);camera.angle=0.4
+   camera.location=point(-2.9,-0.51,0.45);camera.lookAt=point(1.58,-0.01,0.45);camera.angle=0.4
    #camera.location=origin+.31*Y+0*X+2.8*Z;
    camera.zoom(.2861812525)
    camera.actors=[body,seat,wheel1,wheel2,cyl1,cyl2,bs1,bs2,bs3,bs4,g,ped]

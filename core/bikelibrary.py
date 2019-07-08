@@ -94,7 +94,7 @@ class Crank(Compound):
         myCube=Cube(length,depth,width)
         myCube.translate(cyl1.center-myCube.point(0,.5,.5, "ppp"))
         Compound.__init__(self,[cyl1,cyl2,["cube",myCube]])
-        self.color=color
+        self.colored(color)
         self.add_axis("pedalAxis",cyl1.axis())
         self.add_axis("crankLongAxis",myCube.boxline(None,.5,.5,"ppp"))
         self.add_axis("bottomBracketAxis",cyl2.axis())
@@ -154,12 +154,12 @@ class Sprocket(Cone):
         return c
     
     def __init__(self,numberOfTeeth=14,sprocketThickness=.00185,toothTopLength=.0025,radiusPerTooth=0.002,color="Silver" ):
-        self.color=color
+        self.colored(color)
         cutRadius=(2*3.1416*radiusPerTooth-toothTopLength)/2
         cylinder=Cylinder(self.point(.5,-0.0001,1,"ppp"),self.point(.5,1.1,1,"ppp"),cutRadius)
         angle=2*math.pi/numberOfTeeth
         for step in range(numberOfTeeth):
-            self.amputed_by(cylinder)
+            self.amputed_by(cylinder.clone())
             cylinder.rotate(self.axis(),angle)
 
 
@@ -210,16 +210,18 @@ class FrontWheel(Compound):
         # tyre and rim
         tyre=Torus(tyreExteriorDiameter/2,tyreInternalRadius,Y,origin)
         rim=Washer(origin-0.015*Y,origin+0.015*Y,rimOuterRadius,rimInnerRadius)
-        tyre.color=tyreColor
-        rim.color=rimColor
+        tyre.colored(tyreColor)
+        rim.colored(rimColor)
 
         # the axis
         wheelPhysicalAxis=Cylinder(tyre.center-(hubWidth*.5+.02)*Y,tyre.center+(hubWidth*.5+.02)*Y,axisRadius).colored("Red")
         #hub
         hub=Cylinder(origin-hubWidth/2*Y,origin+hubWidth/2*Y,hubInternalRadius)
-        hub.color=hubColor
+        hub.colored(hubColor)
         plaque1=Cylinder(origin,origin+0.0002*Y,hubExternalRadius)
-        plaque1.color=hubColor
+        plaque1.colored(hubColor)
+        #print(plaque1.box())
+        #print(hub.box())
         plaque1.against(hub,Y,Y,X,X)
         plaque2=plaque1.clone()
         plaque2.against(hub,-Y,-Y,X,X)
@@ -230,14 +232,14 @@ class FrontWheel(Compound):
         spokeEnd=tyre.point(0.5,0.5,0.02,"ppn")
         spokeEnd.rotate(tyre.axis(),math.pi*4/numberOfSpokes)
         leftSpoke=Cylinder(spokeInit,spokeEnd,spokeRadius)
-        leftSpoke.color=spokeColor
+        leftSpoke.colored(spokeColor)
 
         # firstRightspoke
         spokeInit=plaque2.point(0.5,0.5,.01,"ppn")
         spokeEnd=tyre.point(0.5,0.5,0.02,"ppn")
         spokeEnd.rotate(tyre.axis(),-math.pi*4/numberOfSpokes)
         rightSpoke=Cylinder(spokeInit,spokeEnd,spokeRadius)
-        rightSpoke.color=spokeColor
+        rightSpoke.colored(spokeColor)
 
         # otherSpokes via rotation.
         for i in range(int(numberOfSpokes/2)):
@@ -268,8 +270,8 @@ class RearWheel(Compound):
         # tyre and rim
         tyre=Torus(tyreExteriorDiameter/2,tyreInternalRadius,Y,origin)
         rim=Washer(origin-0.015*Y,origin+0.015*Y,rimOuterRadius,rimInnerRadius)
-        tyre.color=tyreColor
-        rim.color=rimColor
+        tyre.colored(tyreColor)
+        rim.colored(rimColor)
 
         # the axis
         wheelPhysicalAxis=Cylinder(tyre.center-(hubWidth*.5+.02)*Y,tyre.center+(hubWidth*.5+.02)*Y,axisRadius).colored("Red")
@@ -277,14 +279,14 @@ class RearWheel(Compound):
         myCassette=Cassette(cassette)
         hubWidth=hubWidth-myCassette.box().dimensions[1]
         hub=Cylinder(origin-hubWidth/2*Y,origin+hubWidth/2*Y,hubInternalRadius)
-        hub.color=hubColor
+        hub.colored(hubColor)
         plaque1=Cylinder(origin,origin+0.0002*Y,hubExternalRadius)
-        plaque1.color=hubColor
+        plaque1.colored(hubColor)
         plaque1.against(hub,Y,Y,X,X)
         plaque2=plaque1.clone()
         plaque2.against(hub,-Y,-Y,X,X)
         self.slaves=[["tyre",tyre],rim,plaque1,plaque2,["hub",hub],["axis",wheelPhysicalAxis]]
-        myCassette.against(plaque1,-Y,-Y,X,X)
+        myCassette.against(plaque1,Y,Y,X,X)
         self.slaves.append(["cassette",myCassette])
 
         # firstLeftSpoke
@@ -292,14 +294,14 @@ class RearWheel(Compound):
         spokeEnd=tyre.point(0.5,0.5,0.02,"ppn")
         spokeEnd.rotate(tyre.axis(),math.pi*4/numberOfSpokes)
         leftSpoke=Cylinder(spokeInit,spokeEnd,spokeRadius)
-        leftSpoke.color=spokeColor
+        leftSpoke.colored(spokeColor)
 
         # firstRightspoke
         spokeInit=plaque2.point(0.5,0.5,.01,"ppn")
         spokeEnd=tyre.point(0.5,0.5,0.02,"ppn")
         spokeEnd.rotate(tyre.axis(),-math.pi*4/numberOfSpokes)
         rightSpoke=Cylinder(spokeInit,spokeEnd,spokeRadius)
-        rightSpoke.color=spokeColor
+        rightSpoke.colored(spokeColor)
 
         # otherSpokes via rotation.
         for i in range(int(numberOfSpokes/2)):
