@@ -322,7 +322,7 @@ if 1>0:
    camera.zoom(.2861812525)
    camera.actors=[body,seat,wheel1,wheel2,cyl1,cyl2,bs1,bs2,bs3,bs4,g,ped]
    #camera.actors=[seat,wheel1,wheel2,g,ped]
-   #camera.actors=[inRcyl]
+   #camera.actors=[wheel2]
    camera.povraylights=camera.povraylights+"  light_source {<"+str(camera.location[0])+","+str(camera.location[1])+","+str(camera.location[2])+">, rgb <.3,0.35,0.3>   }"
    camera.imageHeight=800 # in pixels
    camera.imageWidth=1000

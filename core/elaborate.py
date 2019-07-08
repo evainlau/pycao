@@ -231,8 +231,9 @@ class Cylinder(Elaborate):
         self.markers.end=self.parts.end
         """
         M=Map.rotational_difference(self.parts.end-self.parts.start,Z)
-        corner1=M*self.parts.start-self.parts.radius*M*(Y+X)
-        corner2=M*self.parts.end+self.parts.radius*M*(Y+X)
+        #print(M)
+        corner1=M*self.parts.start-self.parts.radius*(Y+X)
+        corner2=M*self.parts.end+self.parts.radius*(Y+X)
         self.markers.box=FrameBox(listOfPoints=[corner1,corner2]).move(M.inverse())
         self.markers_as_functions()
         """
