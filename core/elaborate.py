@@ -83,6 +83,70 @@ class Elaborate(ElaborateOrCompound):
         return self
 
 
+
+
+class CylBox(Elaborate):
+    """
+    A mathematical abstraction used to compute in cylindrical coordinates.  It is not represented by a physical object on the 3d view.
+    The underlying cylinder carries a start point on the rotation axis, an end point on the rotation axis,
+    a vector normalVec to the rotation axis. 
+
+    cylbox.line(): the axis of rotation of the cylinder
+    cylbox.r(point): the distance in [0,infty[ between point and cyl.line()
+    cylbox.t(point): the coordinate in ]-infty,infty[ of the projection of point on cylbox.line()  This is zero for the start point and 1 for the end point
+    cylbox.w(point): the winding number of point. A number in [0,1[. This 1s 0 for point=start+normalVec, 0.5 for point=start-normalVec, x in [0,1[ for point=(star+normalVec).rotate(axis(),2math.pi*x)
+    cylbox.point(r,w,t): the point with p with coordinates r,w,t, ie. cylbox.r(p)=r,cylbox.w(p)=w,cylbox.t(p)=t 
+    """
+
+    def __init__(self,start=None,end=None,radius=None,length=None):
+        """
+        If start is not None, self is computed from start,end,radius.
+        If start is None, self is computed from length and radius : it is a cylinder with axis = Z
+        and centered on zero.
+        """
+        
+        if radius is None:
+            raise NameError('No default radius for a Cylinder')
+        if start is None:
+            start=point(0,0,-length/2)
+            end=point(0,0,length/2)
+        # self.parts
+        self.parts=Object()
+        self.parts.start=start
+        self.parts.end=end
+        self.parts.radius=radius
+        #self.markers
+        self.radius=self.parts.radius
+        self.markers=Object()
+        self.markers.axis=Segment(self.parts.start,self.parts.end)
+        self.markers.start=self.parts.start
+        self.markers.end=self.parts.end
+        M=Map.rotational_difference(self.parts.end-self.parts.start,Z)
+        corner1=M*self.parts.start-self.parts.radius*M*(Y+X)
+        corner2=M*self.parts.end+self.parts.radius*M*(Y+X)
+        self.markers.box=FrameBox(listOfPoints=[corner1,corner2]).move(M.inverse())
+        self.markers_as_functions()
+
+
+
+class TBox(Elaborate):
+    def __init__(self,iradius,eradius,rotationAxis=None,vecNormal=None):
+        self.parts.iradius=float(iradius)
+        self.parts.eradius=float(eradius)
+        if rotationAxis is None:
+            self.rotationAxis=line(origin,origin+Z)
+        else:
+            self.parts.rotationAxis=rotationAxis
+        if vecNormal is None:
+            self.parts.vecNormal=X.clone()
+        else:
+            self.part.vecNormal=vecNormal
+        super().__init__(self)
+
+    
+
+
+    
     
 
 class Prism(Elaborate):
@@ -165,11 +229,19 @@ class Cylinder(Elaborate):
         self.markers.axis=Segment(self.parts.start,self.parts.end)
         self.markers.start=self.parts.start
         self.markers.end=self.parts.end
+        """
+        M=Map.rotational_difference(self.parts.end-self.parts.start,Z)
+        corner1=M*self.parts.start-self.parts.radius*M*(Y+X)
+        corner2=M*self.parts.end+self.parts.radius*M*(Y+X)
+        self.markers.box=FrameBox(listOfPoints=[corner1,corner2]).move(M.inverse())
+        self.markers_as_functions()
+        """
         M=Map.rotational_difference(Z,self.parts.end-self.parts.start)
         corner1=self.parts.start-self.parts.radius*M*(Y+X)
         corner2=self.parts.end+self.parts.radius*M*(Y+X)
         self.markers.box=FrameBox(listOfPoints=[corner1,corner2])
         self.markers_as_functions()
+        
     @property
     def length(self):
         return (self.mapFromParts*(self.parts.end-self.parts.start)).norm
