@@ -98,37 +98,87 @@ class CylBox(Elaborate):
     cylbox.point(r,w,t): the point with p with coordinates r,w,t, ie. cylbox.r(p)=r,cylbox.w(p)=w,cylbox.t(p)=t 
     """
 
-    def __init__(self,start=None,end=None,radius=None,length=None):
+    def __init__(self,start,end,radius=None,windingStart=None):
         """
-        If start is not None, self is computed from start,end,radius.
-        If start is None, self is computed from length and radius : it is a cylinder with axis = Z
-        and centered on zero.
+        type(windingStart)=point or Vector, used to indicate the direction where the winding number is zero. 
         """
-        
+        #print(windingStart,"is WindAtart")
         if radius is None:
             raise NameError('No default radius for a Cylinder')
-        if start is None:
-            start=point(0,0,-length/2)
-            end=point(0,0,length/2)
         # self.parts
         self.parts=Object()
-        self.parts.start=start
-        self.parts.end=end
+        self.parts.rotaxis=Segment(start,end)
         self.parts.radius=radius
+        if is_vector(windingStart):
+            self.parts.XVector=windingStart.normalized_clone()
+            #print(self.parts.XVector,"isXVECTOR")
+        elif is_point(windingStart):
+            listVec=orthonormalize([end-start,windingStart-start])
+            self.parts.XVector=listVec[1]
+        self.parts.YVector=self.parts.rotaxis.vector.cross(self.parts.XVector)
         #self.markers
-        self.radius=self.parts.radius
         self.markers=Object()
-        self.markers.axis=Segment(self.parts.start,self.parts.end)
-        self.markers.start=self.parts.start
-        self.markers.end=self.parts.end
-        M=Map.rotational_difference(self.parts.end-self.parts.start,Z)
-        corner1=M*self.parts.start-self.parts.radius*M*(Y+X)
-        corner2=M*self.parts.end+self.parts.radius*M*(Y+X)
-        self.markers.box=FrameBox(listOfPoints=[corner1,corner2]).move(M.inverse())
+        self.markers.rotaxis=self.parts.rotaxis
+        self.markers.start=self.parts.rotaxis.p1
+        self.markers.end=self.parts.rotaxis.p2
         self.markers_as_functions()
 
+    def _matrix_from_canonical_position_to_init(self):
+        """
+        returns M such that M(cylBox)=self at the init time, where cylBox is the cylBox with start=origin, end=origin+Z,radius=1,windingStart=X
+        """
+        M=Map.affine(self.parts.radius*self.parts.XVector,self.parts.radius*self.parts.YVector,self.parts.rotaxis.vector,self.parts.rotaxis.p1-origin)
+        return M
+
+    def _matrix_from_canonical_position(self):
+        """
+        returns M such that M(cylBox)=self, where cylBox is the cylBox with start=origin, end=origin+Z,radius=1,windingStart=X
+        """
+        return self.mapFromParts*self._matrix_from_canonical_position_to_init()
+    
+    
+    def _matrix_to_other_cyl(self,cyl2):
+        """
+        Returns the matrix M such that self.move(M)=cyl2
+        """
+        return cyl2._matrix_from_canonical_position()*self._matrix_from_canonical_position().inverse()
+
+    def length(self):
+        ax=self.rotaxis()
+        return ax.vector.norm
+    
+    def radius(self):
+        return (self.mapFromParts*self.parts.XVector.cross(self.rotaxis().vector.normalized_clone())).norm
 
 
+    
+    def cpoint(self,r,w,s,frame="pp"):
+        """
+        returns the point with radius r, winding number w, height s on the cylinder. 
+        The winding number in [0,1[ counts the number of windings around the axis starting from the marked point m on the cylinder, 
+        ie. w=0 means the point is on the half plane defined by the rotation axis and the marked point. 
+        The convention for the orientation is that w is close to 0 for a small positive rotation of the marked point, and close to 1 for a 
+        small negative rotation of the marked point. 
+        The numbers r,s can be interpreted in absolute, negative or proportional coordinates in 
+        a manner similar to boxes. For negative coordinates, the measurment for r is done starting from the limit of the cylinder and walking to the 
+        the center, and s is measured starting from the end of the cylinder walking to the origin of the cylinder.
+        """
+        codeFrame=list(frame)
+        from mathutils import _to_proportional_coordinate
+        R=_to_proportional_coordinate(r,codeFrame[0],self.radius())
+        S=_to_proportional_coordinate(s,codeFrame[1],self.length())
+        #print(self.parts.XVector,self.parts.YVector,self.parts.rotaxis,"done")
+        a=self.parts.XVector.angle_to(self.parts.YVector,self.parts.rotaxis.vector)
+        if a>0: sign=+1
+        else: sign=-1
+        localPoint=point(R*math.cos(2*math.pi*w),sign*R*math.sin(2*math.pi*w),S)
+        print(localPoint,"localPoint")
+        #print(self.mapFromParts)
+        #print(self._matrix_from_canonical_position())
+        matrix=self._matrix_from_canonical_position()
+        return matrix*localPoint
+
+    
 class TBox(Elaborate):
     def __init__(self,iradius,eradius,rotationAxis=None,vecNormal=None):
         self.parts.iradius=float(iradius)

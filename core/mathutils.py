@@ -208,6 +208,9 @@ class MassPoint(np.ndarray,Primitive):
             raise NameError('norm is applied to a Vector, self is '+str(type(self)))
 
     def angle_to(self,goal,vaxis):
+        """
+        self,goal,axis are vectors. Function used to check if a rotation has positive or negative angle.
+        """
         cosine= np.dot(goal,self)/np.linalg.norm(self)/np.linalg.norm(goal) # -> cosine of the angle
         angle = np.arccos(np.clip(cosine, -1, 1))
         M=Map.linear_rotation(vaxis,angle)
@@ -1918,6 +1921,32 @@ def vector(*args):
 
 def point(x,y,z):
     return (MassPoint(x,y,z,1))
+
+def orthonormalize(vectorList):
+    l=[]
+    if vectorList==[]: return []
+    print(vectorList[0])
+    l.append(vectorList[0].normalized_clone())
+    for i in range(len(vectorList)-1):
+        w=vectorList[i+1].clone()
+        for vec in l:
+            w-=(w.dot(vec))*vec
+        l.append(w.normalize())
+    return(l)
+
+
+def _to_proportional_coordinate(coord,letter,dim):
+    """
+    cast a coordinate given in any form (absolute, negative or proporitional) to a coordinate
+    in the proportional frame
+    """
+    if letter=="n":
+        return((dim-coord)/dim)
+    if letter=="a":
+        return (coord/dim)
+    if letter=="p":
+        return(coord)
+    raise NameError("The letter in prop coord should be in 'anp', not"+str(letter))
 
 
 X=vector(1,0,0)
