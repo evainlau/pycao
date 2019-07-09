@@ -333,6 +333,9 @@ class ObjectInWorld(object):
     def point(self,*args,**kwargs):
         return self.box().point(*args,**kwargs)
 
+    def cylpoint(self,*args,**kwargs):
+        return self.cylbox().cylpoint(*args,**kwargs)
+    
     def boxline(self,*args,**kwargs):
         return self.box().boxline(*args,**kwargs)
 
@@ -425,6 +428,11 @@ class ObjectInWorld(object):
             return self.activeBox.clone()
         else :
             return getattr(self.dicobox,name).clone()
+    def cylbox(self,name=None):
+        if name is None:
+            return self.activeCylbox.clone()
+        else :
+            return getattr(self.dicocylbox,name).clone()
     def axis(self,name=None): #will be overwritten for some objects construcing their own boxes
         if name is None:
             return self.activeAxis.clone()
@@ -458,6 +466,27 @@ class ObjectInWorld(object):
         setattr(self.dicobox,name,self.activeBox)
         return self
 
+
+    
+    def add_cylbox(self,name,cylbox):
+        """
+        Add a new cyllindrical box to self and select it. The box 
+        is added to the dictionnary self.dicocylbox. 
+        The activebox is self.box()
+        """
+        # the added box must move with the object
+        # creates a dicocylbox if ncr and populates it if  ncr
+        if not hasattr(self,"dicocylbox"):
+            dicocylbox=Object() # The pair k,v with k a string and v a callable returning a cylbox
+            setattr(self,"dicocylbox",dicocylbox)
+        self.activeCylbox=cylbox.clone()
+        #print("cii")
+        #raise NameError(str(isinstance(self.activeCbox,ObjectInWorld)))
+        #raise NameError(str(type(self.activeCbox)))
+        #print(self.activeCbox.__dict__)
+        self.activeCylbox.glued_on(self)
+        setattr(self.dicocylbox,name,self.activeCylbox)
+        return self
 
 
     
@@ -508,13 +537,29 @@ class ObjectInWorld(object):
             except:
                 print("No box")
         return self
-  
+    def print_cylboxes(self):
+        """
+        displays the list of boxes of self
+        """
+        try:
+            print ( self.dicocylbox.__dict__.keys())
+        except:
+            print("No box")
+        return self
+    
     def select_box(self,name):
         """ 
         arguments: 
         name: the name of the box we want to select
         """
         self.activeBox=getattr(self.dicobox,name)
+        return self
+    def select_cylbox(self,name):
+        """ 
+        arguments: 
+        name: the name of the cylbox we want to select
+        """
+        self.activeCylbox=getattr(self.dicocylbox,name)
         return self
 
 

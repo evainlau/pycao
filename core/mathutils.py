@@ -291,6 +291,9 @@ class Point(object):
 def is_vector(self):
     return isinstance(self,MassPoint) and (self[3]==0)
 
+def is_null_vector(self):
+    return is_vector(self) and self[0]==0 and self[1]==0 and self[2]==0
+
 def is_point(self):
     return isinstance(self,MassPoint) and (self[3]==1)
 
@@ -1925,7 +1928,6 @@ def point(x,y,z):
 def orthonormalize(vectorList):
     l=[]
     if vectorList==[]: return []
-    print(vectorList[0])
     l.append(vectorList[0].normalized_clone())
     for i in range(len(vectorList)-1):
         w=vectorList[i+1].clone()
@@ -1948,6 +1950,13 @@ def _to_proportional_coordinate(coord,letter,dim):
         return(coord)
     raise NameError("The letter in prop coord should be in 'anp', not"+str(letter))
 
+def some_vector_orthogonal_to(vec):
+    if is_null_vector(vec): return(X.clone())
+    imin=np.argmin(vec[0:2])
+    v=vector(0,0,0)
+    v[imin]=1
+    listeVec=orthonormalize([vec,v])
+    return listeVec[1]
 
 X=vector(1,0,0)
 # Object In world is modified later, so I need to introduce children by hand

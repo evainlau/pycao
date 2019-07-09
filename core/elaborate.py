@@ -85,7 +85,7 @@ class Elaborate(ElaborateOrCompound):
 
 
 
-class CylBox(Elaborate):
+class Cylbox(Elaborate):
     """
     A mathematical abstraction used to compute in cylindrical coordinates.  It is not represented by a physical object on the 3d view.
     The underlying cylinder carries a start point on the rotation axis, an end point on the rotation axis,
@@ -115,7 +115,7 @@ class CylBox(Elaborate):
         elif is_point(windingStart):
             listVec=orthonormalize([end-start,windingStart-start])
             self.parts.XVector=listVec[1]
-        self.parts.YVector=self.parts.rotaxis.vector.cross(self.parts.XVector)
+        self.parts.YVector=self.parts.rotaxis.vector.cross(self.parts.XVector).normalize()
         #self.markers
         self.markers=Object()
         self.markers.rotaxis=self.parts.rotaxis
@@ -148,11 +148,9 @@ class CylBox(Elaborate):
         return ax.vector.norm
     
     def radius(self):
-        return (self.mapFromParts*self.parts.XVector.cross(self.rotaxis().vector.normalized_clone())).norm
-
-
+        return (self.parts.radius*self.mapFromParts*self.parts.XVector.cross(self.rotaxis().vector.normalized_clone())).norm
     
-    def cpoint(self,r,w,s,frame="pp"):
+    def cylpoint(self,r,w,s,frame="pp"):
         """
         returns the point with radius r, winding number w, height s on the cylinder. 
         The winding number in [0,1[ counts the number of windings around the axis starting from the marked point m on the cylinder, 
@@ -163,16 +161,22 @@ class CylBox(Elaborate):
         a manner similar to boxes. For negative coordinates, the measurment for r is done starting from the limit of the cylinder and walking to the 
         the center, and s is measured starting from the end of the cylinder walking to the origin of the cylinder.
         """
+        print(s,"s juste dans cylpoint")
         codeFrame=list(frame)
         from mathutils import _to_proportional_coordinate
         R=_to_proportional_coordinate(r,codeFrame[0],self.radius())
         S=_to_proportional_coordinate(s,codeFrame[1],self.length())
+        print(r,R,codeFrame[0],self.radius())
         #print(self.parts.XVector,self.parts.YVector,self.parts.rotaxis,"done")
         a=self.parts.XVector.angle_to(self.parts.YVector,self.parts.rotaxis.vector)
         if a>0: sign=+1
         else: sign=-1
+        print(R,"R")
+        #print(s,"s")
+        #print(S,"S")
         localPoint=point(R*math.cos(2*math.pi*w),sign*R*math.sin(2*math.pi*w),S)
-        print(localPoint,"localPoint")
+        #print(localPoint,"localPoint")
+        #print((localPoint-origin).norm,"norm")
         #print(self.mapFromParts)
         #print(self._matrix_from_canonical_position())
         matrix=self._matrix_from_canonical_position()
@@ -273,12 +277,16 @@ class Cylinder(Elaborate):
         self.parts.end=end
         self.parts.radius=radius
         self.parts.open=booleanOpen
+        cb=Cylbox(start,end,radius,some_vector_orthogonal_to(end-start))
+        self.add_cylbox("canonical",cb)
+
         #self.markers
         self.radius=self.parts.radius
         self.markers=Object()
         self.markers.axis=Segment(self.parts.start,self.parts.end)
         self.markers.start=self.parts.start
         self.markers.end=self.parts.end
+        self.markers.markedPoint=self.cylpoint(r=1,w=0,s=0)
         
         M=Map.rotational_difference(self.parts.end-self.parts.start,Z)
         corner1=M*self.parts.start-self.parts.radius*(Y+X)
@@ -308,7 +316,7 @@ class Cylinder(Elaborate):
 
 #    def __copy__(self,*args,**kwargs):
 #        """
-#        This stupid name to avoir an autorecursive deepcopy
+#        This stupid name to avoid an autorecursive deepcopy
 #        """
     def __deepcopy__(self, memo):
         myCopy = Cylinder(start=self.start(),end=self.end(),radius=self.radius,length=None,booleanOpen=self.parts.open)
