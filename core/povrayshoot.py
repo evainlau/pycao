@@ -187,7 +187,7 @@ def object_string_but_CSG(self,camera):
         else:
             openString=""
     if isinstance(self,Cylinder):
-        string+="cylinder{"+povrayVector(self.parts.start)+","+povrayVector(self.parts.end)+","+str(self.parts.radius)+ openString+" "+modifier_string(self,camera)+"}"
+        string+="cylinder{"+povrayVector(self.parts.rotaxis.p1)+","+povrayVector(self.parts.rotaxis.p2)+","+str(self.parts.radius)+ openString+" "+modifier_string(self,camera)+"}"
     if isinstance(self,ICylinder):
         string+="quadric{"+povrayVector(vector(1,1,0))+","+povrayVector(vector(0,0,0))+"," +povrayVector(vector(0,0,0)) + ",-"+str(self.parts.radius**2)+ modifier_string(self,camera)+"}"
     elif isinstance(self,Torus) :

@@ -48,12 +48,12 @@ class BearingSupport(Compound):
         clearance: float. The space between the bearing and the walls
         heightMargin: float. How much the support is higher than the tube on which it is glued
         """
-        height=2*cylinder.radius+heightMargin
-        width=2*bearing.outer.radius+2*clearance
-        bearingSupport=Cube(width,width+2*cylinder.radius,metalThickness)
-        leftWall=Cube(height,width+cylinder.radius,metalThickness)
-        #print(leftWall.segment(.5,None,.5,"ppp"),cylinder.radius)
-        toCut=ICylinder(leftWall.boxline(0.5,0,None,"ppp"),cylinder.radius)
+        height=2*cylinder.radius()+heightMargin
+        width=2*bearing.outer.radius()+2*clearance
+        bearingSupport=Cube(width,width+2*cylinder.radius(),metalThickness)
+        leftWall=Cube(height,width+cylinder.radius(),metalThickness)
+        #print(leftWall.segment(.5,None,.5,"ppp"),cylinder.radius())
+        toCut=ICylinder(leftWall.boxline(0.5,0,None,"ppp"),cylinder.radius())
         leftWall.amputed_by(toCut)
         leftWall.against(bearingSupport,X,X,Y,Y,adjustEdges=Y)
         rightWall=leftWall.clone().move(Map.linear(-X,Y,Z)).against(bearingSupport,X,-X,Y,Y,adjustEdges=Y)
@@ -68,7 +68,7 @@ class BearingSupport(Compound):
         pointOnBearingAxis=frontWall.center-metalThickness*Y-.5*width*Y
         bearingAxis=Segment(pointOnBearingAxis,Z)
         bearing.screw_on(bearingAxis,adjustAlong=[bearing.point(.5,.5,0,"ppp"),bearingSupport.point(0,0,1,"ppp")])
-        toCut=ICylinder(bearingAxis,bearing.inner.radius)
+        toCut=ICylinder(bearingAxis,bearing.inner.radius())
         bearingSupport.amputed_by(toCut)
         Compound.__init__(self,[["support",bearingSupport],["leftWall",leftWall],["rightWall",rightWall],["frontWall",frontWall]])
         self.colored(color)

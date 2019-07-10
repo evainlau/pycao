@@ -58,7 +58,7 @@ camera=Camera()
                 SCENE DESCRIPTION
 """
 
-c=Cylinder.from_point_vector(origin,Y,1.)
+#c=Cylinder.from_point_vector(origin,Y,1.)
 
 plane(Z,origin).colored("Gray")
 cadran=Cylinder(origin,origin+.02*Z+.002*X,.2).colored("Bronze")
