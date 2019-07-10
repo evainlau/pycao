@@ -102,7 +102,7 @@ class Cylbox(Elaborate):
         """
         type(windingStart)=point or Vector, used to indicate the direction where the winding number is zero. 
         """
-        #print(windingStart,"is WindAtart")
+        #print("inCylbox",start,end,radius,windingStart,"is s,e,r,WindAtart")
         if radius is None:
             raise NameError('No default radius for a Cylinder')
         # self.parts
@@ -161,17 +161,17 @@ class Cylbox(Elaborate):
         a manner similar to boxes. For negative coordinates, the measurment for r is done starting from the limit of the cylinder and walking to the 
         the center, and s is measured starting from the end of the cylinder walking to the origin of the cylinder.
         """
-        print(s,"s juste dans cylpoint")
+        #print(s,"s juste dans cylpoint")
         codeFrame=list(frame)
         from mathutils import _to_proportional_coordinate
         R=_to_proportional_coordinate(r,codeFrame[0],self.radius())
         S=_to_proportional_coordinate(s,codeFrame[1],self.length())
-        print(r,R,codeFrame[0],self.radius())
+        #print(r,R,codeFrame[0],self.radius())
         #print(self.parts.XVector,self.parts.YVector,self.parts.rotaxis,"done")
         a=self.parts.XVector.angle_to(self.parts.YVector,self.parts.rotaxis.vector)
         if a>0: sign=+1
         else: sign=-1
-        print(R,"R")
+        #print(R,"R")
         #print(s,"s")
         #print(S,"S")
         localPoint=point(R*math.cos(2*math.pi*w),sign*R*math.sin(2*math.pi*w),S)
@@ -265,7 +265,7 @@ class Cylinder(Elaborate):
         If start is None, self is computed from length and radius : it is a cylinder with axis = Z
         and centered on zero.
         """
-        
+        #print("in Cyl,s,d,r,l,bo",start,end,radius,length)
         if radius is None:
             raise NameError('No default radius for a Cylinder')
         if start is None:
@@ -277,6 +277,8 @@ class Cylinder(Elaborate):
         self.parts.end=end
         self.parts.radius=radius
         self.parts.open=booleanOpen
+        #print("in Cyl2,s,d,r,l,bo",start,end,radius,length)
+        #print("start,end,e-s,some_vector",start,end,end-start,some_vector_orthogonal_to(end-start))
         cb=Cylbox(start,end,radius,some_vector_orthogonal_to(end-start))
         self.add_cylbox("canonical",cb)
 
@@ -286,7 +288,7 @@ class Cylinder(Elaborate):
         self.markers.axis=Segment(self.parts.start,self.parts.end)
         self.markers.start=self.parts.start
         self.markers.end=self.parts.end
-        self.markers.markedPoint=self.cylpoint(r=1,w=0,s=0)
+        self.markers.markedPoint=cb.cylpoint(r=1,w=0,s=0)
         
         M=Map.rotational_difference(self.parts.end-self.parts.start,Z)
         corner1=M*self.parts.start-self.parts.radius*(Y+X)
@@ -318,16 +320,17 @@ class Cylinder(Elaborate):
 #        """
 #        This stupid name to avoid an autorecursive deepcopy
 #        """
-    def __deepcopy__(self, memo):
-        myCopy = Cylinder(start=self.start(),end=self.end(),radius=self.radius,length=None,booleanOpen=self.parts.open)
-        memo[id(self)] = self
-        for key in self.__dict__:
-            toCopy=self.__dict__[key]
-            myCopy.__dict__[key] = copy.deepcopy(toCopy,memo)
-        return myCopy
-    def __copy__(self):
-        memo={}
-        return self.deepcopy(memo)
+
+    # def __deepcopy__(self, memo):
+    #     myCopy = Cylinder(start=self.start(),end=self.end(),radius=self.radius,length=None,booleanOpen=self.parts.open)
+    #     memo[id(self)] = self
+    #     for key in self.__dict__:
+    #         toCopy=self.__dict__[key]
+    #         myCopy.__dict__[key] = copy.deepcopy(toCopy,memo)
+    #     return myCopy
+    # def __copy__(self):
+    #     memo={}
+    #     return self.deepcopy(memo)
     @staticmethod
     def from_point_vector(p,v,r):
         return Cylinder(p,p+v,r)

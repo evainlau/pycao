@@ -163,9 +163,7 @@ class MassPoint(np.ndarray,Primitive):
             #result=
             return vector(np.cross(self[0:3],other[0:3]))
         else:
-            print(self)
-            print(other)
-            raise NameError("Cross product applies only to vectors")
+            raise NameError("Cross product applies only to vectors, self and oter are"+str(self)+str(other))
 
 
                           
@@ -950,8 +948,7 @@ class Circle(Primitive):
         p1, p2 : points in the circle, v: a vector tangent to the circle at p1
         """
         if not is_point(p1):
-            print(p1)
-            raise NameError('p1 not a point')
+            raise NameError('p1 not a point,it is'+str(p1))
         if not is_point(p2):
             raise NameError('p2 not a point')
         if not is_vector(v):
@@ -1952,9 +1949,10 @@ def _to_proportional_coordinate(coord,letter,dim):
 
 def some_vector_orthogonal_to(vec):
     if is_null_vector(vec): return(X.clone())
-    imin=np.argmin(vec[0:2])
+    imin=np.argmin([abs(vec[i]) for i in range(2)])
     v=vector(0,0,0)
     v[imin]=1
+    #print("vec et v",vec,v)
     listeVec=orthonormalize([vec,v])
     return listeVec[1]
 
