@@ -279,22 +279,14 @@ class RearWheel(Compound):
         myCassette=Cassette(cassette)
         hubWidth=hubWidth-myCassette.box().dimensions[1]
         hub=Cylinder(origin-hubWidth/2*Y,origin+hubWidth/2*Y,hubInternalRadius)
-        hub.box().reorder()
         hub.colored(hubColor)
         plaque1=Cylinder(origin,origin+0.0002*Y,hubExternalRadius)
         plaque1.colored(hubColor)
-        plaque1.box().reorder()
-        plaque1.against(hub,Z,Z,X,X)#
-        #plaque1.translate(plaque1.point(0.5,1,0.5)-hub.point(.5,0,.5))
+        plaque1.against(hub,Y,Y,X,X)
         plaque2=plaque1.clone()
-        plaque2.against(hub,-Z,-Z,X,X)
+        plaque2.against(hub,-Y,-Y,X,X)
         self.slaves=[["tyre",tyre],rim,plaque1,plaque2,["hub",hub],["axis",wheelPhysicalAxis]]
-        myCassette.parallel_to(Y)
-        plaque1.box().reorder()
-        plaque1.colored("SpicyPink")
-        myCassette.box().reorder()
-        myCassette.translate(plaque1.point(1,0,0)-myCassette.point(1,0,0))
-        #myCassette.behind(plaque1)
+        myCassette.against(plaque1,Y,Y,X,X)
         self.slaves.append(["cassette",myCassette])
 
         # firstLeftSpoke
