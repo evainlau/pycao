@@ -163,9 +163,7 @@ class MassPoint(np.ndarray,Primitive):
             #result=
             return vector(np.cross(self[0:3],other[0:3]))
         else:
-            print(self)
-            print(other)
-            raise NameError("Cross product applies only to vectors")
+            raise NameError("Cross product applies only to vectors, self and oter are"+str(self)+str(other))
 
 
                           
@@ -208,6 +206,9 @@ class MassPoint(np.ndarray,Primitive):
             raise NameError('norm is applied to a Vector, self is '+str(type(self)))
 
     def angle_to(self,goal,vaxis):
+        """
+        self,goal,axis are vectors. Function used to check if a rotation has positive or negative angle.
+        """
         cosine= np.dot(goal,self)/np.linalg.norm(self)/np.linalg.norm(goal) # -> cosine of the angle
         angle = np.arccos(np.clip(cosine, -1, 1))
         M=Map.linear_rotation(vaxis,angle)
@@ -287,6 +288,9 @@ class Point(object):
     
 def is_vector(self):
     return isinstance(self,MassPoint) and (self[3]==0)
+
+def is_null_vector(self):
+    return is_vector(self) and self[0]==0 and self[1]==0 and self[2]==0
 
 def is_point(self):
     return isinstance(self,MassPoint) and (self[3]==1)
@@ -944,8 +948,7 @@ class Circle(Primitive):
         p1, p2 : points in the circle, v: a vector tangent to the circle at p1
         """
         if not is_point(p1):
-            print(p1)
-            raise NameError('p1 not a point')
+            raise NameError('p1 not a point,it is'+str(p1))
         if not is_point(p2):
             raise NameError('p2 not a point')
         if not is_vector(v):
@@ -1256,8 +1259,10 @@ class FrameBox(Base):
             #print (self[i])
             #max_value = max(self[i])
             selfabs=[math.fabs(self[i][j]) for j in range(4)]
+            for j in perm:
+                selfabs[j]=0 # we don't want to take a direction already chosen
             perm.append(np.argmax(selfabs))
-        #print("permutation",perm)
+            #print("permutation",perm)
         permInverse=[]
         for i in range(3):
             permInverse.append(perm.index(i))
@@ -1917,6 +1922,39 @@ def vector(*args):
 def point(x,y,z):
     return (MassPoint(x,y,z,1))
 
+def orthonormalize(vectorList):
+    l=[]
+    if vectorList==[]: return []
+    l.append(vectorList[0].normalized_clone())
+    for i in range(len(vectorList)-1):
+        w=vectorList[i+1].clone()
+        for vec in l:
+            w-=(w.dot(vec))*vec
+        l.append(w.normalize())
+    return(l)
+
+
+def _to_proportional_coordinate(coord,letter,dim):
+    """
+    cast a coordinate given in any form (absolute, negative or proporitional) to a coordinate
+    in the proportional frame
+    """
+    if letter=="n":
+        return((dim-coord)/dim)
+    if letter=="a":
+        return (coord/dim)
+    if letter=="p":
+        return(coord)
+    raise NameError("The letter in prop coord should be in 'anp', not"+str(letter))
+
+def some_vector_orthogonal_to(vec):
+    if is_null_vector(vec): return(X.clone())
+    imin=np.argmin([abs(vec[i]) for i in range(2)])
+    v=vector(0,0,0)
+    v[imin]=1
+    #print("vec et v",vec,v)
+    listeVec=orthonormalize([vec,v])
+    return listeVec[1]
 
 X=vector(1,0,0)
 # Object In world is modified later, so I need to introduce children by hand

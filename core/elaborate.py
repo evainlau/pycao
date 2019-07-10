@@ -85,7 +85,7 @@ class Elaborate(ElaborateOrCompound):
 
 
 
-class CylBox(Elaborate):
+class Cylbox(Elaborate):
     """
     A mathematical abstraction used to compute in cylindrical coordinates.  It is not represented by a physical object on the 3d view.
     The underlying cylinder carries a start point on the rotation axis, an end point on the rotation axis,
@@ -98,37 +98,98 @@ class CylBox(Elaborate):
     cylbox.point(r,w,t): the point with p with coordinates r,w,t, ie. cylbox.r(p)=r,cylbox.w(p)=w,cylbox.t(p)=t 
     """
 
-    def __init__(self,start=None,end=None,radius=None,length=None):
+    def __init__(self,start,end,radius=None,windingStart=None):
         """
-        If start is not None, self is computed from start,end,radius.
-        If start is None, self is computed from length and radius : it is a cylinder with axis = Z
-        and centered on zero.
+        type(windingStart)=point or Vector, used to indicate the direction where the winding number is zero. 
         """
-        
+        #print("inCylbox",start,end,radius,windingStart,"is s,e,r,WindAtart")
         if radius is None:
             raise NameError('No default radius for a Cylinder')
-        if start is None:
-            start=point(0,0,-length/2)
-            end=point(0,0,length/2)
+        if windingStart is None:
+            windingStart=some_vector_orthogonal_to(end-start)
         # self.parts
-        self.parts=Object()
-        self.parts.start=start
-        self.parts.end=end
+        if not hasattr(self,"parts"):#exists already for a cylinder
+            self.parts=Object()
+        self.parts.rotaxis=Segment(start,end)
         self.parts.radius=radius
+        if is_vector(windingStart):
+            self.parts.XVector=windingStart.normalized_clone()
+            #print(self.parts.XVector,"isXVECTOR")
+        elif is_point(windingStart):
+            listVec=orthonormalize([end-start,windingStart-start])
+            self.parts.XVector=listVec[1]
+        self.parts.YVector=self.parts.rotaxis.vector.cross(self.parts.XVector).normalize()
+        self.add_axis("rotationAxis",self.parts.rotaxis)
         #self.markers
-        self.radius=self.parts.radius
         self.markers=Object()
-        self.markers.axis=Segment(self.parts.start,self.parts.end)
-        self.markers.start=self.parts.start
-        self.markers.end=self.parts.end
-        M=Map.rotational_difference(self.parts.end-self.parts.start,Z)
-        corner1=M*self.parts.start-self.parts.radius*M*(Y+X)
-        corner2=M*self.parts.end+self.parts.radius*M*(Y+X)
-        self.markers.box=FrameBox(listOfPoints=[corner1,corner2]).move(M.inverse())
+        self.markers.start=self.parts.rotaxis.p1
+        self.markers.end=self.parts.rotaxis.p2
+        self.markers.markedPoint=start+radius*self.parts.XVector
         self.markers_as_functions()
 
+    def _matrix_from_canonical_position_to_init(self):
+        """
+        returns M such that M(cylBox)=self at the init time, where cylBox is the cylBox with start=origin, end=origin+Z,radius=1,windingStart=X
+        """
+        M=Map.affine(self.parts.radius*self.parts.XVector,self.parts.radius*self.parts.YVector,self.parts.rotaxis.vector,self.parts.rotaxis.p1-origin)
+        return M
 
+    def _matrix_from_canonical_position(self):
+        """
+        returns M such that M(cylBox)=self, where cylBox is the cylBox with start=origin, end=origin+Z,radius=1,windingStart=X
+        """
+        return self.mapFromParts*self._matrix_from_canonical_position_to_init()
+    
+    
+    def _matrix_to_other_cyl(self,cyl2):
+        """
+        Returns the matrix M such that self.move(M)=cyl2
+        """
+        return cyl2._matrix_from_canonical_position()*self._matrix_from_canonical_position().inverse()
 
+    def length(self):
+        ax=self.rotaxis()
+        return ax.vector.norm
+    
+    def radius(self):
+        Xvec=self.mapFromParts*self.parts.XVector
+        axisVectorNormalized=self.axis("rotationAxis").vector.normalized_clone()
+        dilatation=Xvec.cross(axisVectorNormalized).norm
+        return self.parts.radius*dilatation
+    
+    def cylpoint(self,r,w,s,frame="pp"):
+        """
+        returns the point with radius r, winding number w, height s on the cylinder. 
+        The winding number in [0,1[ counts the number of windings around the axis starting from the marked point m on the cylinder, 
+        ie. w=0 means the point is on the half plane defined by the rotation axis and the marked point. 
+        The convention for the orientation is that w is close to 0 for a small positive rotation of the marked point, and close to 1 for a 
+        small negative rotation of the marked point. 
+        The numbers r,s can be interpreted in absolute, negative or proportional coordinates in 
+        a manner similar to boxes. For negative coordinates, the measurment for r is done starting from the limit of the cylinder and walking to the 
+        the center, and s is measured starting from the end of the cylinder walking to the origin of the cylinder.
+        """
+        #print(s,"s juste dans cylpoint")
+        codeFrame=list(frame)
+        from mathutils import _to_proportional_coordinate
+        R=_to_proportional_coordinate(r,codeFrame[0],self.radius())
+        S=_to_proportional_coordinate(s,codeFrame[1],self.length())
+        #print(r,R,codeFrame[0],self.radius())
+        #print(self.parts.XVector,self.parts.YVector,self.parts.rotaxis,"done")
+        a=self.parts.XVector.angle_to(self.parts.YVector,self.parts.rotaxis.vector)
+        if a>0: sign=+1
+        else: sign=-1
+        #print(R,"R")
+        #print(s,"s")
+        #print(S,"S")
+        localPoint=point(R*math.cos(2*math.pi*w),sign*R*math.sin(2*math.pi*w),S)
+        #print(localPoint,"localPoint")
+        #print((localPoint-origin).norm,"norm")
+        #print(self.mapFromParts)
+        #print(self._matrix_from_canonical_position())
+        matrix=self._matrix_from_canonical_position()
+        return matrix*localPoint
+
+    
 class TBox(Elaborate):
     def __init__(self,iradius,eradius,rotationAxis=None,vecNormal=None):
         self.parts.iradius=float(iradius)
@@ -193,7 +254,7 @@ class Prism(Elaborate):
 
 
     
-class Cylinder(Elaborate):
+class Cylinder(Cylbox,Elaborate):
     """
     Class for bounded cylinders
 
@@ -205,13 +266,13 @@ class Cylinder(Elaborate):
 
     
     """
-    def __init__(self,start=None,end=None,radius=None,length=None,booleanOpen=False):
+    def __init__(self,start=None,end=None,radius=None,length=None,booleanOpen=False,windingStart=None):
         """
         If start is not None, self is computed from start,end,radius.
         If start is None, self is computed from length and radius : it is a cylinder with axis = Z
         and centered on zero.
         """
-        
+        # preparing
         if radius is None:
             raise NameError('No default radius for a Cylinder')
         if start is None:
@@ -219,51 +280,41 @@ class Cylinder(Elaborate):
             end=point(0,0,length/2)
         # self.parts
         self.parts=Object()
-        self.parts.start=start
-        self.parts.end=end
-        self.parts.radius=radius
         self.parts.open=booleanOpen
-        #self.markers
-        self.radius=self.parts.radius
-        self.markers=Object()
-        self.markers.axis=Segment(self.parts.start,self.parts.end)
-        self.markers.start=self.parts.start
-        self.markers.end=self.parts.end
-        """
-        M=Map.rotational_difference(self.parts.end-self.parts.start,Z)
-        #print(M)
-        corner1=M*self.parts.start-self.parts.radius*(Y+X)
-        corner2=M*self.parts.end+self.parts.radius*(Y+X)
-        self.markers.box=FrameBox(listOfPoints=[corner1,corner2]).move(M.inverse())
-        self.markers_as_functions()
-        """
-        M=Map.rotational_difference(Z,self.parts.end-self.parts.start)
-        corner1=self.parts.start-self.parts.radius*M*(Y+X)
-        corner2=self.parts.end+self.parts.radius*M*(Y+X)
-        self.markers.box=FrameBox(listOfPoints=[corner1,corner2])
-        self.markers_as_functions()
-        
-    @property
+        # inheritance
+        Cylbox.__init__(self,start,end,radius,windingStart)
+        self.add_cylbox("canonical",self)
+        self.cylpoint=self.activeCylbox.cylpoint #in case we add an other cylbox
+        #sAdding a perp box (probably should be constructed better with the marked point)
+        M=Map.rotational_difference(end-start,Z)
+        corner1=M*start-radius*(Y+X)
+        corner2=M*end+radius*(Y+X)
+        box=FrameBox(listOfPoints=[corner1,corner2])
+        box.move(M.inverse())
+        box.reorder()
+        self.add_box("initialBox",box)
+
     def length(self):
-        return (self.mapFromParts*(self.parts.end-self.parts.start)).norm
+        return (self.end()-self.start()).norm
  
     def __str__(self):
         return ("Cylinder with extremal points "+str(self.start())+" and "+str(self.end()))
 
 #    def __copy__(self,*args,**kwargs):
 #        """
-#        This stupid name to avoir an autorecursive deepcopy
+#        This stupid name to avoid an autorecursive deepcopy
 #        """
-    def __deepcopy__(self, memo):
-        myCopy = Cylinder(start=self.start(),end=self.end(),radius=self.radius,length=None,booleanOpen=self.parts.open)
-        memo[id(self)] = self
-        for key in self.__dict__:
-            toCopy=self.__dict__[key]
-            myCopy.__dict__[key] = copy.deepcopy(toCopy,memo)
-        return myCopy
-    def __copy__(self):
-        memo={}
-        return self.deepcopy(memo)
+
+    # def __deepcopy__(self, memo):
+    #     myCopy = Cylinder(start=self.start(),end=self.end(),radius=self.radius,length=None,booleanOpen=self.parts.open)
+    #     memo[id(self)] = self
+    #     for key in self.__dict__:
+    #         toCopy=self.__dict__[key]
+    #         myCopy.__dict__[key] = copy.deepcopy(toCopy,memo)
+    #     return myCopy
+    # def __copy__(self):
+    #     memo={}
+    #     return self.deepcopy(memo)
     @staticmethod
     def from_point_vector(p,v,r):
         return Cylinder(p,p+v,r)
@@ -341,18 +392,20 @@ class Washer(Cylinder):
     Constructor
     Washer(start,end,eradius,iradius)
     """
-    def __new__(cls,start,end,eradius,iradius):
-        eCylinder=Cylinder.__new__(cls,start,end,eradius)
-        Cylinder.__init__(eCylinder,start,end,eradius)
+
+    def __init__(self,start,end,eradius,iradius):
+        super().__init__(start,end,eradius)
+        Cylinder.__init__(self,start,end,eradius)
         iCylinder=Cylinder(start,end,iradius)
         longCylinder=ICylinder(Segment(start,end),iradius)
-        #longCylinder.color=copy.copy(eCylinder.color)
-        eCylinder.amputed_by(longCylinder)
-        eCylinder.externalRadius=eCylinder.radius
-        eCylinder.internalRadius=iCylinder.radius
-        eCylinder.internalBox=iCylinder.box()
-        eCylinder.markers_as_functions()
-        return eCylinder
+        #longCylinder.color=copy.copy(self.color)
+        self.amputed_by(longCylinder)
+        self.externalRadius=self.radius
+        self.internalRadius=iCylinder.radius
+        self.internalBox=iCylinder.box()
+        #return self
+
+
 
     def __str__(self):
         return ("Washer with radius "+str(self.parts.radius)+" and "+str(self.internalRadius) + " and axis "+str(self.axis()))
