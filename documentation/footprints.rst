@@ -325,7 +325,6 @@ So that the instructions are geomoetric if you look an object at
 position P from the position P-c*Y, with c>0. 
 
 
-.. image:: watch.png
 
 Cylboxes (aka cylindrical boxes)
 =======================================
@@ -346,7 +345,7 @@ the other hand, is always absolute.
 
 If an object c carries a cylbox, the instruction
 
-..code-block:: python
+.. code-block:: python
 
     c.cylpoint(r,w,s)
     c.cylpoint(r,w,s,"xy") # x,y in "anp"
@@ -354,10 +353,14 @@ If an object c carries a cylbox, the instruction
 will make sense and denote a point. A cylinder carries a cylbox by
 default (which is itself) at the time of construction. 
 
+.. image:: watch.png
+
+
+
 Let's use these coordinates to build the above watch. 
 
 
-..code-block:: python
+.. code-block:: python
 
 
     plane(Z,origin).colored("Gray")
