@@ -57,19 +57,19 @@ def gVector(start,end,cylinderRadius,arrowPercentage,arrowRadius,color):
     endCylinder=(1-arrowPercentage)*start+arrowPercentage*end
     basket=ObjectInWorld()
     cyl=Cylinder(start,endCylinder,cylinderRadius)
-    cyl.color=color
+    cyl.colored(color)
     cone=Cone(endCylinder,end,arrowRadius,0)
-    cone.color=color
+    cone.colored(color)
     #print(cone)
     cone.glued_on(basket)
     cyl.glued_on(basket)
     return basket
 
-yp=Sphere(yellowPoint,0.1)
+yp=Sphere(yellowPoint,0.1).colored("Yellow")
 op=Sphere(orangePoint,0.1)
-op.color="Orange"
+op.colored("Orange")
 rp=Sphere(redPoint,0.1)
-rp.color="Red"
+rp.colored("Red")
 bv=gVector(yellowPoint,orangePoint-.1*X,0.05,0.8,0.15,"Blue")
 gv=gVector(orangePoint,redPoint-.1*X,0.05,0.8,0.15,"Green")
 
@@ -78,6 +78,7 @@ light=Light() # a light
 light.location=(origin+6.8*Z-2*X+Y)
 
 camera=Camera()
+camera.zoom(.3)
 directory=os.path.dirname(os.path.realpath(__file__))
 base=os.path.basename(__file__)
 camera.file=directory+"/docPictures/"+os.path.splitext(base)[0]+".pov"

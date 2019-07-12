@@ -75,11 +75,12 @@ yellowDrawer=Cube(.4,.25,.15).colored("Yellow")
 yellowDrawer.add_hook("aboveCenter",yellowDrawer.center+.025*Z)
 yellowDrawer.add_hook("behindCenter",yellowDrawer.center+.031*Y)
 yellowDrawer.hooked_on(greenBox)
-greenBox.amputed_by(yellowDrawer,throwShapeAway=False)
+greenBox.amputed_by(yellowDrawer,takeCopy=True,throwShapeAway=False)
 toCut=Cube(.35,.2,.15)
 yellowDrawer.add_hook("back",yellowDrawer.point(.5,1,.5))
 greenBox.add_hook("front",greenBox.point(.5,0,.5))                      
-toCut.add_hook("center",toCut.center).hooked_on(yellowDrawer).colored("Pink")
+toCut.add_hook("center",toCut.center).hooked_on(yellowDrawer)
+toCut.colored("Pink")
 yellowDrawer.select_hook("aboveCenter")
 toCut.hooked_on(yellowDrawer)
 yellowDrawer.amputed_by(toCut)
@@ -96,17 +97,19 @@ if 1>0:
     camera.file="docPictures/drawerClosed.pov"
     camera.shoot
     camera.pov_to_png
+    #camera.show
     yellowDrawer.self_translate(-.1) # moves by -.1*v=-.1*Y
     camera.file="docPictures/drawerOpen.pov"
     camera.shoot
     camera.pov_to_png
+    #camera.show
     yellowDrawer.select_hook("back") # A point in the back of the drawer
     greenBox.select_hook("front") # A point in the front of the greenBox
     yellowDrawer.self_gtranslate(greenBox)
     camera.file="docPictures/drawerFullOpen.pov"
     camera.shoot
     camera.pov_to_png
-    
+    #camera.show
 #################################################
 #  Now, what you see
 #################################################
