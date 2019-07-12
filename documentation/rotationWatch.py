@@ -88,7 +88,9 @@ camera.hooked_on(origin-.6*Y+1*Z)  # the positive y are in front of us because t
 camera.lookAt=origin # look at the center of cyl
 camera.actors=[ground,clock,top,smallWatchHand,longWatchHand,blueSphere,pinkSphere] # what is seen by the camera
 #camera.actors=[longWatchHand]
-camera.file="pycaoOutput.pov" # A name for the povray file that will be generated. Must end with .pov
+directory=os.path.dirname(os.path.realpath(__file__))
+base=os.path.basename(__file__)[0]
+camera.file=directory+"/docPictures/"+os.path.splitext(base)[0]+".pov"
 camera.povraypath=pycaoDir+"images/" # where you put your images,photos for the textures
 camera.zoom(1.5)
 camera.imageHeight=800 # in pixels
@@ -99,23 +101,23 @@ light=Light().hooked_on(camera.hook()+3*X) # a light located close to the camera
 camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
 
 if 1>0:
-    camera.file="rotationInitial.pov"
+    camera.file=directory+"/docPictures/"+"rotationInitial.pov"
     camera.shoot
-    camera.show
+    camera.pov_to_png
     smallWatchHand.parallel_to(longWatchHand,fixed=smallWatchHand.hook())
-    camera.file="rotationParallel1.pov"
+    camera.file=directory+"/docPictures/"+"rotationParallel1.pov"
     camera.shoot
-    camera.show
+    camera.pov_to_png
     longWatchHand.parallel_to(blueSphere.center-pinkSphere.center,fixed=longWatchHand.hook())
-    camera.file="rotationParallel2.pov"
+    camera.file=directory+"/docPictures/"+"rotationParallel2.pov"
     camera.shoot
-    camera.show
+    camera.pov_to_png
     smallWatchHand.select_axis("axisOfRotation")
     smallWatchHand.select_hook("end")
     smallWatchHand.self_grotate(blueSphere.center)
-    camera.file="rotationGrotate.pov"
+    camera.file=directory+"/docPictures/"+"rotationGrotate.pov"
     camera.shoot
-    camera.show
+    camera.pov_to_png
 #################################################
 #  Now, what you see
 #################################################

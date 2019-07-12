@@ -71,6 +71,8 @@ class Camera(Primitive):
         self.silent=True # to display or not a lot of information when self.show is called
         self.defaultDistance=3 # The distance from the point looked at in left/right... views of the viewer
         camerasInScene.append(self)
+#    def png_file(self):
+#        return os.path.splitext(self.file)[0]+".png"
     def move_alone(self,M):
         self.location=M*self.location
     @property
@@ -97,8 +99,10 @@ class Camera(Primitive):
             else:
                 subprocess.call([command,options,self.file])
             return self
+    @property
     def pov_to_png(self):
         #same as show for string computation except always -D
+        #print("techno",self.technology)
         if self.technology=="povray":
             command="povray"
             options=""
@@ -109,6 +113,7 @@ class Camera(Primitive):
             options+="Library_Path="+self.povraypath+" "
             if self.silent:
                 options+="-GD -GF -GR -GS -GW -GA "
+            print(command,options,"comM+op")
             subprocess.call([command,options,self.file])
             return self
     @property

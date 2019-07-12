@@ -116,7 +116,7 @@ class ViewerWindow(Gtk.Window):
             (root,ext)=os.path.splitext(camera.file)
             camera.imageFile=root+".png"            
         self.camera=camera
-        self.camera.pov_to_png()
+        self.camera.pov_to_png
         self.image = Gtk.Image()
         self.image.set_from_file(camera.imageFile)
 

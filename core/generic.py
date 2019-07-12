@@ -479,12 +479,13 @@ class ObjectInWorld(object):
         if not hasattr(self,"dicocylbox"):
             dicocylbox=Object() # The pair k,v with k a string and v a callable returning a cylbox
             setattr(self,"dicocylbox",dicocylbox)
-        self.activeCylbox=cylbox.clone()
+        self.activeCylbox=cylbox
         #print("cii")
         #raise NameError(str(isinstance(self.activeCbox,ObjectInWorld)))
         #raise NameError(str(type(self.activeCbox)))
         #print(self.activeCbox.__dict__)
-        self.activeCylbox.glued_on(self)
+        if self.activeCylbox is not self: # for some cylinders which is its own frame for instance
+            self.activeCylbox.glued_on(self)
         setattr(self.dicocylbox,name,self.activeCylbox)
         return self
 

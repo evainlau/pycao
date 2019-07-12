@@ -32,6 +32,7 @@ import material
 
 def name_comment_string(self):
     try:
+        #print("les suspects","\n//name: ",str(self.name),"\n")
         string="\n//name: "+self.name+"\n"
     except AttributeError:
         string="\n//Unnamed Object\n"

@@ -40,4 +40,4 @@ if you prefer.
     # to decrease intensity with distance, ditance parameter is where half of the intensity is achieved. Then decreases fast with a high power
     l.fade(distance=5,power=4)
 
-.. image:: ./lights.png
+.. image:: ./docPictures/lightsDoc.png

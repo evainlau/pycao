@@ -232,7 +232,7 @@ class Prism(Elaborate):
         self.height1=self.curve1[0][1]
         self.height2=self.height1+height
         self.povrayNumberOfPoints=len(curve)
-        return self
+
         
     @classmethod
     def from_polyline_vector(cls,polyline,vector):
@@ -273,6 +273,7 @@ class Cylinder(Cylbox,Elaborate):
         and centered on zero.
         """
         # preparing
+        #print(groupPhoto,"groupPhoto")
         if radius is None:
             raise NameError('No default radius for a Cylinder')
         if start is None:
@@ -293,7 +294,8 @@ class Cylinder(Cylbox,Elaborate):
         box.move(M.inverse())
         box.reorder()
         self.add_box("initialBox",box)
-
+        #print(groupPhoto,"fin init")
+        
     def length(self):
         return (self.end()-self.start()).norm
  

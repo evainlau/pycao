@@ -218,6 +218,9 @@ camera.imageHeight=800 # in pixels
 camera.imageWidth=1200
 
 camera.file="maisonLau.pov"
+directory=os.path.dirname(os.path.realpath(__file__))
+base=os.path.basename(__file__)
+camera.file=directory+"/docPictures/"+os.path.splitext(base)[0]+".pov"
 #camera.location=origin+1.6*X+1.5*Y+1.62*Z
 camera.location=entrance-3.6*X+1.8*Y-.3*Z
 #camera.location=entrance-3.9*X-10*Y-.3*Z
@@ -234,6 +237,6 @@ camera.quality=11
 camera.povraypath=pycaoDir+"../images/" # where you put your images,photos for the textures
 #print("a la fin",room.floor.texture.smallString)
 camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
-camera.show # show the photo, ie calls povray. 
+camera.pov_to_png # show the photo, ie calls povray. 
 #print (globVars.TextureString)
 #print(room.texture.smallString)

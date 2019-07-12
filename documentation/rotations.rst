@@ -1,6 +1,6 @@
-============
+====================
 Rotating objects
-============
+====================
 Syntax
 --------
 As for translations, the rotations use implicitly the data
@@ -53,11 +53,11 @@ adequate hooks and axis.
     camera.shoot
     camera.show
 
-.. image::    ./rotationInitial.png
+.. image::  ./docPictures/rotationInitial.png
 
-.. image::  ./rotationParallel1.png
+.. image::  ./docPictures/rotationParallel1.png
 
-.. image::  ./rotationParallel2.png
+.. image::  ./docPictures/rotationParallel2.png
 
-.. image::  ./rotationGrotate.png
+.. image::  ./docPictures/rotationGrotate.png
 		

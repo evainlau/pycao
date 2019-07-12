@@ -60,7 +60,7 @@ The simplest way to control the aspect of an object is to define a
 pignment, normal and finish, a texture from them, and to apply on
 our object. 
    
-.. image:: ./material1.png
+.. image:: ./docPictures/material1.png
 
 .. code-block:: python 
 
@@ -86,7 +86,7 @@ material.  And we can add a material to a previously
 defined texture. It is also possible to change the object directly. Here is an example
 and the code to expand our scene. 
 
-.. image:: ./material2.png
+.. image:: ./docPictures/material2.png
 
 .. code-block:: python 
 
@@ -117,7 +117,7 @@ On the image, we see how to create a texture
 from a photo in the x,y plane. Some cubes share the same texture and some don't.
 
 
-.. image:: ./material3.png
+.. image:: ./docPictures/material3.png
 
 .. code-block:: python
 
@@ -141,7 +141,7 @@ Some constructs
 -------------------
 
 
-.. image:: ./material4.png
+.. image:: ./docPictures/material4.png
 
 .. code-block:: python
 

@@ -1,7 +1,7 @@
 
 
-pycaoDir="/home/laurent/subversion/articlesEtRechercheEnCours/pycao/pycaogit/core/"
-#pycaoDir="/users/evain/subversion/articlesEtRechercheEnCours/pycao/pycaogit/core/"
+#pycaoDir="/home/laurent/subversion/articlesEtRechercheEnCours/pycao/pycaogit/core/"
+pycaoDir="/users/evain/subversion/articlesEtRechercheEnCours/pycao/pycaogit/core/"
 
 
 """
@@ -302,7 +302,10 @@ if 1>0:
    #body.bones.rightHand.visibility=0
    #print ((bs2.support.center-bs4.support.center).norm)
    camera=Camera()
-   camera.file="bike.pov"
+   camera.file="/docPictures/bike.pov"
+   directory=os.path.dirname(os.path.realpath(__file__))
+   base=os.path.basename(__file__)
+   camera.file=directory+"/../docPictures/"+os.path.splitext(base)[0]+".pov"
    camera.filmAllActors=False
    #camera.projection="orthographic"
    #camera.filmAllActors=True
@@ -330,7 +333,7 @@ if 1>0:
    camera.shoot
    #print(seat.center)
    camera.silent=False
-   camera.show
+   camera.pov_to_png
    #ViewerWindow(camera)
 
 

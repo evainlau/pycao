@@ -135,7 +135,7 @@ will be inside the box .5 units from the face with minimal x,
 the two planes with constant z. 
 
 
-.. image:: ./boxDrawer.png
+.. image:: ./docPictures/boxDrawer.png
 
 To illustrate these notations, we draw a little
 drawer. 
@@ -170,7 +170,7 @@ Here is an example,
 where we draw infinite cylinders along the lines and an orange plane
 in coordinates relative to the box of the cube. 
 
-.. image:: ./footprintsLinesAndPlane.png
+.. image:: ./docPictures/footPrintsLinesAndPlane.png
 
 The instructions are:
 
@@ -269,7 +269,7 @@ side facing the negative coordinates is lighter than the facet
 which faces the positive coordinates) 
 
 
-.. image:: ./boxShow.png
+.. image:: ./docPictures/box.png
 
 
 .. code-block:: python
@@ -290,7 +290,7 @@ Stacking boxes
 Sometimes, we want to stack objects, which mean the we stack their
 implicit box. For instance, to put a cube above a cylinder, proceed as follows
 
-.. image:: ./cubeOverCyl.png
+.. image:: ./docPictures/footprintCubeOverCyl.png
 
 .. code-block:: python
 
@@ -353,7 +353,7 @@ If an object c carries a cylbox, the instruction
 will make sense and denote a point. A cylinder carries a cylbox by
 default (which is itself) at the time of construction. 
 
-.. image:: watch.png
+.. image:: docPictures/watch.png
 
 
 
@@ -412,7 +412,7 @@ Let's use these coordinates to build the above watch.
 
    As an example, we consider the following scene. 
 
-   .. image:: ./table.png
+   .. image:: ./docPictures/table.png
 
    .. code-block:: table
 
@@ -468,7 +468,7 @@ Let's use these coordinates to build the above watch.
       camera.lookAt=topCenterOfTable
       camera.actors=[ground,wall1,wall2,tableTray]
       camera.shoot
-      camera.show
+      camera.pov_to_png
 
     
 ..
@@ -520,7 +520,7 @@ Let's use these coordinates to build the above watch.
    YellowCube is indeed a face of contact. And the two X axis (Red) are
    positivly parallel. 
 
-   .. image:: ./boxPlacementBasic.png
+   .. image:: ./docPictures/boxPlacementBasic.png
 
    ..
       .. code-block:: python
@@ -549,7 +549,7 @@ Let's use these coordinates to build the above watch.
 	 camera.actors=[ground,brownCube,yellowCube,xaxis,yaxis,zaxis,xaxisg,yaxisg,zaxisg] # what is seen by the camera   camera.lookAt=.5*(basket2+basket)
 	 camera.zoom(.2512)
 	 camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
-	 camera.show # show the photo, ie calls povray. 
+	 camera.pov_to_png # show the photo, ie calls povray. 
 
 
    Suppose that we want to move the yellow cube to the left till the
@@ -557,7 +557,7 @@ Let's use these coordinates to build the above watch.
    opposite to the red, ie. -X.  Thus we add the option
    ajustedges=-X ie we put    yellowCube.against(brownCube,-Z,Y,X,X,adjustEdges=-X)
 
-   .. image:: ./boxPlacementEdge.png
+   .. image:: ./docPictures/boxPlacementEdge.png
 
    ..
       .. code-block:: python
@@ -586,14 +586,14 @@ Let's use these coordinates to build the above watch.
 	 camera.actors=[ground,brownCube,yellowCube,xaxis,yaxis,zaxis,xaxisg,yaxisg,zaxisg] # what is seen by the camera   camera.lookAt=.5*(basket2+basket)
 	 camera.zoom(.2512)
 	 camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
-	 camera.show # show the photo, ie calls povray. 
+	 camera.pov_to_png # show the photo, ie calls povray. 
 
    With yellowCube.against(brownCube,-Z,Y,X,X,adjustEdges=X+Y), the
    yellow Cube goes to the upper right. With,
    yellowCube.against(brownCube,-Z,Y,X,X,adjustEdges=0.8*(X+Y), it
    nearly goes to the upper right, as shown-below. 
 
-   .. image:: ./boxPlacementCorner.png
+   .. image:: ./docPictures/boxPlacementCorner.png
 
    ..
       .. code-block:: python
@@ -633,7 +633,7 @@ Let's use these coordinates to build the above watch.
    Cube. For instance, we may put
    yellowCube.against(brownCube,-Z,Y,X,X,adjustEdges=.8*(X+Y),offset=-0.7*Y)
 
-   .. image:: ./boxOffset.png
+   .. image:: ./docPictures/boxOffset.png
 
    ..
       .. code-block:: python
@@ -671,7 +671,7 @@ Let's use these coordinates to build the above watch.
    illustrate, this notion we make the corners of YellowCube and
    BrownCube coincide. 
 
-   .. image:: ./boxAdjustAxis.png
+   .. image:: ./docPictures/boxAdjustAxis.png
 
    .. code-block:: python
 

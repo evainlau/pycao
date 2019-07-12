@@ -110,6 +110,9 @@ actor=cabinet
 
 
 camera=Camera()
+directory=os.path.dirname(os.path.realpath(__file__))
+base=os.path.basename(__file__)
+camera.file=directory+"/docPictures/"+os.path.splitext(base)[0]+".pov"
 camera.projection="perspective"
 camera.filmAllActors=False
 camera.location=origin-0.8*X-1.*Y+1*Z
@@ -124,5 +127,5 @@ camera.zoom(.85)
 camera.quality=11
 camera.povraypath=pycaoDir+"/../images/"
 camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
-camera.show # show the photo, ie calls povray. 
+camera.pov_to_png # show the photo, ie calls povray. 
 
