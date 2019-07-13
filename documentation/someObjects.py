@@ -41,7 +41,7 @@ from lights import *
 
 # a plane represented graphically as a half space 
 
-if 1>0:  
+if 1>0:  #bbloc1
    grayGround=plane(Z,origin).colored('Gray' ) # a plane with normal the vector Z=vector(0,0,1) containing the origin
    # The possible colors are the colors described in colors.inc in povray. 
 
@@ -90,10 +90,9 @@ if 1>0:
    HunterGreenRuledSurface=RuledSurface(curve7,curve4).colored("HuntersGreen").translate(-3.2*Y+3*X)
 
    violetCone=Cone(origin,origin+2*Z,.6,2 ).colored("Violet").translate(-4.5*X-4*Y)# arguments: start,end,radius1,radius2
-
+   #ebloc1
    
    camera=Camera()
-   camera.file="someObjects.pov"
    directory=os.path.dirname(os.path.realpath(__file__))
    base=os.path.basename(__file__)
    camera.file=directory+"/docPictures/"+os.path.splitext(base)[0]+".pov"

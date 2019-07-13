@@ -36,7 +36,7 @@ class ViewerWindow(Gtk.Window):
         string=povrayshoot.camera_string(self.camera)
         with open(self.camera.file, "a") as myfile:
             myfile.write(string)
-        self.camera.pov_to_png()
+        self.camera.pov_to_png
         self.image.set_from_file(self.camera.imageFile)
         self.show_camera_info()
     def zoom_image(self,widget,zoomFactor):

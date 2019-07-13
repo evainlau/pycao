@@ -24,8 +24,8 @@ absList2=[path+"/"+File for File in baseList2]
 #for f in absList2: print(f)
 
 if len(sys.argv)==1:
-    print("parametre requis pour le scrpt. valeurs possibles: small or large")
-elif sys.argv[1]=="large":    
+    print("parametre requis pour le scrpt. valeurs possibles: html,python")
+elif "python" in sys.argv:    
     for myfile in absList1:
         os.system("python3 "+myfile)
         #__import__(base) # does not work for some unknoww reason
@@ -34,7 +34,19 @@ elif sys.argv[1]=="large":
         os.system("python3 "+myfile)
         #__import__(myfile)
         
-if len(sys.argv)>1:
-    commande="cd /users/evain/subversion/sitesWeb/pro/; make html"
+if "html" in sys.argv:
+    commande="cd "+str(thisFileAbsDir)+"; sphinx-build -b html . html"
     print(commande)
     os.system(commande)
+"""
+TODO
+- renommer les fichiers 
+- enlever tous les code-blocks et les remplacer par des include litteral, avec begin-after et end-before
+- retravailler someObjects.py pour pouvoir mettre allActors=True
+- verifier que tout est bon pour la compil des pythons a la fac comme ici
+- ajouter des fichiers pour le meuble et maison et ainsi supprimer les binaires inutiles
+- mettre des options au sphinx-buiild : a pout tout recompiler, py pour recalculer les pythons. 
+   sortie sur master si branch=master, sur latest=si branch non master
+- dire sur la doc qu'on peut compiler en local sa machine sur un repertoire au moment du changement de branche
+- supprimer les vieux liens 
+"""

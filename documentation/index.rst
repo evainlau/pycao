@@ -18,7 +18,7 @@ your needs
 .. toctree::
    :maxdepth: 2
 
-   discover
+   presentation
 
 Then, there is a tutorial.
 
@@ -26,21 +26,21 @@ Then, there is a tutorial.
 .. toctree::
    :maxdepth: 2
    
-   firstFile
-   pointsAndVectors
+   install
+   basicNotations
    someObjects
-   position
+   translations
    rotations
    maths
-   parentChildren
-   csgVisibility
-   footprints
+   genealogyOrCompounds
+   csg
+   markers
    curves
-   skeleton
+   skeletons
    cameras
    lights
    material
-   convention
+   conventions
    beyond
 
    
@@ -58,4 +58,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
