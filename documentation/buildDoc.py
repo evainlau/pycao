@@ -3,48 +3,35 @@
 # avec option=small pour faire le make ou option=large pour tout recompiler les fichiers
 import os
 import sys
-fileName=os.path.abspath(__file__)
-dirName=os.path.dirname(fileName)
-#print(dirName)
-#print(fileName)
+thisFileAbsName=os.path.abspath(__file__)
+thisFileAbsDir=os.path.dirname(thisFileAbsName)
+#print(thisFileAbsDir)
+#print(thisFileAbsName)
 
-#  construction of files frome diistributed
-path=dirName#+"/pycaogit/documentation/"
-initialList1=os.listdir(path)
-path+="/examples"
-initialList2=os.listdir(path)
+#  construction of files to be executed 
+path=thisFileAbsDir#+"/pycaogit/documentation/"
+baseList1=os.listdir(thisFileAbsDir)
+importList1=filter(lambda x:'.pyc' not in x and '.py' in x and 'buildDoc.py' not in x and '__init__.py' not in x, baseList1)
+absList1=[path+"/"+File for File in importList1]
+          
+path=thisFileAbsDir+"/examples"
+baseList2=os.listdir(path)
+importList2=filter(lambda x:'.pyc' not in x and '.py' in x and 'buildDoc.py' not in x and '__init__.py' not in x, baseList2)
+absList2=[path+"/"+File for File in baseList2]
 
-#coreList=filter(lambda x:'.py' in x and ".pyc" not in x, initialList1)
-importList1=filter(lambda x:'.pyc' not in x and '.py' in x and 'buildDoc.py' not in x and '__init__.py' not in x, initialList1)
-importList2=filter(lambda x:'.pyc' not in x and '.py' in x and 'buildDoc.py' not in x and '__init__.py' not in x, initialList2)
+#for f in absList1: print(f)
+#print()
+#for f in absList2: print(f)
 
-restList=filter(lambda x:'.rst' in x, initialList1)
-
-#print(list(restList))
-#from itertools import filterfalse
-#coreList=filterfalse(lambda x:True, initialList1)
-#print(coreList)
-
-#for f in importList1: print(f)
-#a=1/0
-#importList1=["curvesPrism.py"]
 if len(sys.argv)==1:
     print("parametre requis pour le scrpt. valeurs possibles: small or large")
 elif sys.argv[1]=="large":    
-    for myfile in importList1:
-        directory=os.path.dirname(os.path.realpath(myfile))
-        base=os.path.basename(myfile)
-        myfile=directory+"/"+base
-        print(myfile)
-        os.system("python "+myfile)
+    for myfile in absList1:
+        os.system("python3 "+myfile)
         #__import__(base) # does not work for some unknoww reason
-
     
-    for myfile in importList2:
-        directory=os.path.dirname(os.path.realpath(myfile))
-        base=os.path.basename(myfile)
-        myfile=directory+"/examples/"+base#os.path.splitext(base)[0]
-        os.system("python "+myfile)
+    for myfile in absList2:
+        os.system("python3 "+myfile)
         #__import__(myfile)
         
 if len(sys.argv)>1:

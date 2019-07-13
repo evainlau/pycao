@@ -1,7 +1,7 @@
 
 
 #pycaoDir="/home/laurent/subversion/articlesEtRechercheEnCours/pycao/pycaogit/core/"
-pycaoDir="/users/evain/subversion/articlesEtRechercheEnCours/pycao/pycaogit/core/"
+#pycaoDir="/users/evain/subversion/articlesEtRechercheEnCours/pycao/pycaogit/core/"
 
 
 """
@@ -10,7 +10,8 @@ pycaoDir="/users/evain/subversion/articlesEtRechercheEnCours/pycao/pycaogit/core
 
 
 import os 
-#pycaoDir=os.environ["dirsubversion"]+"/articlesEtRechercheEnCours/pycao/pycaogit/distributed/"
+pycaoDir=os.path.realpath(os.path.dirname(__file__))+"/../../core/"
+print(pycaoDir)
 import sys
 from os.path import expanduser
 sys.path.append(pycaoDir)

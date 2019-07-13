@@ -1,6 +1,9 @@
 
 pycaoDir="/home/laurent/subversion/evain/articlesEtRechercheEnCours/pycao"
-pycaoDir="/users/evain/subversion/articlesEtRechercheEnCours/pycao/core"
+#pycaoDir="/users/evain/subversion/articlesEtRechercheEnCours/pycao/core"
+import os
+thisFileAbsName=os.path.abspath(__file__)
+pycaoDir=os.path.dirname(thisFileAbsName)+"/../core"
 
 """
                 MODULES IMPORT

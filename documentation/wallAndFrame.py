@@ -1,4 +1,7 @@
-pycaoDir="/home/laurent/subversion/evain/articlesEtRechercheEnCours/pycao"
+#pycaoDir="/home/laurent/subversion/evain/articlesEtRechercheEnCours/pycao"
+import os
+thisFileAbsName=os.path.abspath(__file__)
+pycaoDir=os.path.dirname(thisFileAbsName)+"/../core"
 
 import os 
 import sys

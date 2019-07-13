@@ -247,7 +247,8 @@ class Prism(Elaborate):
         composeMapInverse=map1Inverse*map2Inverse
         polyline1=polyline.clone().move(composeMap)
         p=Prism.__new__(cls)
-        p.__init__(polyline1,height=1).move(composeMapInverse)
+        p.__init__(polyline1,height=1)
+        p.move(composeMapInverse)
         #Prism.__init__(p,polyline1)
         #p.prismDirection=vector
         return p

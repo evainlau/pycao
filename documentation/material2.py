@@ -19,7 +19,10 @@
 
 
 #pycaoDir="/home/laurent/subversion/articlesEtRechercheEnCours/pycao/pycaogit"
-pycaoDir="/users/evain/subversion/articlesEtRechercheEnCours/pycao/pycaogit/core/"
+#pycaoDir="/users/evain/subversion/articlesEtRechercheEnCours/pycao/pycaogit/core/"
+import os
+thisFileAbsName=os.path.abspath(__file__)
+pycaoDir=os.path.dirname(thisFileAbsName)+"/../core"
 
 import sys
 sys.path.append(pycaoDir)

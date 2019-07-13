@@ -10,7 +10,10 @@
 
 
 import os 
-pycaoDir=os.environ["dirsubversion"]+"/articlesEtRechercheEnCours/pycao/pycaogit/core"
+#pycaoDir=os.environ["dirsubversion"]+"/articlesEtRechercheEnCours/pycao/pycaogit/core"
+import os
+thisFileAbsName=os.path.abspath(__file__)
+pycaoDir=os.path.dirname(thisFileAbsName)+"/../core"
 import sys
 from os.path import expanduser
 sys.path.append(pycaoDir)
