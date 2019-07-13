@@ -38,26 +38,17 @@ Illustration
 In the following illustration, we have defined a simple clock with
 adequate hooks and axis.
 
-.. code-block:: python
+
+.. literalinclude:: rotations.py
+   :start-after: bbloc1
+   :end-before: ebloc1
 
 
-    camera.shoot
-    # First the 2 hands have an axis selected wich goes along them. 
-    smallWatchHand.parallel_to(longWatchHand,fixed=smallWatchHand.hook())
-    camera.shoot
-    longWatchHand.parallel_to(blueSphere.center-pinkSphere.center,fixed=longWatchHand.hook())
-    camera.shoot
-    smallWatchHand.select_axis("axisOfRotation")
-    smallWatchHand.select_hook("end") # the end of the hand
-    smallWatchHand.self_grotate(blueSphere.center) # makes the hand point towards the bluesSphere
-    camera.shoot
-    camera.show
+.. image::  ./docPictures/rotations1.png
 
-.. image::  ./docPictures/rotationInitial.png
+.. image::  ./docPictures/rotations2.png
 
-.. image::  ./docPictures/rotationParallel1.png
+.. image::  ./docPictures/rotations3.png
 
-.. image::  ./docPictures/rotationParallel2.png
-
-.. image::  ./docPictures/rotationGrotate.png
+.. image::  ./docPictures/rotations4.png
 		

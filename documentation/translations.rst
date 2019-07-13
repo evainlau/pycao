@@ -1,5 +1,5 @@
 ****************************************
-Positionning the Objects (translations)
+Translating Objects
 ****************************************
 
 Hooks

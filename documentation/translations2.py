@@ -98,7 +98,8 @@ camera.actors=[ground,greenBox,yellowDrawer] # what is seen by the camera
 # def of the drawer switched"
 directory=os.path.dirname(os.path.realpath(__file__))
 base=os.path.basename(__file__)
-camera.file=directory+"/docPictures/"+os.path.splitext(base)[0]+"1.pov"
+fileNameNoSuffix=os.path.splitext(base)[0]
+camera.file=directory+"/docPictures/"+fileNameNoSuffix+"1.pov"
 #bbloc1
 yellowDrawer.add_axis("axis",line(origin,origin+Y)) #The vector of the axis is v=Y
 camera.shoot
@@ -106,7 +107,7 @@ camera.pov_to_png
 #camera.show
 yellowDrawer.self_translate(-.1) # moves by -.1*v=-.1*Y
 #ebloc1
-camera.file=directory+"/docPictures/"+os.path.splitext(base)[0]+"2.pov"
+camera.file=directory+"/docPictures/"+fileNameNoSuffix+"2.pov"
 camera.shoot
 camera.pov_to_png
 #camera.show
@@ -115,7 +116,7 @@ yellowDrawer.select_hook("back") # A point in the back of the drawer
 greenBox.select_hook("front") # A point in the front of the greenBox
 yellowDrawer.self_gtranslate(greenBox)
 #ebloc2
-camera.file=directory+"/docPictures/"+os.path.splitext(base)[0]+"3.pov"
+camera.file=directory+"/docPictures/"+fileNameNoSuffix+"3.pov"
 camera.shoot
 camera.pov_to_png
 
