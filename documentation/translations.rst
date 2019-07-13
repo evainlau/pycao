@@ -15,16 +15,11 @@ whatever the position of the object in the global space.
 Let's go to practice. We show how
 to put a cube on top of an other cube using hooks. 
 
-.. code-block:: python
 
-   redCube=Cube(2,4,6).colored("Red")
-   redCube.add_hook("top",point(1,2,6)) # usually done at creation time when the coordinates are easy to understand
-   redCube.add_hook("center",point(1,2,3)) # an other hook. The active hook of redCube is "center" as it is created. The previous hook "top" is still known but not selected. 
-   redCube.hooked_on(point(2.2223,3.5672,4.345)) # moves the hook "center" to a random destination point and the cube follows
-   greenCube=Cube(1,2,3).colored("Green") 
-   greenCube.add_hook("bottom",point(.5,1,0))
-   redCube.select_hook("top") # we change the active hook
-   greenCube.hooked_on(redCube) # sends the active hook "bottom" of greenCube to the active hook "top" of redCube
+.. literalinclude:: translations1.py
+   :start-after: bbloc1
+   :end-before: ebloc1
+
 
    
 The important point here is that we have postionned the greenCube
@@ -41,7 +36,7 @@ Note in the above example that the syntax takes 2 forms:
    object.hooked_on(point)
    object2.hooked_on(object1)
 
-.. image:: ./docPictures/positionWithHooks.png
+.. image:: ./docPictures/translations1.png
 
 More markers and translations
 --------------------------------
@@ -60,19 +55,14 @@ your drawer.
 Here is the code and the
 images. 
 
-.. code-block:: python
-		
-    # def of the drawer switched"
-    yellowDrawer.add_axis("axis",line(origin,origin+Y)) #The vector of the axis is v=Y
-    camera.file="drawerClosed.pov"
-    camera.shoot
-    yellowDrawer.self_translate(-.1) # moves by -.1*v=-.1*Y
-    camera.file="drawerOpen.pov"
-    camera.shoot
+.. literalinclude:: translations2.py
+   :start-after: bbloc1
+   :end-before: ebloc1
 
-.. image:: ./docPictures/drawerClosed.png
 
-.. image:: ./docPictures/drawerOpen.png
+.. image:: ./docPictures/translations21.png
+
+.. image:: ./docPictures/translations22.png
 
 
 
@@ -83,13 +73,13 @@ move a runner till he arrives at the same level of an other runner.
 Or for instance when we want to fully open the previous drawer and
 stop exactly at the moment the drawer is outside the box.
 
-.. code-block:: python
-		
-    yellowDrawer.select_hook("back") # A point in the back of the drawer
-    greenBox.select_hook("front") # A point in the front of the greenBox
-    yellowDrawer.self_gtranslate(greenBox)
 
-.. image:: ./docPictures/drawerFullOpen.png
+.. literalinclude:: translations2.py
+   :start-after: bbloc2
+   :end-before: ebloc2
+
+
+.. image:: ./docPictures/translations23.png
 
 The syntax is
 	   

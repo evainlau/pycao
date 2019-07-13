@@ -1,21 +1,36 @@
+"""
+    This is Pycao, a modeler and raytracer interpreter for 3D drawings
+    Copyright (C) 2015  Laurent Evain
 
-pycaoDir="/home/laurent/subversion/evain/articlesEtRechercheEnCours/pycao/core"
-##pycaoDir="/users/evain/subversion/articlesEtRechercheEnCours/pycao/core/"
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
+
+
+
+#pycaoDir="/home/laurent/subversion/articlesEtRechercheEnCours/pycao/pycaogit"
+#pycaoDir="/users/evain/subversion/articlesEtRechercheEnCours/pycao/pycaogit/core"
 import os
 thisFileAbsName=os.path.abspath(__file__)
 pycaoDir=os.path.dirname(thisFileAbsName)+"/../core"
 
+import sys
+sys.path.append(pycaoDir)
+
+
 """
                 MODULES IMPORT
 """
-
-
-import os 
-import sys
-from os.path import expanduser
-sys.path.append(pycaoDir)
-import math
-
 
 
 from uservariables import *
@@ -28,71 +43,93 @@ from compound import *
 import povrayshoot 
 from cameras import *
 from lights import *
+from material import *
 
+
+
+
+###############################
+# By default, lights you will append in the file  are appended to existing cameras. So probably 
+# you want to leave the first line defining the camera at the beginning of the file
+
+
+camera=Camera()
+light=Light().hooked_on(camera.hook()+1*X+Z) # a light located close to the camera
+light.glued_on(camera) # the light will follow the camera, so that you will get light on your objects
+
+
+#######################################
 
 """
                 SCENE DESCRIPTION
 """
 
+
+
+
+
 # a plane represented graphically as a half space 
+ground=plane(Z,origin) # a plane with normal the vector Z=vector(0,0,1) containing the origin
+ground.colored('Gray') # The possible colors are the colors described in colors.inc in povray or a rgb color as in the exemple below. 
+
+greenBox=Cube(.5,.3,.2).colored("SeaGreen")
+greenBox.add_hook("center",greenBox.center)
+yellowDrawer=Cube(.4,.25,.15).colored("Yellow")
+yellowDrawer.add_hook("aboveCenter",yellowDrawer.center+.025*Z)
+yellowDrawer.add_hook("behindCenter",yellowDrawer.center+.031*Y)
+yellowDrawer.hooked_on(greenBox)
+greenBox.amputed_by(yellowDrawer,takeCopy=True,throwShapeAway=False)
+toCut=Cube(.35,.2,.15)
+yellowDrawer.add_hook("back",yellowDrawer.point(.5,1,.5))
+greenBox.add_hook("front",greenBox.point(.5,0,.5))                      
+toCut.add_hook("center",toCut.center).hooked_on(yellowDrawer)
+toCut.colored("Pink")
+yellowDrawer.select_hook("aboveCenter")
+toCut.hooked_on(yellowDrawer)
+yellowDrawer.amputed_by(toCut)
 
 
-brownCube=Cube(3,5,7) # The two opposite corners of the cube are origin and point(1,2,3)
-brownCube.color="Brown"
-brownCube.move_at(origin) # the cube is moved above the plane
-
-yellowCube=Cube(1,1,1)
-yellowCube.color="Yellow   "
-yellowCube.move_at(origin-5*X-3*Z-6*Y) # the cube is moved above the plane
-
-
-xaxis=FrameAxis(brownCube.center,brownCube.center+7*X,0.9,0.6,1.6)
-xaxis.color='Red'
-yaxis=FrameAxis(brownCube.center,brownCube.center+7*Y,0.9,0.6,1.6)
-yaxis.color='Green'
-zaxis=FrameAxis(brownCube.center,brownCube.center+7*Z,0.9,0.6,1.6)
-zaxis.color='NavyBlue'
-
-
-xaxisg=FrameAxis(yellowCube.center,yellowCube.center+10*X,0.9,0.3,1)
-xaxisg.color='Red'
-yaxisg=FrameAxis(yellowCube.center,yellowCube.center+10*Y,0.9,0.3,1)
-yaxisg.color='Green'
-zaxisg=FrameAxis(yellowCube.center,yellowCube.center+10*Z,0.9,0.3,1)
-zaxisg.color='NavyBlue'
-xaxisg.glued_on(yellowCube)
-yaxisg.glued_on(yellowCube)
-zaxisg.glued_on(yellowCube)
-xaxis.glued_on(brownCube)
-yaxis.glued_on(brownCube)
-zaxis.glued_on(brownCube)
+camera.hooked_on(origin-1*Y+0.82*Z)  # the positive y are in front of us because the camera is located in negative Y and we look at  a point close to the origin
+camera.lookAt=yellowDrawer.center # look at the center of cyl
+camera.actors=[ground,greenBox,yellowDrawer] # what is seen by the camera
 
 
 
+# def of the drawer switched"
+directory=os.path.dirname(os.path.realpath(__file__))
+base=os.path.basename(__file__)
+camera.file=directory+"/docPictures/"+os.path.splitext(base)[0]+"1.pov"
+#bbloc1
+yellowDrawer.add_axis("axis",line(origin,origin+Y)) #The vector of the axis is v=Y
+camera.shoot
+camera.pov_to_png
+#camera.show
+yellowDrawer.self_translate(-.1) # moves by -.1*v=-.1*Y
+#ebloc1
+camera.file=directory+"/docPictures/"+os.path.splitext(base)[0]+"2.pov"
+camera.shoot
+camera.pov_to_png
+#camera.show
+#bbloc2
+yellowDrawer.select_hook("back") # A point in the back of the drawer
+greenBox.select_hook("front") # A point in the front of the greenBox
+yellowDrawer.self_gtranslate(greenBox)
+#ebloc2
+camera.file=directory+"/docPictures/"+os.path.splitext(base)[0]+"3.pov"
+camera.shoot
+camera.pov_to_png
 
-yellowCube.against(brownCube,-Z,X,X,Y,adjustEdges=X-Y, offset=-Z)
-yellowCube.glued_on(brownCube)
-diagonal=Segment(brownCube.point(0,0,0,"ppp"),brownCube.point(1,1,1,"ppp"))
-M=Map.rotational_difference(diagonal.vector,Z)
-brownCube.move(M)
+#camera.show
+#################################################
+#  Now, what you see
+#################################################
 
-#yellowCube.against(brownCube,-Z,X,X,Y)
-
-
-light=Light() # a light
-light.location=(origin+6.8*Z-2*X+Y)
-
-camera=Camera()
-camera.location=origin-15*X+5*Y+10*Z
-camera.lights=[light]
-camera.povraylights="light_source {<"+ str(light.location[0])+","+str(light.location[1])+","+str(light.location[2])+ "> color White " + "}\n\n"
-camera.actors=[brownCube,yellowCube,xaxis,yaxis,zaxis,xaxisg,yaxisg,zaxisg] # what is seen by the camera
-#camera.actors=[xaxis] # what is seen by the camera
-camera.lookAt=xaxis.arrow.center
+#camera.actors=[yellowDrawer,toCut] # what is seen by the camera
+camera.povraypath=pycaoDir+"images/" # where you put your images,photos for the textures
 camera.zoom(0.8)
-camera.imageHeight=800 # in pixels
-camera.imageWidth=900 
+camera.imageHeight=600 # in pixels
+camera.imageWidth=600 
+camera.quality=9 # a number between 0 and 11,  Consider using a lower quality setting if you're just testing your scene
 
-
-camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
-camera.pov_to_png # show the photo, ie calls povray. 
+#camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
+#camera.pov_to_png # show the photo, ie calls povray. 

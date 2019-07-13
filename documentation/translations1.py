@@ -72,16 +72,16 @@ light.glued_on(camera) # the light will follow the camera, so that you will get 
 ground=plane(Z,origin) # a plane with normal the vector Z=vector(0,0,1) containing the origin
 ground.colored('Gray') # The possible colors are the colors described in colors.inc in povray or a rgb color as in the exemple below. 
 
-if 1>0:
-   redCube=Cube(2,4,6).colored("Red")
-   redCube.add_hook("top",point(1,2,6)) # usually done at creation time when the coordinates are easy to understand
-   redCube.add_hook("center",point(1,2,3)) # an other hook. The active hook of redCube is "center" as it is created. The previous hook "top" is still known but not selected. 
-   redCube.hooked_on(point(2.2223,3.5672,4.345)) # moves the hook "center" to a random destination point and the cube follows
-   greenCube=Cube(1,2,3).colored("Green") 
-   greenCube.add_hook("bottom",point(.5,1,0))
-   redCube.select_hook("top") # we change the active hook
-   greenCube.hooked_on(redCube) # sends the active hook "bottom" of greenCube to the active hook "top" of redCube
-   
+#bbloc1
+redCube=Cube(2,4,6).colored("Red")
+redCube.add_hook("top",point(1,2,6)) # usually done at creation time when the coordinates are easy to understand
+redCube.add_hook("center",point(1,2,3)) # an other hook. The active hook of redCube is "center" as it is created. The previous hook "top" is still known but not selected. 
+redCube.hooked_on(point(2.2223,3.5672,4.345)) # moves the hook "center" to a random destination point and the cube follows
+greenCube=Cube(1,2,3).colored("Green") 
+greenCube.add_hook("bottom",point(.5,1,0))
+redCube.select_hook("top") # we change the active hook
+greenCube.hooked_on(redCube) # sends the active hook "bottom" of greenCube to the active hook "top" of redCube
+#ebloc1
 
 
 
@@ -98,15 +98,15 @@ if 1>0:
 camera.hooked_on(origin-4*Y+10*Z)  # the positive y are in front of us because the camera is located in negative Y and we look at  a point close to the origin
 camera.lookAt=greenCube.hook() # look at the center of cyl
 camera.actors=[ground,redCube,greenCube] # what is seen by the camera
-camera.file="positionWithHooks.pov" # A name for the povray file that will be generated. Must end with .pov
 directory=os.path.dirname(os.path.realpath(__file__))
 base=os.path.basename(__file__)
 camera.file=directory+"/docPictures/"+os.path.splitext(base)[0]+".pov"
 camera.povraypath=pycaoDir+"images/" # where you put your images,photos for the textures
-camera.zoom(0.25)
-camera.imageHeight=800 # in pixels
-camera.imageWidth=1200 
+camera.zoom(0.5)
+camera.imageHeight=600 # in pixels
+camera.imageWidth=400 
 camera.quality=9 # a number between 0 and 11,  Consider using a lower quality setting if you're just testing your scene
 
 camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
-camera.pov_to_png # show the photo, ie calls povray. 
+#camera.pov_to_png # show the photo, ie calls povray. 
+camera.show
