@@ -23,29 +23,13 @@ A , the hole that you made will not move relativly to A (a hole in the
 center remains in the center for instance).  
 
 
-.. image:: ./docPictures/csgVisibility.png
-
-.. code-block:: python 
-
-    wall=Cube(2,2,2).colored("Brown").translate(origin-X-Y+.5*Z) # 
-
-    cyl=Cylinder(start=origin,end=origin+5*Z,radius=0.5).colored('SpicyPink')
-
-    axis=Segment(point(0,0,0),point(0,0,1))
-    cyl2=ICylinder(axis,0.25).colored('Yellow') #an infinite cylinder 
+.. image:: ./docPictures/csg.png
 
 
-    # Using amputations : corresponds to the yellow and pink marks since the elements amputed don't keep their textures
-    cyl.amputed_by(cyl2,keepTexture=False)
-    wall.amputed_by(cyl,keepTexture=False)
+.. literalinclude:: csg.py
+   :start-after: bbloc1
+   :end-before: ebloc1
 
-    # Using intersection : no change of colors since keepTexture is true by default.
-    axis.translate(3,0,0)
-    cyl3=ICylinder(axis,3.2).colored("Green")
-    axis.translate(-6,0,0)
-    cyl4=ICylinder(axis,3.5).rgbed(1,1,1)
-    wall.intersected_by([cyl3,cyl4])
-    wall.rotate(Segment(origin,Z),.5)
 
 
 
@@ -75,5 +59,5 @@ the children. To intersect A with B and its children:
 .. code-block:: python
 		
    for tool in B.descendants_and_myself():
-   A.intersect(tool)
+     A.intersected_by(tool)
 

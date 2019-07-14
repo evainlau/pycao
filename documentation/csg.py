@@ -31,26 +31,27 @@ from lights import *
 
 
 
-if 1>0:
-    wall=Cube(2,2,2).colored("Brown").translate(origin-X-Y+.5*Z) # the cube is moved above the plane
+#bbloc1
+wall=Cube(2,2,2).colored("Brown").translate(origin-X-Y+.5*Z) # the cube is moved above the plane
 
-    cyl=Cylinder(start=origin,end=origin+5*Z,radius=0.5).colored('SpicyPink')
+cyl=Cylinder(start=origin,end=origin+5*Z,radius=0.5).colored('SpicyPink')
 
-    axis=Segment(point(0,0,0),point(0,0,1))
-    cyl2=ICylinder(axis,0.25).colored('Yellow') #an infinite cylinder 
+axis=Segment(point(0,0,0),point(0,0,1))
+cyl2=ICylinder(axis,0.25).colored('Yellow') #an infinite cylinder 
 
 
-    # Using amputations : corresponds to the yellow and pink marks since the elements amputed don't keep their textures
-    cyl.amputed_by(cyl2,keepTexture=False)
-    wall.amputed_by(cyl,keepTexture=False)
+# Using amputations : corresponds to the yellow and pink marks since the elements amputed don't keep their textures
+cyl.amputed_by(cyl2,keepTexture=False)
+wall.amputed_by(cyl,keepTexture=False)
 
-    # Using intersection : no change of colors since keepTexture is true by default.
-    axis.translate(3,0,0)
-    cyl3=ICylinder(axis,3.2).colored("Green")
-    axis.translate(-6,0,0)
-    cyl4=ICylinder(axis,3.5).rgbed(1,1,1)
-    wall.intersected_by([cyl3,cyl4])
-    wall.rotate(Segment(origin,Z),.5)
+# Using intersection : no change of colors since keepTexture is true by default.
+axis.translate(3,0,0)
+cyl3=ICylinder(axis,3.2).colored("Green")
+axis.translate(-6,0,0)
+cyl4=ICylinder(axis,3.5).rgbed(1,1,1)
+wall.intersected_by([cyl3,cyl4])
+wall.rotate(Segment(origin,Z),.5)
+#ebloc1
 
 camera=Camera()
 camera.file="csg.pov"

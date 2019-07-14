@@ -43,6 +43,7 @@ TODO
 - renommer les fichiers 
 - enlever tous les code-blocks et les remplacer par des include litteral, avec begin-after et end-before
 - retravailler someObjects.py pour pouvoir mettre allActors=True
+- ecrire un script qui copie et update le template pour compilation
 - verifier que tout est bon pour la compil des pythons a la fac comme ici
 - ajouter des fichiers pour le meuble et maison et ainsi supprimer les binaires inutiles
 - mettre des options au sphinx-buiild : a pout tout recompiler, py pour recalculer les pythons. 
