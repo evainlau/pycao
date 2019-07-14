@@ -61,17 +61,17 @@ camera=Camera()
                 SCENE DESCRIPTION
 """
 
-if 1>0:
-    g=plane(Z,origin).colored("Grey")
-    boardThickness=.02
-    drawer=Cube(.4,.4,.1).colored("Brown")
-    # We define two points which are the opposite corners of the cube toCut
-    firstPoint=drawer.point(boardThickness,boardThickness,boardThickness,"aaa")
-    secondPoint=drawer.point(boardThickness,boardThickness,1.1,"nnp")
-    toCut=Cube(firstPoint,secondPoint).colored("Yellow")
-    drawer.amputed_by(toCut,keepTexture=False)
-    button=Sphere(drawer.point(.5,0,.5,"pap"),.01).colored("Yellow").glued_on(drawer)
-
+#bbloc1
+g=plane(Z,origin).colored("Grey")
+boardThickness=.02
+drawer=Cube(.4,.4,.1).colored("Brown")
+# We define two points which are the opposite corners of the cube toCut
+firstPoint=drawer.point(boardThickness,boardThickness,boardThickness,"aaa")
+secondPoint=drawer.point(boardThickness,boardThickness,1.1,"nnp")
+toCut=Cube(firstPoint,secondPoint).colored("Yellow")
+drawer.amputed_by(toCut,keepTexture=False)
+button=Sphere(drawer.point(.5,0,.5,"pap"),.01).colored("Yellow").glued_on(drawer)
+#ebloc1
     
 
 
@@ -88,7 +88,7 @@ camera.file="boxDrawer.pov" # A name for the povray file that will be generated.
 directory=os.path.dirname(os.path.realpath(__file__))
 base=os.path.basename(__file__)
 camera.file=directory+"/docPictures/"+os.path.splitext(base)[0]+".pov"
-camera.povraypath=pycaoDir+"images/" # where you put your images,photos for the textures
+camera.povraypath=pycaoDir+"/images/" # where you put your images,photos for the textures
 camera.zoom(0.55)
 camera.imageHeight=800 # in pixels
 camera.imageWidth=1200 

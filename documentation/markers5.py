@@ -64,17 +64,17 @@ camera=Camera()
                 SCENE DESCRIPTION
 """
 
-if 1>0:
-    plane(Z,origin).colored("Gray")
-    cadran=Cylinder(origin,origin+.02*Z,.2).colored("Bronze")
-    mark=Cube(origin,origin+.02*X+.01*Y+.001*Z).colored("Blue")
-    mark.add_axis("vectorToCenter",mark.boxline(x=None,y=.5,z=.5))
-    mark.add_hook("pointToAttach",mark.point(.5,.5,0))
-    for i in range(13):
-        p=cadran.cylpoint(r=.02,w=1./12*i,s=1,frame="np")
-        q=cadran.cylpoint(r=0,w=i/12.,s=1)
-        mark.clone().parallel_to(q-p).hooked_on(p).colored("Black")
-
+#bbloc1
+plane(Z,origin).colored("Gray")
+cadran=Cylinder(origin,origin+.02*Z,.2).colored("Bronze")
+mark=Cube(origin,origin+.02*X+.01*Y+.001*Z).colored("Blue")
+mark.add_axis("vectorToCenter",mark.boxline(x=None,y=.5,z=.5))
+mark.add_hook("pointToAttach",mark.point(.5,.5,0))
+for i in range(13):
+    p=cadran.cylpoint(r=.02,w=1./12*i,s=1,frame="np")
+    q=cadran.cylpoint(r=0,w=i/12.,s=1)
+    mark.clone().parallel_to(q-p).hooked_on(p).colored("Black")
+#ebloc1
 
 #################################################
 #  Now, what you see

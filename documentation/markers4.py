@@ -65,10 +65,11 @@ light.glued_on(camera) # the light will follow the camera, so that you will get 
 """
 
 
-if 1>0:
-    g=plane(Z,origin).colored("Grey")
-    cyl=Cylinder(origin,origin+1.5*Z,.5).colored("Yellow")
-    myCube=Cube(1,1,1).colored("Brown").above(cyl)
+#bbloc1
+g=plane(Z,origin).colored("Grey")
+cyl=Cylinder(origin,origin+1.5*Z,.5).colored("Yellow")
+myCube=Cube(1,1,1).colored("Brown").above(cyl)
+#ebloc1
     
 camera.filmAllActors=False
 camera.file="cubeOverCyl.pov"

@@ -62,14 +62,14 @@ camera=Camera()
 """
 
 
-if 1>0:
-    g=plane(Z,origin-Z)
-    g.colored("Grey")
-    s=Sphere(origin-2*X,.79)
-    t=Sphere(origin+2*X-Y,1)
-    t.colored("Yellow")
-    s.show_box()
-  
+#bbloc1
+g=plane(Z,origin-Z)
+g.colored("Grey")
+s=Sphere(origin-2*X,.79)
+t=Sphere(origin+2*X-Y,1)
+t.colored("Yellow")
+s.show_box()
+#ebloc1  
 
 
 

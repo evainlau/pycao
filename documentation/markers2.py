@@ -61,20 +61,21 @@ camera=Camera()
                 SCENE DESCRIPTION
 """
 
-if 1>0:
-   w=Cube(3,3,3).colored('Brown')
-   seg=w.boxline(None,0.5,0.5,"pp") # a line where y=.5,z=.5 are fixed in the middle of the cube and  x=None varies
-   cyl=ICylinder(seg,0.2).colored('SpicyPink')
-   seg2=w.boxline(0.5,None,0.5,"pp")
-   cyl2=ICylinder(seg2,0.2).colored('Yellow')
-   seg3=w.boxline(0.5,0.5,None,"pp")
-   cyl3=ICylinder(seg3,0.2).colored('Violet')
-   p=w.boxplane(Z,-2.5,"p").colored("Orange")
+#bbloc1
+w=Cube(3,3,3).colored('Brown')
+seg=w.boxline(None,0.5,0.5,"pp") # a line where y=.5,z=.5 are fixed in the middle of the cube and  x=None varies
+cyl=ICylinder(seg,0.2).colored('SpicyPink')
+seg2=w.boxline(0.5,None,0.5,"pp")
+cyl2=ICylinder(seg2,0.2).colored('Yellow')
+seg3=w.boxline(0.5,0.5,None,"pp")
+cyl3=ICylinder(seg3,0.2).colored('Violet')
+p=w.boxplane(Z,-2.5,"p").colored("Orange")
+#ebloc1
 
-   camera.zoom(.15)
-   camera.povraylights="light_source {<-2,0,6.8> color White " + "}\n\n"
-   camera.lookAt=w.center
-   camera.actors=[w,cyl,cyl2,cyl3,p]
+camera.zoom(.15)
+camera.povraylights="light_source {<-2,0,6.8> color White " + "}\n\n"
+camera.lookAt=w.center
+camera.actors=[w,cyl,cyl2,cyl3,p]
 
 
 
@@ -88,7 +89,6 @@ if 1>0:
 directory=os.path.dirname(os.path.realpath(__file__))
 base=os.path.basename(__file__)
 camera.file=directory+"/docPictures/"+os.path.splitext(base)[0]+".pov"
-print(camera.file)
 camera.povraypath=pycaoDir+"images/" # where you put your images,photos for the textures
 camera.zoom(1.5)
 camera.imageHeight=800 # in pixels

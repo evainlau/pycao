@@ -140,21 +140,10 @@ the two planes with constant z.
 To illustrate these notations, we draw a little
 drawer. 
 
-.. code-block:: python
 
-    g=plane(Z,origin).colored("Grey")
-    boardThickness=.02
-    drawer=Cube(.4,.4,.1).colored("Brown")
-    # We define two points which are the opposite corners of the cube toCut
-    firstPoint=drawer.point(boardThickness,boardThickness,boardThickness,"aaa")
-    secondPoint=drawer.point(boardThickness,boardThickness,1.1,"nnp")
-    toCut=Cube(firstPoint,secondPoint).colored("Yellow")
-    drawer.amputed_by(toCut,keepTexture=False)
-    button=Sphere(drawer.point(.5,0,.5,"pap"),.01).colored("Yellow").glued_on(drawer)
-
-
-
-
+.. literalinclude:: markers1.py
+   :start-after: bbloc1
+   :end-before: ebloc1
 
     
 
@@ -182,16 +171,11 @@ The instructions are:
 The coordinate  that moves along the line is described as "None".The example for the image above
 clarifies. 
 
-.. code-block:: python
-	      
-   w=Cube(3,3,3).colored('Brown')
-   seg=w.boxline(None,0.5,0.5,"pp") # a line where y=.5,z=.5 are fixed in the middle of the cube and  x=None varies
-   cyl=ICylinder(seg,0.2).colored('SpicyPink')
-   seg2=w.boxline(0.5,None,0.5,"pp")
-   cyl2=ICylinder(seg2,0.2).colored('Yellow')
-   seg3=w.boxline(0.5,0.5,None,"pp")
-   cyl3=ICylinder(seg3,0.2).colored('Violet')
-   p=w.boxplane(Z,-2.5,"p").colored("Orange")
+
+.. literalinclude:: markers2.py
+   :start-after: bbloc1
+   :end-before: ebloc1
+
 
 Adding new boxes
 ------------------------------------
@@ -272,16 +256,9 @@ which faces the positive coordinates)
 .. image:: ./docPictures/markers3.png
 
 
-.. code-block:: python
-
-    g=plane(Z,origin-Z).colored("Grey")
-    s=Sphere(origin-2*X,.79)
-    t=Sphere(origin+2*X-Y,1)
-    t.colored("Yellow")
-    s.show_box()
-    
-
-
+.. literalinclude:: markers3.py
+   :start-after: bbloc1
+   :end-before: ebloc1
 
 
 Stacking boxes
@@ -290,23 +267,13 @@ Stacking boxes
 Sometimes, we want to stack objects, which mean the we stack their
 implicit box. For instance, to put a cube above a cylinder, proceed as follows
 
-.. image:: ./docPictures/markers.png
+.. image:: ./docPictures/markers4.png
 
-.. code-block:: python
 
-   g=plane(Z,origin).colored("Grey")
-   cyl=Cylinder(origin,origin+1.5*Z,.5).colored("Yellow")
-   myCube=Cube(1,1,1).colored("Brown").above(cyl)
- 
-..
-    camera.filmAllActors=False
-    camera.file="cubeOverCyl.pov"
-    camera.location=origin-4.3*Y+2.*Z-2*X
-    camera.zoom(.15)
-    camera.lookAt=origin
-    camera.actors=[cyl,myCube,g]
-    camera.shoot
-    camera.show
+.. literalinclude:: markers4.py
+   :start-after: bbloc1
+   :end-before: ebloc1
+
     
 Similarly, there are commands
 
@@ -360,26 +327,9 @@ default (which is itself) at the time of construction.
 Let's use these coordinates to build the above watch. 
 
 
-.. code-block:: python
-
-
-    plane(Z,origin).colored("Gray")
-    cadran=Cylinder(origin,origin+.02*Z+.002*X,.2).colored("Bronze")
-    mark=Cube(origin,origin+.02*X+.01*Y+.001*Z).colored("Blue")
-    mark.add_axis("vectorToCenter",mark.boxline(x=None,y=.5,z=.5))
-    mark.add_hook("pointToAttach",mark.point(.5,.5,0))
-    for i in range(12):
-        p=cadran.cylpoint(r=.02,w=1./12*i,s=1,frame="np")
-        q=cadran.cylpoint(r=0,w=i/12.,s=1)
-        mark.clone().parallel_to(q-p).hooked_on(p).colored("Black")
-
-
-
-
-
-
-
-
+.. literalinclude:: markers5.py
+   :start-after: bbloc1
+   :end-before: ebloc1
 
 
 .. 
