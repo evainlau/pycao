@@ -71,17 +71,18 @@ camera=Camera()
 #ground.colored('SeaGreen') # The possible colors are the colors described in colors.inc in povray or a rgb color as in the exemple below. 
 
 
-if 1>0:
-    g=plane(Z,origin-Z).colored("Grey")
-    c=Cube(1,1,1).colored("Red")
-    d=Cube(2,2,2)
-    d.translate(2,0,0).colored("Yellow")
-    e=Cylinder(start=origin,end=origin+3*X,radius=0.1)
-    o=Compound([c,["cube",d],["cylinder",e]]).colored("Green") # override all the individual colors
-    o.cylinder.rotate(Y,1.57) # the Cylinder was horizontal, this instruction puts it vertically
 
+#bbloc1
+g=plane(Z,origin-Z).colored("Grey")
+c=Cube(1,1,1).colored("Red")
+d=Cube(2,2,2)
+d.translate(2,0,0).colored("Yellow")
+e=Cylinder(start=origin,end=origin+3*X,radius=0.1)
+o=Compound([c,["cube",d],["cylinder",e]]).colored("Green") # override all the individual colors
+o.cylinder.rotate(Y,1.57) # the Cylinder was horizontal, this instruction puts it vertically
+#ebloc1
+    
 camera=Camera()
-camera.file="parentCompound.pov"
 directory=os.path.dirname(os.path.realpath(__file__))
 base=os.path.basename(__file__)
 camera.file=directory+"/docPictures/"+os.path.splitext(base)[0]+".pov"

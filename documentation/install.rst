@@ -39,7 +39,7 @@ Check the installation
   and you should see the first 3D picture you have created with pycao
 
   
-.. image:: ./docPictures/firstFile.png
+.. image:: ./../core/template.png
 
 Preparing your future projects
 --------------------------------

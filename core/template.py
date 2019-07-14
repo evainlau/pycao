@@ -106,7 +106,9 @@ camera.actors=[wall,ground,cyl,cyl2,s] # what is seen by the camera
 # uncomment the following line if you want to see all objects without filling manually
 # the previous list camera.actors. It will override the previous line.
 #camera.filmAllActors=True # overrides the camera.actors list
-camera.file="pycaoOutput.pov" # A name for the povray file that will be generated. Must end with .pov
+directory=os.path.dirname(os.path.realpath(__file__))
+base=os.path.basename(__file__)
+camera.file=directory+"/"+os.path.splitext(base)[0]+".pov"
 camera.povraypath=pycaoDir+"images/" # where you put your images,photos for the textures
 camera.zoom(0.15)
 camera.imageHeight=800 # in pixels

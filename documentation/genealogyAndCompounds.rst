@@ -15,26 +15,14 @@ the two different notions and compare them.
 Genealogy
 -----------------
 
-We recall our  Rubik's cube construction.
+Here is a small construction of a colored Cube a la  Rubik.
 
-.. image:: ./docPictures/rubik.png
+.. image:: ./docPictures/genealogyAndCompounds1.png
 
-.. code-block :: python
 
-    basket=point(0,0,0)
-    cub=Cube(.91,.91,.91)
-    for a in range(3):
-        for b in range(3):
-            for c in range(3):
-                d=cub.clone()
-                d.rgbed(c,b,a)
-                d.translate(point(a,b,c+0.5)-origin)
-                d.glued_on(basket)
-    # we clone the basket. The elements glued on it are also copied
-    #recursivly	      
-    basket2=basket.clone()
-    basket2.rotate(Segment(origin,origin+X+Y+Z),3.14/3)
-    basket2.translate(6*X+Z).glued_on(ground)
+.. literalinclude:: genealogyAndCompounds1.py
+   :start-after: bbloc1
+   :end-before: ebloc1
 
    
 Thus we see that
@@ -96,16 +84,12 @@ Moreover, we see that the color applied to the
 compound overwrites the colors of the components ( the
 individual colors of  the components remain if we don't overwrite).
 
-.. image:: ./docPictures/parentCompound.png
-	   
-.. code-block :: python 
+.. image:: ./docPictures/genealogyAndCompounds2.png
 
-    c=Cube(1,1,1).colored("Red")
-    d=Cube(2,2,2)
-    d.translate(2,0,0).colored("Yellow")
-    e=Cylinder(start=origin,end=origin+3*X,radius=0.1)
-    o=Compound([c,d,["cylinder",e]]).colored("Green") # override all the individual colors
-    o.cylinder.rotate(Y,1.57) # the Cylinder was horizontal, this instruction puts it vertically
+
+.. literalinclude:: genealogyAndCompounds2.py
+   :start-after: bbloc1
+   :end-before: ebloc1
 
 
 

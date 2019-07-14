@@ -32,7 +32,7 @@ Then, there is a tutorial.
    translations
    rotations
    maths
-   genealogyOrCompounds
+   genealogyAndCompounds
    csg
    markers
    curves
