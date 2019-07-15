@@ -61,14 +61,11 @@ camera=Camera()
                 SCENE DESCRIPTION
 """
 
-if 1>0:
-   curve=PiecewiseCurve.from_interpolation([origin+X-Y,.5*X,+2*Y,-.5*X],speedConstants=[.24,.24],closeCurve=True).show()
-   Lathe.fromPiecewiseCurve(curve).rgbed(.8,.4,.4,.5)
 
-   curve2=Polyline([origin+X+2*Y,.5*Y,.5*Y+.5*X])
-   Lathe(curve2).colored("Bronze").translate(4*X-2*Y)
-   Plane(Z,origin-1.5*Z).colored("Gray")
-  # The curve is assumed to have points of the form [0,y,z]
+
+# The spheres for the 4 points prescribed
+#greenSpheresOnControlPoints=[ Sphere(cp,.05).colored("Green") for cp in controlPoints]
+
 
 
 
@@ -76,26 +73,54 @@ if 1>0:
 #  Now, what you see
 #################################################
 
-camera.file="curvesLathe.pov" # A name for the povray file that will be generated. Must end with .pov
+camera.file="pycaoOutput.pov" # A name for the povray file that will be generated. Must end with .pov
 directory=os.path.dirname(os.path.realpath(__file__))
 base=os.path.basename(__file__)
 camera.file=directory+"/docPictures/"+os.path.splitext(base)[0]+".pov"
 camera.povraypath=pycaoDir+"images/" # where you put your images,photos for the textures
-camera.zoom(0.25)
+camera.zoom(0.1)
 camera.imageHeight=800 # in pixels
 camera.imageWidth=1200 
 camera.quality=9 # a number between 0 and 11,  Consider using a lower quality setting if you're just testing your scene
 
 
-camera.lookAt=origin # look at the center of cyl
+camera.lookAt=origin+2.5*X+1.7*Y # look at the center of cyl
 
 #camera.actors=[] # If you want to fill this list and use it, you should set camera.filmAllActors to False. 
 camera.filmAllActors=True # overrides the camera.actors list
 
 
 
-camera.hooked_on(origin+1.3*X-5.2*Y+2.2*Z)  # the positive y are in front of us if the camera is located in negative Y and we look at  a point close to the origin
-light=Light().hooked_on(camera.hook()+1*Y+2*Z) # a light located close to the camera
+camera.hooked_on(origin+2.5*X+1.5*Y+2*Z)  # the positive y are in front of us if the camera is located in negative Y and we look at  a point close to the origin
+light=Light().hooked_on(camera.hook()+1*X+1*Z) # a light located close to the camera
 
-camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
-camera.pov_to_png # show the photo, ie calls povray. 
+#camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
+#camera.pov_to_png # show the photo, ie calls povray. 
+
+
+ground=plane(Z,origin)
+ground.colored("Gray")
+
+#bbloc1
+controlPoints=([origin+.1*Z,X,Y,-X])
+curve1=PiecewiseCurve.from_interpolation(controlPoints).show(radius=0.03)# color Yellow 
+curve2=PiecewiseCurve.from_interpolation(controlPoints,speedConstants=[.24,.24],closeCurve=True).show(radius=0.03,color='SpicyPink').translate(-2*Y+X)
+curve3=PiecewiseCurve.from_interpolation(controlPoints,closeCurve=True).show(radius=0.03,color='Blue').translate(2.2*X) # speedConstants=[.45,.45]  by default
+curve4=PiecewiseCurve.from_interpolation(controlPoints,speedConstants=[1.5,1.5],closeCurve=True).show(radius=0.03,color='Violet').translate(2*Y+2.2*X)
+curve5=PiecewiseCurve.from_interpolation(controlPoints,speedConstants=[3,3],closeCurve=True).show(radius=0.03,color='Bronze').translate(4*Y-.5*X)
+curve6=PiecewiseCurve.from_interpolation(controlPoints,speedConstants=[4,4],closeCurve=True).show(radius=0.03,color='Red').translate(5*Y+2.5*X)
+# In the following line, the curve has 4 points + one point added by Pycao to close the curve, so the speed vectors have 5 entries
+curve7=PiecewiseCurve.from_interpolation(controlPoints,approachSpeeds=[2,2,2,2,2],leavingSpeeds=[0.4]*5,closeCurve=True).show(radius=0.03,color='Green').translate(2*Y+6*X)
+#ebloc1
+
+directory=os.path.dirname(os.path.realpath(__file__))
+base=os.path.basename(__file__)
+camera.file=directory+"/docPictures/"+os.path.splitext(base)[0]+".pov"
+
+
+#curve=PiecewiseCurve.from_interpolation(controlPoints,speedConstants=[.6,.6],closeCurve=True).show(radius=0.03)
+
+#curve=PiecewiseCurve.from_interpolation(controlPoints,speedConstants=[2,2],closeCurve=True).show(radius=0.03)
+camera.shoot
+camera.pov_to_png
+

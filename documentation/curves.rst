@@ -70,7 +70,7 @@ positions, the second list relative positions, the third one is a mix.
 Polyline and Bezier Curves
 ---------------------------------------------------
 
-.. image:: ./docPictures/curvePolyline.png
+.. image:: ./docPictures/curves1.png
 
 The following sequence builds the basic usable curves, 
 namely a Bezier curve and a Polyline. Since a curve is infinitly
@@ -81,16 +81,10 @@ of show() allow to choose a different color for the control points and
 for the sphere along the curve. 
 
 
-.. code-block:: python
-	      
-   ground=plane(Z,origin-Z)
-   ground.colored("Gray")
-   curve1=BezierCurve([origin,-X+Y,X+Y,X-Y,-X-Y-.5*Z])
-   curve1.show() # use default arguments
-   curve2=Polyline([origin,-X+Y,X+Y,X-Y,-X-Y-.5*Z])
-   # For the polyline, we don't use the default options
-   curve2.show(radius=0.1,steps=50,color="Red",color2="Blue")
-   curve2.translate(2*X+2*Y) # the curve2 shown is translated.
+.. literalinclude:: curves1.py
+   :start-after: bbloc1
+   :end-before: ebloc1
+
 
 
 
@@ -113,20 +107,12 @@ appears smooth at the junction point between the start and the
 end of the curve. 
 
 
-.. image:: ./docPictures/curvesInterpolation.png
+.. image:: ./docPictures/curves2.png
 
 
-.. code-block:: python
-
-    controlPoints=([origin+.1*Z,X,Y,-X])
-    curve1=PiecewiseCurve.from_interpolation(controlPoints).show(radius=0.03)# color Yellow 
-    curve2=PiecewiseCurve.from_interpolation(controlPoints,speedConstants=[.24,.24],closeCurve=True).show(radius=0.03,color='SpicyPink').translate(-2*Y+X)
-    curve3=PiecewiseCurve.from_interpolation(controlPoints,closeCurve=True).show(radius=0.03,color='Blue').translate(2.2*X) # speedConstants=[.45,.45]  by default
-    curve4=PiecewiseCurve.from_interpolation(controlPoints,speedConstants=[1.5,1.5],closeCurve=True).show(radius=0.03,color='Violet').translate(2*Y+2.2*X)
-    curve5=PiecewiseCurve.from_interpolation(controlPoints,speedConstants=[3,3],closeCurve=True).show(radius=0.03,color='Bronze').translate(4*Y-.5*X)
-    curve6=PiecewiseCurve.from_interpolation(controlPoints,speedConstants=[4,4],closeCurve=True).show(radius=0.03,color='Red').translate(5*Y+2.5*X)
-    # In the following line, the curve has 4 points + one point added by Pycao to close the curve, so the speed vectors have 5 entries
-    curve7=PiecewiseCurve.from_interpolation(controlPoints,approachSpeeds=[2,2,2,2,2],leavingSpeeds=[0.4]*5,closeCurve=True).show(radius=0.03,color='Green').translate(2*Y+6*X)
+.. literalinclude:: curves2.py
+   :start-after: bbloc1
+   :end-before: ebloc1
 
 All the curves above have been made with the same list of control
 points, shown in green. What makes the difference is the speed of the
@@ -187,41 +173,13 @@ torsion to an aluminium can. The violet join also illustrates that we can option
 add caps at the extremities of the join. 
 
 
-.. image:: ./docPictures/curvesRuledSurface.png
+.. image:: ./docPictures/curves3.png
 
-	     
-..
-   For some reason, this code does not work in the testcode whereas
-   its copy in curves.py does.
-	     
-.. code-block :: python
-   
-   ground=plane(Z,origin-Z)
-   ground.colored("Gray")
 
-   #Filling a Bezier curve in Red
-   curve0=BezierCurve([origin,-X,+Y,+X,origin])
-   curveFilling=RuledSurface.fromCurveFilling(curve0,quality=2)
-   curveFilling.colored("Red")
-   curveFilling.translate(-2*X)
+.. literalinclude:: curves3.py
+   :start-after: bbloc1
+   :end-before: ebloc1
 
-   # The green join
-   curve1=PiecewiseCurve.from_interpolation([origin,-X,+Y,+X,origin])
-   # Remark the non smooth join.
-   curve2=curve1.clone().translate(1.5*Z).named("Courbe2")
-   tube=RuledSurface(curve1,curve2,quality=8)
-   tube.colored("HuntersGreen")
-
-   #The violet join
-   # Now, for curve3, to get a smmooth join, we suppress one point in comparison to curve 1,
-   # and we add the option closeCurve=True.
-   curve3=PiecewiseCurve.from_interpolation([origin+3*X,-X,+Y,+X],closeCurve=True)
-   curve4=curve3.clone().translate(1.5*Z)
-   def g(t):
-      return (t+0.35) %1
-   curve3.reparametrize(g)
-   tubeWithRotatedBottom=RuledSurface.fromJoinAndCaps(curve3,curve4,quality=5)
-   tubeWithRotatedBottom.colored("Violet")
 
 
 Lathe 
@@ -232,14 +190,8 @@ x>0 around the Y-axis.
 
 
 
-.. image:: ./docPictures/curvesLathe.png
+.. image:: ./docPictures/curves4.png
 
-	   
-.. code-block :: python
-
-   curve=PiecewiseCurve.from_interpolation([origin+X-Y,.5*X,+2*Y,-.5*X],speedConstants=[.24,.24],closeCurve=True).show()
-   Lathe.fromPiecewiseCurve(curve).rgbed(.8,.4,.4,.5)
-
-   curve2=Polyline([origin+X+2*Y,.5*Y,.5*Y+.5*X])
-   Lathe(curve2).colored("Bronze").translate(4*X-2*Y)
-   Plane(Z,origin-1.5*Z).colored("Gray")
+.. literalinclude:: curves4.py
+   :start-after: bbloc1
+   :end-before: ebloc1

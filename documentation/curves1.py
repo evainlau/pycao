@@ -60,44 +60,24 @@ camera=Camera()
 """
                 SCENE DESCRIPTION
 """
-if 1>0:   
-   ground=plane(Z,origin-Z)
-   ground.colored("Gray")
-
-   #Filling a Bezier curve in Red
-   curve0=BezierCurve([origin,-X,+Y,+X,origin])
-   curveFilling=RuledSurface.fromCurveFilling(curve0,quality=2)
-   curveFilling.colored("Red")
-   curveFilling.translate(-2*X)
-
-   # The green join
-   curve1=PiecewiseCurve.from_interpolation([origin,-X,+Y,+X,origin])
-   # Remark the non smooth join.
-   curve2=curve1.clone().translate(1.5*Z).named("Courbe2")
-   tube=RuledSurface(curve1,curve2,quality=8)
-   tube.colored("HuntersGreen")
-
-   #The violet join
-   # Now, for curve3, to get a smmooth join, we suppress one point in comparison to curve 1,
-   # and we add the option closeCurve=True.
-   curve3=PiecewiseCurve.from_interpolation([origin+3*X,-X,+Y,+X],closeCurve=True)
-   curve4=curve3.clone().translate(1.5*Z)
-   def g(t):
-      return (t+0.35) %1
-   curve3.reparametrize(g)
-   tubeWithRotatedBottom=RuledSurface.fromJoinAndCaps(curve3,curve4,quality=5)
-   tubeWithRotatedBottom.colored("Violet")
 
 
-
-
-
+#bbloc1
+ground=plane(Z,origin-Z)
+ground.colored("Gray")
+curve1=BezierCurve([origin,-X+Y,X+Y,X-Y,-X-Y-.5*Z])
+curve1.show() # use default arguments
+curve2=Polyline([origin,-X+Y,X+Y,X-Y,-X-Y-.5*Z])
+# For the polyline, we don't use the default options
+curve2.show(radius=0.1,steps=50,color="Red",color2="Blue")
+curve2.translate(2*X+2*Y+0*Z)
+#ebloc1
 
 #################################################
 #  Now, what you see
 #################################################
 
-camera.file="curvesRuledSurfaces.pov" # A name for the povray file that will be generated. Must end with .pov
+
 directory=os.path.dirname(os.path.realpath(__file__))
 base=os.path.basename(__file__)
 camera.file=directory+"/docPictures/"+os.path.splitext(base)[0]+".pov"
@@ -108,14 +88,14 @@ camera.imageWidth=1200
 camera.quality=9 # a number between 0 and 11,  Consider using a lower quality setting if you're just testing your scene
 
 
-camera.lookAt=origin+.2*Z+.5*X # look at the center of cyl
+camera.lookAt=origin # look at the center of cyl
 
 #camera.actors=[] # If you want to fill this list and use it, you should set camera.filmAllActors to False. 
 camera.filmAllActors=True # overrides the camera.actors list
 
 
 
-camera.hooked_on(origin+0*X-2*Y+2*Z)  # the positive y are in front of us if the camera is located in negative Y and we look at  a point close to the origin
+camera.hooked_on(origin+0*X-1*Y+1*Z)  # the positive y are in front of us if the camera is located in negative Y and we look at  a point close to the origin
 light=Light().hooked_on(camera.hook()+1*X+1*Z) # a light located close to the camera
 
 camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file

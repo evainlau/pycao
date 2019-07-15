@@ -47,55 +47,36 @@ from material import *
 
 
 
+
 ###############################
 # By default, lights you will append in the file  are appended to existing cameras. So probably 
 # you want to leave the first line defining the camera at the beginning of the file
 
 
 camera=Camera()
-camera.hooked_on(origin+2*X-3*Y+1.6*Z)  # the positive y are in front of us if the camera is located in negative Y and we look at  a point close to the origin
+
 #######################################
 
 """
                 SCENE DESCRIPTION
 """
 
+#bbloc1
+curve=PiecewiseCurve.from_interpolation([origin+X-Y,.5*X,+2*Y,-.5*X],speedConstants=[.24,.24],closeCurve=True).show()
+Lathe.fromPiecewiseCurve(curve).rgbed(.8,.4,.4,.5)
+
+curve2=Polyline([origin+X+2*Y,.5*Y,.5*Y+.5*X])
+Lathe(curve2).colored("Bronze").translate(4*X-2*Y)
+Plane(Z,origin-1.5*Z).colored("Gray")
+# The curve is assumed to have points of the form [0,y,z]
+#ebloc1
 
 
 #################################################
 #  Now, what you see
 #################################################
 
-if 1>0:
-    p=Plane(Z,origin).colored("Grey")
-    c=Cube(1,1,1).colored("Bronze")
-    l=Light().hooked_on(origin+4*X+5*Z+2.8*Y) # a light. spotlight by Default, emitting everywhere around
-    l.colored("Red")
-    l.rgbed(0,1,0)
-    # Uncomment the following to remove shadow
-    #l.shadowlessed()
-    # A light which emits cone of lights with defined angles
-    l.spotlighted(fullLigthAngle=30,noLightAngle=60,look_at=origin)
-    # A light emitting cylinders of light
-    l.cylindered(fullLigthRadius=10,noLightRadius=20,look_at=origin)
-    # Back to point light
-    l.pointlighted()
-    # to decrease intensity with distance, ditance parameter is where half of the intensity is achieved. Then decreases fast with a high power
-    l.fade(distance=5,power=4)
 
-
-
-
-
-
-
-
-
-
-
-
-
-camera.file="lights.pov" # A name for the povray file that will be generated. Must end with .pov
 directory=os.path.dirname(os.path.realpath(__file__))
 base=os.path.basename(__file__)
 camera.file=directory+"/docPictures/"+os.path.splitext(base)[0]+".pov"
@@ -111,6 +92,10 @@ camera.lookAt=origin # look at the center of cyl
 #camera.actors=[] # If you want to fill this list and use it, you should set camera.filmAllActors to False. 
 camera.filmAllActors=True # overrides the camera.actors list
 
+
+
+camera.hooked_on(origin+1.3*X-5.2*Y+2.2*Z)  # the positive y are in front of us if the camera is located in negative Y and we look at  a point close to the origin
+light=Light().hooked_on(camera.hook()+1*Y+2*Z) # a light located close to the camera
+
 camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
 camera.pov_to_png # show the photo, ie calls povray. 
-#camera.pov_to_png_without_viewer # if you want only the photo but not the graphical interface

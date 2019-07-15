@@ -295,6 +295,7 @@ class Body(Skeleton):
             myTab["right"+word.title()]=myTab["left"+word.title()].clone().translate(leftRightLegAxes*X)
         for word in ["Humerus","Cubitus"]:
             myTab["right"+word.title()]=myTab["left"+word.title()].clone().translate(leftRightArmAxes*X)
+        #bbloc1 do not remove this line. Marker for documentation 
         bones=[["leftFoot",leftFoot],["rightFoot",rightFoot],["leftTibia",myTab["leftTibia"]],["rightTibia",myTab["rightTibia"]],["leftFemur",myTab["leftFemur"]],["rightFemur",myTab["rightFemur"]],["trunk",trunk],["head",head],["leftHumerus",myTab["leftHumerus"]],["rightHumerus",myTab["rightHumerus"]],["leftCubitus",myTab["leftCubitus"]],["rightCubitus",myTab["rightCubitus"]],["leftHand",leftHand],["rightHand",rightHand]]
         joints=[
             ["leftAnkle","leftFoot","leftTibia",myTab["leftAnkle"].center,myTab["leftAnkle"]],
@@ -312,6 +313,7 @@ class Body(Skeleton):
             ["rightWrist","rightHand","rightCubitus",myTab["rightWrist"].center,myTab["rightWrist"]]]
         ancestor="trunk"
         Skeleton.__init__(self,joints,bones,ancestor)
+        #ebloc1 do not remove this line. Marker for documentation 
         self.muscle_on_joint(self.rightWrist,-math.pi/4,Z)
 
         self.pelvisRadius=pelvisRadius

@@ -42,6 +42,7 @@ if "html" in sys.argv:
 TODO
 - renommer les fichiers 
 - enlever tous les code-blocks et les remplacer par des include litteral, avec begin-after et end-before
+- faire 2 templates specifiques  pour  la doc> Le python met  un camera.file specifique et le .rst  met un literal include et un ..image
 - retravailler someObjects.py pour pouvoir mettre allActors=True
 - ecrire un script qui copie et update le template pour compilation
 - verifier que tout est bon pour la compil des pythons a la fac comme ici
