@@ -3,11 +3,11 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-.. image:: ../images/maisonLau.png
+.. image:: ./docPictures/maisonLau.png
    
-.. image:: ../images/velo.png
+.. image:: ./docPictures/bike.png
 
-.. image:: ../images/meuble.png 
+.. image:: ./docPictures/drawer.png
 	   
 Welcome to Pycao's documentation!
 =================================
@@ -18,7 +18,7 @@ your needs
 .. toctree::
    :maxdepth: 2
 
-   presentation
+   discover
 
 Then, there is a tutorial.
 

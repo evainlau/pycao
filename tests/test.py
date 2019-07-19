@@ -59,24 +59,20 @@ camera=Camera()
 """
 
 
-plane(Z,origin).colored("Gray")
-cadran=Cylinder(origin,origin+.02*Z+.002*X,.2).colored("Bronze")
-mark=Cube(origin,origin+.02*X+.01*Y+.001*Z).colored("Blue")
-mark.add_axis("vectorToCenter",mark.boxline(x=None,y=.5,z=.5))
-mark.add_hook("pointToAttach",mark.point(.5,.5,0))
-for i in range(12):
-    p=cadran.cylpoint(r=.02,w=1./12*i,s=1,frame="np")
-    q=cadran.cylpoint(r=0,w=i/12.,s=1)
-    mark.clone().parallel_to(q-p).hooked_on(p).colored("Black")
+
+
 
 
 #################################################
 #  Now, what you see
 #################################################
+directory=os.path.dirname(os.path.realpath(__file__))
+base=os.path.basename(__file__)
+camera.file=directory+"/"+os.path.splitext(base)[0]+".pov"
 
 
 camera.file="watch.pov" # A name for the povray file that will be generated. Must end with .pov
-camera.zoom(3.45)
+camera.zoom(1.45)
 camera.imageHeight=800 # in pixels
 camera.imageWidth=1200 
 camera.quality=9 # a number between 0 and 11,  Consider using a lower quality setting if you're just testing your scene
@@ -86,7 +82,7 @@ camera.lookAt=origin
 
 #camera.actors=[] # If you want to fill this list and use it, you should set camera.filmAllActors to False. 
 camera.filmAllActors=True # overrides the camera.actors list
-
+camera.actors=[w]
 
 
 camera.hooked_on(origin+0*X-1*Y+3*Z)  # the positive y are in front of us if the camera is located in negative Y and we look at  a point close to the origin

@@ -108,5 +108,5 @@ camera.imageWidth=400
 camera.quality=9 # a number between 0 and 11,  Consider using a lower quality setting if you're just testing your scene
 
 camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
-#camera.pov_to_png # show the photo, ie calls povray. 
-camera.show
+camera.pov_to_png # show the photo, ie calls povray. 
+#camera.show

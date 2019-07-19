@@ -226,6 +226,7 @@ class FrontWheel(Compound):
         plaque2=plaque1.clone()
         plaque2.against(hub,-Y,-Y,X,X)
         self.slaves=[["tyre",tyre],rim,plaque1,plaque2,["hub",hub],["axis",wheelPhysicalAxis]]
+        
 
         # firstLeftSpoke
         spokeInit=plaque1.point(0.5,0.5,0.01,"ppn")

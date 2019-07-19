@@ -387,7 +387,6 @@ class Washer(Cylinder):
     externalRadius : an alias for radius
     internalRadius : at the time of creation
     box() the external box
-    internalBox()
     start
     end
     axis
@@ -397,15 +396,13 @@ class Washer(Cylinder):
     """
 
     def __init__(self,start,end,eradius,iradius):
-        super().__init__(start,end,eradius)
         Cylinder.__init__(self,start,end,eradius)
-        iCylinder=Cylinder(start,end,iradius)
         longCylinder=ICylinder(Segment(start,end),iradius)
         #longCylinder.color=copy.copy(self.color)
         self.amputed_by(longCylinder)
-        self.externalRadius=self.radius
-        self.internalRadius=iCylinder.radius
-        self.internalBox=iCylinder.box()
+        self.externalRadius=eradius
+        self.internalRadius=iradius
+        #self.internalBox=iCylinder.box()
         #return self
 
 

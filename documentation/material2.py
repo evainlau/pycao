@@ -61,26 +61,24 @@ camera=Camera()
                 SCENE DESCRIPTION
 """
 
-if 1>0:
-    p=plane(Z,origin)
-    pig1=Pigment("Coral") # a color known by povray
-    pig2=Pigment.from_photo("chene.png",dimx=3.,dimy=10.,symmetric=True) # a pigment constructed by Pycao
-    normal1=Normal("bozo 1.5 scale .04") # A normal which is a valid povray string
-    finish1=Finish(" ambient .35 diffuse .1 phong .023 phong_size 15")
-    t1=Texture(pig1,normal1,finish1) # We put the elements in a texture
-    t2=Texture(pig2,finish1)
-    p.textured(t2) # we apply on our object
-    s=Sphere(origin+.35*Z,.5).textured(t1).scale(1.05,1.03,1)
-    """
-    finish2=Finish(" phong .023 phong_size 15")
-    finish2.enhance(" ambient .2 diffuse .08 ") #PNF items enhanced by string
-    t=Sphere(origin+.35*Z-1*X,.5).colored("Yellow").scale(1.9,1.03,1)
-    t.texture.enhance(normal1).enhance(finish2) #Texture enhanced by a PNFT item 
-    normal2=Normal("bumps .55 scale .061") # A normal which is a valid povray string
-    p.add_to_texture(normal2) # enhancing the object directly rather than the texture. 
-    """
+#bbloc1
+p=plane(Z,origin)
+c=Cube(1,1,1)
+d=c.clone().translate(2*X)
+e=d.clone().translate(2*X) 
+f=d.clone().translate(4*X)
 
-    
+pig1=Pigment.from_photo("chene.png",dimx=2.,dimy=10.,center=None,symmetric=False)
+p.textured(pig1)
+pig2=Pigment.from_photo("parquet1.png",dimx=2.,dimy=3.,center=None,symmetric=False)
+#pig3=Pigment.from_photo("parquet1.png",dimx=2.,dimy=3.,center=None,symmetric=False)
+for ob in [c,d,e,f]:
+    ob.textured(pig2)
+unleash_texture([c,d]) # Now, c,d  have a texture different from e,f
+d.rotate(X,3.14/2) # The pigment move both in d and c, sharing the same structure, but not in e,f on the right
+#ebloc1
+
+
 
 
 #################################################
@@ -90,18 +88,16 @@ if 1>0:
 
 directory=os.path.dirname(os.path.realpath(__file__))
 base=os.path.basename(__file__)
-camera.file=directory+"/docPictures/material1.pov" # A name for the first photo
-
-
-camera.povraypath=pycaoDir+"../images/" # where you put your images,photos for the textures
+camera.file=directory+"/docPictures/"+os.path.splitext(base)[0]+".pov"
+camera.povraypath=pycaoDir+"/../images/" # where you put your images,photos for the textures
 print (camera.povraypath)
-camera.zoom(0.655)
+camera.zoom(0.55)
 camera.imageHeight=800 # in pixels
 camera.imageWidth=1200 
-camera.quality=11 # a number between 0 and 11,  Consider using a lower quality setting if you're just testing your scene
+camera.quality=9 # a number between 0 and 11,  Consider using a lower quality setting if you're just testing your scene
 
 
-camera.lookAt=origin#+3*X+.75*Z # look at the center of cyl
+camera.lookAt=origin+3*X+.75*Z # look at the center of cyl
 
 #camera.actors=[] # If you want to fill this list and use it, you should set camera.filmAllActors to False. 
 camera.filmAllActors=True # overrides the camera.actors list
@@ -110,23 +106,7 @@ camera.filmAllActors=True # overrides the camera.actors list
 
 camera.hooked_on(origin+1.6*X-4*Y+3.6*Z)  # the positive y are in front of us if the camera is located in negative Y and we look at  a point close to the origin
 light=Light().hooked_on(origin+8*X+10*Z) # a light located close to the camera
-light=Light().hooked_on(origin+8*X+.2*Y+10*Z) # a light located close to the camera
-light=Light().hooked_on(origin+8*X-.3*Y+10*Z) # a light located close to the camera
+
 camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
 camera.pov_to_png # show the photo, ie calls povray. 
 #camera.pov_to_png_without_viewer # if you want only the photo but not the graphical interface
-
-
-if 1>0:
-    finish2=Finish(" phong .023 phong_size 15")
-    finish2.enhance(" ambient .2 diffuse .08 ") #PNF items enhanced by string
-    t=Sphere(origin+.35*Z-1*X,.5).colored("Yellow").scale(1.9,1.03,1)
-    t.texture.enhance(normal1).enhance(finish2) #Texture enhanced by a PNFT item 
-    normal2=Normal("bumps .55 scale .061") # A normal which is a valid povray string
-    p.add_to_texture(normal2) # enhancing the object directly rather than the texture. 
-    camera.file=directory+"/docPictures/"+os.path.splitext(base)[0]+".pov"
-    camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
-    camera.pov_to_png # show the photo, ie calls povray. 
-
-
-    

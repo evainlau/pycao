@@ -55,35 +55,7 @@ from material import *
 
 camera=Camera()
 
-#######################################
 
-"""
-                SCENE DESCRIPTION
-"""
-
-#bbloc1
-p=plane(Z,origin)
-pig1=Pigment.from_photo("parquet1.png",dimx=2,dimy=2,symmetric=True) # a pigment constructed by Pycao
-pig2=Pigment.from_photo("chene.png",dimx=2.,dimy=2.,symmetric=True) # a pigment constructed by Pycao
-pig3=Pigment("Blue")
-pig4=Pigment("Red")
-pig=Pigment.from_square(pig1,pig2,pig3,pig4)
-p.textured(pig)
-#ebloc1
-#p.textured(text) # we apply on our object
-
-
-
-#################################################
-#  Now, what you see
-#################################################
-
-
-directory=os.path.dirname(os.path.realpath(__file__))
-base=os.path.basename(__file__)
-camera.file=directory+"/docPictures/"+os.path.splitext(base)[0]+".pov"
-camera.povraypath=pycaoDir+"/../images/" # where you put your images,photos for the textures
-print (camera.povraypath)
 camera.zoom(0.655)
 camera.imageHeight=800 # in pixels
 camera.imageWidth=1200 
@@ -101,6 +73,47 @@ camera.hooked_on(origin+1.6*X-4*Y+3.6*Z)  # the positive y are in front of us if
 light=Light().hooked_on(origin+8*X+10*Z) # a light located close to the camera
 light=Light().hooked_on(origin+8*X+.2*Y+10*Z) # a light located close to the camera
 light=Light().hooked_on(origin+8*X-.3*Y+10*Z) # a light located close to the camera
-camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
-camera.pov_to_png # show the photo, ie calls povray. 
-#camera.pov_to_png_without_viewer # if you want only the photo but not the graphical interface
+
+#######################################
+
+"""
+                SCENE DESCRIPTION
+"""
+
+
+directory=os.path.dirname(os.path.realpath(__file__))
+base=os.path.basename(__file__)
+camera.file=directory+"/docPictures/"+os.path.splitext(base)[0]+"1.pov"
+camera.povraypath=pycaoDir+"/../images/" # where you put your images,photos for the textures
+#bbloc1
+p=plane(Z,origin)
+pig1=Pigment("Coral") # a color known by povray
+pig2=Pigment.from_photo("chene.png",dimx=3.,dimy=10.,symmetric=True) # a pigment constructed by Pycao
+normal1=Normal("bozo 1.5 scale .04") # A normal which is a valid povray string
+finish1=Finish(" ambient .35 diffuse .1 phong .023 phong_size 15")
+t1=Texture(pig1,normal1,finish1) # We put the elements in a texture
+t2=Texture(pig2,finish1)
+p.textured(t2) # we apply on our object
+s=Sphere(origin+.35*Z,.5).textured(t1).scale(1.05,1.03,1)
+#ebloc1
+camera.shoot
+camera.pov_to_png
+camera.file=directory+"/docPictures/"+os.path.splitext(base)[0]+"2.pov"
+#bbloc2
+finish2=Finish(" phong .023 phong_size 15")
+finish2.enhance(" ambient .2 diffuse .08 ") #PNF items enhanced by string
+t=Sphere(origin+.35*Z-1*X,.5).colored("Yellow").scale(1.9,1.03,1)
+t.texture.enhance(normal1).enhance(finish2) #Texture enhanced by a PNFT item 
+normal2=Normal("bumps .55 scale .061") # A normal which is a valid povray string
+p.add_to_texture(normal2) # enhancing the object directly rather than the texture. 
+#ebloc2
+camera.shoot
+camera.pov_to_png
+    
+
+
+#################################################
+#  Now, what you see
+#################################################
+
+

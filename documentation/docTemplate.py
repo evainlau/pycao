@@ -17,9 +17,6 @@
 """
 
 
-
-#pycaoDir="/home/laurent/subversion/articlesEtRechercheEnCours/pycao/pycaogit"
-#pycaoDir="/users/evain/subversion/articlesEtRechercheEnCours/pycao/pycaogit/core"
 import os
 thisFileAbsName=os.path.abspath(__file__)
 pycaoDir=os.path.dirname(thisFileAbsName)+"/../core"
@@ -54,6 +51,7 @@ from material import *
 
 
 camera=Camera()
+light=Light().hooked_on(camera.hook()+3*X) # a light located close to the camera                                                                            
 
 #######################################
 
@@ -61,34 +59,32 @@ camera=Camera()
                 SCENE DESCRIPTION
 """
 
-c=BezierCurve([origin,X,Z,X])
-Prism(c,splineType="bezier").colored("Yellow")
+#bbloc1 
+
+#ebloc1
 
 
 
+camera.hooked_on(origin-.6*Y+1*Z)  # the positive y are in front of us because the camera is located in negative Y and we look at
+camera.lookAt=origin # look at the center of cyl
+camera.actors=[]
+
+camera.povraypath=pycaoDir+"/../images/" # where you put your images,photos for the textures
+camera.zoom(1.5)
+camera.imageHeight=600 # in pixels
+camera.imageWidth=600 
+camera.quality=9 # a number between 0 and 11,  Consider using a lower quality setting if you're just testing your scene
+
+
+directory=os.path.dirname(os.path.realpath(__file__))
+base=os.path.basename(__file__)
+fileNameNoSuffix=os.path.splitext(base)[0]
+camera.file=directory+"/docPictures/"+fileNameNoSuffix+".pov"
+
+camera.shoot
+camera.pov_to_png
 
 #################################################
 #  Now, what you see
 #################################################
-directory=os.path.dirname(os.path.realpath(__file__))
-base=os.path.basename(__file__)
-camera.file=directory+"/docPictures/"+os.path.splitext(base)[0]+".pov"
-camera.povraypath=pycaoDir+"images/" # where you put your images,photos for the textures
-camera.zoom(0.15)
-camera.imageHeight=800 # in pixels
-camera.imageWidth=1200 
-camera.quality=9 # a number between 0 and 11,  Consider using a lower quality setting if you're just testing your scene
 
-
-camera.lookAt=origin # look at the center of cyl
-
-#camera.actors=[] # If you want to fill this list and use it, you should set camera.filmAllActors to False. 
-camera.filmAllActors=True # overrides the camera.actors list
-
-
-
-camera.hooked_on(origin+0*X-1*Y+1*Z)  # the positive y are in front of us if the camera is located in negative Y and we look at  a point close to the origin
-light=Light().hooked_on(camera.hook()+1*X+1*Z) # a light located close to the camera
-
-camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
-camera.pov_to_png # show the photo, ie calls povray. 

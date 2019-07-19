@@ -19,10 +19,10 @@
 
 
 #pycaoDir="/home/laurent/subversion/articlesEtRechercheEnCours/pycao/pycaogit"
-#pycaoDir="/users/evain/subversion/articlesEtRechercheEnCours/pycao/pycaogit/core/"
+#pycaoDir="/users/evain/subversion/articlesEtRechercheEnCours/pycao/pycaogit/core"
 import os
 thisFileAbsName=os.path.abspath(__file__)
-pycaoDir=os.path.dirname(thisFileAbsName)+"/../core"
+pycaoDir=os.path.dirname(thisFileAbsName)+"/../../core"
 
 import sys
 sys.path.append(pycaoDir)
@@ -61,49 +61,35 @@ camera=Camera()
                 SCENE DESCRIPTION
 """
 
-if 1>0:
-    p=plane(Z,origin)
-    pig1=Pigment.from_photo("parquet1.png",dimx=2,dimy=2,symmetric=True) # a pigment constructed by Pycao
-    pig2=Pigment.from_photo("chene.png",dimx=2.,dimy=2.,symmetric=True) # a pigment constructed by Pycao
-    pig3=Pigment("Blue")
-    pig4=Pigment("Red")
-    pig=Pigment.from_square(pig1,pig2,pig3,pig4)
-    p.textured(pig)
-    #p.textured(text) # we apply on our object
+c=BezierCurve([origin,X,Z,X])
+d=Prism(c,splineType="linear").colored("Yellow")
 
 
-    """
-
-    """
 
 
 #################################################
 #  Now, what you see
 #################################################
-
-camera.file="material4.pov" # A name for the povray file that will be generated. Must end with .pov
 directory=os.path.dirname(os.path.realpath(__file__))
 base=os.path.basename(__file__)
-camera.file=directory+"/docPictures/"+os.path.splitext(base)[0]+".pov"
-camera.povraypath=pycaoDir+"../images/" # where you put your images,photos for the textures
-print (camera.povraypath)
-camera.zoom(0.655)
+camera.file=directory+"/../docPictures/"+os.path.splitext(base)[0]+".pov"
+camera.povraypath=pycaoDir+"images/" # where you put your images,photos for the textures
+camera.zoom(1.15)
 camera.imageHeight=800 # in pixels
 camera.imageWidth=1200 
-camera.quality=11 # a number between 0 and 11,  Consider using a lower quality setting if you're just testing your scene
+camera.quality=9 # a number between 0 and 11,  Consider using a lower quality setting if you're just testing your scene
 
 
-camera.lookAt=origin#+3*X+.75*Z # look at the center of cyl
+camera.lookAt=origin # look at the center of cyl
 
 #camera.actors=[] # If you want to fill this list and use it, you should set camera.filmAllActors to False. 
 camera.filmAllActors=True # overrides the camera.actors list
 
 
 
-camera.hooked_on(origin+1.6*X-4*Y+3.6*Z)  # the positive y are in front of us if the camera is located in negative Y and we look at  a point close to the origin
-light=Light().hooked_on(origin+8*X+10*Z) # a light located close to the camera
-light=Light().hooked_on(origin+8*X+.2*Y+10*Z) # a light located close to the camera
-light=Light().hooked_on(origin+8*X-.3*Y+10*Z) # a light located close to the camera
+camera.hooked_on(origin+0*X-3*Y+5*Z)  # the positive y are in front of us if the camera is located in negative Y and we look at  a point close to the origin
+light=Light().hooked_on(camera.hook()+1*X+1*Z) # a light located close to the camera
+
 camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
 camera.pov_to_png # show the photo, ie calls povray. 
-#camera.pov_to_png_without_viewer # if you want only the photo but not the graphical interface
+#camera.show

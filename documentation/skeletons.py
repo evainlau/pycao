@@ -128,29 +128,3 @@ camera.pov_to_png # show the photo, ie calls povray.
 #################################################
 #  Now, what you see
 #################################################
-"""
-camera.file="pycaoOutput.pov" # A name for the povray file that will be generated. Must end with .pov
-directory=os.path.dirname(os.path.realpath(__file__))
-base=os.path.basename(__file__)
-camera.file=directory+"/docPictures/"+os.path.splitext(base)[0]+".pov"
-camera.povraypath=pycaoDir+"images/" # where you put your images,photos for the textures
-camera.zoom(0.15)
-camera.imageHeight=800 # in pixels
-camera.imageWidth=1200 
-camera.quality=9 # a number between 0 and 11,  Consider using a lower quality setting if you're just testing your scene
-
-
-camera.lookAt=origin # look at the center of cyl
-
-#camera.actors=[] # If you want to fill this list and use it, you should set camera.filmAllActors to False. 
-camera.filmAllActors=True # overrides the camera.actors list
-
-
-
-camera.hooked_on(origin+0*X-1*Y+1*Z)  # the positive y are in front of us if the camera is located in negative Y and we look at  a point close to the origin
-light=Light().hooked_on(camera.hook()+1*X+1*Z) # a light located close to the camera
-
-camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
-camera.show # show the photo, ie calls povray. 
-#camera.show_without_viewer # if you want only the photo but not the graphical interface
-"""

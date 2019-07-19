@@ -38,8 +38,8 @@ Check the installation
 * in a terminal,  run the command "python /home/myName/core/template.py"
   and you should see the first 3D picture you have created with pycao
 
-  
-.. image:: ./../core/template.png
+.. image:: ./docPictures/install1.png
+
 
 Preparing your future projects
 --------------------------------

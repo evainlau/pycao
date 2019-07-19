@@ -84,9 +84,6 @@ button=Sphere(drawer.point(.5,0,.5,"pap"),.01).colored("Yellow").glued_on(drawer
 
 directory=os.path.dirname(os.path.realpath(__file__))
 base=os.path.basename(__file__)
-camera.file="boxDrawer.pov" # A name for the povray file that will be generated. Must end with .pov
-directory=os.path.dirname(os.path.realpath(__file__))
-base=os.path.basename(__file__)
 camera.file=directory+"/docPictures/"+os.path.splitext(base)[0]+".pov"
 camera.povraypath=pycaoDir+"/images/" # where you put your images,photos for the textures
 camera.zoom(0.55)

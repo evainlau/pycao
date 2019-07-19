@@ -1,15 +1,15 @@
 ****************************************************
 Discover Pycao
 ****************************************************
-.. image:: ../images/maisonLau.png
+.. image:: ./docPictures/maisonLau.png
     :height: 400px
     :align: left
 
-.. image:: ../images/velo.png
+.. image:: ./docPictures/bike.png
     :height: 400px
     :align: right
 	    
-.. image:: ../images/meuble.png	    
+.. image:: ./docPictures/drawer.png	    
     :height: 400px
     :align: right
 	    
@@ -117,7 +117,7 @@ the colors.
 
 .. image:: ../images/table.png
 
-.. image:: ../images/wheel.png
+.. image:: ./docPictures/wheel.png
 
 
 The second main objective of Pycao is to make the code coordinate
@@ -176,11 +176,11 @@ Blender, you will find help for these problems and for the debugging work.
 
 Freecad and Salome api seem powerful. I have not used them very much because
 they appeared to be too complex for my needs. The philosophy is very different from
-pycao. Both try to give the user power and versatility rather than
-simplicity. The code is marked by the
-integrated environnement ( see an example of freecad code below) whereas pycao aims ease of
+pycao, they are API whereas Pycao is a modeller.
+Both try to give the user power and versatility rather than a
+simplified syntax to describe the model. The code is marked by the
+integrated environnement whereas pycao aims ease of
 use for small/medium projects, and freeness from any environnment. 
-
 
 Openscad exports to stl (pycao does not). Thus Openscad may be usable for 3D-printing
 machines. It uses a simple low level language with few
@@ -191,8 +191,6 @@ I hardly imagine a complete modelisation of a bike and a dummy as
 above with this language.  Photo realistic
 drawing is not possible with openscad. 
 
-
-.. image:: ../images/freecad.png
 
 
 I am an expert. A few words about the architecture ? 

@@ -85,23 +85,3 @@ camera.pov_to_png
 
 
 
-#################################################
-#  Now, what you see
-#################################################
-
-
-camera.hooked_on(origin-4*Y+2*Z)  # the positive y are in front of us because the camera is located in negative Y and we look at  a point close to the origin
-camera.lookAt=cyl.point(.5,.5,.5) # look at the center of cyl
-# uncomment the following line if you want to see all objects without filling manually
-# the previous list camera.actors. It will override the previous line.
-#camera.filmAllActors=True # overrides the camera.actors list
-camera.file="pycaoOutput.pov" # A name for the povray file that will be generated. Must end with .pov
-camera.povraypath=pycaoDir+"images/" # where you put your images,photos for the textures
-camera.zoom(0.15)
-camera.imageHeight=800 # in pixels
-camera.imageWidth=1200 
-camera.quality=9 # a number between 0 and 11,  Consider using a lower quality setting if you're just testing your scene
-
-camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
-#camera.show # show the photo, ie calls povray. 
-#camera.show_without_viewer # if you want only the photo but not the graphical interface, u

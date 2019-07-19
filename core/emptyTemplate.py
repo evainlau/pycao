@@ -68,7 +68,7 @@ camera=Camera()
 #################################################
 
 camera.file="pycaoOutput.pov" # A name for the povray file that will be generated. Must end with .pov
-camera.povraypath=pycaoDir+"images/" # where you put your images,photos for the textures
+camera.povraypath=pycaoDir+"/../images/" # where you put your images,photos for the textures
 camera.zoom(0.15)
 camera.imageHeight=800 # in pixels
 camera.imageWidth=1200 

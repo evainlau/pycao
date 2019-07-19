@@ -1,6 +1,5 @@
 
-pycaoDir="/home/laurent/subversion/evain/articlesEtRechercheEnCours/pycao"
-#pycaoDir="/users/evain/subversion/articlesEtRechercheEnCours/pycao/pycaogit/core"
+
 import os
 thisFileAbsName=os.path.abspath(__file__)
 pycaoDir=os.path.dirname(thisFileAbsName)+"/../core"
@@ -95,4 +94,5 @@ camera.imageWidth=600
 
 camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
 #camera.pov_to_png # show the photo, ie calls povray. 
-camera.show
+#camera.show
+camera.pov_to_png

@@ -60,20 +60,13 @@ The simplest way to control the aspect of an object is to define a
 pignment, normal and finish, a texture from them, and to apply on
 our object. 
    
-.. image:: ./docPictures/material1.png
+.. image:: ./docPictures/material11.png
 
-.. code-block:: python 
 
-    p=plane(Z,origin)
-    pig1=Pigment("Coral") # a color known by povray
-    pig2=Pigment.from_photo("chene.png",dimx=3.,dimy=10.,symmetric=True) # a pigment constructed by Pycao
-    normal2=Normal("bumps .25 scale .061") # A normal which is a valid povray string
-    normal1=Normal("bozo 1.5 scale .04") # A normal which is a valid povray string
-    finish1=Finish(" ambient .35 diffuse .1 phong .023 phong_size 15")
-    t1=Texture(pig1,normal1,finish1) # We put the elements in a texture
-    t2=Texture(pig2,normal2,finish1)
-    p.textured(t2) # we apply on our object
-    s=Sphere(origin+.35*Z,.5).textured(t1).scale(1.05,1.03,1)
+.. literalinclude:: material1.py
+   :start-after: bbloc1
+   :end-before: ebloc1
+
 
 
 
@@ -86,17 +79,11 @@ material.  And we can add a material to a previously
 defined texture. It is also possible to change the object directly. Here is an example
 and the code to expand our scene. 
 
-.. image:: ./docPictures/material2.png
+.. image:: ./docPictures/material12.png
 
-.. code-block:: python 
-
-
-    finish2=Finish(" phong .023 phong_size 15")
-    finish2.enhance(" ambient .2 diffuse .08 ") #PNF items enhanced by a string
-    t=Sphere(origin+.35*Z-1*X,.5).colored("Yellow").scale(1.9,1.03,1)
-    t.texture.enhance(normal1).enhance(finish2) #Texture enhanced by a PNFT item 
-    normal2=Normal("bumps .55 scale .061") # A normal which is a valid povray string
-    p.add_to_texture(normal2) # enhancing the object directly rather than the texture. 
+.. literalinclude:: material1.py
+   :start-after: bbloc2
+   :end-before: ebloc2
 
 
 Moving, gluing, relaxing
@@ -117,39 +104,21 @@ On the image, we see how to create a texture
 from a photo in the x,y plane. Some cubes share the same texture and some don't.
 
 
-.. image:: ./docPictures/material3.png
+.. image:: ./docPictures/material2.png
 
-.. code-block:: python
+.. literalinclude:: material2.py
+   :start-after: bbloc1
+   :end-before: ebloc1
 
-    p=plane(Z,origin)
-    c=Cube(1,1,1)
-    d=c.clone().translate(2*X)
-    e=d.clone().translate(2*X) 
-    f=d.clone().translate(4*X)
-		
-    pig1=Pigment.from_photo("chene.png",dimx=2.,dimy=10.,center=None,symmetric=False)
-    p.textured(pig1)
-    pig2=Pigment.from_photo("parquet1.png",dimx=2.,dimy=3.,center=None,symmetric=False)
-    #pig3=Pigment.from_photo("parquet1.png",dimx=2.,dimy=3.,center=None,symmetric=False)
-    for ob in [c,d,e,f]:
-        ob.textured(pig2)
-    unleash_texture([c,d]) # Now, c,d  have a texture different from e,f
-    d.rotate(X,3.14/2) # The pigment move both in d and c, sharing the same structure, but not in e,f on the right
-
+	   
 
 Some constructs
 -------------------
 
 
-.. image:: ./docPictures/material4.png
+.. image:: ./docPictures/material3.png
 
-.. code-block:: python
-
-    p=plane(Z,origin)
-    pig1=Pigment.from_photo("parquet1.png",dimx=2,dimy=2,symmetric=True) # a pigment constructed by Pycao
-    pig2=Pigment.from_photo("chene.png",dimx=2.,dimy=2.,symmetric=True) # a pigment constructed by Pycao
-    pig3=Pigment("Blue")
-    pig4=Pigment("Red")
-    pig=Pigment.from_square(pig1,pig2,pig3,pig4)
-    p.textured(pig)
+.. literalinclude:: material3.py
+   :start-after: bbloc1
+   :end-before: ebloc1
 

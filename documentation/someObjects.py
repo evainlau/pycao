@@ -96,7 +96,7 @@ if 1>0:  #bbloc1
    directory=os.path.dirname(os.path.realpath(__file__))
    base=os.path.basename(__file__)
    camera.file=directory+"/docPictures/"+os.path.splitext(base)[0]+".pov"
-   #camera.filmAllActors=True
+   camera.filmAllActors=True
    camera.location=origin+7*Y+3.2*Z
    camera.zoom(0.4)
    camera.lookAt=closedPinkCylinder.center
@@ -106,7 +106,7 @@ if 1>0:  #bbloc1
                  redSphere,silverWasher,blueOpenCylinder,yellowTorus,cyanLathe,orangeLathe,bronzeLathe,HunterGreenRuledSurface]
    camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
    camera.pov_to_png # show the photo, ie calls povray. 
-
+   #camera.show
 
 
 """

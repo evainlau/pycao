@@ -47,63 +47,24 @@ from compound import *
 import povrayshoot 
 from cameras import *
 from lights import *
-
-
-class FrontWheel(Compound):
-    """
-    A class for Front wheels with a rim, a hub, a tyre, and spokes. 
-
-    Constructor
-    FrontWheel(tyreExteriorDiameter=0.70,tyreInternalRadius=0.02,wheelCenter=point(0,0,0)
-    ,tyreColor='Green',rimColor='Red',hubColor='White',hubWidth=0.3,hubInternalRadius=0.025
-    ,hubExternalRadius=0.05,numberOfSpokes=32,spokeRadius=0.0018,spokeColor='Black'
-    ,rimOuterRadius=0.345,rimInnerRadius=0.320)
-    """
-    def __init__(self,tyreExteriorDiameter=0.70,tyreInternalRadius=0.02,wheelCenter=point(0,0,0)
-    ,tyreColor='Green',rimColor='Red',hubColor='White',hubWidth=0.3,hubInternalRadius=0.025
-    ,hubExternalRadius=0.05,numberOfSpokes=32,spokeRadius=0.0018,spokeColor='Black'
-    ,rimOuterRadius=0.345,rimInnerRadius=0.320):
-
-        # tyre and rim
-        tyre=Torus(tyreExteriorDiameter/2,tyreInternalRadius,Y,origin)
-        rim=Washer(origin-0.015*Y,origin+0.015*Y,rimOuterRadius,rimInnerRadius)
-        tyre.color=tyreColor
-        rim.color=rimColor
-
-        #hub
-        hub=Cylinder(origin-hubWidth/2*Y,origin+hubWidth/2*Y,hubInternalRadius)
-        hub.color=hubColor
-        plaque1=Cylinder(origin,origin+0.0002*Y,hubExternalRadius)
-        plaque1.color=hubColor
-        plaque1.against(hub,Y,Y,X,X)
-        plaque2=plaque1.clone()
-        plaque2.against(hub,-Y,-Y,X,X)
-
-        self.slaves=[tyre,rim,plaque1,plaque2,["hub",hub]]
-
-        # firstLeftSpoke
-        spokeInit=plaque1.point(0.5,0.5,0.01,"ppn")
-        spokeEnd=tyre.point(0.5,0.5,0.02,"ppn")
-        spokeEnd.rotate(tyre.axis(),math.pi*4/numberOfSpokes)
-        leftSpoke=Cylinder(spokeInit,spokeEnd,spokeRadius)
-        leftSpoke.color=spokeColor
-
-        # firstRightspoke
-        spokeInit=plaque2.point(0.5,0.5,.01,"ppn")
-        spokeEnd=tyre.point(0.5,0.5,0.02,"ppn")
-        spokeEnd.rotate(tyre.axis(),-math.pi*4/numberOfSpokes)
-        rightSpoke=Cylinder(spokeInit,spokeEnd,spokeRadius)
-        rightSpoke.color=spokeColor
-
-        # otherSpokes via rotation.
-        for i in range(numberOfSpokes/2):
-            spoke1=leftSpoke.clone()
-            self.slaves.append(spoke1.rotate(tyre.axis(),4*math.pi/numberOfSpokes*i))
-            spoke2=rightSpoke.clone()
-            self.slaves.append(spoke2.rotate(tyre.axis(),4*math.pi/numberOfSpokes*(i+0.5)))
-
-        self.build_from_slaves()
+from bikelibrary import RearWheel
+from bikelibrary import FrontWheel
 
 
 
 
+
+
+w=RearWheel()
+p=plane(Z,origin-(w.tyre.externalRadius+.02)*Z).colored("Bronze")
+#Washer(origin-0.015*Y,origin+0.015*Y,.6,.7)
+
+directory=os.path.dirname(os.path.realpath(__file__))
+base=os.path.basename(__file__)
+camera=Camera().hooked_on(origin+1*(-5*Y-X+3*Z))
+l=Light().hooked_on(origin+10*(-2*Y-0*X+6*Z))
+camera.file=directory+"/docPictures/"+os.path.splitext(base)[0]+".pov"
+#camera.filmAllActors=True
+camera.actors=[p,w]
+camera.zoom(3.6)
+camera.shoot.pov_to_png

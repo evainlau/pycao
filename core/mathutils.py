@@ -349,36 +349,13 @@ class Base(list,Primitive):
 ################################################################
 
 
+
+
 class AffinePlane(Primitive):
-    def __init__(self,*args,**kwargs):
-        ObjectInWorld.__init__(self)
-
-
-class AffinePlaneWithEquation(AffinePlane,np.ndarray):
     """ 
     An affine plane with equation ax_0+bx_1+cx_2+d=0.
     Equivalently, this is the equation  ax_0+bx_1+cx_2+dx_3=0 of a 3-dim linear space in the massic space.
-    What is drawn in the 3D view is the half space  ax_0+bx_1+cx_2+d<=0, ie. the normal vector points outside the plane.
-
-
-    Construction:
-    p=AffinePlaneWithEquation(normal,markedPoint)
-    p=AffinePlaneWithEquation(p1,p2,p3) 
-    AffinePlaneWithEquation.from_bisector(p1,p2) : returns the bissector with normal p2-p1
-    AffinePlaneWithEquation.from_bisector(segment) : as above with p1=segment.p1 and p2=segment.p2
-    AffinePlaneWithEquation.from_coeffs(a,b,c,d):        Returns the plane ax+by+cz+d=0
-
-
-    Attributes:
-    normal: normal vector(a,b,c) pointing to the exterior (empty) half space.
-    markedPoint : a point on the plane
-    distanceFromOrigin is equal to the distance plane-Origin
-    self[i,i in range(3)]=[a,b,c,d] the ndarray of coefficients.
-    reverse(): replaces its normal by its opposite, thus inverts interior and exterior
-    half_space_contains (point): returns true if the half space defined by the plane contains the point. True on the plane.
     """
-    #  __functions__
-
     def __str__(self):
         return "Plane with equation "+" ".join([str(self[0]),"x+",str(self[1]),"y+",str(self[2]),"z+",str(self[3]),"=0"]) 
 
@@ -526,6 +503,35 @@ class AffinePlaneWithEquation(AffinePlane,np.ndarray):
             return True
         else:
             return False
+
+class AffinePlaneWithEquation(AffinePlane,np.ndarray):
+    """
+    This is a plane. The only difference with MathPlane is that 
+    an instance of the present class is shown in the 3D view. 
+    The normal vector of the 
+    What is drawn in the 3D view is the half space  ax_0+bx_1+cx_2+d<=0, ie. the normal vector(a,b,c,d) points outside the plane.
+
+
+    Construction:
+    p=AffinePlaneWithEquation(normal,markedPoint)
+    p=AffinePlaneWithEquation(p1,p2,p3) 
+    AffinePlaneWithEquation.from_bisector(p1,p2) : returns the bissector with normal p2-p1
+    AffinePlaneWithEquation.from_bisector(segment) : as above with p1=segment.p1 and p2=segment.p2
+    AffinePlaneWithEquation.from_coeffs(a,b,c,d):        Returns the plane ax+by+cz+d=0
+
+
+    Attributes:
+    normal: normal vector(a,b,c) pointing to the exterior (empty) half space.
+    markedPoint : a point on the plane
+    distanceFromOrigin is equal to the distance plane-Origin
+    self[i,i in range(3)]=[a,b,c,d] the ndarray of coefficients.
+    reverse(): replaces its normal by its opposite, thus inverts interior and exterior
+    half_space_contains (point): returns true if the half space defined by the plane contains the point. True on the plane.
+    """
+
+#    def __init__(self,*args,**kwargs):
+#        super.__init__(self)
+
         
 
 class FunctionCurve(ObjectInWorld):
@@ -1043,10 +1049,11 @@ class Polyhedral(AffinePlaneWithEquation):
     Constructors 
     Polyhedral(listOfPlanes): the last item of the list is the father of the intersection
     """
+
     
     def __new__(cls,listOfPlanes):
         #print([plane.children for plane in listOfPlanes])
-        myList=[ myPlane.clone() for myPlane in listOfPlanes ]
+        myList=[ myPlane for myPlane in listOfPlanes ]
         #print([plane.children for plane in myList])
         poly=myList.pop()
         #print(poly.children)
@@ -1054,6 +1061,7 @@ class Polyhedral(AffinePlaneWithEquation):
         poly.intersected_by(myList)
         return poly
 
+    
 
 class AffineLine(Primitive):
     def __init__(self,*args,**kwargs):
