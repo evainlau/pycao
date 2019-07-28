@@ -1,0 +1,1 @@
+This one line file to add the containing directory in the git tree as git does only consider files not dir
