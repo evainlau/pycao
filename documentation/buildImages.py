@@ -23,35 +23,26 @@ absList2=[path+"/"+File for File in baseList2]
 #for f in absList1: print(f)
 #print()
 #for f in absList2: print(f)
-#commande="rm "+thisFileAbsDir+"/docPictures/*"
+#commande="rm "+thisFileAbsDir+"/generatedImages/*"
 #print(commande)
 #os.system(commande)
 
 
-if len(sys.argv)==1 or sys.argv[1]=="help":
-    print("python3 buildoc images : to generate the images\npython3 buildoc html or python3 buildoc html  to build the html file in the local html dir after the images have been generated\nTo build in an other place use \"sphinx-build -b html sourceDir OutputDir\" in an existing OutputDir")
-elif "images" in sys.argv:
-    commande="rm "+thisFileAbsDir+"/docPictures/*"
-    print(commande)
-    os.system(commande)
-    for myfile in absList1:
-        print(myfile)
-        os.system("python3 "+myfile)
-        #__import__(base) # does not work for some unknoww reason
-    
-    for myfile in absList2:
-        print(myfile)
-        os.system("python3 "+myfile)
-        #__import__(myfile)
-        
-if "html" in sys.argv:
-    if len(sys.argv)<3: dirBuild="html"
-    elif sys.argv[2]=="local":
-        dirBuild="html"
-    commande="cd "+str(thisFileAbsDir)+"; sphinx-build -b html . html"
-    print(commande)
-    #os.system(commande)
-"""
+commande="rm "+thisFileAbsDir+"/generatedImages/*"
+print(commande)
+os.system(commande)
+for myfile in absList1:
+    print(myfile)
+    os.system("python3 "+myfile)
+    #__import__(base) # does not work for some unknoww reason
+
+for myfile in absList2:
+    print(myfile)
+    os.system("python3 "+myfile)
+    #__import__(myfile)
+
+
+    """
 TODO
 - essayer d'automatiser le stderr et le stdOutput de ce script et de baisser la verbosite' de povray pour que ce soit exploitable
 - comprendre pourquoi le prism linear fonctionne mais pas le prism Bezier dans examples

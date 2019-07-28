@@ -70,7 +70,7 @@ positions, the second list relative positions, the third one is a mix.
 Polyline and Bezier Curves
 ---------------------------------------------------
 
-.. image:: ./docPictures/curves1.png
+.. image:: ./generatedImages/curves1.png
 
 The following sequence builds the basic usable curves, 
 namely a Bezier curve and a Polyline. Since a curve is infinitly
@@ -107,7 +107,7 @@ appears smooth at the junction point between the start and the
 end of the curve. 
 
 
-.. image:: ./docPictures/curves2.png
+.. image:: ./generatedImages/curves2.png
 
 
 .. literalinclude:: curves2.py
@@ -173,7 +173,7 @@ torsion to an aluminium can. The violet join also illustrates that we can option
 add caps at the extremities of the join. 
 
 
-.. image:: ./docPictures/curves3.png
+.. image:: ./generatedImages/curves3.png
 
 
 .. literalinclude:: curves3.py
@@ -190,7 +190,7 @@ x>0 around the Y-axis.
 
 
 
-.. image:: ./docPictures/curves4.png
+.. image:: ./generatedImages/curves4.png
 
 .. literalinclude:: curves4.py
    :start-after: bbloc1

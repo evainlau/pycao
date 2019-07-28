@@ -79,7 +79,7 @@ camera.quality=9 # a number between 0 and 11,  Consider using a lower quality se
 directory=os.path.dirname(os.path.realpath(__file__))
 base=os.path.basename(__file__)
 fileNameNoSuffix=os.path.splitext(base)[0]
-camera.file=directory+"/docPictures/"+fileNameNoSuffix+".pov"
+camera.file=directory+"/generatedImages/"+fileNameNoSuffix+".pov"
 
 camera.shoot
 camera.pov_to_png

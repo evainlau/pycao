@@ -63,7 +63,7 @@ directory=os.path.dirname(os.path.realpath(__file__))
 base=os.path.basename(__file__)
 camera=Camera().hooked_on(origin+1*(-5*Y-X+3*Z))
 l=Light().hooked_on(origin+10*(-2*Y-0*X+6*Z))
-camera.file=directory+"/docPictures/"+os.path.splitext(base)[0]+".pov"
+camera.file=directory+"/generatedImages/"+os.path.splitext(base)[0]+".pov"
 #camera.filmAllActors=True
 camera.actors=[p,w]
 camera.zoom(3.6)

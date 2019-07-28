@@ -135,7 +135,7 @@ will be inside the box .5 units from the face with minimal x,
 the two planes with constant z. 
 
 
-.. image:: ./docPictures/markers1.png
+.. image:: ./generatedImages/markers1.png
 
 To illustrate these notations, we draw a little
 drawer. 
@@ -159,7 +159,7 @@ Here is an example,
 where we draw infinite cylinders along the lines and an orange plane
 in coordinates relative to the box of the cube. 
 
-.. image:: ./docPictures/markers2.png
+.. image:: ./generatedImages/markers2.png
 
 The instructions are:
 
@@ -253,7 +253,7 @@ side facing the negative coordinates is lighter than the facet
 which faces the positive coordinates) 
 
 
-.. image:: ./docPictures/markers3.png
+.. image:: ./generatedImages/markers3.png
 
 
 .. literalinclude:: markers3.py
@@ -267,7 +267,7 @@ Stacking boxes
 Sometimes, we want to stack objects, which mean the we stack their
 implicit box. For instance, to put a cube above a cylinder, proceed as follows
 
-.. image:: ./docPictures/markers4.png
+.. image:: ./generatedImages/markers4.png
 
 
 .. literalinclude:: markers4.py
@@ -320,7 +320,7 @@ If an object c carries a cylbox, the instruction
 will make sense and denote a point. A cylinder carries a cylbox by
 default (which is itself) at the time of construction. 
 
-.. image:: docPictures/markers5.png
+.. image:: generatedImages/markers5.png
 
 
 
@@ -362,7 +362,7 @@ Let's use these coordinates to build the above watch.
 
    As an example, we consider the following scene. 
 
-   .. image:: ./docPictures/table.png
+   .. image:: ./generatedImages/table.png
 
    .. code-block:: table
 
@@ -470,7 +470,7 @@ Let's use these coordinates to build the above watch.
    YellowCube is indeed a face of contact. And the two X axis (Red) are
    positivly parallel. 
 
-   .. image:: ./docPictures/boxPlacementBasic.png
+   .. image:: ./generatedImages/boxPlacementBasic.png
 
    ..
       .. code-block:: python
@@ -507,7 +507,7 @@ Let's use these coordinates to build the above watch.
    opposite to the red, ie. -X.  Thus we add the option
    ajustedges=-X ie we put    yellowCube.against(brownCube,-Z,Y,X,X,adjustEdges=-X)
 
-   .. image:: ./docPictures/boxPlacementEdge.png
+   .. image:: ./generatedImages/boxPlacementEdge.png
 
    ..
       .. code-block:: python
@@ -543,7 +543,7 @@ Let's use these coordinates to build the above watch.
    yellowCube.against(brownCube,-Z,Y,X,X,adjustEdges=0.8*(X+Y), it
    nearly goes to the upper right, as shown-below. 
 
-   .. image:: ./docPictures/boxPlacementCorner.png
+   .. image:: ./generatedImages/boxPlacementCorner.png
 
    ..
       .. code-block:: python
@@ -583,7 +583,7 @@ Let's use these coordinates to build the above watch.
    Cube. For instance, we may put
    yellowCube.against(brownCube,-Z,Y,X,X,adjustEdges=.8*(X+Y),offset=-0.7*Y)
 
-   .. image:: ./docPictures/boxOffset.png
+   .. image:: ./generatedImages/boxOffset.png
 
    ..
       .. code-block:: python
@@ -621,7 +621,7 @@ Let's use these coordinates to build the above watch.
    illustrate, this notion we make the corners of YellowCube and
    BrownCube coincide. 
 
-   .. image:: ./docPictures/boxAdjustAxis.png
+   .. image:: ./generatedImages/boxAdjustAxis.png
 
    .. code-block:: python
 

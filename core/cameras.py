@@ -155,7 +155,7 @@ class Camera(Primitive):
         return string
     
     def global_settings_string(self):
-        string="global_settings { "
+        string="global_settings { assumed_gamma 1.0 "
         string+=self.ambient_string()
         string+="}\n"
         return string

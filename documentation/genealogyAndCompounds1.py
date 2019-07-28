@@ -62,7 +62,7 @@ camera.actors=[ground,basket,basket2] # what is seen by the camera wiht the chil
 
 directory=os.path.dirname(os.path.realpath(__file__))
 base=os.path.basename(__file__)
-camera.file=directory+"/docPictures/"+os.path.splitext(base)[0]+".pov"
+camera.file=directory+"/generatedImages/"+os.path.splitext(base)[0]+".pov"
 camera.location=origin-10*Y+4*Z
 #camera.actors=[basket,basket2] # what is seen by the camera wiht the children
 camera.lookAt=.5*(basket2+basket)

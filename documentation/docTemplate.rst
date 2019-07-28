@@ -8,4 +8,4 @@ Subtitle
    :end-before: ebloc1
 
 
-.. image::  ./docPictures/docTemplate.png
+.. image::  ./generatedImages/docTemplate.png

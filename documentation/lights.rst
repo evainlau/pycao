@@ -26,4 +26,4 @@ if you prefer.
    :end-before: ebloc1
 
 
-.. image:: ./docPictures/lights1.png
+.. image:: ./generatedImages/lights1.png

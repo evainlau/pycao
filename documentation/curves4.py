@@ -79,7 +79,7 @@ Plane(Z,origin-1.5*Z).colored("Gray")
 
 directory=os.path.dirname(os.path.realpath(__file__))
 base=os.path.basename(__file__)
-camera.file=directory+"/docPictures/"+os.path.splitext(base)[0]+".pov"
+camera.file=directory+"/generatedImages/"+os.path.splitext(base)[0]+".pov"
 camera.povraypath=pycaoDir+"images/" # where you put your images,photos for the textures
 camera.zoom(0.25)
 camera.imageHeight=800 # in pixels

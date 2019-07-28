@@ -1,15 +1,15 @@
 ****************************************************
 Discover Pycao
 ****************************************************
-.. image:: ./docPictures/maisonLau.png
+.. image:: ./generatedImages/maisonLau.png
     :height: 400px
     :align: left
 
-.. image:: ./docPictures/bike.png
+.. image:: ./generatedImages/bike.png
     :height: 400px
     :align: right
 	    
-.. image:: ./docPictures/drawer.png	    
+.. image:: ./generatedImages/drawer.png	    
     :height: 400px
     :align: right
 	    
@@ -117,7 +117,7 @@ the colors.
 
 .. image:: ../images/table.png
 
-.. image:: ./docPictures/wheel.png
+.. image:: ./generatedImages/wheel.png
 
 
 The second main objective of Pycao is to make the code coordinate

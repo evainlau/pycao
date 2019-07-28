@@ -303,10 +303,10 @@ if 1>0:
    #body.bones.rightHand.visibility=0
    #print ((bs2.support.center-bs4.support.center).norm)
    camera=Camera()
-   camera.file="/docPictures/bike.pov"
+   camera.file="/generatedImages/bike.pov"
    directory=os.path.dirname(os.path.realpath(__file__))
    base=os.path.basename(__file__)
-   camera.file=directory+"/../docPictures/"+os.path.splitext(base)[0]+".pov"
+   camera.file=directory+"/../generatedImages/"+os.path.splitext(base)[0]+".pov"
    camera.filmAllActors=False
    #camera.projection="orthographic"
    #camera.filmAllActors=True

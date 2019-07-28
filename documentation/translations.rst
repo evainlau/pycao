@@ -36,7 +36,7 @@ Note in the above example that the syntax takes 2 forms:
    object.hooked_on(point)
    object2.hooked_on(object1)
 
-.. image:: ./docPictures/translations1.png
+.. image:: ./generatedImages/translations1.png
 
 More markers and translations
 --------------------------------
@@ -60,9 +60,9 @@ images.
    :end-before: ebloc1
 
 
-.. image:: ./docPictures/translations21.png
+.. image:: ./generatedImages/translations21.png
 
-.. image:: ./docPictures/translations22.png
+.. image:: ./generatedImages/translations22.png
 
 
 
@@ -79,7 +79,7 @@ stop exactly at the moment the drawer is outside the box.
    :end-before: ebloc2
 
 
-.. image:: ./docPictures/translations23.png
+.. image:: ./generatedImages/translations23.png
 
 The syntax is
 	   

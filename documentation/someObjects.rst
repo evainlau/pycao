@@ -15,7 +15,7 @@ Te code below indicates how to use these objects. For objects built on
 curves, the full syntax will be explained in the chapter on curves but
 we include them here so that you are informed of the possibilities. 
 
-.. image:: ./docPictures/someObjects.png
+.. image:: ./generatedImages/someObjects.png
 
 
 .. literalinclude:: someObjects.py

@@ -3,11 +3,11 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-.. image:: ./docPictures/maisonLau.png
+.. image:: ./generatedImages/maisonLau.png
    
-.. image:: ./docPictures/bike.png
+.. image:: ./generatedImages/bike.png
 
-.. image:: ./docPictures/drawer.png
+.. image:: ./generatedImages/drawer.png
 	   
 Welcome to Pycao's documentation!
 =================================

@@ -23,7 +23,7 @@ A , the hole that you made will not move relativly to A (a hole in the
 center remains in the center for instance).  
 
 
-.. image:: ./docPictures/csg.png
+.. image:: ./generatedImages/csg.png
 
 
 .. literalinclude:: csg.py
