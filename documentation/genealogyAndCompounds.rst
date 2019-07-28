@@ -17,7 +17,7 @@ Genealogy
 
 Here is a small construction of a colored Cube a la  Rubik.
 
-.. image:: ./docPictures/genealogyAndCompounds1.png
+.. image:: ./generatedImages/genealogyAndCompounds1.png
 
 
 .. literalinclude:: genealogyAndCompounds1.py
@@ -84,7 +84,7 @@ Moreover, we see that the color applied to the
 compound overwrites the colors of the components ( the
 individual colors of  the components remain if we don't overwrite).
 
-.. image:: ./docPictures/genealogyAndCompounds2.png
+.. image:: ./generatedImages/genealogyAndCompounds2.png
 
 
 .. literalinclude:: genealogyAndCompounds2.py

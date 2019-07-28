@@ -44,11 +44,11 @@ adequate hooks and axis.
    :end-before: ebloc1
 
 
-.. image::  ./docPictures/rotations1.png
+.. image::  ./generatedImages/rotations1.png
 
-.. image::  ./docPictures/rotations2.png
+.. image::  ./generatedImages/rotations2.png
 
-.. image::  ./docPictures/rotations3.png
+.. image::  ./generatedImages/rotations3.png
 
-.. image::  ./docPictures/rotations4.png
+.. image::  ./generatedImages/rotations4.png
 		

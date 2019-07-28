@@ -85,7 +85,7 @@ o.cylinder.rotate(Y,1.57) # the Cylinder was horizontal, this instruction puts i
 camera=Camera()
 directory=os.path.dirname(os.path.realpath(__file__))
 base=os.path.basename(__file__)
-camera.file=directory+"/docPictures/"+os.path.splitext(base)[0]+".pov"
+camera.file=directory+"/generatedImages/"+os.path.splitext(base)[0]+".pov"
 camera.filmAllActors=True
 #camera.actors=[o,g]
 camera.zoom(0.4)

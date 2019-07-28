@@ -62,7 +62,7 @@ as a reminder for notions of points and vectors,
 Usually, points and vectors are displayed picturally as follows. 
 
 
-.. image:: ./docPictures/basicNotations.png
+.. image:: ./generatedImages/basicNotations.png
 
 
 Recall that we have the formulas :

@@ -4,7 +4,7 @@ Bodies
 ==========================
 
 
-.. image:: ./docPictures/skeletons.png
+.. image:: ./generatedImages/skeletons.png
 
 
 To check that the size of an object is compatible with a human body, we

@@ -83,7 +83,7 @@ light=Light().hooked_on(origin+8*X-.3*Y+10*Z) # a light located close to the cam
 
 directory=os.path.dirname(os.path.realpath(__file__))
 base=os.path.basename(__file__)
-camera.file=directory+"/docPictures/"+os.path.splitext(base)[0]+"1.pov"
+camera.file=directory+"/generatedImages/"+os.path.splitext(base)[0]+"1.pov"
 camera.povraypath=pycaoDir+"/../images/" # where you put your images,photos for the textures
 #bbloc1
 p=plane(Z,origin)
@@ -98,7 +98,7 @@ s=Sphere(origin+.35*Z,.5).textured(t1).scale(1.05,1.03,1)
 #ebloc1
 camera.shoot
 camera.pov_to_png
-camera.file=directory+"/docPictures/"+os.path.splitext(base)[0]+"2.pov"
+camera.file=directory+"/generatedImages/"+os.path.splitext(base)[0]+"2.pov"
 #bbloc2
 finish2=Finish(" phong .023 phong_size 15")
 finish2.enhance(" ambient .2 diffuse .08 ") #PNF items enhanced by string
