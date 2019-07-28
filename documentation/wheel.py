@@ -56,6 +56,7 @@ from bikelibrary import FrontWheel
 
 
 w=RearWheel()
+w.cassette.textured("Metal")
 p=plane(Z,origin-(w.tyre.externalRadius+.02)*Z).colored("Bronze")
 #Washer(origin-0.015*Y,origin+0.015*Y,.6,.7)
 

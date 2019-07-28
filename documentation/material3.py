@@ -63,8 +63,8 @@ camera=Camera()
 
 #bbloc1
 p=plane(Z,origin)
-pig1=Pigment.from_photo("parquet1.png",dimx=2,dimy=2,symmetric=True) # a pigment constructed by Pycao
-pig2=Pigment.from_photo("chene.png",dimx=2.,dimy=2.,symmetric=True) # a pigment constructed by Pycao
+pig1=Pigment.from_photo("woodFloor1.png",dimx=2,dimy=2,symmetric=True) # a pigment constructed by Pycao
+pig2=Pigment.from_photo("oak.png",dimx=2.,dimy=2.,symmetric=True) # a pigment constructed by Pycao
 pig3=Pigment("Blue")
 pig4=Pigment("Red")
 pig=Pigment.from_square(pig1,pig2,pig3,pig4)

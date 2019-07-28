@@ -11,13 +11,13 @@ thisFileAbsDir=os.path.dirname(thisFileAbsName)
 #  construction of files to be executed 
 path=thisFileAbsDir#+"/pycaogit/documentation/"
 baseList1=os.listdir(thisFileAbsDir)
-importList1=filter(lambda x:'.pyc' not in x and '.py' in x and 'buildDoc.py' not in x and '__init__.py' not in x and 'conf.py' not in x, baseList1)
+importList1=filter(lambda x:'.pyc' not in x and '.py' in x and 'buildImages.py' not in x and '__init__.py' not in x and 'conf.py' not in x, baseList1)
 absList1=[path+"/"+File for File in importList1]
 
 
 path=thisFileAbsDir+"/examples"
 baseList2=os.listdir(path)
-importList2=filter(lambda x:'.pyc' not in x and '.py' in x and 'buildDoc.py' not in x and '__init__.py' not in x, baseList2)
+importList2=filter(lambda x:'.pyc' not in x and '.py' in x and 'buildImages.py' not in x and '__init__.py' not in x, baseList2)
 absList2=[path+"/"+File for File in baseList2]
 
 #for f in absList1: print(f)

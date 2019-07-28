@@ -17,11 +17,10 @@
 """
 
 
-import os 
-if os.environ['ordi']=="ordiFac":
-    pycaoDir="/users/evain/subversion/articlesEtRechercheEnCours/pycao/pycaogit/core/"
-else:
-    pycaoDir="/home/laurent/subversion/articlesEtRechercheEnCours/pycao/pycaogit/core/"
+import os
+thisFileAbsName=os.path.abspath(__file__)
+pycaoDir=os.path.dirname(thisFileAbsName)+"/../../core"
+
 #
 
 
@@ -54,7 +53,7 @@ from architecturelibrary import *
 
 # a plane represented graphically as a half space 
 ground=plane(Z,origin) # a plane with normal the vector Z=vector(0,0,1) containing the origin
-ground.textured(Texture.from_photo("parquet1.png",symmetric=True).scale(2.6,2.6,1))
+ground.textured(Texture.from_photo("woodFloor1.png",symmetric=True).scale(2.6,2.6,1))
 ground.name="plan"
 
 

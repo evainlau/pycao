@@ -68,9 +68,9 @@ d=c.clone().translate(2*X)
 e=d.clone().translate(2*X) 
 f=d.clone().translate(4*X)
 
-pig1=Pigment.from_photo("chene.png",dimx=2.,dimy=10.,center=None,symmetric=False)
+pig1=Pigment.from_photo("oak.png",dimx=2.,dimy=10.,center=None,symmetric=False)
 p.textured(pig1)
-pig2=Pigment.from_photo("parquet1.png",dimx=2.,dimy=3.,center=None,symmetric=False)
+pig2=Pigment.from_photo("woodFloor1.png",dimx=2.,dimy=3.,center=None,symmetric=False)
 #pig3=Pigment.from_photo("parquet1.png",dimx=2.,dimy=3.,center=None,symmetric=False)
 for ob in [c,d,e,f]:
     ob.textured(pig2)

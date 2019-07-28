@@ -16,11 +16,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import os 
-if os.environ['ordi']=="ordiFac":
-    pycaoDir="/users/evain/subversion/articlesEtRechercheEnCours/pycao/pycaogit/core/"
-else:
-    pycaoDir="/home/laurent/subversion/articlesEtRechercheEnCours/pycao/pycaogit/core/"
+import os
+thisFileAbsName=os.path.abspath(__file__)
+pycaoDir=os.path.dirname(thisFileAbsName)+"/../../core"
+
 #
 """
                 MODULES IMPORT
@@ -66,14 +65,14 @@ globvars.userDefinedFunctions+=myFonc
 
 
 tw=Texture.from_photo("betonRose.png",symmetric=True).move(Map.linear(X+Y,X+Z,X+Y+Z)).move(Map.scale(.5124,.51277,.524))
-tw=Texture.from_photo("murTerreModif.png",symmetric=True).move(Map.linear(X+Y,X+Z,X+Y+Z)).move(Map.scale(1.9515124,1.951277,1.9524))
+tw=Texture.from_photo("earthWall.png",symmetric=True).move(Map.linear(X+Y,X+Z,X+Y+Z)).move(Map.scale(1.9515124,1.951277,1.9524))
 #texFloor=Texture("Yellow_Pine " ).move(Map.linear(6*X,.3*Z,10*Y))
 
 travertin=Texture.from_photo("travertin.png",symmetric=True)#.scale(3,3,1)
 stoveTexture=Texture("pigment {image_map {png \"poele.png\"}}")
 
-#oakTexture=Texture("pigment {image_map {png \"chene.png\"}}")
-tableTexture=Texture.from_photo("chene.png").flipXY()
+#oakTexture=Texture("pigment {image_map {png \"oak.png\"}}")
+tableTexture=Texture.from_photo("oak.png").flipXY()
 
 
 tableBump=Normal("agate .5 scale 4 bump_size .2")
@@ -85,7 +84,7 @@ lampFinish2=Normal("agate .5 scale .1 bump_size .1")
 lampFinish=Finish ("ambient .2 diffuse 2")
 texCeil=Texture("pigment {White} finish {ambient .3 }")
 chairTexture=Texture.from_photo("chene2.png",symmetric=True)#.move(Map.scale(2,2,2))
-chairSeatTexture=Texture.from_photo("cuir.png",symmetric=True).scale(.2,.2,.2)
+chairSeatTexture=Texture.from_photo("leather.png",symmetric=True).scale(.2,.2,.2)
 
 
 ################################################################
@@ -234,7 +233,7 @@ camera.zoom(.8)
 #for light in camera.lights:
 #    print(light.povray_string())
 camera.quality=11
-camera.povraypath=pycaoDir+"../images/" # where you put your images,photos for the textures
+camera.povraypath=pycaoDir+"/../images/" # where you put your images,photos for the textures
 #print("a la fin",room.floor.texture.smallString)
 camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
 camera.pov_to_png # show the photo, ie calls povray. 

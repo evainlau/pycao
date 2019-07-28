@@ -421,7 +421,7 @@ def WoodStud(dimx,dimy,dimz,grainVector=None,photo=None,xscale=None,yscale=None,
     if grainVector is None:
         grainVector=Z
     if photo is None:
-        photo="chene.png"
+        photo="oak.png"
         #photo="annivHugo.png"
         xscale=1
         yscale=1

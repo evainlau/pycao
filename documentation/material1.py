@@ -88,7 +88,7 @@ camera.povraypath=pycaoDir+"/../images/" # where you put your images,photos for 
 #bbloc1
 p=plane(Z,origin)
 pig1=Pigment("Coral") # a color known by povray
-pig2=Pigment.from_photo("chene.png",dimx=3.,dimy=10.,symmetric=True) # a pigment constructed by Pycao
+pig2=Pigment.from_photo("oak.png",dimx=3.,dimy=10.,symmetric=True) # a pigment constructed by Pycao
 normal1=Normal("bozo 1.5 scale .04") # A normal which is a valid povray string
 finish1=Finish(" ambient .35 diffuse .1 phong .023 phong_size 15")
 t1=Texture(pig1,normal1,finish1) # We put the elements in a texture
