@@ -1,0 +1,38 @@
+* Organisation
+============
+
+
+* Documentation
+================
+
+- ecrire un script qui copie et update le template pour compilation
+  plutot que le install.py qui est une copie non dynamique du
+  template 
+- verifier que tout est bon pour la compil des pythons a la fac comme ici
+- remplacer python par python3
+- dire sur la doc qu'on peut compiler en local sa machine sur un
+  repertoire au moment du changement de branche ( necessite d'ailleurs
+  de faire un script de config locale pour la doc )
+- supprimer les vieux liens 
+- essayer de faire marcher trump pour compiler la doc depuis la maison
+
+* Integrity Checks
+====================
+- comprendre pourquoi le prism linear fonctionne mais pas le prism Bezier dans examples
+
+* Consistency and Cleaning
+===========================
+
+- lines should have attribute l.p0 and l.p1
+- use marked planes instead of planes after checking improvment of
+  functoriality
+- more generally, check that all objects have adequate markers to
+  avoid automorphisms
+- separate mathPlanes and halfSpaces 
+- reorganising classes for new/init consistency
+
+* Development
+================
+- arc of ellipsoids as superclasses of circles
+- separate torBox and Torus
+- 3d bendings

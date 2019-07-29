@@ -52,9 +52,3 @@ for devs and advanced users.
 
    developperDoc
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

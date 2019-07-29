@@ -87,7 +87,7 @@ primitive and elaborate objects.
 Primitive objects are "simple", in a naive sense, ie. 
 built from few indecomposable objects, 
 Elaborate objects are in general more complex, built from many parts. 
-There are different possibilities to 
+There are different possibilities to
 move an object, and the efficiency of the method 
 depends on the complexity of the objects, 
 
@@ -676,7 +676,7 @@ DONE
 
    
 TODO
- ---------
+---------
 
 - verifier les objets construits depuis le changement d'intersection
  

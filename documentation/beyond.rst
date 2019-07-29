@@ -17,7 +17,7 @@ by typing ??Cylinder.
 
 A file called "ipycao" has been prepared for easy
 interaction with ipython. It is in the located in 
- the core directory of pycao. 
+the core directory of pycao. 
 As for templates, the variable
 pycaoDir needs to be settled before using the file. 
 Once the pycaoDir variable is settled in the ipycao file, 

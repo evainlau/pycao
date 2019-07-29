@@ -88,15 +88,15 @@ Let's sum up the above discussion in terms of implementation
 
 * Compound instances
   * have an attribute self.slaves which is a list where each entry is
-    an OIW or a couple ["name", OIW]. In the second case, the slave 
-    can be accessed after the construction through the master m with the calling sequence
-    m.name 
+  an OIW or a couple ["name", OIW]. In the second case, the slave 
+  can be accessed after the construction through the master m with the calling sequence
+  m.name 
   * Self.slaves is useful as an input method but self.csgSlaves
-    is the list which is really useful for drawing. 
+  is the list which is really useful for drawing. 
   * have an attribute self.mapFromParts
   * has attributes self.markers.markerName with corresponding
-    attribute self.makerName() which returns the marker in real time
-    using the map of the master
+  attribute self.makerName() which returns the marker in real time
+  using the map of the master
   * The raytracer draw each slave individually
   * The init-function ends with self.markers_as_functions() and self.build_from_slaves()
 

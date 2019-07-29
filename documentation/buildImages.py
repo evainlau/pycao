@@ -42,16 +42,3 @@ for myfile in absList2:
     #__import__(myfile)
 
 
-    """
-TODO
-- essayer d'automatiser le stderr et le stdOutput de ce script et de baisser la verbosite' de povray pour que ce soit exploitable
-- comprendre pourquoi le prism linear fonctionne mais pas le prism Bezier dans examples
-- ecrire un script qui copie et update le template pour compilation plutot que le install.py qui est une copie non dynamique du  template
-- verifier que tout est bon pour la compil des pythons a la fac comme ici
-- mettre des options au sphinx-buiild : a pout tout recompiler, py pour recalculer les pythons. 
-   sortie sur master si branch=master, sur latest=si branch non master
-      * python3 buildDoc images -> effacer au prealable; tjs en local
-      * python3 buildoc html inDevOrLocalOrNumVersion
-- dire sur la doc qu'on peut compiler en local sa machine sur un repertoire au moment du changement de branche
-- supprimer les vieux liens 
-"""

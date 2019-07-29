@@ -1,0 +1,60 @@
+* Generating the Doc
+====================
+
+** General procedure: 
+-------------------------------
+   + create images
+   + create html
+
+To create images, the script ./buildImages.py collects the .py
+files in this directory and executes them : this creates the 
+povray file and calls povray.  
+
+The verbosity of povray generates a much too large output
+to check that the python compilation was OK.
+However, don't care. 
+If some file is not generated, then it will not appear in the
+generatedImages dir since buildImages.py removes all
+the previously generated files from older builds.
+Thus the missing file will be detected in the html construction below thanks
+to the -E option. 
+
+To create html:
+cd TheDirectoryWithSphinxConfIWantToUseForAdequateTemplate
+sphinx-build options -b html sourceDir OutputDir
+in an existing OutputDir
+
+
+
+** Specificif procedure  
+
+*** For a local construction:
+
+#+BEGIN_SRC sh
+cd  .
+python3 buildImages.py
+#+END_SRC
+
+#+BEGIN_SRC sh :results output
+cd  .
+sphinx-build  -b html  -E -a .  ./html 2>&1 1>/dev/null
+#+END_SRC
+
+#+RESULTS:
+: /home/laurent/subversion/articlesEtRechercheEnCours/pycao/pycaogit/documentation/docTemplate.rst: WARNING: document isn't included in any toctree
+: /home/laurent/subversion/articlesEtRechercheEnCours/pycao/pycaogit/documentation/shortDeveloperDoc.rst: WARNING: document isn't included in any toctree
+
+
+
+
+
+*** To publish on  the web :
+
+#+BEGIN_SRC sh :dir /ssh:evain@localhost:
+cd  ~/subversion/sitesWeb/pro/
+sphinx-build  -b html  -E ./  ./_build/html 
+#+END_SRC
+
+On can even do "make html" in the appropriate dir 
+since there is a link from 
+the siteweb directory to  pycao from _build/html 
