@@ -2,15 +2,15 @@
 Discover Pycao
 ****************************************************
 .. image:: ./generatedImages/maisonLau.png
-    :height: 400px
+    :height: 200px
     :align: left
 
 .. image:: ./generatedImages/bike.png
-    :height: 400px
+    :height: 200px
     :align: right
 	    
 .. image:: ./generatedImages/drawer.png	    
-    :height: 400px
+    :height: 200px
     :align: right
 	    
 What is Pycao  in a few words ?
@@ -48,8 +48,8 @@ This approach  makes it possible
 to bridge the 3D software with data from external program. 
 
 
-Is Pycao a Povray modeller ?
-===============================================
+Is Pycao a Povray modeller ? What are the supported formats ?
+==============================================================
 
 Yes. In the background, Pycao relies heavily on the Povray software, but you don't need
 to know povray to use Pycao. You just write your Python code to
@@ -57,14 +57,13 @@ describe your scene. Then Pycao takes the Python objects you have
 constructed and generates Povray code corresponding to your objects.
 Then povray is used to produce the images.
 
+Only povray code is produced by now, but this may evolve in the
+future. It would be nice to get stl files from pycao for instance,
+but unfortunatly, this is not done at present. 
+
 Originally, the goal was to produce a Blender modeller, rather than a
-Povray modeller. However, the documentation in Povray is more precise and I decided to switch to
-povray, as I could not carry out the project with Blender.
-
-It would be nice to get stl files from pycao, but unfortunatly, this
-is not done. Only povray code is produced. 
-
-
+Povray modeller. However, the documentation in Povray is more precise
+and the Pycao project switched to povray. 
 
 
 
@@ -74,19 +73,20 @@ Where is the graphical interface ?
 In the first versions of Pycao, there was no graphical interface.
 A simple image appeared after the compilation of the python code. 
 
-However, choosing the location of the camera, zooming, ... to get
-exactly the expected image was time consuming. Now, 
+In practice, choosing the location of the camera, zooming, ... to get
+the expected view was time consuming. Now, 
 once you have modelled an object or a scene, the scene will be
 displayed after compilation in a window where you can move the camera, the zoom...
 in an interactive way with buttons. It is also possible to
-visualize standard povray files modelled out of povray with the
+visualize standard povray files modelled out of pycao with the
 viewer. The viewer and the buttons look like this
 
 .. image:: ../images/viewer.png
+   :width: 50%
 
 
 However, Pycao is not a graphical modeller, and there is no
-graphical tool beyond the post compilation interface. 
+graphical tool beyond this post compilation interface. 
 My experience is that describing a 3D object
 with a mouse on a 2D screen is very very
 challenging.
@@ -116,8 +116,12 @@ the colors.
 
 
 .. image:: ../images/table.png
-
+   :width: 25%
+   :align: left
+	   
 .. image:: ./generatedImages/wheel.png
+   :width: 25%
+   :align: right
 
 
 The second main objective of Pycao is to make the code coordinate
@@ -175,20 +179,25 @@ without your asking for. Since there is a very active community in
 Blender, you will find help for these problems and for the debugging work.
 
 Freecad and Salome api seem powerful. I have not used them very much because
-they appeared to be too complex for my needs. The philosophy is very different from
-pycao, they are API whereas Pycao is a modeller.
-Both try to give the user power and versatility rather than a
-simplified syntax to describe the model. The code is marked by the
-integrated environnement whereas pycao aims ease of
-use for small/medium projects, and freeness from any environnment. 
+they appeared to be too complex for my needs. There is a huge
+difference of complexity between Pycao and these projects.
+The philosophy is very different from
+pycao, they are API whereas Pycao is a modeller :
+Both try to give the user power and versatility with elaborate syntax
+and many modules whereas in contrast Pycao tries to expose only the high level
+functions required to describe an object in a simplified syntax. 
+Their code is marked by the integrated graphical environnement whereas pycao is
+a pure text modeller with code free from any IDE. They export to many formats. 
+
 
 Openscad exports to stl (pycao does not). Thus Openscad may be usable for 3D-printing
 machines. It uses a simple low level language with few
-paradigms simplifying the 3d-description and you have to perform
-math computations of coordinates by yourself to draw the object. For simple parts of a
-machine, this simplicity is an advantage. However, 
-I hardly imagine a complete modelisation of a bike and a dummy as
-above with this language.  Photo realistic
+paradigms and you have to computate coordinates by yourself to draw
+the object. For simple parts of a
+machine, this simplicity is an advantage as the language is learned
+in a few hours. However, with this language, 
+a complete modelisation of an object with medium complexity like the
+above bike and dummy seems hardly feasible. Photo realistic
 drawing is not possible with openscad. 
 
 
@@ -220,13 +229,14 @@ replacing only the povrayshoot module of pycao.
 What are the defaults of pycao ?
 --------------------------------------------------------------------
 
-This is a young software. There are bugs, hopefully not too
-much however. I am a Linux user, so I don't make test with Windows. 
-
-The vocabulary of the language may still evolve 
+The concepts and paradigms are now essentially fixed. However,
+the software is not completly mature. 
+The vocabulary of the language may still evolve a bit
 in the future, if we can express things in a more natural way. 
-So do not use this software for a long term project now. 
-Use it for small projects by now. 
+
+
+I am a Linux user, so I don't make test with Windows. 
+
 
 Finally, there is no community around this project. Some autonomy 
 to use it is required. 

@@ -1,3 +1,5 @@
+Back to [[file:../pycao.org][the Org file]] 
+
 * Generating the Doc
 ====================
 
@@ -30,7 +32,7 @@ in an existing OutputDir
 
 *** For a local construction:
 
-#+BEGIN_SRC sh
+#+BEGIN_SRC sh :results silent
 cd  .
 python3 buildImages.py
 #+END_SRC
@@ -48,13 +50,13 @@ sphinx-build  -b html  -E -a .  ./html 2>&1 1>/dev/null
 
 
 
+
 *** To publish on  the web :
 
 #+BEGIN_SRC sh :dir /ssh:evain@localhost:
-cd  ~/subversion/sitesWeb/pro/
+#to get the appropriate conf.py and appropriate theme, we first cd
+cd  ~/subversion/sitesWeb/pro/ 
 sphinx-build  -b html  -E ./  ./_build/html 
+# _build/html is a link to public_html so no further move required
 #+END_SRC
 
-On can even do "make html" in the appropriate dir 
-since there is a link from 
-the siteweb directory to  pycao from _build/html 

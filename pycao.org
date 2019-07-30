@@ -4,17 +4,13 @@
 
 * Documentation
 ================
+[[file:documentation/buildDoc.org][lien vers le fichier de build de la doc]]
 
-- ecrire un script qui copie et update le template pour compilation
-  plutot que le install.py qui est une copie non dynamique du
-  template 
 - verifier que tout est bon pour la compil des pythons a la fac comme ici
-- remplacer python par python3
-- dire sur la doc qu'on peut compiler en local sa machine sur un
-  repertoire au moment du changement de branche ( necessite d'ailleurs
-  de faire un script de config locale pour la doc )
-- supprimer les vieux liens 
+- supprimer les vieux liens de doc a la fac
 - essayer de faire marcher trump pour compiler la doc depuis la maison
+- ecrire un script pour le changement de version
+- documenter camera.show_without_viewer et pov_to_png
 
 * Integrity Checks
 ====================

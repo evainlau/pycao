@@ -35,7 +35,7 @@ Check the installation
 * At the end of the file, optionnally change the value of camera.file
   which is the place where the povray file is created.
 * Save the file and exit. 
-* in a terminal,  run the command "python /home/myName/core/template.py"
+* in a terminal,  run the command "python3 /home/myName/core/template.py"
   and you should see the first 3D picture you have created with pycao
 
 .. image:: ./generatedImages/install1.png
@@ -66,11 +66,21 @@ Practice
 * copy the file /home/myName/pycao/core/template.py to /home/myName/theFileNameOfYourChoice.py 
 * open theFileNameOfYourChoice.py with an editor
 * increase the value of the camera.zoom
-* run the command "python theFileNameOfYourChoice.py" again
+* run the command "python3 theFileNameOfYourChoice.py" again
   and you should see the same 3D picture as above, but larger
 * The file we played with contains several comments. Read them and 
   try to modify some values to see how this impacts the 3D picture.
 
+Building a local doc
+------------------------
+This is not required, but
+you may want to build a local doc on your computer, to avoid the internet dependency or
+because this doc may be ahead of the pycao version you have on your computer. 
+If you want to do so, you need sphinxdoc installed on your computer.
+Then you cd in the documentation directory of your pycao install and
+you enter the following commands:
 
-
-
+.. code-block:: python
+		
+   python3 buildImages.py
+   sphinx-build  -b html  -E -a .  ./html 

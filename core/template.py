@@ -107,8 +107,9 @@ camera.actors=[wall,ground,cyl,cyl2,s] # what is seen by the camera
 # the previous list camera.actors. It will override the previous line.
 #camera.filmAllActors=True # overrides the camera.actors list
 directory=os.path.dirname(os.path.realpath(__file__))
+# The following 2 lines put the .pov file and the .png file in the same directory as this file, with the same basename as this file
 base=os.path.basename(__file__)
-camera.file=directory+"/"+os.path.splitext(base)[0]+".pov"
+camera.file=directory+"/"+os.path.splitext(base)[0]+".pov" # must be a .pov extension
 camera.povraypath=pycaoDir+"/../images/" # where you put your images,photos for the textures
 camera.zoom(0.15)
 camera.imageHeight=800 # in pixels
