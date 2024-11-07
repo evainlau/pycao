@@ -30,6 +30,7 @@ from genericwithmaths import *
 from elaborate import *
 from compound import *
 import povrayshoot 
+import tixzshoot
 
 #This list will be appended when cameras are created. 
 camerasInScene=[]
@@ -79,7 +80,10 @@ class Camera(Primitive):
     def shoot(self):
         if self.technology=="povray" and Camera.activeCameras:
             povrayshoot.render(self)
+        if self.technology=="tixz" and Camera.activeCameras:
+            tixzshoot.render(self)
         return self
+    
     @property
     def show_without_viewer(self):
         if self.technology=="povray":

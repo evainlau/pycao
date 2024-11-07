@@ -51,10 +51,3 @@ for devs and advanced users.
    :maxdepth: 2
 
    developperDoc
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
