@@ -1,14 +1,33 @@
-* Organisation
-============
+* Launching commands
+==================
 
+Command to open all necessary pycao files
+to start to work. Need to setup a session
+otherwise I lose cursor. 
+
+#+BEGIN_SRC sh output: silent :session PycaoSetOfFiles
+python3 ../ouvertureEmacs.py all
+ #+END_SRC
+
+To open only doc files
+#+BEGIN_SRC sh output: silent :session PycaoSetOfFiles
+python3 ../ouvertureEmacs.py doc
+ #+END_SRC
+
+To open only core files
+#+BEGIN_SRC sh output: silent :session PycaoSetOfFiles
+python3 ../ouvertureEmacs.py core & 
+ #+END_SRC
 
 * Documentation
 ================
 [[file:documentation/buildDoc.org][lien vers le fichier de build de la doc]]
 
-- verifier que tout est bon pour la compil des pythons a la fac comme ici
+- verifier que tout est bon pour la compil des pythons a la fac comme
+  ici
+- ajouter les themes pour la compil locale
 - supprimer les vieux liens de doc a la fac
-- essayer de faire marcher trump pour compiler la doc depuis la maison
+- essayer de faire marcher tramp pour compiler la doc depuis la maison
 - ecrire un script pour le changement de version
 - documenter camera.show_without_viewer et pov_to_png
 
