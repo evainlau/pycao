@@ -36,64 +36,38 @@ import material
 
 
 def name_comment_string(self):
+    """
+    Produces the name of self so that the file to be compiled is more  easily read and debugged
+    """
     try:
         #print("les suspects","\n//name: ",str(self.name),"\n")
         string="\n//name: "+self.name+"\n"
     except AttributeError:
-        string="\n//Unnamed Object\n"
+        string="\n%Unnamed Object\n"
     return string
 
 def point_to_tikz2d(p,i,j):
     " casts a vector v to the string '(v[i],v[j])'"
     return("("+str(p[i])+","+str(p[j])+")")
 
-def povrayMatrix(M):
-    string="<"
-    for j in range(4):
-        for i in range(3):
-            string=string+str(M[i][j])
-            if i<2 or j<3:
-                string=string+" , "
-    string=string+">"
-    return(string)
-
-
-def texture_string(self,camera):
-    "Returns a string describing the texture of the object"
-    if self.visibility<camera.visibilityLevel:
-        string=" "
-    else:
-        return texture_string_cameraless(self)
 
 def texture_string_cameraless(self):
     "Returns a string describing the texture of the object"
     string=""
     _moveString=""
     if not hasattr(self,"tikz_texture"):
-        return ""
+        return "[ultra thick] "
     else:
         if hasattr(self,"tikz_texture") and self.texture is not None:
             return  self.tikz_texture
         else: return  " "
 
-
-
-def matrix_string(self):
-    "Returns a string describing the matrix self.mapFromParts of the object"
-    if isinstance(self,Primitive):
-        string= ""
+def texture_string(self,camera):
+    "Returns a string describing the modifier of the object, basically thickness at the moment. Defined above but may be modified by a specific camera"
+    if self.visibility<camera.visibilityLevel:
+        return " "
     else:
-        string="matrix "+povrayMatrix(self.mapFromParts)
-    #return ""
-    return string
-
-
-
-def modifier_string(self,camera):
-    "Returns a string describing the modifier of the object"
-    return matrix_string(self)+texture_string(self,camera)
-
-
+        return texture_string_cameraless(self)
 
 
 def object_string_but_CSG(self,camera):
@@ -102,63 +76,22 @@ def object_string_but_CSG(self,camera):
     """
     string=name_comment_string(self)
     if isinstance(self,ParametrizedCurve) :
-        if isinstance(self.parts.curve,Polyline):
-            latheType="linear_spline"
-        elif isinstance(self.parts.curve,BezierCurve):
-            latheType="bezier_spline"
-        string+="lathe {\n"+latheType+" "+str(len(self.parts.curve))+"\n"
-        for p in self.parts.curve: string+=","+point_to_povray2d(p,0,1)
-        string+=modifier_string(self,camera)+"}\n"
-    elif isinstance(self,RuledSurface):
-        string+="mesh2 { vertex_vectors { "+str(2*len(self.parts.timeList1))+"\n"
-        for t in self.parts.timeList1:
-            string+=","+povrayVector(self.parts.curve1.__call__(t))
-        string+="\n"
-        for t in self.parts.timeList2:
-            string+=","+povrayVector(self.parts.curve2.__call__(t))
-            #print self.parts.curve1.__call__(t)
-        string+=" }\n   normal_vectors { "+str(2*len(self.parts.timeList1))
-        for i in range(len(self.parts.timeList1) - 1):
-            xi,xip = self.parts.curve1.__call__(self.parts.timeList1[i]), self.parts.curve1.__call__(self.parts.timeList1[i + 1])
-            yi=self.parts.curve2.__call__(self.parts.timeList2[i])
-            #print("xi,yi,xip...",xi,yi,xip,xi-yi,xip-xi)
-            #normal=(xi-yi).cross((xip-xi))
-            normal=(xi-yi).cross((self.parts.curve1.speed(self.parts.timeList1[i])))
-            #print(normal,"normal")
-            #print(normal.normalized_clone())
-            #print(normal.normalized_clone())
-            string+=","+povrayVector(normal)
-            if i==len(self.parts.timeList1) - 2: string+=","+povrayVector(normal)
-        for i in range(len(self.parts.timeList1) - 1):
-            # same code as above, changing curve2 and curve1
-            xi,xip = self.parts.curve2.__call__(self.parts.timeList1[i]), self.parts.curve2.__call__(self.parts.timeList1[i + 1])
-            yi=self.parts.curve1.__call__(self.parts.timeList2[i+1])
-            normal=(-xi+yi).cross((self.parts.curve2.speed(self.parts.timeList2[i])))# if bad sign: artefact in the middle
-            string+=","+povrayVector(normal)
-            if i==len(self.parts.timeList1) - 2: string+=","+povrayVector(normal)
-        string+="   }\n   face_indices {"+str(2*len(self.parts.timeList1)-2)
-        for i in range(len(self.parts.timeList1)-1):
-            string+=",<" +str(i)+ ","+ str(i+1)+","+str(i+len(self.parts.timeList1))+">"
-            string+=",<"+str(i+1)+","+str(i+len(self.parts.timeList1))+","+str(i+1+len(self.parts.timeList1))+">\n"
-        string+="}\n"+modifier_string(self,camera)+"}\n"
-    elif isinstance(self,Prism) :
-        #print(self.curve1)
-        #string+="prism {\n  "+str(self.height(1))+","+str(self.height(2))+","+str(self.povrayNumberOfPoints)+",".join([point_to_povray2d(p,0,2) for p in self.polyline1]+[point_to_povray2d(p,0,2) for p in self.polyline2] )+" "+modifier_string(self,camera)+" }\n"
-        string+="prism {\n  "+self.splineType+" "+str(self.height1)+","+str(self.height2)+" , "+str(self.povrayNumberOfPoints)+","+",".join([point_to_povray2d(p,0,2) for p in self.curve1] )+" "+" \n"
-        string+=modifier_string(self,camera)+"}\n"
-    elif isinstance(self,Polygon) :
-        string+="polygon{"+str(len(self))+",+"
-        for polygonPoint in self.controlPoints():
-            string+=povrayVector(polygonPoint)
-        string+=modifier_string(self,camera)+"}\n"
+        if isinstance(self,Polyline):
+            myPolyline=self
+        else:
+            myPolyline=self.to_polyline()
+        string+="    \draw "+texture_string(self,camera)
+        string += "--".join([point_to_tikz2d(p,0,1) for p in myPolyline.controlPoints()])
+        string += ";"
     return string   
 
 def object_string_alone(self,camera):
     """
-    This method builds the povray string for an object alone, without its chiddren.
+    This method builds the povray string for an object alone, without its chiddren nor csg
     self is modified in the process but restauured at the end.
     Basically this part of code deals with csg operations. When there are no csg operations
-    object_string_but_CSG is called. 
+    object_string_but_CSG is called.  For curves dealed in this module, basically there are only unions
+    not unions nor differences
     """
     if (not hasattr(self,"visibility")) or self.visibility<camera.visibilityLevel:
         return ""
@@ -167,7 +100,7 @@ def object_string_alone(self,camera):
     try:
         todo=self.csgOperations.pop()
     except:
-        return object_string_but_CSG(self,camera)
+        return object_string_but_CSG(self,camera) # si ya pas de csg, on renvoie seulement la chaine de l'objet simple
     #slavesCopie=[copy.deepcopy(entry) for entry in todo.csgSlaves]
     slavesCopie=[entry.clone() for entry in todo.csgSlaves] #? should we clone without children here for efficiency ?? Probably
     #for slave in slavesCopie:
@@ -178,10 +111,6 @@ def object_string_alone(self,camera):
     for slave in visibleSlaves: #change restaured at the end
         slave.oldVisibility=slave.visibility
         slave.visibility=1
-        #print(slave)
-        #print(object_string_but_CSG(slave,camera))
-    #print("keep visibility",len(visibleSlaves))
-    #print("visibleSlaves",visibleSlaves)
     if todo.csgKeyword=="union":
         """ 
             Recall that in the union, the master is an empty objectInWorld.  Only the slaves participate in the physical object 
@@ -191,23 +120,13 @@ def object_string_alone(self,camera):
         """
         if len(visibleSlaves)>0:
             retour="\n"+name_comment_string(self)
-            retour+= "union {"+" ".join([object_string_alone(slave,camera)
+            retour+= "\n".join([object_string_alone(slave,camera)
                                         for slave in visibleSlaves])+" "+texture_string(self,camera) +" }"
             # remark that we add the texture_string of self, but not the matrix_string, otherwise the slaves would be moved at an incorrect positiion
         else:
             retour=""
-    elif todo.csgKeyword=="difference" or todo.csgKeyword=="intersection":
-        if len(visibleSlaves)>0:
-            if hasattr(todo,"keepTexture") and todo.keepTexture==True:
-                keepString=" cutaway_textures "
-            else:
-                keepString=""
-                #print("visib0",visibleSlaves[0].visibility)
-            retour= todo.csgKeyword+ " {"+object_string_alone(self,camera)+" ".join([object_string_alone(slave,camera) for slave in visibleSlaves]) +keepString+" }"
-        else:
-            retour=object_string_alone(self,camera)
     else:
-        raise NameError('Unknown csg keyword')
+        raise NameError('Unknown csg keyword, only unions for parametrized curves')
     self.csgOperations=todoList
     for slave in visibleSlaves:
         slave.visibility=slave.oldVisibility
@@ -224,47 +143,24 @@ def object_string_recursive(self,camera):
         string+=object_string_recursive(child,camera)
     return string
 
-def camera_string(camera):
-    if camera.directFrame:
-        orientationSign=-1
-    else:
-        orientationSign=1
-    string= "camera { "+ camera.projection+"\nlocation "+povrayVector(camera.location)+\
-            ' right '+ povrayVector(orientationSign*camera.imageWidth*X) + " up "+ povrayVector(camera.imageHeight*Y) +\
-            " angle "+ str(camera.angle/math.pi*180)+ " sky "+povrayVector(camera.sky)+\
-            " look_at "+ povrayVector(camera.lookAt) +" }\n\n"
-    return string
-
 
 def render(camera):
     booklet = open(camera.file, "w")
-    booklet.write(camera.preamble_string())
+    #print("ici dans render")
+    booklet.write("\\documentclass{standalone}\\usepackage{tikz}\\begin{document}\\begin{tikzpicture}"
+)
     booklet.write(globvars.userDefinedFunctions)
-    booklet.write(camera_string(camera))
-    material.build_textures_for_list(camera.actors)
-    booklet.write(globvars.TextureString)
-    booklet.write(camera.povraylights+"\n")
-    for light in camera.lights:
-        booklet.write(light.povray_string())
-    import gc
     if camera.filmAllActors:
+        # build the list camera.actors with  all objects 
         camera.actors=[]
         camera.idactors=[]
         for p in groupPhoto:
-            #print("p et son parent")
-            #print(p)
-            #print(p.parent)
             if p.parent==[] and id(p) not in camera.idactors:
                 camera.actors.append(p)
                 camera.idactors.append(id(p))
-        #print("la liste des acteurs",camera.actors)
-        #camera.actors+=[p for p in  if p.parent==[] ]
-    #for light in camera.lights:
-    #    booklet.write("light_source {"+ povrayVector(light.location)+ " color White " + "}\n\n")
     for component in camera.actors:
-        #print("chain for",component,object_string_recursive(component,camera))
-        #print(component)
         booklet.write(object_string_recursive(component,camera))
+    booklet.write( "\\end{tikzpicture}\\end{document}")
     booklet.close()
 
 

@@ -30,7 +30,7 @@ from genericwithmaths import *
 from elaborate import *
 from compound import *
 import povrayshoot 
-import tixzshoot
+import tikzshoot
 
 #This list will be appended when cameras are created. 
 camerasInScene=[]
@@ -64,7 +64,7 @@ class Camera(Primitive):
         self.file=myPovFile # the place to store the photo
         self.visibilityLevel=1
         self.projection="perspective" # could be "orthographic", useful for checking
-        self.technology="povray" #  only possibility at the moment
+        self.technology="povray" #  only possibility at the moments povray and tikz
         self.lights=[]
         self.povraylights=""
         self.povraypath=""
@@ -80,8 +80,8 @@ class Camera(Primitive):
     def shoot(self):
         if self.technology=="povray" and Camera.activeCameras:
             povrayshoot.render(self)
-        if self.technology=="tixz" and Camera.activeCameras:
-            tixzshoot.render(self)
+        if self.technology=="tikz" and Camera.activeCameras:
+            tikzshoot.render(self)
         return self
     
     @property
@@ -103,6 +103,10 @@ class Camera(Primitive):
             else:
                 subprocess.call([command,options,self.file])
             return self
+        if self.technology=="tikz":
+            options=""
+            subprocess.call(["pdflatex ", options, self.file])
+            return self
     @property
     def pov_to_png(self):
         #same as show for string computation except always -D
@@ -122,10 +126,16 @@ class Camera(Primitive):
             return self
     @property
     def show(self):
-        import viewer
-        viewer.ViewerWindow(self)
-        return self
-    
+        if self.technology=="povray":
+            import viewer
+            viewer.ViewerWindow(self)
+            return self
+        if self.technology=="tikz":
+            compiledFile=os.path.splitext(self.file)[0]+".pdf"
+            print("le comp file est ",compiledFile)
+            subprocess.call(["pdflatex", self.file])            
+            subprocess.call(["evince",  compiledFile])
+            
     def zoom(self,x):
         """
         Resize the image by a factor x. 

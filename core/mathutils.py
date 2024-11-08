@@ -629,6 +629,26 @@ class ParametrizedCurve(Primitive):
         curve.mapFromOrigin=M*curve.mapFromOrigin
         return curve
 
+    def to_polyline(self,maxDistance=0.2,starttime=0,endtime=1):
+        """
+        discretizes the parametrized curve C([starttime,endtime]) in  a sequence of points 
+        p_i   with distance(p_i,p_{i+1})<maxDistance
+        """ 
+        pointslist=[self(starttime),self(endtime)]
+        timelist=[starttime,endtime]
+        index=0
+        while timelist[index] != endtime :
+            if  (pointslist[index+1]-pointslist[index]).norm<maxDistance:
+                index+=1
+                #print("index",index)
+                #print("timelist[index],endtime",timelist[index],endtime)
+            else:
+                timeToAdd=(timelist[index]+timelist[index+1])/2
+                timelist.insert(index+1,timeToAdd)
+                pointslist.insert(index+1,self(timeToAdd))
+        return Polyline(pointslist)
+
+        
     # def __deepcopy__(self,memo):
     #     ### When is it used ? Why did I do the copy by hand ? 
     #     myFunc=self.__call__
@@ -670,7 +690,8 @@ class ParametrizedCurve(Primitive):
         for i in range(len(self)-2):
             anglesList.append(Triangle(contPoints[i],contPoints[i+1],contPoints[i+2]).angle(1))
         return anglesList
-
+    def length(self,discretizationDistance):
+        return sum(self.to_polyline(maxDistance=discretizationDistance).lengths())
     
         
 class Polyline(list,ParametrizedCurve):
@@ -715,7 +736,7 @@ class Polyline(list,ParametrizedCurve):
         absoluteList=ParametrizedCurve.relativeToAbsolute(relativeList)
         self += ParametrizedCurve.relativeToAbsolute(relativeList)
         def  initCallFunction(time):
-            segmentDuration=1./(len(self)-1)# all segements take the same time, thus faster on longer segements.
+            segmentDuration=1./(len(self)-1)# all segments take the same time, thus faster on longer segements, the total length is one
             leftPointIndex=int(floor(time*(len(self)-1)))
             #print(leftPointIndex)
             #print(self)
