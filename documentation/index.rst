@@ -51,4 +51,3 @@ for devs and advanced users.
    :maxdepth: 2
 
    developperDoc
-
