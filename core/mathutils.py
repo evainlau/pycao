@@ -835,14 +835,16 @@ class PiecewiseCurve(list,ParametrizedCurve):
 
         
     @staticmethod
-    def from_interpolation(controlPoints,closeCurve=False,speedConstants=[1,1],approachSpeeds=[],leavingSpeeds=[]):
+    def from_interpolation(controlPoints,closeCurve=False,speedConstants=[1,1],approachSpeeds=[],leavingSpeeds=[],initialSpeed=None,finalSpeed=None):
         """ 
         parameters:
         points=list of points.
         This is an interpolated curve through the points p_0,\dots,p_n in argument. 
         The tangent at pi is parallel to p_{i+1}-p_{i-1}. 
         Technically, between pi and pi+1, 2 points qi and ri are inserted and 
-        the curve number i in the compound is the Bezier Curve with points pi,qi,ri,pi+1. 
+        the curve number i in the compound is the Bezier Curve with points pi,qi,ri,pi+1.
+        if speedConstants[0] ( resp [1] ) is large qi (resp ri) is further from pi ( resp pi+1)
+        as it is used to multiply the tangent vectors. 
         For any i, the pair of points (p_i,p_{i+2}) should contain 2 distinct points otherwise 
         the tangent at p_{i+1}$ is not defined. 
         """
@@ -865,7 +867,12 @@ class PiecewiseCurve(list,ParametrizedCurve):
             rightVector=(points[2]-points[0]).normalize()
             rightLength=speedConstants[1]*approachSpeeds[1]*(points[1]-points[0]).norm
             r=points[1]-rightLength*rightVector
-            if closeCurve:
+            if initialSpeed:
+                leftVector=initialSpeed
+                leftLength=1
+                q=points[0]+leftLength*leftVector
+                listeCurve.append(BezierCurve([points[0],q,r,points[1]]))
+            elif closeCurve:
                 leftVector=(points[1]-points[-2]).normalize()
                 leftLength=speedConstants[0]*leavingSpeeds[0]*(points[1]-points[0]).norm
                 q=points[0]+leftLength*leftVector
@@ -887,7 +894,13 @@ class PiecewiseCurve(list,ParametrizedCurve):
             leftVector=(points[-1]-points[-3]).normalize()
             leftLength=speedConstants[0]*leavingSpeeds[-2]*(points[-1]-points[-2]).norm
             q=points[-2]+leftLength*leftVector
-            if closeCurve:
+            #print("finalSpeed",finalSpeed)
+            if finalSpeed is not None :
+                rightVector=finalSpeed
+                rightLength=1
+                r=points[-1]+rightLength*rightVector
+                listeCurve.append(BezierCurve([points[-2],q,r,points[-1]]))
+            elif closeCurve:
                 rightVector=(points[1]-points[-2]).normalize()
                 rightLength=speedConstants[1]*approachSpeeds[-1]*(points[-1]-points[-2]).norm
                 r=points[-1]-rightLength*rightVector
@@ -916,6 +929,102 @@ class PiecewiseCurve(list,ParametrizedCurve):
         #except:
          #   raise NameError('Error In Piecewise Curve.Maybe two points p_i,p_{i+2} are equal, in which case the tangent at p_{i+1} is not defined')
 
+    @staticmethod
+    def from_interpolation2(controlPoints,closeCurve=False,initialVector=None,finalVector=None):
+        """ 
+        parameters:
+        points=list of points.
+        This is an interpolated curve through the points p_0,\dots,p_n in argument. 
+        The tangent at pi is parallel to p_{i+1}-p_{i-1}. 
+        Technically, between pi and pi+1, a points qi is inserted which is intersection of tangent lines and 
+        the curve number i in the compound is the Bezier Curve with points pi,qi,pi+1.
+        For any i, the pair of points (p_i,p_{i+2}) should contain 2 distinct points otherwise 
+        the tangent at p_{i+1}$ is not defined. 
+        """
+        points=[p.clone() for p in controlPoints ]
+        ParametrizedCurve.relativeToAbsolute(points)
+        if closeCurve:
+            points.append(points[0].clone())
+        listeCurve=[]
+        if 1>0:
+        #try:
+            # first curve
+            rightVector=(points[2]-points[0]).normalize()
+            #print(rightVector,"rightVector")
+            if initialVector is not None:
+                print("initial vector,rightVector",initialVector,rightVector)
+                line1=Segment(points[0],points[0]+initialVector)
+                line2=Segment(points[1],points[1]+rightVector)
+                q=Point.from_2_lines(line1,line2)
+                listeCurve.append(BezierCurve([points[0],q,points[1]]))
+            elif closeCurve:
+                initialVector=(points[1]-points[-2]).normalize()
+                line1=Segment(points[0],points[0]+initialVector)
+                line2=Segment(points[1],points[1]+rightVector)
+                q=Point.from_2_lines(line1,line2)
+                listeCurve.append(BezierCurve([points[0],q,points[1]]))
+            else:
+                vec0=(points[1]-points[0])
+                v1=vec0.dot(rightVector)
+                v2=vec0.dot(vec0)
+                q=points[1]-v2/2/v1*rightVector
+                listeCurve.append(BezierCurve([points[0],q,points[1]]))
+            #intermediate curves
+            #print("dans l'intermediaire")
+            for i in range(len(points)-3):
+                #print("log du milieu",i)
+                #print("in fpl",[points[i],points[i+1],points[i+2],points[i+3]])
+                leftVector=(points[i+2]-points[i]).normalize()
+                rightVector=(points[i+3]-points[i+1]).normalize()
+                print("left et rigth vector",leftVector, rightVector)
+                line1=Segment(points[i+1],points[i+1]+leftVector)
+                line2=Segment(points[i+2],points[i+2]+rightVector)
+                q=Point.from_2_lines(line1,line2)
+                #print("les points",points[i+1],points[i+2],q)
+                listeCurve.append(BezierCurve([points[i+1],q,points[i+2]]))
+            # last curve
+            leftVector=(points[-1]-points[-3]).normalize()
+            #print(leftVector,"left vector")
+            #print("finalSpeed",finalSpeed)
+            if finalVector is not None :
+                line1=Segment(points[-2],points[-2]+leftVector)
+                line2=Segment(points[-1],points[-1]+finalVector)
+                q=Point.from_2_lines(line1,line2)
+                listeCurve.append(BezierCurve([points[-2],q,points[-1]]))
+            elif closeCurve:
+                finalVector=(points[1]-points[-2]).normalize()
+                line1=Segment(points[-2],points[-2]+leftVector)
+                line2=Segment(points[-1],points[-1]+finalVector)
+                q=Point.from_2_lines(line1,line2)
+                listeCurve.append(BezierCurve([points[-2],q,points[-1]]))
+            else:
+                vec0=(points[-1]-points[-2])
+                v1=vec0.dot(leftVector)
+                v2=vec0.dot(vec0)
+                q=points[-2]+v2/2/v1*leftVector
+                listeCurve.append(BezierCurve([points[-2],q,points[-1]]))
+            # def de la fonction init
+            def initFunc(t):
+                time=t
+                for f in self.reparametrizations:
+                    time=f(time)
+                if (time>=1):# if >,probably because of floating numbers and should be 1
+                    #print("ici")
+                    return self[-1].__call__(1)
+                else:
+                    #print(self)
+                    #print(floor(len(self)*time))
+                    curveNumber=int(floor(len(self)*time))
+                    timeInCurve=len(self)*time-curveNumber
+                    #print (curveNumber)
+                    #print (self[curveNumber])
+                    return self[curveNumber].__call__(timeInCurve)          
+            return PiecewiseCurve(curvesList=listeCurve,initFunction=initFunc)            
+        #except:
+         #   raise NameError('Error In Piecewise Curve.Maybe two points p_i,p_{i+2} are equal, in which case the tangent at p_{i+1} is not defined')
+
+
+         
     
     def  __call__(self,t):
         time=t

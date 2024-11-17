@@ -58,7 +58,7 @@ def texture_string_cameraless(self):
     if not hasattr(self,"tikz_texture"):
         return "[ultra thick] "
     else:
-        if hasattr(self,"tikz_texture") and self.texture is not None:
+        if hasattr(self,"tikz_texture") and self.tikz_texture is not None:
             return  self.tikz_texture
         else: return  " "
 
@@ -159,6 +159,7 @@ def render(camera):
                 camera.actors.append(p)
                 camera.idactors.append(id(p))
     for component in camera.actors:
+        #print(component, "is component")
         booklet.write(object_string_recursive(component,camera))
     booklet.write( "\\end{tikzpicture}\\end{document}")
     booklet.close()
