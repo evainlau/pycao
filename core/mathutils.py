@@ -867,7 +867,7 @@ class PiecewiseCurve(list,ParametrizedCurve):
             rightVector=(points[2]-points[0]).normalize()
             rightLength=speedConstants[1]*approachSpeeds[1]*(points[1]-points[0]).norm
             r=points[1]-rightLength*rightVector
-            if initialSpeed:
+            if initialSpeed is not None:
                 leftVector=initialSpeed
                 leftLength=1
                 q=points[0]+leftLength*leftVector
@@ -948,11 +948,17 @@ class PiecewiseCurve(list,ParametrizedCurve):
         listeCurve=[]
         if 1>0:
         #try:
-            # first curve
-            rightVector=(points[2]-points[0]).normalize()
+            if  len(points)>2 :
+                rightVector=(points[2]-points[0]).normalize()
+            elif len(points)==2 and finalVector is not None:
+                rightVector=finalVector
+            elif len(points)==2:#finalVector is None
+                rightVector=(points[1]-points[0]).normalize()
+            else:
+                raise Exception('not Enough control points to produce a curve') 
             #print(rightVector,"rightVector")
             if initialVector is not None:
-                print("initial vector,rightVector",initialVector,rightVector)
+                #print("initial vector,rightVector",initialVector,rightVector)
                 line1=Segment(points[0],points[0]+initialVector)
                 line2=Segment(points[1],points[1]+rightVector)
                 q=Point.from_2_lines(line1,line2)
@@ -976,34 +982,35 @@ class PiecewiseCurve(list,ParametrizedCurve):
                 #print("in fpl",[points[i],points[i+1],points[i+2],points[i+3]])
                 leftVector=(points[i+2]-points[i]).normalize()
                 rightVector=(points[i+3]-points[i+1]).normalize()
-                print("left et rigth vector",leftVector, rightVector)
+                #print("left et rigth vector",leftVector, rightVector)
                 line1=Segment(points[i+1],points[i+1]+leftVector)
                 line2=Segment(points[i+2],points[i+2]+rightVector)
                 q=Point.from_2_lines(line1,line2)
                 #print("les points",points[i+1],points[i+2],q)
                 listeCurve.append(BezierCurve([points[i+1],q,points[i+2]]))
-            # last curve
-            leftVector=(points[-1]-points[-3]).normalize()
-            #print(leftVector,"left vector")
-            #print("finalSpeed",finalSpeed)
-            if finalVector is not None :
-                line1=Segment(points[-2],points[-2]+leftVector)
-                line2=Segment(points[-1],points[-1]+finalVector)
-                q=Point.from_2_lines(line1,line2)
-                listeCurve.append(BezierCurve([points[-2],q,points[-1]]))
-            elif closeCurve:
-                finalVector=(points[1]-points[-2]).normalize()
-                line1=Segment(points[-2],points[-2]+leftVector)
-                line2=Segment(points[-1],points[-1]+finalVector)
-                q=Point.from_2_lines(line1,line2)
-                listeCurve.append(BezierCurve([points[-2],q,points[-1]]))
-            else:
-                vec0=(points[-1]-points[-2])
-                v1=vec0.dot(leftVector)
-                v2=vec0.dot(vec0)
-                q=points[-2]+v2/2/v1*leftVector
-                listeCurve.append(BezierCurve([points[-2],q,points[-1]]))
-            # def de la fonction init
+            # last curve if not 2 points
+            if len(points)>2:
+                leftVector=(points[-1]-points[-3]).normalize()
+                #print(leftVector,"left vector")
+                #print("finalSpeed",finalSpeed)
+                if finalVector is not None :
+                    line1=Segment(points[-2],points[-2]+leftVector)
+                    line2=Segment(points[-1],points[-1]+finalVector)
+                    q=Point.from_2_lines(line1,line2)
+                    listeCurve.append(BezierCurve([points[-2],q,points[-1]]))
+                elif closeCurve:
+                    finalVector=(points[1]-points[-2]).normalize()
+                    line1=Segment(points[-2],points[-2]+leftVector)
+                    line2=Segment(points[-1],points[-1]+finalVector)
+                    q=Point.from_2_lines(line1,line2)
+                    listeCurve.append(BezierCurve([points[-2],q,points[-1]]))
+                else:
+                    vec0=(points[-1]-points[-2])
+                    v1=vec0.dot(leftVector)
+                    v2=vec0.dot(vec0)
+                    q=points[-2]+v2/2/v1*leftVector
+                    listeCurve.append(BezierCurve([points[-2],q,points[-1]]))
+                # def de la fonction init
             def initFunc(t):
                 time=t
                 for f in self.reparametrizations:
