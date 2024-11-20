@@ -549,10 +549,12 @@ class ParametrizedCurve(Primitive):
     """
     A class to factorize the methods common to all types of curves ( polyline,BezierCurve,PiecewiseCurve)
 
-    Basically, a curve is a __call__ attribute built from a function attribute and a matrix M  to move the curve. 
-    Technically, it would be possible to include everything in the __call__ but with many movements on the curve this 
-    would lead to very recursive functions. It is more optimized to chnange the matrix M and rebuild the 
-    __call__ when the curve is moved. 
+    Basically, a curve C is a __call__ attribute  that outputs   C(t) 
+    The call is   built from a function attribute f+ reparametrizations r0,....,rk  and a matrix M  to move the curve. 
+    Explicitly C(t)=M(f(rk r_{k-1} ... r0(t)))
+
+    There no check of  the valid range for t.  All is at the user choice. 
+    for  lengths and so on, the range by default is [0,1]
 
     """
     def __call__(self,t):
@@ -690,9 +692,12 @@ class ParametrizedCurve(Primitive):
         for i in range(len(self)-2):
             anglesList.append(Triangle(contPoints[i],contPoints[i+1],contPoints[i+2]).angle(1))
         return anglesList
-    def length(self,discretizationDistance):
-        return sum(self.to_polyline(maxDistance=discretizationDistance).lengths())
-    
+    def length(self,discretizationDistance,t0=0,t1=1):
+            return sum(self.to_polyline(maxDistance=discretizationDistance,starttime=t0,endtime=t1).lengths())
+#    def time_to_length(self, t0=0,lengthObjective=None):
+  #      x0 = self(t0)
+    #    def 
+      #  res = minimize(self.length(t, x0, method='nelder-mead',args=(0.5, 1.), options={'xatol': 1e-8, 'disp': True})
         
 class Polyline(list,ParametrizedCurve):
     """ A class for polylines p0,...,pn ie the curve which is the union of segments p_i,p_{i+1}
@@ -708,7 +713,8 @@ class Polyline(list,ParametrizedCurve):
     self.lengths: [distance(p0,p1),distance(p1,p2)...]
     self.angles:[angle(p0,p1,p2),angle(p1,p2,p3),...,angle(p_{n-2},p_{n-1},p_n)]
     self.segments(): [Segment(p0,p1),Segment(p1,p2),...]
-    self(t): the parametrized point at time t. 
+    self(t): the parametrized point at time t. In the init function,  any of the n segments  is parametrized in a duration 1/n so that
+                 self(t), for t>1 is  after the last segment,  t<0 is before the first sigment,  and t in [i/n,i+1/n]  is a segment. 
     self.controlPoints()=the list of control Points (different from self as a list is the polyline has been moved)
     self.show(): builds spheres along the curve for visualization
     """
@@ -736,7 +742,7 @@ class Polyline(list,ParametrizedCurve):
         absoluteList=ParametrizedCurve.relativeToAbsolute(relativeList)
         self += ParametrizedCurve.relativeToAbsolute(relativeList)
         def  initCallFunction(time):
-            segmentDuration=1./(len(self)-1)# all segments take the same time, thus faster on longer segements, the total length is one
+            segmentDuration=1./(len(self)-1)# all segments take the same time, thus faster on longer segments, the total length is one
             leftPointIndex=int(floor(time*(len(self)-1)))
             #print(leftPointIndex)
             #print(self)
