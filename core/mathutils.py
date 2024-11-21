@@ -563,7 +563,13 @@ class ParametrizedCurve(Primitive):
             time=f(time)
         return self.mapFromOrigin*self.function(time)
 
-        
+    def parametrized_time(self,t):
+        time=t
+        for f in self.reparametrizations:
+            time=f(time)
+        return time
+
+    
     def __init__(self,function,mapFromOrigin=None):
         """
         Returns the function f seen as a Parametric curve object
@@ -627,9 +633,9 @@ class ParametrizedCurve(Primitive):
             return (curve(t+epsilon)-curve(t))/epsilon
 
 
-    def move_alone(curve,M):
-        curve.mapFromOrigin=M*curve.mapFromOrigin
-        return curve
+    def move_alone(self,M):
+        self.mapFromOrigin=M*self.mapFromOrigin
+        return self
 
     def to_polyline(self,maxDistance=0.2,starttime=0,endtime=1):
         """
@@ -714,7 +720,9 @@ class Polyline(list,ParametrizedCurve):
     self.angles:[angle(p0,p1,p2),angle(p1,p2,p3),...,angle(p_{n-2},p_{n-1},p_n)]
     self.segments(): [Segment(p0,p1),Segment(p1,p2),...]
     self(t): the parametrized point at time t. In the init function,  any of the n segments  is parametrized in a duration 1/n so that
-                 self(t), for t>1 is  after the last segment,  t<0 is before the first sigment,  and t in [i/n,i+1/n]  is a segment. 
+                 self(t), for t>1 is  after the last segment,  t<0 is before the first sigment,  and t in [i/n,i+1/n]  is a segment.
+                 for t>>0 the last segment is extended to a half line. For t<<0, the first segment is extended to a half line
+                 In particular, Polyline([A,B]) is a uniformly parametrized line L(t) with L(0)=A and L(B)=1 
     self.controlPoints()=the list of control Points (different from self as a list is the polyline has been moved)
     self.show(): builds spheres along the curve for visualization
     """
@@ -742,16 +750,45 @@ class Polyline(list,ParametrizedCurve):
         absoluteList=ParametrizedCurve.relativeToAbsolute(relativeList)
         self += ParametrizedCurve.relativeToAbsolute(relativeList)
         def  initCallFunction(time):
+            # This is the call function when there is no reparametrization and the curve has not been moved
             segmentDuration=1./(len(self)-1)# all segments take the same time, thus faster on longer segments, the total length is one
-            leftPointIndex=int(floor(time*(len(self)-1)))
-            #print(leftPointIndex)
-            #print(self)
-            if leftPointIndex==len(self)-1:
-                return self[-1]
+            if t<= segmentDuration: # can be negative
+                return controlPoints[0]+t*(controlPoints[1]-controlPoints[0])
+            if t>= 1: # 
+                return controlPoints[-1]+(t-1)*(controlPoints[-1]-controlPoints[-2])            
+            leftPointIndex=int(floor(time*(len(self)-1))) # in 0...len(self)-2 for t in [0,1[
             timeLeftFromIndex=time-leftPointIndex*segmentDuration
             fractionOfSegment=timeLeftFromIndex*(len(self)-1)#=timeLef/segmentDuratio
             return (1-fractionOfSegment)*self[leftPointIndex]+fractionOfSegment*self[leftPointIndex+1]
         ParametrizedCurve.__init__(self,initCallFunction)
+        
+    def curvilinear_abscissa(self,t0=0,t1=None):
+        """ This is a signed quantity. The absolute value is the shortest length from self(t0) to self(t1)
+        For instance if self=Polyline(origin, origin+X).reparametrized by t=sin(u)
+        then self.curvilinear_abscissa(t0=1,t1=3pi/2) is -1 wheras the length of the path on the parametrized
+        curve is 5/2.
+        Mathematically, this is the curvilinear abscissa at self(t1) - curvilinear abscissa at self(t0), hence the name. 
+        """
+        t0=self.parametrized_time(t0)
+        moved_points=self.controlPoints()
+        moved_lengths=self.lengths()
+        segmentDuration=1./(len(self)-1)# all segments take the same time, thus faster on longer segments, the total length is one
+        #stuff for t0
+        if t0<= segmentDuration:
+            #print(segmentDuration,moved_points[1],moved_points[0],"ici")
+            d0=t0/segmentDuration*(moved_points[1]-moved_points[0]).norm
+        elif t0>=(len(self)-2)*segmentDuration:
+            d0=sum(moved_lengths)-moved_lengths[-1]+(t0/segmentDuration-(len(self)-2))*(moved_points[-1]-moved_points[-2] ).norm   #stuff for t1
+        else:
+            index=int(floor(t0*(len(self)-1)))# index i means on segment [controlPoints[i],controlPoints[i+1]
+            timeLeft=t0-index*segmentDuration
+            leftVector=timeLeft*(moved_points[index+1]-moved_points[index])
+            d0=sum([moved_lengths[i] for i in range(index)])+leftVector.norm
+        if t1 is None: return d0
+        else: return self.curvilinear_abscissa(t0=t1,t1=None)-self.curvilinear_abscissa(t0=t0,t1=None)
+
+
+                      
     def __str__(self):
         return "Polyline curve with control points "+", ".join([str(point.clone().move_alone(self.mapFromOrigin)) for point in self ])+"."
 #        return "Polyline  with control points "+", ".join([str(point) for point in self.contPoints() ])+"."
@@ -808,7 +845,7 @@ class BezierCurve(list,ParametrizedCurve):
 
 class PiecewiseCurve(list,ParametrizedCurve):
     """ 
-    A class for piecewise curves C=[C0,\dots,Cn-1]. Ci is a polyline or Bezier curve, 
+    A class for piecewise curves C=[C0,dots,Cn-1]. Ci is a polyline or Bezier curve, 
     and the end point of Ci is the initial point of C_{i+1} so that the curve is connected. 
     As a parametrized curve, the curve Ci  is described when the time is 
     in [i/n,(i+1)/n]. In other terms, the objects of the Curve class are curves 
@@ -842,17 +879,18 @@ class PiecewiseCurve(list,ParametrizedCurve):
         
     @staticmethod
     def from_interpolation(controlPoints,closeCurve=False,speedConstants=[1,1],approachSpeeds=[],leavingSpeeds=[],initialSpeed=None,finalSpeed=None):
-        """ 
-        parameters:
-        points=list of points.
-        This is an interpolated curve through the points p_0,\dots,p_n in argument. 
-        The tangent at pi is parallel to p_{i+1}-p_{i-1}. 
-        Technically, between pi and pi+1, 2 points qi and ri are inserted and 
-        the curve number i in the compound is the Bezier Curve with points pi,qi,ri,pi+1.
-        if speedConstants[0] ( resp [1] ) is large qi (resp ri) is further from pi ( resp pi+1)
-        as it is used to multiply the tangent vectors. 
-        For any i, the pair of points (p_i,p_{i+2}) should contain 2 distinct points otherwise 
-        the tangent at p_{i+1}$ is not defined. 
+        """#
+        #A class for BezierCurve p0,...,pn ie this is the parametrized curve sum B^n_i(t) p_i with B^{n}_i(t)=(i choose n)(1-t)^i t^{n-i}
+        #parameters:
+        #points=list of points.
+        #This is an interpolated curve through the points p_0,\dots,p_n in argument. 
+        #The tangent at pi is parallel to p_{i+1}-p_{i-1}. 
+        #Technically, between pi and pi+1, 2 points qi and ri are inserted and 
+        #the curve number i in the compound is the Bezier Curve with points pi,qi,ri,pi+1.
+        #if speedConstants[0] ( resp [1] ) is large qi (resp ri) is further from pi ( resp pi+1)
+        #as it is used to multiply the tangent vectors. 
+        #For any i, the pair of points (p_i,p_{i+2}) should contain 2 distinct points otherwise 
+        #the tangent at p_{i+1}$ is not defined. 
         """
         points=[p.clone() for p in controlPoints ]
         ParametrizedCurve.relativeToAbsolute(points)
