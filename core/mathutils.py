@@ -564,9 +564,13 @@ class ParametrizedCurve(Primitive):
         return self.mapFromOrigin*self.function(time)
 
     def parametrized_time(self,t):
+        #print("t",t)
         time=t
+        #print(len(self.reparametrizations),"nb reparam")
         for f in self.reparametrizations:
             time=f(time)
+        #print("time",time)
+        #g=self.reparametrizations[0]
         return time
 
     
@@ -639,10 +643,13 @@ class ParametrizedCurve(Primitive):
 
     def to_polyline(self,maxDistance=0.2,starttime=0,endtime=1):
         """
-        discretizes the parametrized curve C([starttime,endtime]) in  a sequence of points 
+        discretizes the parametrized injective curve C([starttime,endtime]) in  a sequence of points 
         p_i   with distance(p_i,p_{i+1})<maxDistance
+        The injectivity is important to avoid artefacts : if self(startime)=self(endtime), the computer interprets this as a constant curve
+        and thinks the discretization is done. Similar pbs may occur at nodal points of the curve. 
         """ 
         pointslist=[self(starttime),self(endtime)]
+        print("ointliste",pointslist)
         timelist=[starttime,endtime]
         index=0
         while timelist[index] != endtime :
@@ -752,10 +759,10 @@ class Polyline(list,ParametrizedCurve):
         def  initCallFunction(time):
             # This is the call function when there is no reparametrization and the curve has not been moved
             segmentDuration=1./(len(self)-1)# all segments take the same time, thus faster on longer segments, the total length is one
-            if t<= segmentDuration: # can be negative
-                return controlPoints[0]+t*(controlPoints[1]-controlPoints[0])
-            if t>= 1: # 
-                return controlPoints[-1]+(t-1)*(controlPoints[-1]-controlPoints[-2])            
+            if time<= segmentDuration: # can be negative
+                return self[0]+time*(self[1]-self[0])
+            if time>= 1: # 
+                return self[-1]+(time-1)*(self[-1]-self[-2])            
             leftPointIndex=int(floor(time*(len(self)-1))) # in 0...len(self)-2 for t in [0,1[
             timeLeftFromIndex=time-leftPointIndex*segmentDuration
             fractionOfSegment=timeLeftFromIndex*(len(self)-1)#=timeLef/segmentDuratio
@@ -763,29 +770,33 @@ class Polyline(list,ParametrizedCurve):
         ParametrizedCurve.__init__(self,initCallFunction)
         
     def curvilinear_abscissa(self,t0=0,t1=None):
-        """ This is a signed quantity. The absolute value is the shortest length from self(t0) to self(t1)
+        """ This is a signed quantity. The absolute value is the length from self(t0) to self(t1)
         For instance if self=Polyline(origin, origin+X).reparametrized by t=sin(u)
-        then self.curvilinear_abscissa(t0=1,t1=3pi/2) is -1 wheras the length of the path on the parametrized
-        curve is 5/2.
+        then self.curvilinear_abscissa(t0=0,t1=3pi/2) is -1 wheras the length of the path on the parametrized
+        curve is 3.
         Mathematically, this is the curvilinear abscissa at self(t1) - curvilinear abscissa at self(t0), hence the name. 
         """
-        t0=self.parametrized_time(t0)
-        moved_points=self.controlPoints()
-        moved_lengths=self.lengths()
-        segmentDuration=1./(len(self)-1)# all segments take the same time, thus faster on longer segments, the total length is one
-        #stuff for t0
-        if t0<= segmentDuration:
-            #print(segmentDuration,moved_points[1],moved_points[0],"ici")
-            d0=t0/segmentDuration*(moved_points[1]-moved_points[0]).norm
-        elif t0>=(len(self)-2)*segmentDuration:
-            d0=sum(moved_lengths)-moved_lengths[-1]+(t0/segmentDuration-(len(self)-2))*(moved_points[-1]-moved_points[-2] ).norm   #stuff for t1
+        if t1 is not None:
+            return self.curvilinear_abscissa(t0=t1,t1=None)-self.curvilinear_abscissa(t0=t0,t1=None)
         else:
-            index=int(floor(t0*(len(self)-1)))# index i means on segment [controlPoints[i],controlPoints[i+1]
-            timeLeft=t0-index*segmentDuration
-            leftVector=timeLeft*(moved_points[index+1]-moved_points[index])
-            d0=sum([moved_lengths[i] for i in range(index)])+leftVector.norm
-        if t1 is None: return d0
-        else: return self.curvilinear_abscissa(t0=t1,t1=None)-self.curvilinear_abscissa(t0=t0,t1=None)
+            #print(t0,t1,"t0 t1")
+            t0=self.parametrized_time(t0)
+            moved_points=self.controlPoints()
+            moved_lengths=self.lengths()
+            segmentDuration=1./(len(self)-1)# all segments take the same time, thus faster on longer segments, the total length is one
+            #stuff for t0
+            #print(t0,"t0")
+            if t0<= segmentDuration:
+                #print(segmentDuration,moved_points[1],moved_points[0],"ici")
+                d0=t0/segmentDuration*(moved_points[1]-moved_points[0]).norm
+            elif t0>=(len(self)-2)*segmentDuration:
+                d0=sum(moved_lengths)-moved_lengths[-1]+(t0/segmentDuration-(len(self)-2))*(moved_points[-1]-moved_points[-2] ).norm   #stuff for t1
+            else:
+                index=int(floor(t0*(len(self)-1)))# index i means on segment [controlPoints[i],controlPoints[i+1]
+                timeLeft=t0-index*segmentDuration
+                leftVector=timeLeft*(moved_points[index+1]-moved_points[index])
+                d0=sum([moved_lengths[i] for i in range(index)])+leftVector.norm
+            return d0
 
 
                       
