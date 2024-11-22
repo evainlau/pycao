@@ -74,15 +74,21 @@ def object_string_but_CSG(self,camera):
     """
     This is the code to get the string for an object which has no csg operations. 
     """
+    #print("sans csg")
     string=name_comment_string(self)
     if isinstance(self,ParametrizedCurve) :
         if isinstance(self,Polyline):
             myPolyline=self
         else:
+            #print("pas poly")
+            #print("type: ", type(self))
             myPolyline=self.to_polyline()
+            #print("fin pas poly")
+        #print("ici avant tikz")
         string+="    \draw "+texture_string(self,camera)
         string += "--".join([point_to_tikz2d(p,0,1) for p in myPolyline.controlPoints()])
         string += ";"
+    #print("string finale")
     return string   
 
 def object_string_alone(self,camera):
@@ -93,6 +99,8 @@ def object_string_alone(self,camera):
     object_string_but_CSG is called.  For curves dealed in this module, basically there are only unions
     not unions nor differences
     """
+    #print("debut alone")
+    #print("type", type(self))
     if (not hasattr(self,"visibility")) or self.visibility<camera.visibilityLevel:
         return ""
     todoList=copy.copy(self.csgOperations)# list to be restaured at the end
@@ -100,17 +108,21 @@ def object_string_alone(self,camera):
     try:
         todo=self.csgOperations.pop()
     except:
+        #print("in except")
         return object_string_but_CSG(self,camera) # si ya pas de csg, on renvoie seulement la chaine de l'objet simple
     #slavesCopie=[copy.deepcopy(entry) for entry in todo.csgSlaves]
+    #print("avant copie")
     slavesCopie=[entry.clone() for entry in todo.csgSlaves] #? should we clone without children here for efficiency ?? Probably
     #for slave in slavesCopie:
     #    print(slave) 
     #print("copie",len(slavesCopie))
     kw=todo.csgKeyword
     visibleSlaves=[slave for slave in slavesCopie if (hasattr(slave,"visibility") and slave.visibility>=camera.visibilityLevel and kw=="union") or (hasattr(slave,"booleanVisibility") and slave.booleanVisibility>=camera.visibilityLevel and ( kw=="difference" or kw=="intersection"))]
+    #print("avant slave")
     for slave in visibleSlaves: #change restaured at the end
         slave.oldVisibility=slave.visibility
         slave.visibility=1
+    #print("avant union")
     if todo.csgKeyword=="union":
         """ 
             Recall that in the union, the master is an empty objectInWorld.  Only the slaves participate in the physical object 
@@ -130,6 +142,7 @@ def object_string_alone(self,camera):
     self.csgOperations=todoList
     for slave in visibleSlaves:
         slave.visibility=slave.oldVisibility
+    #print("fin alone")
     return retour
 
 def object_string_recursive(self,camera):
@@ -137,10 +150,12 @@ def object_string_recursive(self,camera):
     this function is the glue to call recursivly all children from the parent.
     The string for each element, parent or children, is done in  object_string_alone()
     """
+    #print("debut string recursive")
     string=object_string_alone(self,camera)
     string+="\n\n"
     for child in self.children:
         string+=object_string_recursive(child,camera)
+    #print("fin string recursive")
     return string
 
 
@@ -156,11 +171,13 @@ def render(camera):
         camera.idactors=[]
         for p in groupPhoto:
             if p.parent==[] and id(p) not in camera.idactors:
+                #print(p)
                 camera.actors.append(p)
                 camera.idactors.append(id(p))
     for component in camera.actors:
         #print(component, "is component")
         booklet.write(object_string_recursive(component,camera))
+        #print("done")
     booklet.write( "\\end{tikzpicture}\\end{document}")
     booklet.close()
 

@@ -611,6 +611,7 @@ class ParametrizedCurve(Primitive):
             elif is_point(relativeList[i]):
                 relativeList[i]=relativeList[i].clone()
             else:
+                #print(relativeList[i][3]-1)
                 raise NameError('relativeList['+str(i)+'] must be a point or vector')
         return relativeList
         
@@ -625,7 +626,7 @@ class ParametrizedCurve(Primitive):
         # self.function=composition
         return self
         
-    def speed(curve,t,epsilon=0.00000001,mini=0,maxi=1):
+    def speed(curve,t,epsilon=0.0001,mini=0,maxi=1):
         """
         The speed vector at time t for a function with parameters t in [mini,maxi]
         """
@@ -641,28 +642,55 @@ class ParametrizedCurve(Primitive):
         self.mapFromOrigin=M*self.mapFromOrigin
         return self
 
-    def to_polyline(self,maxDistance=0.2,starttime=0,endtime=1):
+    def to_polyline(self,maxDistance=0.2,starttime=0,endtime=1,maxiterations=10000):
         """
         discretizes the parametrized injective curve C([starttime,endtime]) in  a sequence of points 
         p_i   with distance(p_i,p_{i+1})<maxDistance
         The injectivity is important to avoid artefacts : if self(startime)=self(endtime), the computer interprets this as a constant curve
         and thinks the discretization is done. Similar pbs may occur at nodal points of the curve. 
-        """ 
+        """
+        #print("j'entre dans le poly")
         pointslist=[self(starttime),self(endtime)]
-        print("ointliste",pointslist)
+        #print("ointliste",pointslist)
         timelist=[starttime,endtime]
         index=0
-        while timelist[index] != endtime :
-            if  (pointslist[index+1]-pointslist[index]).norm<maxDistance:
+        iterations=0
+        #print("j'entre dans le while")
+        while timelist[index] != endtime and iterations<maxiterations:
+            #print("timeindex and endtime",timelist[index],endtime)
+            iterations+=1
+            #print("timelist")
+            if  (pointslist[index+1]-pointslist[index]).norm<maxDistance :#or iterations>100:
                 index+=1
                 #print("index",index)
                 #print("timelist[index],endtime",timelist[index],endtime)
             else:
+                #print("points",pointslist[index+1],pointslist[index])
                 timeToAdd=(timelist[index]+timelist[index+1])/2
+                #print("timeToAdd",timeToAdd)
+                #print("index",index)
+                #print("les points: points")
+                #print(timelist)
+                #print("timelist[index],endtime",timelist[index],endtime)
+                tmod=timelist[index]
+                #print(self(tmod),self(tmod+0.001),"t pas trop diff")
                 timelist.insert(index+1,timeToAdd)
                 pointslist.insert(index+1,self(timeToAdd))
+        #print("je sors du poly")
         return Polyline(pointslist)
 
+    def to_polyline2(self,starttime=0,endtime=1,maxiterations=1000):
+        """
+        discretizes the parametrized injective curve C([starttime,endtime]) by dividing the time interval in maxiterations
+        """
+        pointslist=[]
+        #print("dans le poly2")
+        for i in range(maxiterations):
+            pointslist.append(self(starttime+(endtime-starttime)*i/maxiterations) )
+            #print(type(pointslist[-1]))
+            #print(pointslist[-1])
+        return Polyline(pointslist)
+    
         
     # def __deepcopy__(self,memo):
     #     ### When is it used ? Why did I do the copy by hand ? 
@@ -707,6 +735,28 @@ class ParametrizedCurve(Primitive):
         return anglesList
     def length(self,discretizationDistance,t0=0,t1=1):
             return sum(self.to_polyline(maxDistance=discretizationDistance,starttime=t0,endtime=t1).lengths())
+    def point_away_from(self,t0,distance,dt=.001):
+        """
+        returns the point M(t) such that distance(M(t),M(t0))=distance, dt is the chosen discretization
+        if dt>0, then t>t0 and vice-versa
+        """
+        d=0;t=t0;
+        while d<distance:
+            d+=(self(t+dt)-self(t)).norm
+            t+=dt
+            #print("d actu,t,self",d,t,self(t))
+        return self(t)
+    def time_from(self,t0,distance,dt=.001):
+        """
+        returns t such that distance(M(t),M(t0))=distance, dt is the chosen discretization
+        if dt>0, then t>t0 and vice-versa
+        """
+        d=0;t=t0;
+        while d<distance:
+            d+=(self(t+dt)-self(t)).norm
+            t+=dt
+        return t
+    
 #    def time_to_length(self, t0=0,lengthObjective=None):
   #      x0 = self(t0)
     #    def 
@@ -760,9 +810,9 @@ class Polyline(list,ParametrizedCurve):
             # This is the call function when there is no reparametrization and the curve has not been moved
             segmentDuration=1./(len(self)-1)# all segments take the same time, thus faster on longer segments, the total length is one
             if time<= segmentDuration: # can be negative
-                return self[0]+time*(self[1]-self[0])
+                return self[0]+time/segmentDuration*(self[1]-self[0])
             if time>= 1: # 
-                return self[-1]+(time-1)*(self[-1]-self[-2])            
+                return self[-1]+(time-1)/segmentDuration*(self[-1]-self[-2])            
             leftPointIndex=int(floor(time*(len(self)-1))) # in 0...len(self)-2 for t in [0,1[
             timeLeftFromIndex=time-leftPointIndex*segmentDuration
             fractionOfSegment=timeLeftFromIndex*(len(self)-1)#=timeLef/segmentDuratio
@@ -843,7 +893,15 @@ class BezierCurve(list,ParametrizedCurve):
                 output+=scipy.special.binom(len(self)-1, i)*((time)**i)*((1-time)**(len(self)-1-i))*self[i]
                 #print i
                 #print output
-            return output
+            if abs(output[3])==1:
+                return output
+            elif abs((output[3]-1)>10**(-6)):
+                print(output[3])
+                raise(NameError ('Calculation pb, should be a point with last coordinate=1'))
+            else:
+                output[3]=1
+                return output
+            
         ParametrizedCurve.__init__(self,initCall)        
     def __str__(self):
         return "Bezier curve with control points "+", ".join([str(point.clone().move_alone(self.mapFromOrigin)) for point in self ])+"."
