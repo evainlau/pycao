@@ -1,5 +1,27 @@
 Back to [[file:../pycao.org][the Org file]] 
 
+* Architecture de la documentation
+
+** ce qu'il faut a terme
+- un tutoriel (plus ou moins done)
+- des exemples (pas trop importan_t, yen a dans le tutoriel)
+- un manuel de reference qui comporte
+  la liste des classes, des classes derivees, des methodes pour chaques classe avec la doc de chaque classe et de chaque methode
+  et un lien vers le code source (auto-documentation)
+
+Pour le tutoriel, il faut pouvoir le verfifier, surtout si on l'etend. Le pb est qu'il y a plusieurs niveaux qui interagissent
+( le code html, le code python pour ecrire le programme pycao qui contient lui meme deux sous-niveaux ( le preambule commun a tous
+les codes pythons, le preambule/postambule du code python), le fichier povray, l'image.
+
+Regle de base : tout doit etre ecrit dans un unique fichier python, sinon c'est pas gerable d'ecrire la doc au quotidien.
+Et il faut une automatisation pour compiler. A voir comment ecrire  cette automatisation ( un module de sphinx-doc ou ascii-doctor ??)
+
+Deuxieme regle de base : la recompilation ne doit recompiler que ce qui est modifié, car sinon c'est tres long et trop de choses a verifier.
+- si le preambule est modifie, tout recompiler et montrer les fichiers pdf dans un latex
+- si certains fichiers python sont modifies ne recompiler que le partie python
+- si le fichier sphinx est modifie ( sous-entendu pas la partie pycao), ne recompiler que sphinx 
+
+
 * Generating the Doc
 ====================
 
