@@ -22,6 +22,68 @@ Deuxieme regle de base : la recompilation ne doit recompiler que ce qui est modi
 - si le fichier sphinx est modifie ( sous-entendu pas la partie pycao), ne recompiler que sphinx 
 
 
+Mise en oeuvre possible:
+################################################################
+Format du fichier .py serait le suivant
+################################################################
+
+dessin=On
+*nomDuFichier=nom1
+#####################
+#insertions de preambules divers
+########################
+*inclure preambule1
+*inclure preambule 3
+
+########################
+#Construcion
+######################
+ligne1
+ligne2
+#show-on (instruction qui demande d'integrer dans le fichier html
+ligne 3
+ligne4
+#show-off
+ligne5
+ligne6
+#show-on
+ligne7
+ligne8
+#show-off
+
+###################
+#insertion de postambules divers
+#################
+*inclure postambule un inclure postambule2 
+dessin=off
+
+
+retour au texte normal sphinx
+
+dessin=on
+*nomDufichier=... # toujours ajouter au fichier comme ca je peux couper un fichier en plusieurs points de la page
+blabla
+nomDuFichier=.... pour un autre fichier
+dessin=off
+
+################################################################
+#Generation des fichiers a partir du code source
+################################################################
+Pour chaque fichier source:
+- s'il n'est pas modifie, ne pas changer
+- s'il est modifie' le couper en deux mettre une partie dans le code sphinx et une partie dans le code pycao
+apres avoir au prealable bouge les anciens codes sphinx et pycao
+- recompiler si necessaire le code sphinx ou le code pycao apres un diff avec la version ancienne
+
+  Pour le code pycao:
+- prendre tous les dessin on et les dessin off pour les mettre dans un fichier
+- remplacer les preambule par ce qu'il faut
+- couper les morceaux et les dispatcher au regarde de "nomDeFichier"
+- faire le diff sur chacun de ces morceaux
+- faire un fichier qui compare la vision pycao ancien avec le pycao nouveau et les affiche pour comparaison
+
+
+
 * Generating the Doc
 ====================
 
