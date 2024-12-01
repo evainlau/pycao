@@ -1,0 +1,63 @@
+* creation d'un nouvel element de doc  
+- creer les fichiers .py(cao) qui font des dessins, generer le pov mais pas le png dans le code
+- le nom du fichier .pov doit etre le nom du fichier.py + 1 chiffre ( exemple : file.py et file1.pov ou file23.py et file234.pov)  
+- creer le fichier rst  en incluant le .py par des 
+paragraphes du type:
+    .. literalinclude:: genealogyAndCompounds1.py
+         :start-after: bbloc1
+	 :end-before: ebloc1
+- le nom du fichier .rst doit etre le nom du fichier.py moins un caractere ( ex: file.py et fil.rst ou file1.py et file.rst) 
+
+* structure de dependance du make 
+
+- DONE : mettre tous les .py(cao) dans une variable par exploration de tous les existants sauf une liste maintenue a la main
+- creer la liste de dependances des pov et des .rst grace aux regles typographiques ci-dessus
+- creer la liste de dependances des png avec le meme nom que les pov
+
+* entretien de la doc existante
+
+- make newDrawing file.py : compile le fichier python, met un fichier png pour chaque pov, et compile les fichiers pov correspondant en 
+ecrasant au passage les pov precedent, sauf en cas de pb de compilation pov. Une boucle finalement montre les .png qui en dependent
+- make updateCheckDrawings : compile tous les fichiers .py dont les .pov ne sont pas a jour, puis compile les .pov 
+dans un repertoire 
+- make validateDrawings : deplace les fichiers precedents dans le repertoire final
+- make updateDrawings Novalidation : fait les 2 precedents (update+validate)
+- make html : transforme les rst en html 
+
+
+* compilation des .py modifies a partir du make
+
+Il y a deux parties tres differentes : 
+1 . creer les .png a partir des .py ( pycao) 
+2. creer les .html a partir des .rst ( sphinx)
+
+** Partie 1: 
+Le pb est la gestion des pov/png. C'est ca qui peche en ce moment
+- on recompile tout, c'est long ( un peu la creation des .pov, mais surtout les povray)
+- mais ca rend la verification difficile car ya trop d'images a verifier possiblement manquantes  (si povray n'est pas content : le png n'est pas cree )
+- il peut y avoir plusieurs png pour un .pov  et donc c'est pas facile a automatiser dans make
+
+Les pistes a explorer : 
+- si on ne veut pas valider le .pov avant verification, faire un touch du .py
+j'aime pas trop, artificiel
+- choisir le repertoire temporaire quand je ne sais pas si c'est valide' et le rep definitif quand je sais que c'est OK
+bof, on fait 2 fois le travail
+- maintenir un make qui note les fichiers png attendus 
+bof, a chaque fois qu'on fait un nouveau fichier pycao, il faut modifier le make
+- depuis le fichier pycao, faire un cat pour le png correspondant
+bof a maintenir
+- explorer le fichier pycao avec un script pour recolter les fichiers png
+sans doute le plus robuste mais le plus difficile
+
+
+** La partie 2  
+On peut compiler en local pour verifier 
+Ou compiler en global pour installer la doc
+La difference ce fait en fonction du fichier  de conf utilisé et des parametres transmis a sphinx-build
+En effet sphinx-build permet de transmettre le directory de depart, celui d'arrivee, et le fichier de conf.
+Savoir que les doc-trees permettent des inclusions recursives donc mettre une branche  dans un repertoire separe' 
+permet de compiler soit une branche mere qui l'appellera automatiquement via les doctrees. 
+
+
+
+
