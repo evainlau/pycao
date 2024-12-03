@@ -5,7 +5,14 @@ pycaoFiles := $(filter-out $(badFiles),$(pycaoFiles))
 # The rest files are obtained by removing one letter to the pycao file names
 restFiles := $(foreach pkfile,$(pycaoFiles), $(shell echo $(pkfile)| sed 's/..py/.rst/' ))
 # Les fichiers pov deja compiles
-pycaoFiles := $(wildcard *.pov)
+povFiles := $(wildcard *.pov)
+povFilesSuffixless=$(basename $(povFiles))
+$(info    listePov is $(povFilesSuffixless))
+
+none=$(foreach povfile,$(povFiles), $(povfile)_pyfile=$(shell echo $(povfile)| sed 's/..pov/.py/' ))
+
+$(info $(essai.pov_pyfile))
+
 # for each pycao files with name NAM construct a variable NAM_POVS with value the list
 # of pov compatible
 
@@ -17,12 +24,23 @@ schema_rest := schema1.py schema2.py
 listePycao= dessin.py schema1.py
 listePycaoShort= dessin schema1
 listeRest=schema
+povFiles= essai1.pov essai2.pov essai.pov
 
 $(info    listePycao is $(listePycao))
 
-.SECONDEXPANSION:
+essai.pov_pyfile=here.py
+
+
+$(povFiles) : $($@_pyfile)
+	echo $^
+	echo success
+	echo $($@_pyfile)
+
+here.py:
+	touch here
+
 $$($$@_pov):$(listePycao)
-	echo $@ est le target 
+	echo $* est le target 
 	echo le mb de droite est $^
 	touch $^
 
