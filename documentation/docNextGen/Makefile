@@ -7,42 +7,34 @@ restFiles := $(foreach pkfile,$(pycaoFiles), $(shell echo $(pkfile)| sed 's/..py
 # Les fichiers pov deja compiles
 povFiles := $(wildcard *.pov)
 povFilesSuffixless=$(basename $(povFiles))
-$(info    listePov is $(povFilesSuffixless))
-
-none=$(foreach povfile,$(povFiles), $(povfile)_pyfile=$(shell echo $(povfile)| sed 's/..pov/.py/' ))
-
-$(info $(essai.pov_pyfile))
-
-# for each pycao files with name NAM construct a variable NAM_POVS with value the list
-# of pov compatible
-
-myrule= index.rst : index.py ;	echo NONE
-
-dessin.py_pov := dessin1.pov dessin2.pov
-schema1_pov := schema11.pov schema12.pov schema13.pov
-schema_rest := schema1.py schema2.py 
-listePycao= dessin.py schema1.py
-listePycaoShort= dessin schema1
-listeRest=schema
-povFiles= essai1.pov essai2.pov essai.pov
-
-$(info    listePycao is $(listePycao))
-
-essai.pov_pyfile=here.py
 
 
-$(povFiles) : $($@_pyfile)
-	echo $^
-	echo success
-	echo $($@_pyfile)
+
+$(info    listePov is $(povFiles))
+$(info    listePovSuffixless is $(povFilesSuffixless))
+
+
+
+
+
+
+# Here I build a rules of the form myFilename1.pov myFilename1.py  or myFilename1.pov myFilename.py depending on the existence on the second file 
+
+$(foreach file,$(povFilesSuffixless), $(eval  $${file}.pov :  $$(shell  if test -e $${file}.py ; then echo $${file}.py; else echo `echo $${file} | sed 's/.$$$$//g'`.py ; fi); python $$^))
+#$(foreach file,$(povFilesSuffixless), $(eval  $$(info $${file}.pov :  $$(shell  if test -e $${file}.py ; then echo $${file}.py; else echo `echo $${file} | sed 's/.$$$$//g'`.py ; fi))
+
+.PHONY : allpovfiles
+allpovfiles : $(povFiles)
+
+# this rule is to build a particular python file
+*.py:
+	python  $@.py
+
+
 
 here.py:
 	touch here
 
-$$($$@_pov):$(listePycao)
-	echo $* est le target 
-	echo le mb de droite est $^
-	touch $^
 
 
 .SECONDEXPANSION:
