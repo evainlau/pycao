@@ -8,8 +8,11 @@ restFiles :=$(wildcard *.rst)
 restFilesSuffixless=$(basename $(restFiles))
 # Les fichiers pov deja compiles
 povFiles := $(wildcard *.pov)
-povFilesSuffixless=$(basename $(povFiles))
+povFilesSuffixless:=$(basename $(povFiles))
 
+pngFromPov:=$(povFiles:.pov=.png)
+pngFromFiles:= $(wildcard *.png)
+pngFromAll:= $(pngFromFiles) $(pngFromPov)
 
 
 # Here I build a rules of the form myFilename1.pov:myFilename1.py  or myFilename1.pov:myFilename.py depending on the existence on the second file 
@@ -21,33 +24,17 @@ $(foreach file, $(pycaoFilesSuffixless),  $(eval $(shell if test -e ${file}.rst 
 $(foreach file,$(restFiles),  $(eval $(file): $$($(file).liste); sphinx-build $$@ ; touch $(file) ) )
 
 
-.PHONY : allpovfiles allrestfiles
+.PHONY : allpovfiles allrestfiles allpngs
 allpovfiles : $(povFiles)
 allrestfiles : $(restFiles)
+allpngs : $(pngFromAll)
+
+%.png : %.pov
+	povray $^  # maybe with better options 
 
 
 
-# this rule is to build a particular python file
-#*.py:
-#	python  $@.py
 
-
-
-%.png:%.pov
-	echo povrayCall to build the png $@ for the corresponding pov file
-
-
-
-%.py :
-	echo in the py file $@, nothing to do
-
-#buildThisFileForce: $@
-#	si c'est un fichier python, le pythonner
-#	si c'est un fichier rst, le sphinx-builder
-#	si c'est un fichier povray, le povray'
-
-pythonThisFileMaybe:$@
-	construireLalisteDesPovCorrespondantes
 
 # Minimal makefile for Sphinx documentation
 #
