@@ -20,7 +20,7 @@ paragraphes du type:
 * entretien de la doc existante via le make 
 
 - make png : lance make sur tous les png trouve's
-- make html: lance sphinx sur tous les rest 
+- make html: lance sphinx sur tous les rest apres un touch des rest correspondant a des .py modifies 
 - make pycao file=file.py : cree le pov et le png, verfie que le png est plus recent que le pov
 - make update = make png + make html, verifie que tous les pov ont un png plus recent
 - make fromScratch = make pycao sur tous les .py, verifie  que tous les pov ont un png plus recent
@@ -33,13 +33,14 @@ Il y a deux parties tres differentes :
 2. creer les .html a partir des .rst ( sphinx)
 
 ** Partie 1: 
-Le pb est la gestion des pov/png. C'est ca qui peche en ce moment
+Le pb est la gestion des pov/png. 
 - on recompile tout, c'est long ( un peu la creation des .pov, mais surtout les povray)
 - mais ca rend la verification difficile car ya trop d'images a verifier possiblement manquantes  (si povray n'est pas content : le png n'est pas cree )
 - il peut y avoir plusieurs png pour un .py  et donc c'est pas facile a automatiser dans make
 
 
 ** La partie 2  
+Ici, sphinx-build est pas raccord car on le fait avec -E pour inclure les images nouvelles. Il faut remplacer par un touch des .rst correspondant
 On peut compiler en local pour verifier 
 Ou compiler en global pour installer la doc
 La difference ce fait en fonction du fichier  de conf utilisé et des parametres transmis a sphinx-build
