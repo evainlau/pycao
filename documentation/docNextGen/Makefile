@@ -7,16 +7,17 @@ pycaoFilesSuffixless=$(basename $(pycaoFiles))
 restFiles :=$(wildcard *.rst)
 restFilesSuffixless=$(basename $(restFiles))
 # Les fichiers pov deja compiles
-povFiles := $(wildcard *.pov)
+povFiles := $(wildcard generatedImages/*.pov)
 povFilesSuffixless:=$(basename $(povFiles))
+povFilesNodirSuffixless:=$(notdir $(basename $(povFiles)))
 
 pngFromPov:=$(povFiles:.pov=.png)
-pngFromFiles:= $(wildcard *.png)
+pngFromFiles:= $(wildcard generatedImages/*.png)
 pngFromAll:= $(pngFromFiles) $(pngFromPov)
 
 
 # Here I build a rules of the form myFilename1.pov:myFilename1.py  or myFilename1.pov:myFilename.py depending on the existence on the second file 
-$(foreach file,$(povFilesSuffixless), $(eval  $${file}.pov :  $$(shell  if test -e $${file}.py ; then echo $${file}.py; else echo `echo $${file} | sed 's/.$$$$//g'`.py ; fi); python3 $$^))
+$(foreach file,$(povFilesNodirSuffixless), $(eval  generatedImages/$${file}.pov :  $$(shell  if test -e $${file}.py ; then echo $${file}.py; else echo `echo $${file} | sed 's/.$$$$//g'`.py ; fi); python37 $$^))
 
 
 # Here I build a rule of the form myFilename.rst  : myFilename1.py myFilename.py  myFilename2.py  . The right list is built from the existence of the files.
@@ -25,14 +26,18 @@ $(foreach file, $(pycaoFilesSuffixless),  $(eval $(shell if test -e ${file}.rst 
 $(foreach file,$(restFiles),  $(eval $(file): $$($(file).liste); touch $(file)  ) )
 
 
-.PHONY : allpovfiles allrestfiles allpngs html sphinxbuild
+.PHONY : allpovfiles allrestfiles pngs html sphinxbuild pycao
 
 allpovfiles : $(povFiles)
-html : $(restFiles); sphinxbuild 
-allpngs : $(pngFromAll)
+pngs : $(pngFromAll)
+
 
 %.png : %.pov
 	povray $^  # maybe with better options 
+
+pycao :
+	python3 $(pycaofile)
+
 
 # Minimal makefile for Sphinx documentation
 #
@@ -53,5 +58,5 @@ BUILDDIR      = _build
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 #%: Makefile
-sphinxbuild:
-	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+html:$(restFiles)
+	@$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)"  -c ~/persogit/communication/sitesWeb/pro/ $(SPHINXOPTS) $(O)

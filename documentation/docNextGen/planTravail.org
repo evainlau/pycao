@@ -19,9 +19,9 @@ paragraphes du type:
 
 * entretien de la doc existante via le make 
 
-- make png : lance make sur tous les png trouve's
+- make pycao pycaofile=file.py : lance python3 sur file.py
+- make pngs : lance make sur tous les png trouve's
 - make html: lance sphinx 
-- make pycao file=file.py : cree le pov et le png, verfie que le png est plus recent que le pov
 - make update = make png + make html
 - make fromScratch = make pycao sur tous les .py+ make update
 - make listmissingpng = cree la liste de png attendus et verifie en bash qu'ils sont plus recents que les pov correspondants.
