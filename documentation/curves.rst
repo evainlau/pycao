@@ -144,7 +144,7 @@ you can control all the points simultaneously using the parameter
 
    speedConstants=[approachingSpeed,leavingSpeed]
 
-If you prefer, you can controle the points individually using the parameters 
+If you prefer, you can control the points individually using the parameters 
 
 .. code-block:: python
 

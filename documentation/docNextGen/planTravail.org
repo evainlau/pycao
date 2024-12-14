@@ -18,36 +18,87 @@ paragraphes du type:
 - les .png dependent des .pov qui dependent des .py
 
 * entretien de la doc existante via le make 
-
+DONE: 
 - make pycao pycaofile=file.py : lance python3 sur file.py
 - make pngs : lance make sur tous les png trouve's
 - make html: lance sphinx 
+TO BE DONE:
 - make update = make png + make html
 - make fromScratch = make pycao sur tous les .py+ make update
 - make listmissingpng = cree la liste de png attendus et verifie en bash qu'ils sont plus recents que les pov correspondants.
 
-* Remarques generales
+* Compilation a la maison et a la fac
 
-Il y a deux parties tres differentes : 
-1 . creer les .png a partir des .py ( pycao) 
-2. creer les .html a partir des .rst ( sphinx)
+- Si on cd dans le directory documentation, le makefile apppelle sphinx qui fait un build dans documentation/_build/html
+La difference est qu'a la fac, le buid/html est un pointeur vers public html ( a faire) 
+Il y un fichier conf.py dans ce directory necessaire a sphinx-build
+Pb a long terme : gerer ce conf.py versus le conf.py qui gere ma page perso dans son ensemble
 
-** Partie 1: 
-Le pb est la gestion des pov/png. 
-- on recompile tout, c'est long ( un peu la creation des .pov, mais surtout les povray)
-- mais ca rend la verification difficile car ya trop d'images a verifier possiblement manquantes  (si povray n'est pas content : le png n'est pas cree )
-- il peut y avoir plusieurs png pour un .py  et donc c'est pas facile a automatiser dans make
-
-
-** La partie 2  
-Ici, sphinx-build est pas raccord car on le fait avec -E pour inclure les images nouvelles. Il faut remplacer par un touch des .rst correspondant
-On peut compiler en local pour verifier 
-Ou compiler en global pour installer la doc
-La difference ce fait en fonction du fichier  de conf utilisé et des parametres transmis a sphinx-build
-En effet sphinx-build permet de transmettre le directory de depart, celui d'arrivee, et le fichier de conf.
-Savoir que les doc-trees permettent des inclusions recursives donc mettre une branche  dans un repertoire separe' 
-permet de compiler soit une branche mere qui l'appellera automatiquement via les doctrees. 
+* ce qu'il faut a terme
+- un tutoriel (plus ou moins done)
+- des exemples (pas trop importan_t, yen a dans le tutoriel)
+- un manuel de reference qui comporte
+  la liste des classes, des classes derivees, des methodes pour chaques classe avec la doc de chaque classe et de chaque methode
+  et un lien vers le code source (auto-documentation)
 
 
+* Generating the Doc
+====================
 
+THIS IS THE OLD PROCEDURE BEFORE THE CONSTRUCTION OF THE MAKEFILE
+
+En particulier sphinx-build etait tres long car les fichiers rst 
+etaient tous recompiles via l'option -E 
+
+To create images, the script ./buildImages.py collects the .py
+files in this directory and executes them : this creates the 
+povray file and calls povray.  
+
+The verbosity of povray generates a much too large output
+to check that the python compilation was OK.
+However, don't care. 
+If some file is not generated, then it will not appear in the
+generatedImages dir since buildImages.py removes all
+the previously generated files from older builds.
+Thus the missing file will be detected in the html construction below thanks
+to the -E option. 
+
+To create html:
+cd TheDirectoryWithSphinxConfIWantToUseForAdequateTemplate
+sphinx-build options -b html sourceDir OutputDir
+in an existing OutputDir
+
+
+
+** Specificif procedure  
+
+*** For a local construction:
+
+#+BEGIN_SRC sh :results silent
+cd  .
+python3 buildImages.py
+#+END_SRC
+
+#+BEGIN_SRC sh :results output
+cd  .
+sphinx-build  -b html  -E -a .  ./html 2>&1 1>/dev/null
+#+END_SRC
+
+#+RESULTS:
+: /home/laurent/subversion/articlesEtRechercheEnCours/pycao/pycaogit/documentation/docTemplate.rst: WARNING: document isn't included in any toctree
+: /home/laurent/subversion/articlesEtRechercheEnCours/pycao/pycaogit/documentation/shortDeveloperDoc.rst: WARNING: document isn't included in any toctree
+
+
+
+
+
+
+*** To publish on  the web :
+
+#+BEGIN_SRC sh :dir /ssh:evain@localhost:
+#to get the appropriate conf.py and appropriate theme, we first cd
+cd  ~/subversion/sitesWeb/pro/ 
+sphinx-build  -b html  -E ./  ./_build/html 
+# _build/html is a link to public_html so no further move required
+#+END_SRC
 
