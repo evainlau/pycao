@@ -8,6 +8,8 @@ restFiles :=$(wildcard *.rst)
 restFilesSuffixless=$(basename $(restFiles))
 # Les fichiers pov deja compiles
 povFiles := $(wildcard generatedImages/*.pov)
+badFiles= generatedImages/bike.pov generatedImages/drawer.pov generatedImages/maisonLau.pov generatedImages/polyhedral.pov
+povFiles := $(filter-out $(badFiles),$(povFiles))
 povFilesSuffixless:=$(basename $(povFiles))
 povFilesNodirSuffixless:=$(notdir $(basename $(povFiles)))
 
