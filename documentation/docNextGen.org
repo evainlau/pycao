@@ -1,38 +1,34 @@
-* Nomenclature des fichiers de doc  
-- le nom du fichier .pov doit etre le nom du fichier.py + 1 chiffre ( exemple : file.py et file1.pov ou file23.py et file234.pov)
+* commandes d'entretien de la doc existante via le make 
+- make help : pour avoir ce paragraphe
+- make pycao pycaofile=file.py : lance python3 sur file.py
+- make pngs : lance make sur tous les png trouve's
+- make html: lance sphinx ( a la fac, le dir build est un lien dans public_html )
+- make -B pngs : force le recalcul de tous les png, meme si plus recent que les perequisites
+- make update = make pngs + make html
+- make BUILDDIR= _tmp html: lance sphinx et builde dans un fichier temporaire pour verif 
+
+Il y un fichier conf.py dans ce directory necessaire a sphinx-build
+Pb a long terme : gerer ce conf.py versus le conf.py qui gere ma page perso dans son ensemble
+
+
+* Comment ecrire les fichiers de doc 
+** Nomenclature et dependance
+-  fichier.pov = fichier.py + 1chiffre ( exemple : file.py et file1.pov ou file23.py et file234.pov)
   ou le nom du fichier lui meme (file.py/file.pov)
-- le nom du fichier .rst doit etre le nom du fichier.py moins un ou zero caractere ( ex: (file.py et fil.rst ou file.rst),  ou (file1.py et file.rst/file1.rst)
-- les fichiers .png et .pov ont meme basename 
+- fichier.rst = fichier.py moins un ou zero caractere  ex: (file.py et fil.rst ou file.rst),  ou (file1.py et file.rst/file1.rst)
+- fichier.png et fichier.pov ont meme basename 
 
-* Organisation de chaque fichier
-- le fichier python cree le .pov  ( mais pas le  png genere' par make pour plus de souplesse)
-
-- creer le fichier rst  en incluant le .py par des 
-paragraphes du type:
-    .. literalinclude:: genealogyAndCompounds1.py
-         :start-after: bbloc1
-	 :end-before: ebloc1
-
-* structure de dependance du make 
+Dans le make 
 - les html dependent des .rst dependent des .py
 - les .png dependent des .pov qui dependent des .py
 
-* entretien de la doc existante via le make 
-DONE: 
-- make pycao pycaofile=file.py : lance python3 sur file.py
-- make pngs : lance make sur tous les png trouve's
-- make html: lance sphinx 
-TO BE DONE:
-- make update = make png + make html
-- make fromScratch = make pycao sur tous les .py+ make update
-- make listmissingpng = cree la liste de png attendus et verifie en bash qu'ils sont plus recents que les pov correspondants.
+** Ecriture de chaque fichier individuellement
+- le fichier python cree le .pov  ( mais pas forcement le  png qui peut aussi etre genere' par make pour plus de souplesse)
 
-* Compilation a la maison et a la fac
-
-- Si on cd dans le directory documentation, le makefile apppelle sphinx qui fait un build dans documentation/_build/html
-La difference est qu'a la fac, le buid/html est un pointeur vers public html ( a faire) 
-Il y un fichier conf.py dans ce directory necessaire a sphinx-build
-Pb a long terme : gerer ce conf.py versus le conf.py qui gere ma page perso dans son ensemble
+-  le fichier.rst  inclu le .py par des commandes du type:
+    .. literalinclude:: genealogyAndCompounds1.py
+         :start-after: bbloc1
+	 :end-before: ebloc1
 
 * ce qu'il faut a terme
 - un tutoriel (plus ou moins done)
@@ -44,9 +40,9 @@ Pb a long terme : gerer ce conf.py versus le conf.py qui gere ma page perso dans
 
 * Generating the Doc
 ====================
-
+**********************************************************************
 THIS IS THE OLD PROCEDURE BEFORE THE CONSTRUCTION OF THE MAKEFILE
-
+**********************************************************************
 En particulier sphinx-build etait tres long car les fichiers rst 
 etaient tous recompiles via l'option -E 
 
