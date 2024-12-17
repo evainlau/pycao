@@ -361,7 +361,7 @@ class ICylinder(Elaborate):
         Constructs a half cylinder with half line p+tv, t>0
         """
         l=Segment(p,p+v)
-        return ICylinder(l,r).amputed_by(plane(v,p))
+        return ICylinder(l,r).amputed_by(plane(v,p),takeCopy=False)
         
 
 class HalfICylinder(ICylinder):
@@ -399,7 +399,7 @@ class Washer(Cylinder):
         Cylinder.__init__(self,start,end,eradius)
         longCylinder=ICylinder(Segment(start,end),iradius)
         #longCylinder.color=copy.copy(self.color)
-        self.amputed_by(longCylinder)
+        self.amputed_by(longCylinder,takeCopy=False)
         self.externalRadius=eradius
         self.internalRadius=iradius
         #self.internalBox=iCylinder.box()
@@ -541,9 +541,10 @@ class Torus(Elaborate):
         else:
             cuttingTool=[plane2,plane1]
         if acute:
-            self.intersected_by(cuttingTool)
+            self.intersected_by(cuttingTool,takeCopy=False)
         else:
-            result= self.amputed_by(Polyhedral(cuttingTool))
+            result= self.amputed_by(Polyhedral(cuttingTool),takeCopy=False)
+        plane2.visibility=0
         return self
 
     @staticmethod

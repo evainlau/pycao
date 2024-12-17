@@ -210,7 +210,7 @@ class ObjectInWorld(object):
             c.make_invisible()
 
 
-    def amputed_by(self,cuttingShape,throwShapeAway=True,keepTexture=True,takeCopy=True,glued=True):
+    def amputed_by(self,cuttingShape,throwShapeAway=True,keepTexture=True,takeCopy=False,glued=True):
         """
         cut self using the substraction of cuttingShape, where cuttingShape=object or listOfObjects
         The cuttingShape is made invisible after the cutting operation if throwShapeAway=True
@@ -270,7 +270,7 @@ class ObjectInWorld(object):
         self.csgOperations.append(csgOperation)
         return self
 
-    def intersected_by(self,cuttingShape,throwShapeAway=True,keepTexture=True,takeCopy=True,glued=True):
+    def intersected_by(self,cuttingShape,throwShapeAway=True,keepTexture=True,takeCopy=False,glued=True):
         """
         cut self using the intersection with cuttingShape
         The cuttingShape is made invisible after the cutting operation if throwShapeAway=True

@@ -102,3 +102,4 @@ light=Light().hooked_on(camera.hook()+1*X+1*Z) # a light located close to the ca
 
 camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
 camera.pov_to_png # show the photo, ie calls povray. 
+#camera.show

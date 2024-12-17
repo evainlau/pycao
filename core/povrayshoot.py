@@ -368,7 +368,9 @@ def render(camera):
             #print("p et son parent")
             #print(p)
             #print(p.parent)
-            if p.parent==[] and id(p) not in camera.idactors:
+            #print(len(p.parent), "is length")
+            # previously was type(p.parent)==[] but fails with p.parent=an numpy-array trying to cast and raising an error
+            if type(p.parent)==list and len(p.parent)==0 and id(p) not in camera.idactors :
                 camera.actors.append(p)
                 camera.idactors.append(id(p))
         #print("la liste des acteurs",camera.actors)

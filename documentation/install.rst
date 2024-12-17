@@ -71,16 +71,3 @@ Practice
 * The file we played with contains several comments. Read them and 
   try to modify some values to see how this impacts the 3D picture.
 
-Building a local doc
-------------------------
-This is not required, but
-you may want to build a local doc on your computer, to avoid the internet dependency or
-because this doc may be ahead of the pycao version you have on your computer. 
-If you want to do so, you need sphinxdoc installed on your computer.
-Then you cd in the documentation directory of your pycao install and
-you enter the following commands:
-
-.. code-block:: python
-		
-   python3 buildImages.py
-   sphinx-build  -b html  -E -a .  ./html 

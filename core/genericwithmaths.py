@@ -296,7 +296,7 @@ def _show_box(self):
     colors=["Red","Scarlet","Green","ForestGreen","Cyan","Blue"]
     for i in range(6):
         liste[i].colored(colors[i])
-    cube=liste.pop().intersected_by(liste,keepTexture=False).glued_on(self)
+    cube=liste.pop().intersected_by(liste,keepTexture=False,takeCopy=False).glued_on(self)
     for i in range(3):
         center=b.point(0.5,0.5,0.5)
         boxOrigin=b.point(0,0,0)

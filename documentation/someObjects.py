@@ -104,6 +104,7 @@ if 1>0:  #bbloc1
    l.intensity=2
    camera.actors=[grayGround,brownCube,closedPinkCylinder,infiniteYellowCylinder,violetCone,
                  redSphere,silverWasher,blueOpenCylinder,yellowTorus,cyanLathe,orangeLathe,bronzeLathe,HunterGreenRuledSurface]
+   #camera.actors=[grayGround,brownCube]#closedPinkCylinder,infiniteYellowCylinder,violetCone]
    camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
    camera.pov_to_png # show the photo, ie calls povray. 
    #camera.show
