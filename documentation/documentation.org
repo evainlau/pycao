@@ -1,0 +1,39 @@
+* commandes d'entretien de la doc existante via le makefile qui se trouve dans siteweb/pro
+- make help : pour avoir ce paragraphe
+- make pycao pycaofile=file.py : lance python3 sur file.py
+- make pngs : lance make sur tous les png trouve's
+- make html: lance sphinx ( a la fac, le dir build est un lien dans public_html )
+- make -B pngs : force le recalcul de tous les png, meme si plus recent que les perequisites
+- make update = make pngs + make html
+- make BUILDDIR= _tmp html: lance sphinx et builde dans un fichier temporaire pour verif 
+
+Il y un fichier conf.py dans ce directory necessaire a sphinx-build
+Pb a long terme : gerer ce conf.py versus le conf.py qui gere ma page perso dans son ensemble
+
+
+* Comment ecrire les fichiers de doc 
+** Nomenclature et dependance
+-  fichier.pov = fichier.py + 1chiffre ( exemple : file.py et file1.pov ou file23.py et file234.pov)
+  ou le nom du fichier lui meme (file.py/file.pov)
+- fichier.rst = fichier.py moins un ou zero caractere  ex: (file.py et fil.rst ou file.rst),  ou (file1.py et file.rst/file1.rst)
+- fichier.png et fichier.pov ont meme basename 
+
+Dans le make 
+- les html dependent des .rst dependent des .py
+- les .png dependent des .pov qui dependent des .py
+
+** Ecriture de chaque fichier individuellement
+- le fichier python cree le .pov  ( mais pas forcement le  png qui peut aussi etre genere' par make pour plus de souplesse)
+
+-  le fichier.rst  inclu le .py par des commandes du type:
+    .. literalinclude:: genealogyAndCompounds1.py
+         :start-after: bbloc1
+	 :end-before: ebloc1
+
+* ce qu'il faut a terme
+- un tutoriel (plus ou moins done)
+- des exemples (pas trop importan_t, yen a dans le tutoriel)
+- un manuel de reference qui comporte
+  la liste des classes, des classes derivees, des methodes pour chaques classe avec la doc de chaque classe et de chaque methode
+  et un lien vers le code source (auto-documentation)
+
