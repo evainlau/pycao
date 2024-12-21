@@ -31,6 +31,7 @@ from elaborate import *
 from compound import *
 import povrayshoot 
 import tikzshoot
+import scadshoot
 
 #This list will be appended when cameras are created. 
 camerasInScene=[]
@@ -82,6 +83,8 @@ class Camera(Primitive):
             povrayshoot.render(self)
         if self.technology=="tikz" and Camera.activeCameras:
             tikzshoot.render(self)
+        if self.technology=="scad" and Camera.activeCameras:
+            scadshoot.render(self)
         return self
     
     @property
@@ -107,6 +110,7 @@ class Camera(Primitive):
             options=""
             subprocess.call(["pdflatex ", options, self.file])
             return self
+        
     @property
     def pov_to_png(self):
         #same as show for string computation except always -D
@@ -135,6 +139,12 @@ class Camera(Primitive):
             print("le comp file est ",compiledFile)
             subprocess.call(["pdflatex", self.file])            
             subprocess.call(["evince",  compiledFile])
+        if self.technology=="scad":
+            compiledFile=os.path.splitext(self.file)[0]+".scad"
+            print("le comp file est ",compiledFile)
+            subprocess.call(["openscad", self.file])            
+
+
             
     def zoom(self,x):
         """
