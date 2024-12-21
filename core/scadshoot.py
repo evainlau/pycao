@@ -96,6 +96,8 @@ def matrix_string(self):
     "Returns a string describing the matrix self.mapFromParts of the object"
     if isinstance(self,Primitive):
         string= ""
+    elif isinstance(self,Sphere):
+        string=scadMatrix(self.mapFromParts*Map.translation(self.center-origin))
     else:
         string=scadMatrix(self.mapFromParts)
     #return ""
@@ -135,7 +137,7 @@ def object_string_but_CSG(self,camera):
         radius=str(self.radius)
         string+="object{Round_Box (\n"+povrayVector(self.parts.start)+","+povrayVector(self.parts.end)+","+radius+","+merge+")"+ " "+modifier_string(self,camera)+"}\n"
     elif isinstance(self,Sphere) :
-        string+="sphere {\n"+povrayVector(self.parts.center)+","+str(self.parts.radius)+" "+modifier_string(self,camera)+"}\n"
+        string+=modifier_string(self,camera)+"{  sphere (r="+str(self.parts.radius)+");}\n"
     elif isinstance(self,AffinePlane) :
         string+="plane {\n"+povrayVector(self.normal)+","+str(-self[3]/self.normal.norm)+" "+modifier_string(self,camera)+"}\n"
         # Orientation Checked with the following code
@@ -238,7 +240,7 @@ def object_string_csg(self,camera):
         """
         if len(visibleSlaves)>0:
             retour="\n"+name_comment_string(self)
-            retour+= "union {"+" ".join([object_string_csg(slave,camera)
+            retour+= "union() {"+" ".join([object_string_csg(slave,camera)
                                         for slave in visibleSlaves])+" "+texture_string(self,camera) +" }"
             # remark that we add the texture_string of self, but not the matrix_string, otherwise the slaves would be moved at an incorrect positiion
         else:
@@ -250,7 +252,7 @@ def object_string_csg(self,camera):
             else:
                 keepString=""
                 #print("visib0",visibleSlaves[0].visibility)
-            retour= todo.csgKeyword+ " {"+object_string_csg(self,camera)+" ".join([object_string_csg(slave,camera) for slave in visibleSlaves]) +keepString+" }"
+            retour= todo.csgKeyword+ "() {"+object_string_csg(self,camera)+" ".join([object_string_csg(slave,camera) for slave in visibleSlaves]) +keepString+" }"
         else:
             retour=object_string_csg(self,camera)
     else:
