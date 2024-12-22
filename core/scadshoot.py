@@ -42,9 +42,9 @@ def scadVector(p):
     return("["+str(p[0])+","+str(p[1])+","+str(p[2])+"]")
 
 
-def point_to_povray2d(p,i,j):
-    " casts a vector v to the string '<v[i],v[j]>'"
-    return("<"+str(p[i])+","+str(p[j])+">")
+def point_to_scad2d(p,i,j):
+    " casts a vector v to the string '[v[i],v[j]]'"
+    return("["+str(p[i])+","+str(p[j])+"]")
 
 
 def scadMatrix(M):
@@ -98,6 +98,8 @@ def matrix_string(self):
         string=scadMatrix(self.mapFromParts*Map.rotational_difference(start=Z,end=self.parts.end-self.parts.start,point1=origin,point2=self.parts.start))
     elif isinstance(self,Torus):
         string=scadMatrix(self.mapFromParts*Map.rotational_difference(start=Z,end=Y))
+    elif isinstance(self,Lathe):
+        string=scadMatrix(self.mapFromParts*Map.rotational_difference(start=Z,end=Y))
     elif isinstance(self,Primitive):
         string= ""
     else:
@@ -150,12 +152,11 @@ def object_string_but_CSG(self,camera):
         string+=modifier_string(self,camera)+ "{ cylinder (h="+str((self.parts.end-self.parts.start).norm) +",r1="+str(self.parts.radius1)+",r2="+str(self.parts.radius2)+",center=false );}"
     elif isinstance(self,Lathe) :
         if isinstance(self.parts.curve,Polyline):
-            latheType="linear_spline"
+            pointsList=",".join([point_to_scad2d(p,0,1) for p in self.parts.curve])
+            #string+="lathe {\n"+latheType+" "+str(len(self.parts.curve))+"\n"
         elif isinstance(self.parts.curve,BezierCurve):
-            latheType="bezier_spline"
-        string+="lathe {\n"+latheType+" "+str(len(self.parts.curve))+"\n"
-        for p in self.parts.curve: string+=","+point_to_povray2d(p,0,1)
-        string+=modifier_string(self,camera)+"}\n"
+            pointsList=",".join([point_to_scad2d(self.parts.curve(t/100),0,1) for t in range(101) ])
+        string+=modifier_string(self,camera)+"{ rotate_extrude($fn=100) polygon( points=["+pointsList+"]); }"
     elif isinstance(self,RuledSurface):
         string+="mesh2 { vertex_vectors { "+str(2*len(self.parts.timeList1))+"\n"
         for t in self.parts.timeList1:
