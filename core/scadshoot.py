@@ -75,16 +75,6 @@ def texture_string_cameraless(self):
     if not hasattr(self,"scad_color"):
         return ""
     else:
-        #myTexture=self.texture#
-        # if hasattr(myTexture,"moveMap"):
-        #     _moveString=" matrix "+povrayMatrix(myTexture.moveMap)
-        # if hasattr(myTexture,"name") and myTexture.name:
-        #     string+=myTexture.name +_moveString
-        # else:
-        #     string+=myTexture.declaration_string_bracketless()+_moveString+"}"
-        #string=" texture { "+string+" }\n"
-        #print self
-        #print hasattr(self,"texture")
         return  self.scad_color
 
 
@@ -94,6 +84,10 @@ def matrix_string(self):
     "Returns a string describing the matrix self.mapFromParts of the object"
     if isinstance(self,AffinePlane):
         string=scadMatrix(self.mapFromParts*Map.rotational_difference(start=Z,end=self.normal,point1=origin,point2=self.markedPoint))
+    elif isinstance(self,Cube):
+        string=scadMatrix(self.mapFromParts*Map.translation(self.parts.start-origin))
+    elif isinstance(self,RoundBox):
+        string=scadMatrix(self.mapFromParts*Map.translation((self.parts.start+self.parts.end)/2-origin))
     elif isinstance(self,Sphere):
         string=scadMatrix(self.mapFromParts*Map.translation(self.center-origin))
     elif isinstance(self,Cylinder):
@@ -138,15 +132,13 @@ def object_string_but_CSG(self,camera):
     elif isinstance(self,Cube) :
         string+=modifier_string(self,camera)+"{  cube ( size="+scadVector(self.parts.end-self.parts.start)+"); }\n"
     elif isinstance(self,RoundBox) :
-        if self.merge:
-            merge="0"
-        else: merge="1"
         radius=str(self.radius)
-        string+="object{Round_Box (\n"+povrayVector(self.parts.start)+","+povrayVector(self.parts.end)+","+radius+","+merge+")"+ " "+modifier_string(self,camera)+"}\n"
+        string+=modifier_string(self,camera)+"{ roundedBox(size="+scadVector(self.parts.end-self.parts.start)+",radius="+radius+ " );}\n"
     elif isinstance(self,Sphere) :
         string+=modifier_string(self,camera)+"{  sphere (r="+str(self.parts.radius)+");}\n"
     elif isinstance(self,AffinePlaneWithEquation) :
-        string+=modifier_string(self,camera)+"{square ( 100,center=true);}\n"
+        string+=modifier_string(self,camera)+"{cube(size=[100,100,.001] ,center=true);}\n"
+        print("WARNING: with open scad, planes do not exist they are  approximated with cubes 100unitsx100unitsx.001unit")
         # Orientation Checked with the following code
         #s=Sphere(origin,.1).colored("Red")
         #p1=plane(Z,origin+.05*Z)
@@ -155,9 +147,7 @@ def object_string_but_CSG(self,camera):
         #p1=plane(-Z,origin-.05*Z)
         #s.intersected_by(p1)
     elif isinstance(self,Cone) :
-        #print(self)
         string+=modifier_string(self,camera)+ "{ cylinder (h="+str((self.parts.end-self.parts.start).norm) +",r1="+str(self.parts.radius1)+",r2="+str(self.parts.radius2)+",center=false );}"
-        #string+="cone {\n"+povrayVector(self.parts.start)+","+str(self.parts.radius1)+"\n"+ povrayVector(self.parts.end)+","+str(self.parts.radius2)+" "+modifier_string(self,camera)+"}\n"
     elif isinstance(self,Lathe) :
         if isinstance(self.parts.curve,Polyline):
             latheType="linear_spline"
@@ -301,6 +291,7 @@ def render(camera):
     #for light in camera.lights:
     #    booklet.write(light.povray_string())
     #import gc
+    booklet.write(" use <MCAD/boxes.scad>;\n")       
     booklet.write("$fn=100;\n")
     if camera.filmAllActors:
         camera.actors=[]

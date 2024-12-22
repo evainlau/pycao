@@ -508,6 +508,7 @@ def _colored(self,color):
     else:
         t=Texture(p)
         self.textured(t)#keep it for the childs in csg    #print(self.texture.smallString)
+    self.scad_color=" color(\""+color.lower()+"\")" 
     #print("phasname",p.name)
     #print("in colored",t.smallString)
     return self
