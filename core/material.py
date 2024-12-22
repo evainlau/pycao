@@ -526,6 +526,7 @@ def _rgbed(self,*args):
     else:
         t=Texture(p)
     self.textured(t) #for the csg childs
+    self.scad_color=" color(c=["+argument+"]) "
     return self
 
 def _light_level(self,value):

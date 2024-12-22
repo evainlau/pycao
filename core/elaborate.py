@@ -400,6 +400,7 @@ class Washer(Cylinder):
         longCylinder=ICylinder(Segment(start,end),iradius)
         #longCylinder.color=copy.copy(self.color)
         self.amputed_by(longCylinder,takeCopy=False)
+        #longCylinder.glued_on(self).rgbed(0,1,0)
         self.externalRadius=eradius
         self.internalRadius=iradius
         #self.internalBox=iCylinder.box()
@@ -428,7 +429,7 @@ class Torus(Elaborate):
 
     Constructor
     Torus(externalRadius,internalRadius,normal,center)
-    
+    Remark: The external radius is not the outer radius, it is the average radius so that 2*(externalRadius+internalRadius)=totalDiameter of the torus  and (externalRadius-internalRadius)=radius of the hole. 
     
     """
     def __init__(self,externalRadius,internalRadius,normal=MassPoint(0,0,1,0),center=MassPoint(0,0,0,1)):

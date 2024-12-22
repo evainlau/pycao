@@ -60,7 +60,6 @@ def scadMatrix(M):
 
 
 def texture_string(self,camera):
-    return "" #
     "Returns a string describing the texture of the object"
     if self.visibility<camera.visibilityLevel:
         string=" no_shadow no_image no_reflection \n"
@@ -73,7 +72,7 @@ def texture_string_cameraless(self):
     "Returns a string describing the texture of the object"
     string=""
     _moveString=""
-    if not hasattr(self,"texture"):
+    if not hasattr(self,"scad_color"):
         return ""
     else:
         #myTexture=self.texture#
@@ -86,20 +85,30 @@ def texture_string_cameraless(self):
         #string=" texture { "+string+" }\n"
         #print self
         #print hasattr(self,"texture")
-        if hasattr(self,"texture") and self.texture is not None:
-            return  self.texture._unnested_output(withMove=True)
-        else: return  " "
+        return  self.scad_color
+
 
 
 
 def matrix_string(self):
     "Returns a string describing the matrix self.mapFromParts of the object"
-    if isinstance(self,Primitive):
-        string= ""
+    if isinstance(self,AffinePlane):
+        string=scadMatrix(self.mapFromParts*Map.rotational_difference(start=Z,end=self.normal,point1=origin,point2=self.markedPoint))
     elif isinstance(self,Sphere):
         string=scadMatrix(self.mapFromParts*Map.translation(self.center-origin))
+    elif isinstance(self,Cylinder):
+        string=scadMatrix(self.mapFromParts*Map.rotational_difference(start=Z,end=self.parts.rotaxis.p2-self.parts.rotaxis.p1,point1=origin,point2=self.parts.rotaxis.p1))
+    elif isinstance(self,ICylinder):
+        string=scadMatrix(self.mapFromParts)#*Map.translation((self.parts.axis.p1+self.parts.axis.p2)/2-origin-50*Z))
+    elif isinstance(self,Cone):
+        string=scadMatrix(self.mapFromParts*Map.rotational_difference(start=Z,end=self.parts.end-self.parts.start,point1=origin,point2=self.parts.start))
+    elif isinstance(self,Torus):
+        string=scadMatrix(self.mapFromParts*Map.rotational_difference(start=Z,end=Y))
+    elif isinstance(self,Primitive):
+        string= ""
     else:
         string=scadMatrix(self.mapFromParts)
+
     #return ""
     return string
 
@@ -119,15 +128,13 @@ def object_string_but_CSG(self,camera):
     string=name_comment_string(self)
     if isinstance(self,Cylinder) or isinstance(self,Cone):
         if self.parts.open:
-            openString=" open "
-        else:
-            openString=""
+            print("WARNING: with open scad, cylinders and cones are always closed")
     if isinstance(self,Cylinder):
-        string+="cylinder{"+povrayVector(self.parts.rotaxis.p1)+","+povrayVector(self.parts.rotaxis.p2)+","+str(self.parts.radius)+ openString+" "+modifier_string(self,camera)+"}"
+        string+=modifier_string(self,camera)+ "{ cylinder (h="+str((self.parts.rotaxis.p1-self.parts.rotaxis.p2).norm) +",r1="+str(self.parts.radius)+",r2="+str(self.parts.radius)+",center=false );}"
     if isinstance(self,ICylinder):
-        string+="quadric{"+povrayVector(vector(1,1,0))+","+povrayVector(vector(0,0,0))+"," +povrayVector(vector(0,0,0)) + ",-"+str(self.parts.radius**2)+ modifier_string(self,camera)+"}"
+        string+=modifier_string(self,camera)+ "{ cylinder (h=100,r1="+str(self.parts.radius)+",r2="+str(self.parts.radius)+",center=true );}"
     elif isinstance(self,Torus) :
-        string+="torus {\n"+str(self.parts.externalRadius)+","+str(self.parts.internalRadius)+" "+modifier_string(self,camera)+"}\n"
+        string+=modifier_string(self,camera)+"{ rotate_extrude(convexity = 10) translate(["+str(self.parts.externalRadius)+", 0, 0]) circle(r ="+ str(self.parts.internalRadius)+",$fn=100 );}"
     elif isinstance(self,Cube) :
         string+=modifier_string(self,camera)+"{  cube ( size="+scadVector(self.parts.end-self.parts.start)+"); }\n"
     elif isinstance(self,RoundBox) :
@@ -138,8 +145,8 @@ def object_string_but_CSG(self,camera):
         string+="object{Round_Box (\n"+povrayVector(self.parts.start)+","+povrayVector(self.parts.end)+","+radius+","+merge+")"+ " "+modifier_string(self,camera)+"}\n"
     elif isinstance(self,Sphere) :
         string+=modifier_string(self,camera)+"{  sphere (r="+str(self.parts.radius)+");}\n"
-    elif isinstance(self,AffinePlane) :
-        string+="plane {\n"+povrayVector(self.normal)+","+str(-self[3]/self.normal.norm)+" "+modifier_string(self,camera)+"}\n"
+    elif isinstance(self,AffinePlaneWithEquation) :
+        string+=modifier_string(self,camera)+"{square ( 100,center=true);}\n"
         # Orientation Checked with the following code
         #s=Sphere(origin,.1).colored("Red")
         #p1=plane(Z,origin+.05*Z)
@@ -149,7 +156,8 @@ def object_string_but_CSG(self,camera):
         #s.intersected_by(p1)
     elif isinstance(self,Cone) :
         #print(self)
-        string+="cone {\n"+povrayVector(self.parts.start)+","+str(self.parts.radius1)+"\n"+ povrayVector(self.parts.end)+","+str(self.parts.radius2)+" "+modifier_string(self,camera)+"}\n"
+        string+=modifier_string(self,camera)+ "{ cylinder (h="+str((self.parts.end-self.parts.start).norm) +",r1="+str(self.parts.radius1)+",r2="+str(self.parts.radius2)+",center=false );}"
+        #string+="cone {\n"+povrayVector(self.parts.start)+","+str(self.parts.radius1)+"\n"+ povrayVector(self.parts.end)+","+str(self.parts.radius2)+" "+modifier_string(self,camera)+"}\n"
     elif isinstance(self,Lathe) :
         if isinstance(self.parts.curve,Polyline):
             latheType="linear_spline"
@@ -247,12 +255,8 @@ def object_string_csg(self,camera):
             retour=""
     elif todo.csgKeyword=="difference" or todo.csgKeyword=="intersection":
         if len(visibleSlaves)>0:
-            if hasattr(todo,"keepTexture") and todo.keepTexture==True:
-                keepString=" cutaway_textures "
-            else:
-                keepString=""
-                #print("visib0",visibleSlaves[0].visibility)
-            retour= todo.csgKeyword+ "() {"+object_string_csg(self,camera)+" ".join([object_string_csg(slave,camera) for slave in visibleSlaves]) +keepString+" }"
+            #if hasattr(todo,"keepTexture") and todo.keepTexture==True:
+            retour= todo.csgKeyword+ "() {"+object_string_csg(self,camera)+" ".join([object_string_csg(slave,camera) for slave in visibleSlaves]) +" }"
         else:
             retour=object_string_csg(self,camera)
     else:
@@ -297,6 +301,7 @@ def render(camera):
     #for light in camera.lights:
     #    booklet.write(light.povray_string())
     #import gc
+    booklet.write("$fn=100;\n")
     if camera.filmAllActors:
         camera.actors=[]
         camera.idactors=[]

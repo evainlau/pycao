@@ -351,8 +351,9 @@ class Base(list,Primitive):
 
 
 
-class AffinePlane(Primitive):
+class AffinePlane(Primitive,np.ndarray):
     """ 
+    calling sequence :  AffinePlane(normalVector,pointInThePlane) or AffinePlane(point1,point2,point3) 
     An affine plane with equation ax_0+bx_1+cx_2+d=0.
     Equivalently, this is the equation  ax_0+bx_1+cx_2+dx_3=0 of a 3-dim linear space in the massic space.
     """
@@ -394,7 +395,7 @@ class AffinePlane(Primitive):
     @staticmethod
     def from_2_vectors_and_point(v1,v2,p):
         """
-        returns the plane wiht normal v1.cross(v2) and passing through p
+        returns the plane with normal v1.cross(v2) and passing through p
         """
         normal=v1.cross(v2)
         return AffinePlaneWithEquation(normal,p)
@@ -508,7 +509,6 @@ class AffinePlaneWithEquation(AffinePlane,np.ndarray):
     """
     This is a plane. The only difference with MathPlane is that 
     an instance of the present class is shown in the 3D view. 
-    The normal vector of the 
     What is drawn in the 3D view is the half space  ax_0+bx_1+cx_2+d<=0, ie. the normal vector(a,b,c,d) points outside the plane.
 
 

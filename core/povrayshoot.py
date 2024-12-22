@@ -203,7 +203,7 @@ def object_string_but_CSG(self,camera):
         string+="object{Round_Box (\n"+povrayVector(self.parts.start)+","+povrayVector(self.parts.end)+","+radius+","+merge+")"+ " "+modifier_string(self,camera)+"}\n"
     elif isinstance(self,Sphere) :
         string+="sphere {\n"+povrayVector(self.parts.center)+","+str(self.parts.radius)+" "+modifier_string(self,camera)+"}\n"
-    elif isinstance(self,AffinePlane) :
+    elif isinstance(self,AffinePlaneWithEquation) :
         string+="plane {\n"+povrayVector(self.normal)+","+str(-self[3]/self.normal.norm)+" "+modifier_string(self,camera)+"}\n"
         # Orientation Checked with the following code
         #s=Sphere(origin,.1).colored("Red")
