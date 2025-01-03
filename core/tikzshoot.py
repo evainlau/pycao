@@ -166,6 +166,7 @@ def render(camera):
 )
     booklet.write(globvars.userDefinedFunctions)
     if camera.filmAllActors:
+        print("gphot", groupPhoto)
         # build the list camera.actors with  all objects 
         camera.actors=[]
         camera.idactors=[]
