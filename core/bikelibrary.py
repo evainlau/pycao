@@ -321,7 +321,7 @@ class Fork(Compound):
         upperLeftLeg=origin+legLength*Z
         leftLeg=Cone(origin,upperLeftLeg,lowerTubeRadius,upperTubeRadius)
         rightLeg=leftLeg.clone().translate(entrax *X)
-        upperRoundPart=Torus(entrax*.5,upperTubeRadius,Y,origin+legLength*Z+.5*entrax*X).amputed_by(plane(Z,upperLeftLeg))
+        upperRoundPart=Torus(entrax*.5,upperTubeRadius,Y,origin+legLength*Z+.5*entrax*X).amputed_by(Halfspace(Z,upperLeftLeg))
         lowerHead=upperLeftLeg+.5*entrax*X+.5*entrax*Z
         slaves=[leftLeg,rightLeg,upperRoundPart]
         if headLength>0:

@@ -491,8 +491,8 @@ class Torus(Elaborate):
         if cut is True:
             #print(normale)
             #print("center",center)
-            cutting1=Plane.from_3_points(center,start,center+normale)
-            cutting2=Plane.from_3_points(center,end,center+normale)
+            cutting1=Halfspace.from_3_points(center,start,center+normale)
+            cutting2=Halfspace.from_3_points(center,end,center+normale)
             #if center,start and end are aligned and we keep the half point containing middle
             #print(cutting1)
             #print(cutting2)
@@ -531,8 +531,8 @@ class Torus(Elaborate):
         """
         p1=point1.clone()
         p2=point2.clone()
-        plane1=AffinePlaneWithEquation(self.center,self.center+self.normal(),p1)
-        plane2=AffinePlaneWithEquation(self.center,self.center+self.normal(),p2)
+        plane1=Halfspace(self.center,self.center+self.normal(),p1)
+        plane2=Halfspace(self.center,self.center+self.normal(),p2)
         if not plane1.half_space_contains(p2):
             plane1.reverse()
         if not plane2.half_space_contains(p1):

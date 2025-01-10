@@ -82,14 +82,16 @@ def texture_string_cameraless(self):
 
 def matrix_string(self):
     "Returns a string describing the matrix self.mapFromParts of the object"
-    if isinstance(self,AffinePlane):
+    if isinstance(self,Halfspace):
+        string=scadMatrix(self.mapFromParts*Map.rotational_difference(start=Z,end=self.normal,point1=origin+50*Z,point2=self.markedPoint))
+    elif isinstance(self,AffinePlane):
         string=scadMatrix(self.mapFromParts*Map.rotational_difference(start=Z,end=self.normal,point1=origin,point2=self.markedPoint))
     elif isinstance(self,Cube):
         string=scadMatrix(self.mapFromParts*Map.translation(self.parts.start-origin))
     elif isinstance(self,RoundBox):
         string=scadMatrix(self.mapFromParts*Map.translation((self.parts.start+self.parts.end)/2-origin))
     elif isinstance(self,Sphere):
-        string=scadMatrix(self.mapFromParts*Map.translation(self.center-origin))
+        string=scadMatrix(self.mapFromParts*Map.translation(self.parts.center-origin))
     elif isinstance(self,Cylinder):
         string=scadMatrix(self.mapFromParts*Map.rotational_difference(start=Z,end=self.parts.rotaxis.p2-self.parts.rotaxis.p1,point1=origin,point2=self.parts.rotaxis.p1))
     elif isinstance(self,ICylinder):
@@ -138,8 +140,10 @@ def object_string_but_CSG(self,camera):
         string+=modifier_string(self,camera)+"{ roundedBox(size="+scadVector(self.parts.end-self.parts.start)+",radius="+radius+ " );}\n"
     elif isinstance(self,Sphere) :
         string+=modifier_string(self,camera)+"{  sphere (r="+str(self.parts.radius)+");}\n"
+    elif isinstance(self,Halfspace) :
+        string+=modifier_string(self,camera)+"{cube(size=[100,100,100] ,center=true);}\n"
     elif isinstance(self,AffinePlaneWithEquation) :
-        string+=modifier_string(self,camera)+"{cube(size=[100,100,.001] ,center=true);}\n"
+        string+=modifier_string(self,camera)+"{cube(size=[100,100,00.001] ,center=true);}\n"
         print("WARNING: with open scad, planes do not exist they are  approximated with cubes 100unitsx100unitsx.001unit")
         # Orientation Checked with the following code
         #s=Sphere(origin,.1).colored("Red")
@@ -239,8 +243,8 @@ def object_string_csg(self,camera):
         """
         if len(visibleSlaves)>0:
             retour="\n"+name_comment_string(self)
-            retour+= "union() {"+" ".join([object_string_csg(slave,camera)
-                                        for slave in visibleSlaves])+" "+texture_string(self,camera) +" }"
+            retour+= texture_string(self,camera) +" union() {"+" ".join([object_string_csg(slave,camera)
+                                        for slave in visibleSlaves])+"  }"
             # remark that we add the texture_string of self, but not the matrix_string, otherwise the slaves would be moved at an incorrect positiion
         else:
             retour=""

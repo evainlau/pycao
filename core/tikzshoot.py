@@ -93,11 +93,11 @@ def object_string_but_CSG(self,camera):
 
 def object_string_alone(self,camera):
     """
-    This method builds the povray string for an object alone, without its chiddren nor csg
-    self is modified in the process but restauured at the end.
+    This method builds the tikz string for an object alone, without its chiddren nor csg
+    self is modified in the process but restaured at the end.
     Basically this part of code deals with csg operations. When there are no csg operations
     object_string_but_CSG is called.  For curves dealed in this module, basically there are only unions
-    not unions nor differences
+    not intersections nor differences
     """
     #print("debut alone")
     #print("type", type(self))
@@ -133,7 +133,7 @@ def object_string_alone(self,camera):
         if len(visibleSlaves)>0:
             retour="\n"+name_comment_string(self)
             retour+= "\n".join([object_string_alone(slave,camera)
-                                        for slave in visibleSlaves])+" "+texture_string(self,camera) +" }"
+                                        for slave in visibleSlaves])
             # remark that we add the texture_string of self, but not the matrix_string, otherwise the slaves would be moved at an incorrect positiion
         else:
             retour=""

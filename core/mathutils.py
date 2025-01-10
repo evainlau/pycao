@@ -398,28 +398,28 @@ class AffinePlane(Primitive,np.ndarray):
         returns the plane with normal v1.cross(v2) and passing through p
         """
         normal=v1.cross(v2)
-        return AffinePlaneWithEquation(normal,p)
+        return AffinePlane(normal,p)
     @staticmethod
     def from_3_points(p1,p2,p3):
-        return AffinePlaneWithEquation(p1,p2,p3)       
+        return AffinePlane(p1,p2,p3)       
     @staticmethod
     def from_bisector(*args):
         """
         Constructor:
-        AffinePlaneWithEquation.from_bisector(p1,p2) : returns the bissector with normal p2-p1
-        AffinePlaneWithEquation.from_bisector(segment) : as above with p1=segment.p1 and p2=segment.p2
+        AffinePlane.from_bisector(p1,p2) : returns the bissector with normal p2-p1
+        AffinePlane.from_bisector(segment) : as above with p1=segment.p1 and p2=segment.p2
         """
         if len(args)==2:
-            return AffinePlaneWithEquation(args[1]-args[0],0.5*args[0]+0.5*args[1])
+            return AffinePlane(args[1]-args[0],0.5*args[0]+0.5*args[1])
         elif len(args)==1:
             segment=args[0]
-            return AffinePlaneWithEquation(segment.p1-segment.p2,0.5*segment.p1+0.5*segment.p2)
+            return AffinePlane(segment.p1-segment.p2,0.5*segment.p1+0.5*segment.p2)
         else:
             raise NameError('from Bisector takes one or two arguments')
     @staticmethod
     def from_2_points(p1,p2):
         """ returns the bisector plane"""
-        return AffinePlaneWithEquation.from_bisector(p1,p2)
+        return AffinePlane.from_bisector(p1,p2)
     @staticmethod
     def from_coeffs(a,b,c,d):
         """
@@ -433,13 +433,13 @@ class AffinePlane(Primitive,np.ndarray):
             p=point(0,0,d*-1./c)
         else:
             raise NameError('The normal of a plane is a non zero vector')
-        return AffinePlaneWithEquation(vector(a,b,c),p)
+        return AffinePlane(vector(a,b,c),p)
     @staticmethod
     def from_point_and_vector(p,v):
-        return AffinePlaneWithEquation(v,p)
+        return AffinePlane(v,p)
     @staticmethod
     def from_vector_and_point(v,p):
-        return AffinePlaneWithEquation(v,p)
+        return AffinePlane(v,p)
 
 
     
@@ -509,7 +509,7 @@ class AffinePlaneWithEquation(AffinePlane,np.ndarray):
     """
     This is a plane. The only difference with MathPlane is that 
     an instance of the present class is shown in the 3D view. 
-    What is drawn in the 3D view is the half space  ax_0+bx_1+cx_2+d<=0, ie. the normal vector(a,b,c,d) points outside the plane.
+
 
 
     Construction:
@@ -528,11 +528,117 @@ class AffinePlaneWithEquation(AffinePlane,np.ndarray):
     reverse(): replaces its normal by its opposite, thus inverts interior and exterior
     half_space_contains (point): returns true if the half space defined by the plane contains the point. True on the plane.
     """
+    @staticmethod
+    def from_2_vectors_and_point(v1,v2,p):
+        """
+        returns the plane with normal v1.cross(v2) and passing through p
+        """
+        normal=v1.cross(v2)
+        return AffinePlaneWithEquation(normal,p)
+    @staticmethod
+    def from_3_points(p1,p2,p3):
+        return AffinePlaneWithEquation(p1,p2,p3)       
+    @staticmethod
+    def from_bisector(*args):
+        """
+        Constructor:
+        AffinePlaneWithEquation.from_bisector(p1,p2) : returns the bissector with normal p2-p1
+        AffinePlaneWithEquation.from_bisector(segment) : as above with p1=segment.p1 and p2=segment.p2
+        """
+        if len(args)==2:
+            return AffinePlaneWithEquation(args[1]-args[0],0.5*args[0]+0.5*args[1])
+        elif len(args)==1:
+            segment=args[0]
+            return AffinePlaneWithEquation(segment.p1-segment.p2,0.5*segment.p1+0.5*segment.p2)
+        else:
+            raise NameError('from Bisector takes one or two arguments')
+    @staticmethod
+    def from_2_points(p1,p2):
+        """ returns the bisector plane"""
+        return AffinePlaneWithEquation.from_bisector(p1,p2)
+    @staticmethod
+    def from_coeffs(a,b,c,d):
+        """
+        Returns the plane ax+by+cz+d=0
+        """
+        if not a==0:
+            p=point(-1.*d/a,0,0)
+        elif not b==0:
+            p=point(0,-d*1./b,0)            
+        elif not c==0:
+            p=point(0,0,d*-1./c)
+        else:
+            raise NameError('The normal of a plane is a non zero vector')
+        return AffinePlaneWithEquation(vector(a,b,c),p)
+    @staticmethod
+    def from_point_and_vector(p,v):
+        return AffinePlaneWithEquation(v,p)
+    @staticmethod
+    def from_vector_and_point(v,p):
+        return AffinePlaneWithEquation(v,p)
 
+
+
+
+    
 #    def __init__(self,*args,**kwargs):
 #        super.__init__(self)
 
-        
+class Halfspace(AffinePlaneWithEquation):
+    """ 
+    Technically the same as a plane, inherits everything. But for the 3D view,  it is the half space  ax_0+bx_1+cx_2+d<=0, ie. the normal vector(a,b,c,d) points outside the plane.
+    Planes and HalfSpaces are exported similarly in povray but not in openscad. 
+    """
+    @staticmethod
+    def from_2_vectors_and_point(v1,v2,p):
+        """
+        returns the plane with normal v1.cross(v2) and passing through p
+        """
+        normal=v1.cross(v2)
+        return Halfspace(normal,p)
+    @staticmethod
+    def from_3_points(p1,p2,p3):
+        return Halfspace(p1,p2,p3)       
+    @staticmethod
+    def from_bisector(*args):
+        """
+        Constructor:
+        Halfspace.from_bisector(p1,p2) : returns the bissector with normal p2-p1
+        Halfspace.from_bisector(segment) : as above with p1=segment.p1 and p2=segment.p2
+        """
+        if len(args)==2:
+            return Halfspace(args[1]-args[0],0.5*args[0]+0.5*args[1])
+        elif len(args)==1:
+            segment=args[0]
+            return Halfspace(segment.p1-segment.p2,0.5*segment.p1+0.5*segment.p2)
+        else:
+            raise NameError('from Bisector takes one or two arguments')
+    @staticmethod
+    def from_2_points(p1,p2):
+        """ returns the bisector plane"""
+        return Halfspace.from_bisector(p1,p2)
+    @staticmethod
+    def from_coeffs(a,b,c,d):
+        """
+        Returns the plane ax+by+cz+d=0
+        """
+        if not a==0:
+            p=point(-1.*d/a,0,0)
+        elif not b==0:
+            p=point(0,-d*1./b,0)            
+        elif not c==0:
+            p=point(0,0,d*-1./c)
+        else:
+            raise NameError('The normal of a plane is a non zero vector')
+        return Halfspace(vector(a,b,c),p)
+    @staticmethod
+    def from_point_and_vector(p,v):
+        return Halfspace(v,p)
+    @staticmethod
+    def from_vector_and_point(v,p):
+        return Halfspace(v,p)
+
+
 
 class FunctionCurve(ObjectInWorld):
     def __call__(self,t):
@@ -1297,7 +1403,7 @@ class Polyhedral(AffinePlaneWithEquation):
     Class for polyhedrals, aka intersection of half spaces
     
     Constructors 
-    Polyhedral(listOfPlanes): the last item of the list is the father of the intersection
+    Polyhedral(listOfHalfspaces): the last item of the list is the father of the intersection
     """
 
     
@@ -1987,8 +2093,10 @@ class Map(np.ndarray):
         """
         if len(args)==1:
             w=args[0].clone()
-        else:
+        elif len(args)==3:
             w=vector(*args)
+        else:
+            raise(NameError('The argument should be a vector or a triplet for a translation'))
         w[3]=1
         return(Map.affine(X,Y,Z,w))
 

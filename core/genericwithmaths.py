@@ -42,7 +42,7 @@ import lights
 def _translate_object(self,*args):
     #print(Map.translation(*args)*Map.identity)
     #print ("dans translate")
-    #print (self)
+    print (self)
     #for child in self.children:
     #    print(child)
     self.move(Map.translation(*args))

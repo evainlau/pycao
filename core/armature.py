@@ -251,9 +251,12 @@ class Body(Skeleton):
 
             
         leftFoot=Cube(footSize[0],footSize[1],ankleHeight).colored("Blue")
-        toCut=plane.from_3_points(leftFoot.point(0,.4,1),leftFoot.point(1,.4,1),leftFoot.point(.5,1,.2)).reverse()
+        toCut=Halfspace.from_3_points(leftFoot.point(0,.4,1),leftFoot.point(1,.4,1),leftFoot.point(.5,1,.2)).reverse()
+        #toCut=Sphere(leftFoot.point(0,.4,1),.1)
         leftFoot.amputed_by(toCut)
-        toCut=plane.from_3_points(leftFoot.point(0,.1,1),leftFoot.point(1,.1,1),leftFoot.point(.5,0,.2))
+        #print("tocut is halspace", isinstance(toCut,Halfspace))
+        #toCut.glued_on(leftFoot).colored("Green")
+        toCut=Halfspace.from_3_points(leftFoot.point(0,.1,1),leftFoot.point(1,.1,1),leftFoot.point(.5,0,.2))
         leftFoot.amputed_by(toCut)
         leftFoot.to_Ankle=leftFoot.point(.5,yDistanceAnkleToe,1,"pnp")
         leftFoot.translate(myTab["leftAnkle"].center-leftFoot.to_Ankle)
