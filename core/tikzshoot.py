@@ -91,13 +91,11 @@ def object_string_but_CSG(self,camera):
     #print("string finale")
     return string   
 
-def object_string_alone(self,camera):
+def object_string_CSG(self,camera):
     """
-    This method builds the povray string for an object alone, without its chiddren nor csg
-    self is modified in the process but restauured at the end.
     Basically this part of code deals with csg operations. When there are no csg operations
     object_string_but_CSG is called.  For curves dealed in this module, basically there are only unions
-    not unions nor differences
+    not intersections nor differences
     """
     #print("debut alone")
     #print("type", type(self))
@@ -114,7 +112,8 @@ def object_string_alone(self,camera):
     #print("avant copie")
     slavesCopie=[entry.clone() for entry in todo.csgSlaves] #? should we clone without children here for efficiency ?? Probably
     #for slave in slavesCopie:
-    #    print(slave) 
+        #print("slave",slave)
+        #print("children",slave.children)
     #print("copie",len(slavesCopie))
     kw=todo.csgKeyword
     visibleSlaves=[slave for slave in slavesCopie if (hasattr(slave,"visibility") and slave.visibility>=camera.visibilityLevel and kw=="union") or (hasattr(slave,"booleanVisibility") and slave.booleanVisibility>=camera.visibilityLevel and ( kw=="difference" or kw=="intersection"))]
@@ -132,8 +131,8 @@ def object_string_alone(self,camera):
         """
         if len(visibleSlaves)>0:
             retour="\n"+name_comment_string(self)
-            retour+= "\n".join([object_string_alone(slave,camera)
-                                        for slave in visibleSlaves])+" "+texture_string(self,camera) +" }"
+            retour+= "\n".join([object_string_CSG(slave,camera)
+                                        for slave in visibleSlaves])
             # remark that we add the texture_string of self, but not the matrix_string, otherwise the slaves would be moved at an incorrect positiion
         else:
             retour=""
@@ -145,17 +144,32 @@ def object_string_alone(self,camera):
     #print("fin alone")
     return retour
 
-def object_string_recursive(self,camera):
+def object_string_children(self,camera):
     """
     this function is the glue to call recursivly all children from the parent.
-    The string for each element, parent or children, is done in  object_string_alone()
+    First it calls object_string_CSG(), then it calls recursively for the children and
+    if the object is a csg type, for the children of the slaves. 
     """
-    #print("debut string recursive")
-    string=object_string_alone(self,camera)
+    #print("debut string children")
+    string=object_string_CSG(self,camera)
     string+="\n\n"
-    for child in self.children:
-        string+=object_string_recursive(child,camera)
-    #print("fin string recursive")
+    #print(self)
+    children=[]
+    children+=self.children
+    todoList=copy.copy(self.csgOperations)# 
+    #print("tdlist",len(todoList))
+    try:
+        csgOperation=todoList.pop()
+        for slave in csgOperation.csgSlaves:
+            children+= slave.children
+    except:
+        pass
+    for child in children:
+        #print("dans les children")
+        string+=object_string_children(child,camera)
+
+
+    #print("fin string children")
     return string
 
 
@@ -166,7 +180,6 @@ def render(camera):
 )
     booklet.write(globvars.userDefinedFunctions)
     if camera.filmAllActors:
-        print("gphot", groupPhoto)
         # build the list camera.actors with  all objects 
         camera.actors=[]
         camera.idactors=[]
@@ -177,7 +190,7 @@ def render(camera):
                 camera.idactors.append(id(p))
     for component in camera.actors:
         #print(component, "is component")
-        booklet.write(object_string_recursive(component,camera))
+        booklet.write(object_string_children(component,camera))
         #print("done")
     booklet.write( "\\end{tikzpicture}\\end{document}")
     booklet.close()

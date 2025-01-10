@@ -81,7 +81,7 @@ in an interactive way with buttons. It is also possible to
 visualize standard povray files modelled out of pycao with the
 viewer. The viewer and the buttons look like this
 
-.. image:: ../images/viewer.png
+.. image:: ./images/viewer.png
    :width: 50%
 
 
@@ -115,7 +115,7 @@ the colors.
 
 
 
-.. image:: ../images/table.png
+.. image:: ./images/table.png
    :width: 25%
    :align: left
 	   

@@ -94,6 +94,6 @@ above body. We have prealably constructed objects
 following instructions.
 
 
-.. literalinclude:: ../core/armature.py
+.. literalinclude:: armature.py
    :start-after: bbloc1
    :end-before: ebloc1

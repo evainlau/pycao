@@ -733,7 +733,7 @@ class ParametrizedCurve(Primitive):
         for i in range(len(self)-2):
             anglesList.append(Triangle(contPoints[i],contPoints[i+1],contPoints[i+2]).angle(1))
         return anglesList
-    def length(self,discretizationDistance,t0=0,t1=1):
+    def length(self,discretizationDistance=0.1,t0=0,t1=1):
             return sum(self.to_polyline(maxDistance=discretizationDistance,starttime=t0,endtime=t1).lengths())
     def point_away_from(self,t0,distance,dt=.001):
         """
