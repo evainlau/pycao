@@ -355,10 +355,19 @@ class AffinePlane(Primitive):
     """ 
     An affine plane with equation ax_0+bx_1+cx_2+d=0.
     Equivalently, this is the equation  ax_0+bx_1+cx_2+dx_3=0 of a 3-dim linear space in the massic space.
+    Technicallly, the data of the plane are:
+    self[0]=a...self[3]=d
+    self.markedPoint : a point in the plane
+    self.normal=Vector(a,b,c)
+    self.distanceFromOrigin
+    self.box.canonical : a canonical box. Its first vector is the normal of self, the other 2 vectors are in the plane. 
+        the first point is the marked point. 
     """
     def __str__(self):
         return "Plane with equation "+" ".join([str(self[0]),"x+",str(self[1]),"y+",str(self[2]),"z+",str(self[3]),"=0"]) 
 
+
+    
     def __new__(cls, *args,**kwargs):
         self=np.array(list((0.,0.,0.,0.))).view(cls)
         ObjectInWorld.__init__(self)
@@ -374,10 +383,27 @@ class AffinePlane(Primitive):
         self[0:4]=self.normal[0:4]
         self[3]=-self[0:3].dot(self.markedPoint[0:3])
         self.distanceFromOrigin=math.fabs(self.normal.dot(self.markedPoint-point(0,0,0))/self.normal.norm)
+        __class__._add_box(self,name="canonical")
         return self
 
-
-
+    @staticmethod
+    def _add_box(self,name):
+        """
+        constructs a framebox. Its first vector is the normal of self, the other 2 vectors are in the plane. 
+        the first point is the marked point
+        """
+        p0=self.markedPoint
+        p1=p0+self.normal
+        # chossing a random vector v works in practice
+        v=MassPoint(1.2324254,0.9857643,0.61324877,0)
+        w1=self.normal.cross(v).normalize()
+        w2=self.normal.cross(w1).normalize()
+        #print("normal and w1,w2", self.normal,w1,w2)
+        p2=p0+w1
+        p3=p0+w2
+        box=FrameBox.from_4_points([p0,p1,p2,p3])
+        return super().add_box(name=name,framebox=box)
+        
     def __init__(self,*args,**kwargs):
         pass
 
@@ -461,6 +487,9 @@ class AffinePlane(Primitive):
             setattr(result, k, copy.deepcopy(v, memo))
         return result
     def move_alone(self,M):
+        """
+        warning : if M is not orthogonal the move_alone is not correct
+        """
         #print("entree move-alone")
         #print("normal")
         #print(self)
@@ -527,6 +556,8 @@ class AffinePlaneWithEquation(AffinePlane,np.ndarray):
     self[i,i in range(3)]=[a,b,c,d] the ndarray of coefficients.
     reverse(): replaces its normal by its opposite, thus inverts interior and exterior
     half_space_contains (point): returns true if the half space defined by the plane contains the point. True on the plane.
+    self.box.canonical : a canonical box. Its first vector is the normal of self, the other 2 vectors are in the plane. 
+        the first point is the marked point. 
     """
 
 #    def __init__(self,*args,**kwargs):
@@ -1476,6 +1507,19 @@ class FrameBox(Base):
         # so there is no harm in considering only i<3 in move alone below. 
         # 
 
+    @staticmethod
+    def from_4_points(*args,name=""):
+        if len(args)==4:
+            listOfPoints=[args[0],args[1],args[2],args[3]]
+        elif len(args)==1:
+            listOfPoints=args[0]
+        else:
+            raise NameError("The arguments should be 4 points or a list of 4 points")
+        v0=listOfPoints[1]-listOfPoints[0]
+        v1=listOfPoints[2]-listOfPoints[0]
+        v2=listOfPoints[3]-listOfPoints[0]
+        return FrameBox(listOfPoints,xDirection=v0,yDirection=v1,zDirection=v2,name=name)
+        
     def axis_permutation(self,i,j,k):
         """
         ij,k in 0,1,2
@@ -1963,7 +2007,7 @@ class Map(np.ndarray):
         """
         The linear map which sends the canonical base to vo,v1,v2
         """
-        return( Map(v0,v1,v2,MassPoint(0,0,0,1)))
+        return Map(v0,v1,v2,MassPoint(0,0,0,1))
 
     @staticmethod
     def affine(v0,v1,v2,w):
@@ -2075,6 +2119,49 @@ class Map(np.ndarray):
             vecteur=vector(0,0,0)
         return Map.affine(M*X,M*Y,M*Z,vecteur)
 
+    @staticmethod
+    def orth_symmetry(plane):
+        """
+        returns the orthogonal symmetry fixing the plane
+        """
+        #print("plane of symmetry",plane)
+        #print(Base.canonical," was la basecan")
+        #print("lequation du plan",plane)
+        #print(plane.dicobox.canonical," was la baseduPlan")
+        M=Map.flipX.from_base_to_base(Base.canonical,plane.dicobox.canonical)
+        #print("matsym",M)
+        return M
+    
+    
+    @staticmethod
+    def symmetry(plane, vect=None):
+        """
+        If orth is True, returns the orthogonal symmetry around the plane
+        if orth is a vector, returns the symmetry fixing the plane and inversing the vector.
+        """
+        mybase=plane.dicobox.canonical
+        if is_vector(vect):
+            mybase[0]=vect
+        elif vect is not None:
+            raise NameError("Vect should be a vector or None")
+        M=Map.flipX
+        #print("planebase",plane.dicobox.canonical)
+        return M.from_base_to_base(Base.canonical,plane.dicobox.canonical)
+
+
+    @staticmethod
+    def symmetry2d(p0,p1,normal=MassPoint(0,0,1,0)):
+        """
+        Returns the orthogonal symmetry fixing p0,p1, p0+normal
+        Useful to define a symmetry inside a plane P orthogonal to normal and 
+        defined by a line p0,p1 lying in the plane.  
+        """
+        #v=(p1-p0).cross(normal).normalize()
+        plane1=AffinePlaneWithEquation.from_3_points(p0,p1,p0+normal)
+        #print(p0,p1,p0+normal)
+        #print(Map.orth_symmetry(plane=plane1))
+        #print()
+        return Map.orth_symmetry(plane=plane1)
 
     def from_base_to_base(self,base1,base2):
         """
@@ -2093,24 +2180,36 @@ class Map(np.ndarray):
         M=Map.linear(_to_vector(a),_to_vector(b),_to_vector(c))
         return M
 
-    @staticmethod
-    def flipXY():
-        return Map.linear(Y,X,Z)
-    @staticmethod
-    def flipXZ():
-        return Map.linear(Z,Y,X)
-    @staticmethod
-    def flipYZ():
-        return Map.linear(X,Z,Y)
-    @staticmethod
-    def flipX():
-        return Map.linear(-X,Y,Z)
-    @staticmethod
-    def flipY():
-        return Map.linear(X,-Y,Z)
-    @staticmethod
-    def flipZ():
-        return Map.linear(X,Y,-Z)
+    # @staticmethod    
+    # def flipXY():
+    #     return Map.linear(Y,X,Z)
+    # @staticmethod
+    # def flipXZ():
+    #     return Map.linear(Z,Y,X)
+    # @staticmethod
+    # def flipYZ():
+    #     return Map.linear(X,Z,Y)
+    # @staticmethod
+    # def flipX():
+    #     return Map.linear(-X,Y,Z)
+    # @staticmethod
+    # def flipY():
+    #     return Map.linear(X,-Y,Z)
+    # @staticmethod
+    # def flipZ():
+    #     return Map.linear(X,Y,-Z)
+
+X=MassPoint(1,0,0,0)
+Y=MassPoint(0,1,0,0)
+Z=MassPoint(0,0,1,0)
+Map.flipXY=Map.linear(Y,X,Z)
+Map.flipXZ=Map.linear(Z,Y,X)
+Map.flipYZ=Map.linear(X,Z,Y)
+Map.flipX=Map.linear(-X,Y,Z)
+Map.flipY=Map.linear(X,-Y,Z)
+Map.flipZ=Map.linear(X,Y,-Z)
+
+
     
 class Rotation(Map):
     """ 
@@ -2137,6 +2236,8 @@ class Rotation(Map):
         #print("verif Rotation.from_axis","1 et 2 prop",vector2,Map.rotation(l,-angle)*vector1)
         return Map.rotation(l,angle)
 
+    
+    
 
 def _screw_map(self,other,adjustAlong=None,adjustAround=None):
     """ 

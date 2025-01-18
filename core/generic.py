@@ -453,9 +453,9 @@ class ObjectInWorld(object):
         # creates a dicobox if ncr and populates it if  ncr
         if not hasattr(self,"dicobox"):
             dicobox=Object() # The pair k,v with k a string and v a callable returning a framebox
-            if hasattr(self,"box"):
-                dicobox.initialBox=self.box
             setattr(self,"dicobox",dicobox)
+            #if hasattr(self,"box"):
+            #    dicobox.initialBox=self.box
         self.activeBox=framebox.clone()
         #print("cii")
         #raise NameError(str(isinstance(self.activeBox,ObjectInWorld)))

@@ -79,6 +79,7 @@ class Compound(ElaborateOrCompound):
 
             
     def print_slaves(self):
+        print(self.__dict__)
         print(self.csgOperations[0].csgSlaves)
         
     def move_alone(self,mape):
@@ -96,6 +97,7 @@ class Compound(ElaborateOrCompound):
         Compound.__init__(self,slavesList=self.slaves)
 
     def __str__(self):
+        self.print_slaves()
         return "This is a compound"
 
     # def colored(self,string):

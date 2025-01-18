@@ -42,16 +42,30 @@ Similarly, for hooks and boxes, the following instructions make sense:
 
 .. code-block:: python
 		
-   c.box() # the selected box
-   c.box.myBoxName
+   c.box() # the selected box by default
    c.box("myBoxName")
+   c.dicobox.myBoxName #shorter to write, same as the previous line
    c.select_box("myBoxName")
+   c.print_boxes()
+   
+   c.cylbox()
+   c.cylbox("myCylboxName")
+   c.dicocylbox.myCylboxName
+   c.select_cylbox("myCylboxName")
+   c.print_cylboxes()
+   
    c.hook()
-   c.hook.hookName
    c.hook("hookName")
+   c.dicohook.hookName
    c.select_hook("hookName")
-
-
+   c.print_hooks()
+   
+   c.axis()
+   c.axis("axisname")
+   c.dicoaxis.axisname
+   c.select_axis("axisname")
+   c.print_axis()
+   
 Hooks and Lines 
 ====================
   

@@ -43,12 +43,8 @@ def _translate_object(self,*args):
     #print(Map.translation(*args)*Map.identity)
     #print ("dans translate")
     #print (self)
-    #for child in self.children:
-    #    print(child)
     self.move(Map.translation(*args))
     #print(self)
-    #for child in self.children:
-    #    print(child)
     #import povrayshoot
     #import cameras
     #print(povrayshoot.object_string_recursive(self,cameras.Camera()))
@@ -136,7 +132,7 @@ def _grotate(self,ax,o1,o2):
     M=Map.rotation(rotaxis,angle)
     self.move(M)
     return self
-    
+
 def _self_grotate(self,o2):
     return self.grotate(self.axis(),self.hook(),o2)
 
@@ -159,9 +155,19 @@ def flipY(self):
 def flipZ(self):
     return self.move(Map.linear(X,Y,-Z))
 
+def symmetrize(self,plane,vect):
+    return self.move(Map.symmetry(plane,vect))
 
-
-
+def symmetrize2d(self,p0,p1,normal=MassPoint(0,0,1,0)):
+    #print(p0,p1,normal)
+    M=Map.symmetry2d(p0,p1,normal)
+    #print("la matrice de symetrie vaut:\n", M)
+    #print(self)
+    #M=Map.affine(-X,Y,Z,origin+2*X)
+    #print(M)
+    ret=self.move(M)
+    #print(ret)
+    return ret
 
 @staticmethod
 def _new_object(cls,*args,**kwargs):
@@ -220,6 +226,10 @@ ObjectInWorld.flipX=flipX
 ObjectInWorld.flipXY=flipXY
 ObjectInWorld.flipXZ=flipXZ
 ObjectInWorld.flipYZ=flipYZ
+ObjectInWorld.symmetrize=symmetrize
+ObjectInWorld.symmetrize2d=symmetrize2d
+
+
 #object.is_vector=is_vector_object
 #object.is_point=is_point_object
 
@@ -323,5 +333,5 @@ ObjectInWorld.behind=_move_behind
 ObjectInWorld.on_left_of=_move_on_left_of
 ObjectInWorld.on_right_of=_move_on_right_of
 ObjectInWorld.show_box=_show_box
-
+ObjectInWorld.is_vector=is_vector
 

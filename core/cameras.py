@@ -132,7 +132,7 @@ class Camera(Primitive):
             return self
         if self.technology=="tikz":
             compiledFile=os.path.splitext(self.file)[0]+".pdf"
-            print("le comp file est ",compiledFile)
+            #print("le comp file est ",compiledFile)
             subprocess.call(["pdflatex", self.file])            
             subprocess.call(["evince",  compiledFile])
             
