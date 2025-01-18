@@ -105,7 +105,7 @@ class Camera(Primitive):
             return self
         if self.technology=="tikz":
             options=""
-            subprocess.call(["pdflatex ", options, self.file])
+            subprocess.call(["pdflatex", options, self.file])
             return self
     @property
     def pov_to_png(self):

@@ -176,7 +176,7 @@ def object_string_children(self,camera):
 def render(camera):
     booklet = open(camera.file, "w")
     #print("ici dans render")
-    booklet.write("\\documentclass{standalone}\\usepackage{tikz}\\begin{document}\\begin{tikzpicture}"
+    booklet.write("\\documentclass[margin=10mm]{standalone}\\usepackage{tikz}\\begin{document}\\begin{tikzpicture}"
 )
     booklet.write(globvars.userDefinedFunctions)
     if camera.filmAllActors:
