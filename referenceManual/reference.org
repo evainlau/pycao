@@ -1,0 +1,19 @@
+  - faire des themes :
+    - bouger un objet
+    - elements generiques ( parents, ....)
+    - cameras
+  - Pour chaque theme, faire la liste des methodes variables que je veux documenter
+  - Relire les themes et ameliorer le classement
+  - Pour chacun des mots cles, ne documenter que en prenant ce qui est dans le code
+    - la documentation de reference s'ecrit donc au final par une liste de mots cles avec pour chacun des tags
+
+
+  liste de tags: module,moving an object, markers, cameras, primitive object, elaborate object,
+
+  methode de construction de la reference :
+  - construire a la main un arbre de tags
+    -  construire a la main en parcourant les fichiers la liste des fichiers a documenter avec les tags correspondants
+      - construire un fichier de doc de la facon suivante. Chaque tag donne un fichier + un lien vers les tags parents et enfants.
+	les objets a documenter sont inserer dans les pages de tag adequate ( dans plusieurs pages s'il y a plusieurs tags)
+	idealement, si un objet admet 2 tags ou davantage, ces tags ne sont pas parents l'un de l'autre. 
+  
