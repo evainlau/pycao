@@ -17,7 +17,7 @@ using povray as a plugin.
 The documentation  is available
 on my home page
 at the university of Angers.
-http://math.univ-angers.fr/~evain/software/pycao/documentation/index.html
+http://math.univ-angers.fr/~evain/software/pycao/tutorialManual/index.html
 
 
 New in version 0.9:
