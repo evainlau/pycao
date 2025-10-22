@@ -2337,3 +2337,39 @@ Base.canonical=Base(X,Y,Z,T)
 #Map.identity=identityFunction
 
 
+###################################################
+#                             Quadrics and conics
+#####################################################
+
+class ListOfPoints(list):
+    """
+    
+    """
+    @staticmethod
+    def from_conic_and_line(my_conic,my_line):
+        pass
+
+    
+class QuadraticEquation():
+    """
+    A quadric in the space given by equation sum a_ij x_i x_j
+    """
+    
+
+class Quadric():
+    """
+    A surface defined by E=0 where E is a quadratic equation 
+    """
+    @staticmethod
+    def from_conic_and_vector():
+        pass
+    
+def Conic():
+    """
+    An intersection of a Quadric and a Plane. 
+    """
+    @staticmethod
+    def from_4_points():
+        pass
+
+    

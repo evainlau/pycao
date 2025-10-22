@@ -22,7 +22,8 @@ based on Python usable to describe a 3D-scene. In practice, you describe your
 it, you get your image. Pycao is usable both
 for photo realistic 3D (as the room of the first image) or as a CAD
 software with precise measurements (as the bike prototype in the
-second image). 
+second image). As 2D is a special case of 3D, 2D-CAD is possible too
+but is not the main goal. 
 
 Pycao does not compete with professional tools carrying thousands of
 options. The focus of Pycao is towards  simplification rather than
@@ -51,21 +52,39 @@ to bridge the 3D software with data from external program.
 Is Pycao a Povray modeller ? What are the supported formats ?
 ==============================================================
 
-Yes. In the background, Pycao relies heavily on the Povray software, but you don't need
-to know povray to use Pycao. You just write your Python code to
-describe your scene. Then Pycao takes the Python objects you have
-constructed and generates Povray code corresponding to your objects.
-Then povray is used to produce the images.
+In the first versions, Pycao relied heavily on
+the Povray software. In the current version, there are two other
+possibilities for the rendering : using OpenSCAD or using tikz/Latex to
+render 2D-curves.
 
-Only povray code is produced by now, but this may evolve in the
-future. It would be nice to get stl files from pycao for instance,
-but unfortunatly, this is not done at present. 
+Pycao does not render by itself.  It is only a language to describe
+the scene. It tries to offers you
+the best possible language for this objective, wheras. the rendering
+is deferred to other existing tools which fulfil this mission
+perfectly. Currently, the rendering external tools are Povray,OpenScad,or tikz/Latex. 
 
-Originally, the goal was to produce a Blender modeller, rather than a
-Povray modeller. However, the documentation in Povray is more precise
-and the Pycao project switched to povray. 
+You don't need to know the external software
+to use Pycao. You just write your Python/Pycao code to
+describe your scene. Then Pycao works for you. It takes the Python objects you have
+constructed and generates transparently the external
+code corresponding to your objects, and produces the images
+you want.
 
+After exporting to OpenScad, you have access to the formats
+supported by OpenScad (.stl, .obj etc...), but there is no direct
+export to these formats from Pycao.
 
+Originally, the goal was to produce a Blender modeller.
+Since the documentation in Povray was more precise,
+the Pycao project switched to Povray. The OpenScad and Latex
+frontends were added afterwards. 
+
+The adequate front-end depends on your goal. If the goal is to sketch
+and visualize the 3D scene easily, the export to OpenSCAD is the best
+choice as a fast graphical interactive visualisation is possible.  If the
+goal is to get a very nice photo-realistic scene, Povray is a much
+better choice. If you want to draw 2D-curves, the latex export is the
+canonical choice. 
 
 Where is the graphical interface ?
 -------------------------------------------------------------------------
@@ -74,8 +93,12 @@ In the first versions of Pycao, there was no graphical interface.
 A simple image appeared after the compilation of the python code. 
 
 In practice, choosing the location of the camera, zooming, ... to get
-the expected view was time consuming. Now, 
-once you have modelled an object or a scene, the scene will be
+the expected view was time consuming. This limitation has been
+tackled introducing two
+possiblilities for the rendering. A fast one using openscad. A
+second visualization is possible throuhg Povray, it is more detailed
+and more precise, but it is slower. In this  detailed
+rendering, the scene will be
 displayed after compilation in a window where you can move the camera, the zoom...
 in an interactive way with buttons. It is also possible to
 visualize standard povray files modelled out of pycao with the
@@ -84,13 +107,12 @@ viewer. The viewer and the buttons look like this
 .. image:: ./images/viewer.png
    :width: 50%
 
-
-However, Pycao is not a graphical modeller, and there is no
-graphical tool beyond this post compilation interface. 
-My experience is that describing a 3D object
-with a mouse on a 2D screen is very very
-challenging.
-Pycao is designed towards people who think that it is easier to 
+Although there is graphical interface for the visualisation of the
+objects built, Pycao is not a graphical modeller.  The objects are described/built
+with python code in a text interface and  and Pycao will remain
+a text software in the future. My experience is that describing a 3D object
+with a mouse on a 2D screen is extremly challenging and difficult to
+maintain. Pycao is designed towards people who think that it is easier to 
 describe a 3d object with a good language than with a graphical
 interface, or for people who want to easily draw a 3D picture using
 output from an other software. 
@@ -99,13 +121,30 @@ output from an other software.
 How is designed the pycao code ?  What are the objectives.
 =================================================================
 
-Shortening the necessary code for the description of an object is the main
-objective of Pycao.  Simplifying  paradigms towards this objective
+Since Pycao is designed to be a language for 3D-scenes, its efficiency
+depends on the concepts introduced for the simplification of the
+description.
+
+A carpenter does not use mathematical computations, or more exactly
+uses a very minimal set of measurements and usual natural
+words otherwise, which are sufficient to transmit the knowledge from
+one carpenter to a colleague. In particular, a carpenter never uses
+matrices commonly seen in 3D-software. Yet is able to build a full
+window. The objective of
+Pycao is to mimic the attitude of a carpenter, and in some sense to
+build a language close to the natural language
+with few maths in the code. You describe the scene in
+pseudo-natural language. Pycao computes the maths for you. 
+
+Simplifying  paradigms towards this objective
 have been introduced :carrying objects in boxes, genealogy system
 with parents and children, CSG geometry, hooks which are
 markers similar to the pen marks in a workshop, measurements 
 possible from the left and from the right using various units, easy to
-build libraries ... 
+build libraries ...
+
+Summing up, a language that allows a short and natural code
+for the description of a 3D-object is the main objective of Pycao.  
 
 To get an idea of the complexity, 
 the above bike requires around 250 lines of code. The simple scene with a table or a wheel as below require in the library
@@ -130,11 +169,8 @@ codes, you change the coordinate of an oject line 56 and then you have to read a
 adapt the following lines after this change. For this reason, the
 geometric code saying "put this object above this one" is more stable
 than the code based on coordinates saying "put this object at
-coordinate (x,y,z)". For maintanability, 
-the code in pycao aims to be as close as possible to the natural
-coordinate free language a carpenter would use in the workshop. 
-It avoids math computations in
-coordinates as much as possible. However, mathematical computations are
+coordinate (x,y,z)". Pycao avoids math computations and coordinates
+as much as possible. However, mathematical computations are
 sometimes unavoidable, and the mathematical language of affine geometry ( barycenters,
 points and vectors, affine transformations ...) is nativly understood
 by Pycao when needed. 
@@ -190,15 +226,30 @@ Their code is marked by the integrated graphical environnement whereas pycao is
 a pure text modeller with code free from any IDE. They export to many formats. 
 
 
-Openscad exports to stl (pycao does not). Thus Openscad may be usable for 3D-printing
-machines. It uses a simple low level language with few
-paradigms and you have to computate coordinates by yourself to draw
-the object. For simple parts of a
-machine, this simplicity is an advantage as the language is learned
-in a few hours. However, with this language, 
+Openscad may seem at first glance close to Pycao : the objects are
+built using written code with no graphical interface. However, the
+designs and goals are different. Openscad has plenty of useful
+exports. For instance, Openscad exports to stl 
+and it may be usable for 3D-printing
+machines. However OpenSCAD uses a simple low level language with
+nearly no simplifying
+paradigms. You have to computate coordinates by yourself to draw
+the object or you will have to implement by hand the
+paradigms required to avoid coordinates and maths. Photo realistic 
+drawing is not possible with openscad.  Pycao is the
+opposite, it comes with many simplifying paradigms
+and the high level Python language, and photo-realistic rendering is
+possible with Povray. However, to export in stl or .obj, you will have
+to make the export to openscad first, and then use open scad to export
+to .stl, there is no direct conversion in Pycao. 
+
+For simple parts of a
+machine, the extreme simplicity of OpenScad is an advantage. The language is learned
+in a few hours. However, with this very stripped-down language, 
 a complete modelisation of an object with medium complexity like the
-above bike and dummy seems hardly feasible. Photo realistic
-drawing is not possible with openscad. 
+above bike and dummy seems hardly feasible to me. Thus the choice also
+depends on the complexity of your project and your long term
+objectives. 
 
 
 
@@ -208,22 +259,24 @@ Pycao is a Python module which
 constructs some python objects using your code. Then an instruction camera.shoot
 at the end of your python code calls a module povrayshoot.py. Povrayshoot 
 takes  the objects you built 
-as input and produces  povray code as output.
-An other instruction camera.show in your code calls povray
-to create the image file  nameOfYourImage.png from the povray code
-and shows the image in the viewer. 
+as input and produces  povray/OpenScad/Latex code as output.
+An other instruction camera.show in your code calls povray/OpenScad/Latex
+to create the image file  nameOfYourImage.png or nameOfYourImage.pdf 
+and displays the image on the screen.
 
 In other words, in the dialog chain from the developper to the
-raytracer, pycao talks with the developper, the povray language talks with the
-raytracer, and povrayshoot  makes the translation between pycao and
-povray. The architecture is then:
+display, pycao talks with the developper, the povray/OpenScad/Latex language talks with the
+X interface, and povrayshoot  makes the translation between pycao and
+povray/OpenScad/Latex. The architecture is then:
 
 .. centered::
-   developper <---> pycao <---> povrayshoot <---> povray language <--->
-   raytracer kernel
+   developper <---> pycao <---> povrayshoot <---> povray/openscad/tex language <--->
+   compilation and display kernel
 
 In principle, it would be possible to export to stl or blender
-replacing only the povrayshoot module of pycao. 
+directly replacing only the povrayshoot module of pycao.
+There is no project along these lines as the export through
+openscad is satisfactory and gives access to .stl exports. 
 
  
 What are the defaults of pycao ?
@@ -234,12 +287,8 @@ the software is not completly mature.
 The vocabulary of the language may still evolve a bit
 in the future, if we can express things in a more natural way. 
 
+There are no Windows versions, only Linux versions. 
 
-I am a Linux user, so I don't make test with Windows. 
-
-
-Finally, there is no community around this project. Some autonomy 
-to use it is required. 
 
 Is it free software ?
 ==============================

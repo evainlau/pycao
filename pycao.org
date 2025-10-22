@@ -26,11 +26,11 @@ python3 ../ouvertureEmacs.py core &
 - verifier que tout est bon pour la compil des pythons a la fac comme
   ici
 - ajouter les themes pour la compil locale
-- supprimer les vieux liens de doc a la fac
 - essayer de faire marcher tramp pour compiler la doc depuis la maison
 - ecrire un script pour le changement de version
 - documenter camera.show_without_viewer et pov_to_png
-
+- faire un fichier de reference pour cela, plus de details dans le fichier
+ file:./documentation/reference/reference.org
 * Integrity Checks
 ====================
 - comprendre pourquoi le prism linear fonctionne mais pas le prism Bezier dans examples
@@ -51,3 +51,7 @@ python3 ../ouvertureEmacs.py core &
 - arc of ellipsoids as superclasses of circles
 - separate torBox and Torus
 - 3d bendings
+- poster le cad 
+
+* Publicity
+===============
