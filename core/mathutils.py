@@ -1303,6 +1303,9 @@ class Triangle(list,Primitive):
         vector2=vector2/vector2.norm
         return math.acos(vector1.dot(vector2))
 
+    def minAngle(self):
+        return min(self.angle(self[0]),self.angle(self[1]),self.angle(self[2]))
+    
     def angle_bisector(self,i):
         """
         The two marked points of the line  are the vertex of the angle, and the point on the 
@@ -2341,35 +2344,113 @@ Base.canonical=Base(X,Y,Z,T)
 #                             Quadrics and conics
 #####################################################
 
+class EquationOfDegree2():
+    def __init__(self,a,b,c):
+        self.a=a
+        self.b=b
+        self.c=c
+    def roots(self):
+        """
+        The list of roots, ordered from the smallest
+        """
+        Delta=self.b^2-4*a*c
+        if Delta<0: return []
+        elif: Delta=0 : return [-b/2/a]
+        else:
+            delta=math.sqrt(Delta)/2/a
+            return [-b/2/a-delta,-b/2/a+delta]
+
 class ListOfPoints(list):
     """
     
     """
     @staticmethod
-    def from_conic_and_line(my_conic,my_line):
-        pass
+    def from_conic_and_plane(myconic,myplane):
+        myline=line.from_2_planes(myconic.plane,myplane)
+        return ListOfPoints.from_quadric_and_line(myconic.quadric,myline) 
 
+    @staticmethod
+    def from_quadric_and_line(q,myline):
+        D = myline.p2 - myline.p1
+        P = myline.p1
+        A = (self.xx*D[0]**2 + self.yy*D[1]**2 + self.zz*D[2]**2 +
+             self.xy*D[0]*D[1] + self.xz*D[0]*D[2] + self.yz*D[1]*D[2])
+        B = 2*(self.xx*P[0]*D[0] + self.yy*P[1]*D[1] + self.zz*P[2]*D[2]) + \
+            self.xy*(P[0]*D[1] + P[1]*D[0]) + \
+            self.xz*(P[0]*D[2] + P[2]*D[0]) + \
+            self.yz*(P[1]*D[2] + P[2]*D[1]) + \
+            self.x*D[0] + self.y*D[1] + self.z*D[2]
+        C = (self.xx*P[0]**2 + self.yy*P[1]**2 + self.zz*P[2]**2 +
+             self.xy*P[0]*P[1] + self.xz*P[0]*P[2] + self.yz*P[1]*P[2] +
+             self.x*P[0] + self.y*P[1] + self.z*P[2] + self.ctt)
+        return EquationOfDegree2(A,B,C).roots()
     
 class QuadraticEquation():
     """
-    A quadric in the space given by equation sum a_ij x_i x_j
+    A quadratic equation in the space given by equation sum a_ij x_i x_j
     """
-    
+    def __init__(self,ctt,x,y,z,xx,xy,xz,yy,yz,zz):
+        """
+        We put the coefficients of the equation in attributes
+        """
+        self.xx=xx
+        self.xy=xy
+        self.xz=xz
+        self.yy=yy
+        self.yz=yz
+        self.zz=zz
+        self.x=x
+        self.y=y
+        self.z=z
+        self.ctt=ctt # the constant
 
-class Quadric():
-    """
-    A surface defined by E=0 where E is a quadratic equation 
-    """
+    @staticmethod
+    def from_coeffs_lexico(ctt,x,y,z,xx,xy,xz,yy,yz,zz):
+        return QuadraticEquation((ctt,x,y,z,xx,xy,xz,yy,yz,zz))
+
     @staticmethod
     def from_conic_and_vector():
-        pass
-    
+        """
+        Returns an equation with zero locus the extrusion of the conic along the vector 
+        """
+        f=Map.from_bas
+
+
+                                 
+class Quadric(QuadraticEquation):
+    """
+    A 3D object defined by a quadratic equation. It is a 3D object so rendered in the 3D view. 
+    """
+
 def Conic():
     """
     An intersection of a Quadric and a Plane. 
     """
+    def __init__(self,quad,pla):
+        self.quadric=quad
+        self.plane=pla
     @staticmethod
-    def from_4_points():
-        pass
-
+    def from_4_points(p0,p1,p2,p3):
+        """
+        It is implicitly supposed that the 4 points are in the same plane and not on a line
+        so that there is a unic conic containing the 4 points
+        """
+        # numerically we avoid to define the underlying plane with 3 aligned points
+        # for this we take  3 points pi,pj,pk maximising  the minimum angle in Triangle(pi,pj,pk)
+        bestUnalignedPoints=max(combinations(pts, 3), key=lambda a,b,c: Triangle(a,b,c).minAngle() )
+        pl=plane.from_3_points(bestUnalignedPoints)
+        def _une_quadrique_quelconque_par_4_points(pts):
+            A = np.array([ [x**2, y**2, z**2, x*y, x*z, y*z, x, y, z, 1] for x,y,z,w in pts ])
+            _, _, V = np.linalg.svd(A)
+            retrun V[-1] # parmi les elements du noyau, le dernier est le plus stable j'ai compris. 
+        
+    @staticmethod
+    def from_quadric_and_plane(quad,pla):
+        """
+        Signature Conic(quad,pla) where
+                   - quad is a quadric or a quadratic equation
+        -pla is a plane or the equationOfAPlane
+        """
+        return Conic(quad,pla)
+                           
     

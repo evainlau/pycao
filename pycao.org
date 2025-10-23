@@ -39,12 +39,17 @@ python3 ../ouvertureEmacs.py core &
 ===========================
 
 - lines should have attribute l.p0 and l.p1
-- use marked planes instead of planes after checking improvment of
-  functoriality
+- improve Planes and naming:
+  - a plane is different from a plane equation : one is shown in the 3D view, the other is not
+  - a marked plane is different from a plane
+  - an oriented plane ( with a normal ) is different from a plane 
+  - use marked planes instead of planes after checking improvment of
+  functoriality ?
 - more generally, check that all objects have adequate markers to
-  avoid automorphisms
-- separate mathPlanes and halfSpaces 
+  avoid automorphisms ?
+- separate mathPlanes and halfSpaces ?
 - reorganising classes for new/init consistency
+
 
 * Development
 ================
@@ -55,3 +60,78 @@ python3 ../ouvertureEmacs.py core &
 
 * Publicity
 ===============
+
+* Some thoughts about programming
+=========================
+** @property vs attribut vs fonction
+
+Il y a deux aspects : la performance, mais aussi la lisibilité pour
+l'utilisateur pour savoir si on utilise s.norm ou s.norm()
+
+*** performance 
+- Calcul tres long : s.fonction() est ce qui minimise le cout ( moins souvent d'appels 
+    automatiques par design, gestion déléguée a l'utilisateur qui peut stocker plutot qu'appeler plusieurs fois)
+- Calculs courts et directs:
+  - si l'objet est change' rarement et la donnee accedee rarement : attribut ( plus court a coder et maintenir) 
+  - si l'objet est change' rarement et la donnee associee souvent accedee par des boucles chronophages : attribut pour minimiser le temps d'acces ( x10 parfois)
+  - si l'objet est change' souvent, mais l'attribut rarement accede : @property evite de recalculer inutilement quand l'objet bouge
+  - si l'ojet et l'attribut accede' souvent : fonction pour déléguer la gestion fine a l'utilisateur. 
+
+*** Lisibilite Tableau décisionnel  
+On choisit la semantique s.ma_data  ou s.ma_fonction() 
+en fonction de la reponse aux questions suivantes:
+ 
+Trivial vs long a calculer ( ex: integrale=fonction, longueur_hypothenuse = attribute ou property) 
+toujours defini  ? ( ex : matrice inverse est une fonction, pas defini si det =0  ) 
+Résultat "intrinsèque"/depend des choix si plusieurs possibilite's ( ex indice du min : soit choix arbitraire, soit liste des indices des min de longueur variable : fonction) 
+Nom évoque une donnée /ou une action ? ( ex vecteur.norm mais vecteur.mesurer_norm() ) 
+
+** Sur les objets quotients 
+Presque tous les objets apparaissent naturellement comme des quotients quand on les manipule. 
+Exemple : un plan est manipul\'e via son equation definie a facteur scalaire pres. 
+IL y a plusieurs possibilit'es de gestion:
+- ne manipuler que des donnees marquees : par exemple un plan = un plan marqu\'e par une equation et un repere.
+- faire plein de classes differentes. On peut :
+  - faire deriver la classe PlanMuniEquation de la classe Plan, en lui ajoutant une equation
+  - faire deriver la classe Plan de la classe PlanMuniEquation, avec Pass
+
+La premiere methode a un avantage pour le client. Avoir une seule class Plan plutot que Plan_Orienté, Plan_marqué, Plan_marqué_et_orienté,..... 
+Ca evite aussi de faire des sections pour quand on a besoin d'outils supplementaires pour faire les calculs. Par exemple on a deja en main 
+des points ou une equation. L'inconvénient, c'est que lorsque l'objet change, il faut bouger tous les marquages. Il faut donc que la structure 
+des marquages soit compatible avec le groupe d'automorphismes. Par exemple, si un plan est marqué par un vecteur normal, c'est une mauvaise 
+idee car le vecteur normal n'est pas conservé par automorphismes non euclidiens. Ou au moins il faut faire attention. Si on remplace vecteur normal 
+par vecteur hors du plan c'est bon. Ou sinon, faut recalculer. Idem si on fixe un point exterieur p et une fonction f s'annulant sur p telle que f(p)=1. 
+Si on bouge le plan, la compatibilité f(p)=1 n'est pas naturellement preservée par les automorphismes non orthogonaux. 
+
+Faire Plan(PlanMuniEquation): pass  est un mauvais design car n'apporte qu'une complexite' inutile. Plus simple pour le client 
+de n'avoir qu'une seule classe marquee, que deux classes aux noms differents qui finalement font la meme chose. 
+
+Faire PlanMuniEquation(Plan) n'a de sens que si on est amené a manipuler de facon recurrente des plans sans equation ( par exemple par des points qui  
+l'engendrent ) ce qui amène un calcul inutile des equations a chaque operation sur mon plan.  Ce qui est rare. 
+
+Ce qui précède semble peser en faveur d'une seule classe, marquee. On peut l'appeler Plan ou PlanAvecEquation. La deuxieme est plus 
+proche de la realité, mais inutilement compliquee si ya une seule classe. Si on choisit une seule classse Plan, il y a un potentiel pb d'evolution du code 
+et de flexibilité future le besoin de manipuler des plans sans equations apparait. Le mot Plan sera deja pris et on ne change pas a rebours les noms des 
+classes sans creer un gros bordel du côté client.  Une solution est de choisir si besoin 
+futur le nom PlanSansEquation ou GenerateursDePlan qui montre clairement la degradation de donnees. Sachant que de telles evolutions de code 
+sont peu probables, et etant donné que le risque utime est d'avoir a la fin deux classes Plan et PlanSansEquation plutot que PlanAvecEquation et Plan, 
+ca me semble une strategie OK.
+
+Une option proposee par Grok est d'avoir une classe abstraite Plan et des classes concretes PlanParTroisPoints, PlanAvecEquation.... Ca me semble une tres mauvaise 
+idee car on multiplie les choix d'automorphismes pour passer d'une classe a une autre et c'est hautement non fonctoriel. 
+
+Une autre mauvaise idee proposee par Grok est de normaliser l'equatoion pour ne manipuler que des equations dont la somme des carrés des coeffs vaut 1. 
+Je ne trouve pas que la normalisation soit une bonne chose. Car quand
+on va deplacer le plan, cette normalisation va sauter. Cette
+normalisation ne represente rien geometriquement. Il y a un travail de
+code constant pour la maintenir, et on ne voit pas bien l'avantage. Si
+c'est pour dire a la fin qu'on peut comparer deux plans, autant ne
+faire la normalisation qu'au moment de l'appel a __eq__ pour
+comparaison. Comme quand on travaille dans les entiers modulo n. On ne
+revient pas au reste modulo n a chaque etape du calcul
+intermediaire. On n'y revient qu'a la fin quand on a fini le calcul.  
+
+Enfin un dernier avantage d'utiliser des objets marqué est qu'on garde la fonctorialité. plan1.some_affine_transormation2(plane2) 
+renvoie une construction non fonctorielle en le couple plane1,plane2. C'est pbmatique pour faire des traducteurs automatiques d'un langage dans un autre. 
+Lien avec la geometrie algebrique : il n'y a pas d'espace de modules
+pour des objets modulo automorphisme autour des objets qui ont des automorphismes. 
