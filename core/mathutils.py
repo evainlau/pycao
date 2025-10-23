@@ -2404,6 +2404,8 @@ class QuadraticEquation():
         self.z=z
         self.ctt=ctt # the constant
 
+    def
+        
     @staticmethod
     def from_coeffs_lexico(ctt,x,y,z,xx,xy,xz,yy,yz,zz):
         return QuadraticEquation((ctt,x,y,z,xx,xy,xz,yy,yz,zz))
@@ -2413,6 +2415,7 @@ class QuadraticEquation():
         """
         Returns an equation with zero locus the extrusion of the conic along the vector 
         """
+        # Methodo je  la conique pour la ramener 
         f=Map.from_bas
 
 
