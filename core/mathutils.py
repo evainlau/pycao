@@ -32,6 +32,7 @@ sys.path.append(os.getcwd()) # pour une raison inconnue, le path de python ne co
 from uservariables import *
 from generic import *
 
+from  itertools import combinations
 
 
 ################################################################
@@ -1304,7 +1305,7 @@ class Triangle(list,Primitive):
         return math.acos(vector1.dot(vector2))
 
     def minAngle(self):
-        return min(self.angle(self[0]),self.angle(self[1]),self.angle(self[2]))
+        return min(self.angle(0),self.angle(1),self.angle(2))
     
     def angle_bisector(self,i):
         """
@@ -2414,7 +2415,7 @@ class QuadraticEquation(np.ndarray,Primitive):
     
     
     def __str__(self):
-        return "Quadratic equation "+str(self[0,0])+"x^2+"+str(2*self[0,1])+"xy+"+str(2*self[0,2])+"xx+"+str(self[1,1])+"y^2+"+str(2*self[1,2])+"yz+"+str(self[2,2])+"z^2+"+str(2*self[0,3])+"x+"+str(2*self[1,3])+"y+"+str(2*self[2,3])+"z+"+str(self[3,3])
+        return "Quadratic equation "+str(self[0,0])+"x^2+"+str(2*self[0,1])+"xy+"+str(2*self[0,2])+"xz+"+str(self[1,1])+"y^2+"+str(2*self[1,2])+"yz+"+str(self[2,2])+"z^2+"+str(2*self[0,3])+"x+"+str(2*self[1,3])+"y+"+str(2*self[2,3])+"z+"+str(self[3,3])
 
     def __array_finalize__(self,obj):
         try:
@@ -2453,10 +2454,6 @@ class QuadraticEquation(np.ndarray,Primitive):
         conicNew.move(M)
         return conic.quadric
 
-q=QuadraticEquation(xx=1,yy=1)
-print(q)
-q.translate(X)
-print(q)
                                  
 class Quadric(QuadraticEquation):
     """
@@ -2465,13 +2462,15 @@ class Quadric(QuadraticEquation):
     # to be done exporter la quadrique en 3d. Visiblement pas faisable en openscad.
 
     
-def Conic():
+class Conic(Primitive):
     """
     An intersection of a Quadric and a Plane. 
     """
     def __init__(self,quad,pla):
         self.quadric=quad
         self.plane=pla
+    def __str__(self):
+        return "Conic intersection of the plane "+str(self.plane)+"\n and the quadric  \n"+QuadraticEquation.__str__(self.quadric)
     @staticmethod
     def from_4_points(p0,p1,p2,p3):
         """
@@ -2480,13 +2479,14 @@ def Conic():
         """
         # numerically we avoid to define the underlying plane with 3 aligned points
         # for this we take  3 points pi,pj,pk maximising  the minimum angle in Triangle(pi,pj,pk)
-        bestUnalignedPoints=max(combinations(pts, 3), key=lambda a,b,c: Triangle(a,b,c).minAngle() )
-        pl=plane.from_3_points(bestUnalignedPoints)
+        bestUnalignedPoints=max(combinations([p0,p1,p2,p3], 3), key=lambda t: Triangle(*t).minAngle() )
+        pl=AffinePlaneWithEquation.from_3_points(*bestUnalignedPoints)
         def _une_quadrique_quelconque_par_4_points(pts):
-            A = np.array([ [x**2, y**2, z**2, x*y, x*z, y*z, x, y, z, 1] for x,y,z,w in pts ])
-            _, _, V = np.linalg.svd(A)
-            return V[-1] # parmi les elements du noyau, le dernier est le plus stable j'ai compris. 
-        return Conic(_une_quadrique_quelconque_par_4_points(p0,p1,p2,p3),pl)
+            A = np.array([ [1,x,y,z,x*x,x*y,x*z,y*y,y*z,z*z] for x,y,z,w in pts ])
+            retour=np.linalg.pinv(A)
+            print (A,retour,"pour le calcul","\n")
+            return retour
+        return Conic(_une_quadrique_quelconque_par_4_points([p0,p1,p2,p3]),pl)
     
     @staticmethod
     def from_quadric_and_plane(quad,pla):
