@@ -488,19 +488,19 @@ class AffinePlane(Primitive):
         return result
     def move_alone(self,M):
         """
-        warning : if M is not orthogonal the move_alone is not correct
+        warning : if M is not orthogonal, the new normal vector is not M.oldNormal but  M^{-1}.T.oldNormal
         """
         #print("entree move-alone")
         #print("normal")
         #print(self)
         #print(self.normal)
-        self.normal=M*self.normal
+        self.normal=M.inverse().T*self.normal
         #print(self)
         self[0:3]=self.normal[0:3]
         #print("affectation")
         #print(self)
         self.markedPoint=M*self.markedPoint
-        self[3]=-self[0:3].dot(self.markedPoint[0:3])
+        self[3]=-self[0:3].dot(self.markedPoint[0:3])# adjusts the plane with fixed normal so that it goes through the marked Point
         self.distanceFromOrigin=math.fabs(self.normal.dot(self.markedPoint-point(0,0,0))/self.normal.norm)
         #print("distance")
         #print(self)
@@ -2373,38 +2373,58 @@ class ListOfPoints(list):
     def from_quadric_and_line(q,myline):
         D = myline.p2 - myline.p1
         P = myline.p1
-        A = (self.xx*D[0]**2 + self.yy*D[1]**2 + self.zz*D[2]**2 +
-             self.xy*D[0]*D[1] + self.xz*D[0]*D[2] + self.yz*D[1]*D[2])
-        B = 2*(self.xx*P[0]*D[0] + self.yy*P[1]*D[1] + self.zz*P[2]*D[2]) + \
-            self.xy*(P[0]*D[1] + P[1]*D[0]) + \
-            self.xz*(P[0]*D[2] + P[2]*D[0]) + \
-            self.yz*(P[1]*D[2] + P[2]*D[1]) + \
-            self.x*D[0] + self.y*D[1] + self.z*D[2]
-        C = (self.xx*P[0]**2 + self.yy*P[1]**2 + self.zz*P[2]**2 +
-             self.xy*P[0]*P[1] + self.xz*P[0]*P[2] + self.yz*P[1]*P[2] +
-             self.x*P[0] + self.y*P[1] + self.z*P[2] + self.ctt)
+        A = (self[0,0]*D[0]**2 + self[1,1]*D[1]**2 + self[2,2]*D[2]**2 +
+             2*self[0,1]*D[0]*D[1] + 2*self[0,2]*D[0]*D[2] + 2*self[1,2]*D[1]*D[2])
+        B = 2*(self[0,0]*P[0]*D[0] + self[1,1]*P[1]*D[1] + self[2,2]*P[2]*D[2]) + \
+            2*self[0,1]*(P[0]*D[1] + P[1]*D[0]) + \
+            2*self[0,2]*(P[0]*D[2] + P[2]*D[0]) + \
+            2*self[1,2]*(P[1]*D[2] + P[2]*D[1]) + \
+            2*self[0,3]*D[0] + 2*self[1,3]*D[1] + 2*self[2,3]*D[2]
+        C = (self[0,0]*P[0]**2 + self[1,1]*P[1]**2 + self[2,2]*P[2]**2 +
+             2*self[0,1]*P[0]*P[1] + 2*self[0,2]*P[0]*P[2] + 2*self[1,2]*P[1]*P[2] +
+             2*self[0,3]*P[0] + 2*self[1,3]*P[1] + 2*self[2,3]*P[2] + self[3,3])
         return EquationOfDegree2(A,B,C).roots()
     
-class QuadraticEquation():
+class QuadraticEquation(np.ndarray,Primitive):
     """
-    A quadratic equation in the space given by equation sum a_ij x_i x_j
+    A quadratic equation sum a_ij x_i x_jin the space 
     """
     def __init__(self,ctt,x,y,z,xx,xy,xz,yy,yz,zz):
         """
         We put the coefficients of the equation in attributes
         """
-        self.xx=xx
-        self.xy=xy
-        self.xz=xz
-        self.yy=yy
-        self.yz=yz
-        self.zz=zz
-        self.x=x
-        self.y=y
-        self.z=z
-        self.ctt=ctt # the constant
+        ObjectInWorld.__init__(self)
+        self[0,0]=xx
+        self[0,1]=xy/2
+        self[0,2]=xz/2
+        self[1,1]=yy
+        self[1,2]=yz/2
+        self[2,2]=zz
+        self[0,3]=x/2
+        self[1,3]=y/2
+        self[2,3]=z/2
+        self[3,3]=ctt # the constant
+    
+    
+    def __str__(self):
+        return "Quadratic equation "+str(self[0,0])+"x^2+"+str(2*self[0,1])+"xy+"+str(2*self[0,2])+"xx+"+str(self[1,1])+"y^2+"+str(2*self[1,2])+"yz+"+str(self[2,2])+"z^2+"+str(2*self[0,3])+"x+"+str(2*self[1,3])+"y+"+str(2*self[2,3])+"z+"+str(self[3,3])
 
-    def
+    def __array_finalize__(self,obj):
+        try:
+            myDict=obj.__dict__
+        except:
+            return
+        for name in myDict:
+            #print(name)
+            attr=getattr(obj,name)
+            setattr(self,name,attr)
+
+    
+    def move_alone(self,M):
+        self[:]=M.inverse().T@self@M.inverse()
+        return self
+
+    
         
     @staticmethod
     def from_coeffs_lexico(ctt,x,y,z,xx,xy,xz,yy,yz,zz):
@@ -2415,8 +2435,11 @@ class QuadraticEquation():
         """
         Returns an equation with zero locus the extrusion of the conic along the vector 
         """
-        # Methodo je  la conique pour la ramener 
-        f=Map.from_bas
+        # to be done : ramener la  conique dans le plan z=0, tuer les coeffs puis faire la transfo inverse.
+        #  il me reste a faire ca puis eventuellement la quadrique en 3D view 
+        1/0
+        pass
+
 
 
                                  
@@ -2446,7 +2469,8 @@ def Conic():
             A = np.array([ [x**2, y**2, z**2, x*y, x*z, y*z, x, y, z, 1] for x,y,z,w in pts ])
             _, _, V = np.linalg.svd(A)
             retrun V[-1] # parmi les elements du noyau, le dernier est le plus stable j'ai compris. 
-        
+        return Conic(_une_quadrique_quelconque_par_4_points(p0,p1,p2,p3),pl)
+    
     @staticmethod
     def from_quadric_and_plane(quad,pla):
         """
