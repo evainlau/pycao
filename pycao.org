@@ -53,6 +53,8 @@ python3 ../ouvertureEmacs.py core &
 
 * Development
 ================
+- do abstract classes for objectInWorld, Primitive, Elaborate.
+- implement quadric as 3D objects rendered in the scene ( only math objects at the moment). 
 - arc of ellipsoids as superclasses of circles
 - separate torBox and Torus
 - 3d bendings

@@ -2353,12 +2353,15 @@ class EquationOfDegree2():
         """
         The list of roots, ordered from the smallest
         """
-        Delta=self.b^2-4*a*c
+        a=self.a;b=self.b;c=self.c
+        Delta=b**2-4*a*c
+        print(Delta,"Delta")
         if Delta<0: return []
-        elif: Delta=0 : return [-b/2/a]
+        elif Delta==0 : return [-b/2/a]
         else:
             delta=math.sqrt(Delta)/2/a
             return [-b/2/a-delta,-b/2/a+delta]
+
 
 class ListOfPoints(list):
     """
@@ -2389,7 +2392,11 @@ class QuadraticEquation(np.ndarray,Primitive):
     """
     A quadratic equation sum a_ij x_i x_jin the space 
     """
-    def __init__(self,ctt,x,y,z,xx,xy,xz,yy,yz,zz):
+    def __new__(cls, *args, **kwargs):
+           return np.zeros((4,4)).view(cls)
+
+
+    def __init__(self,ctt=0,x=0,y=0,z=0,xx=0,xy=0,xz=0,yy=0,yz=0,zz=0):
         """
         We put the coefficients of the equation in attributes
         """
@@ -2427,27 +2434,37 @@ class QuadraticEquation(np.ndarray,Primitive):
     
         
     @staticmethod
-    def from_coeffs_lexico(ctt,x,y,z,xx,xy,xz,yy,yz,zz):
-        return QuadraticEquation((ctt,x,y,z,xx,xy,xz,yy,yz,zz))
+    def from_coeffs_lexico(ctt=0,x=0,y=0,z=0,xx=0,xy=0,xz=0,yy=0,yz=0,zz=0):
+        return QuadraticEquation(ctt,x,y,z,xx,xy,xz,yy,yz,zz)
 
     @staticmethod
-    def from_conic_and_vector():
+    def from_conic_and_vector(conic,vec):
         """
         Returns an equation with zero locus the extrusion of the conic along the vector 
         """
         # to be done : ramener la  conique dans le plan z=0, tuer les coeffs puis faire la transfo inverse.
-        #  il me reste a faire ca puis eventuellement la quadrique en 3D view 
-        1/0
-        pass
+        #  il me reste a faire ca puis eventuellement la quadrique en 3D view
+        vecs=conic.plane.box.vectors
+        M=Map(vec,vecs[1],vecs[2],conic.plane.markedPoint) # this maps sends the caninocal frame to a frame where the cylinder is simple
+        conicNew=conic.clone().move(M.inverse())
+        # In this canonical coordinates the extrusion is obtained putting x=0 in the equation
+        conicNew[0, :] = 0
+        conicNew[:, 0] = 0
+        conicNew.move(M)
+        return conic.quadric
 
-
-
+q=QuadraticEquation(xx=1,yy=1)
+print(q)
+q.translate(X)
+print(q)
                                  
 class Quadric(QuadraticEquation):
     """
     A 3D object defined by a quadratic equation. It is a 3D object so rendered in the 3D view. 
     """
+    # to be done exporter la quadrique en 3d. Visiblement pas faisable en openscad.
 
+    
 def Conic():
     """
     An intersection of a Quadric and a Plane. 
@@ -2468,7 +2485,7 @@ def Conic():
         def _une_quadrique_quelconque_par_4_points(pts):
             A = np.array([ [x**2, y**2, z**2, x*y, x*z, y*z, x, y, z, 1] for x,y,z,w in pts ])
             _, _, V = np.linalg.svd(A)
-            retrun V[-1] # parmi les elements du noyau, le dernier est le plus stable j'ai compris. 
+            return V[-1] # parmi les elements du noyau, le dernier est le plus stable j'ai compris. 
         return Conic(_une_quadrique_quelconque_par_4_points(p0,p1,p2,p3),pl)
     
     @staticmethod
