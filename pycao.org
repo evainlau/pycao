@@ -39,6 +39,8 @@ python3 ../ouvertureEmacs.py core &
 ===========================
 
 - lines should have attribute l.p0 and l.p1
+- box or box() ? Should make box a property or rename default_box to
+  cbox (pour current box) et une property ? 
 - improve Planes and naming:
   - a plane is different from a plane equation : one is shown in the 3D view, the other is not
   - a marked plane is different from a plane
@@ -59,6 +61,7 @@ python3 ../ouvertureEmacs.py core &
 - separate torBox and Torus
 - 3d bendings
 - poster le cad 
+
 
 * Publicity
 ===============

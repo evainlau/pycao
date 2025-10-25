@@ -2442,17 +2442,21 @@ class QuadraticEquation(np.ndarray,Primitive):
     def from_conic_and_vector(conic,vec):
         """
         Returns an equation with zero locus the extrusion of the conic along the vector 
+        The vector must not be in the plane of the conic
         """
         # to be done : ramener la  conique dans le plan z=0, tuer les coeffs puis faire la transfo inverse.
         #  il me reste a faire ca puis eventuellement la quadrique en 3D view
-        vecs=conic.plane.box.vectors
+        vecs=conic.plane.box().vectors
+        #print(vec,"vec")
+        #print("conic",conic)
         M=Map(vec,vecs[1],vecs[2],conic.plane.markedPoint) # this maps sends the caninocal frame to a frame where the cylinder is simple
         conicNew=conic.clone().move(M.inverse())
         # In this canonical coordinates the extrusion is obtained putting x=0 in the equation
-        conicNew[0, :] = 0
-        conicNew[:, 0] = 0
+        print(conicNew.quadric,"quad")
+        conicNew.quadric[0, :] = 0
+        conicNew.quadric[:, 0] = 0
         conicNew.move(M)
-        return conic.quadric
+        return conicNew.quadric
 
                                  
 class Quadric(QuadraticEquation):
@@ -2471,22 +2475,27 @@ class Conic(Primitive):
         self.plane=pla
     def __str__(self):
         return "Conic intersection of the plane "+str(self.plane)+"\n and the quadric  \n"+QuadraticEquation.__str__(self.quadric)
+    def move_alone(self,M):
+        self.quadric.move_alone(M)
+        self.plane.move_alone(M)
     @staticmethod
-    def from_4_points(p0,p1,p2,p3):
+    def from_5_points(p0,p1,p2,p3,p4):
         """
         It is implicitly supposed that the 4 points are in the same plane and not on a line
         so that there is a unic conic containing the 4 points
         """
         # numerically we avoid to define the underlying plane with 3 aligned points
         # for this we take  3 points pi,pj,pk maximising  the minimum angle in Triangle(pi,pj,pk)
-        bestUnalignedPoints=max(combinations([p0,p1,p2,p3], 3), key=lambda t: Triangle(*t).minAngle() )
+        bestUnalignedPoints=max(combinations([p0,p1,p2,p3,p4], 3), key=lambda t: Triangle(*t).minAngle() )
         pl=AffinePlaneWithEquation.from_3_points(*bestUnalignedPoints)
-        def _une_quadrique_quelconque_par_4_points(pts):
-            A = np.array([ [1,x,y,z,x*x,x*y,x*z,y*y,y*z,z*z] for x,y,z,w in pts ])
-            retour=np.linalg.pinv(A)
-            print (A,retour,"pour le calcul","\n")
-            return retour
-        return Conic(_une_quadrique_quelconque_par_4_points([p0,p1,p2,p3]),pl)
+        vecs=pl.box().vectors
+        M=Map(vecs[0],vecs[1],vecs[2],pl.markedPoint) # this maps sends the caninocal frame to a frame where the plane is normal to  X ( x=0)
+        ptsInSimplePlane=[p.move(M.inverse()) for p in [p0,p1,p2,p3,p4]]
+        A = np.array([ [1,y,z,y*y,y*z,z*z] for x,y,z,w in  ptsInSimplePlane ])
+        c=scipy.linalg.null_space(A)[:,0] # la conique plane qui passe par les 5 points dans le plan z=0
+        maQuadrique=QuadraticEquation(c[0],0,c[1],c[2],0,0,0,c[3],c[4],c[5])
+        maQuadrique.move(M)
+        return Conic(maQuadrique,pl)
     
     @staticmethod
     def from_quadric_and_plane(quad,pla):
