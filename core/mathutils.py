@@ -2377,17 +2377,17 @@ class ListOfPoints(list):
     def from_quadric_and_line(q,myline):
         D = myline.p2 - myline.p1
         P = myline.p1
-        A = (self[0,0]*D[0]**2 + self[1,1]*D[1]**2 + self[2,2]*D[2]**2 +
-             2*self[0,1]*D[0]*D[1] + 2*self[0,2]*D[0]*D[2] + 2*self[1,2]*D[1]*D[2])
-        B = 2*(self[0,0]*P[0]*D[0] + self[1,1]*P[1]*D[1] + self[2,2]*P[2]*D[2]) + \
-            2*self[0,1]*(P[0]*D[1] + P[1]*D[0]) + \
-            2*self[0,2]*(P[0]*D[2] + P[2]*D[0]) + \
-            2*self[1,2]*(P[1]*D[2] + P[2]*D[1]) + \
-            2*self[0,3]*D[0] + 2*self[1,3]*D[1] + 2*self[2,3]*D[2]
-        C = (self[0,0]*P[0]**2 + self[1,1]*P[1]**2 + self[2,2]*P[2]**2 +
-             2*self[0,1]*P[0]*P[1] + 2*self[0,2]*P[0]*P[2] + 2*self[1,2]*P[1]*P[2] +
-             2*self[0,3]*P[0] + 2*self[1,3]*P[1] + 2*self[2,3]*P[2] + self[3,3])
-        return EquationOfDegree2(A,B,C).roots()
+        A = (q[0,0]*D[0]**2 + q[1,1]*D[1]**2 + q[2,2]*D[2]**2 +
+             2*q[0,1]*D[0]*D[1] + 2*q[0,2]*D[0]*D[2] + 2*q[1,2]*D[1]*D[2])
+        B = 2*(q[0,0]*P[0]*D[0] + q[1,1]*P[1]*D[1] + q[2,2]*P[2]*D[2]) + \
+            2*q[0,1]*(P[0]*D[1] + P[1]*D[0]) + \
+            2*q[0,2]*(P[0]*D[2] + P[2]*D[0]) + \
+            2*q[1,2]*(P[1]*D[2] + P[2]*D[1]) + \
+            2*q[0,3]*D[0] + 2*q[1,3]*D[1] + 2*q[2,3]*D[2]
+        C = (q[0,0]*P[0]**2 + q[1,1]*P[1]**2 + q[2,2]*P[2]**2 +
+             2*q[0,1]*P[0]*P[1] + 2*q[0,2]*P[0]*P[2] + 2*q[1,2]*P[1]*P[2] +
+             2*q[0,3]*P[0] + 2*q[1,3]*P[1] + 2*q[2,3]*P[2] + q[3,3])
+        return [P+t*D for t in EquationOfDegree2(A,B,C).roots()]
     
 class QuadraticEquation(np.ndarray,Primitive):
     """
@@ -2426,13 +2426,10 @@ class QuadraticEquation(np.ndarray,Primitive):
             #print(name)
             attr=getattr(obj,name)
             setattr(self,name,attr)
-
-    
+            
     def move_alone(self,M):
         self[:]=M.inverse().T@self@M.inverse()
         return self
-
-    
         
     @staticmethod
     def from_coeffs_lexico(ctt=0,x=0,y=0,z=0,xx=0,xy=0,xz=0,yy=0,yz=0,zz=0):
@@ -2452,7 +2449,7 @@ class QuadraticEquation(np.ndarray,Primitive):
         M=Map(vec,vecs[1],vecs[2],conic.plane.markedPoint) # this maps sends the caninocal frame to a frame where the cylinder is simple
         conicNew=conic.clone().move(M.inverse())
         # In this canonical coordinates the extrusion is obtained putting x=0 in the equation
-        print(conicNew.quadric,"quad")
+        #print(conicNew.quadric,"quad")
         conicNew.quadric[0, :] = 0
         conicNew.quadric[:, 0] = 0
         conicNew.move(M)
@@ -2464,7 +2461,7 @@ class Quadric(QuadraticEquation):
     A 3D object defined by a quadratic equation. It is a 3D object so rendered in the 3D view. 
     """
     # to be done exporter la quadrique en 3d. Visiblement pas faisable en openscad.
-
+    pass
     
 class Conic(Primitive):
     """
@@ -2496,7 +2493,6 @@ class Conic(Primitive):
         maQuadrique=QuadraticEquation(c[0],0,c[1],c[2],0,0,0,c[3],c[4],c[5])
         maQuadrique.move(M)
         return Conic(maQuadrique,pl)
-    
     @staticmethod
     def from_quadric_and_plane(quad,pla):
         """
@@ -2505,5 +2501,7 @@ class Conic(Primitive):
         -pla is a plane or the equationOfAPlane
         """
         return Conic(quad,pla)
-                           
+    @staticmethod
+    def from_xycoeffs(ctt=0,x=0,y=0,xx=0,xy=0,yy=0):
+        return Conic(QuadraticEquation(ctt=ctt,x=x,y=y,z=0,xx=xx,xy=xy,xz=0,yy=yy,yz=0,zz=0),AffinePlaneWithEquation(Z,origin))
     
