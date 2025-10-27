@@ -179,7 +179,14 @@ def _new_object(cls,*args,**kwargs):
     return self
 
 def _init_object(self,*args,**kwargs):
-    " put groupPhoto=False for not adding to groupPhoto"
+    """
+    Warning : this __init__ is post defined, not in the class ObjectInWorld. 
+    It means that we should not test code before the present module is loaded otherwise 
+    some hard bugs come into the game : ObjectInWorld.__init__ is called but 
+    not this one, an other one find in fathers. For instance self.children was undefined when I tested my 
+    new objects in mathutils... 
+    put groupPhoto=False for not adding to groupPhoto"    
+    """
     keys = sorted(kwargs.keys())
     if "name" in keys:
         self.name=kwargs["name"]

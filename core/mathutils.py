@@ -2184,6 +2184,15 @@ class Map(np.ndarray):
         M=Map.linear(_to_vector(a),_to_vector(b),_to_vector(c))
         return M
 
+    @staticmethod
+    def from_plane_to_plane(plane1,plane2):
+        """
+        Returns the map that sends plane1 to plane2. It uses the normal and the marked points to fix the choice.
+        """
+        return Map.from_base_to_base(plane1.box.canonical,plane2.box.canonical)
+
+
+    
     # @staticmethod    
     # def flipXY():
     #     return Map.linear(Y,X,Z)
@@ -2468,6 +2477,9 @@ class Conic(Primitive):
     An intersection of a Quadric and a Plane. 
     """
     def __init__(self,quad,pla):
+        #print("avant l'init")
+        ObjectInWorld.__init__(self)
+        #print("children de la conique",self.children)
         self.quadric=quad
         self.plane=pla
     def __str__(self):
@@ -2504,4 +2516,70 @@ class Conic(Primitive):
     @staticmethod
     def from_xycoeffs(ctt=0,x=0,y=0,xx=0,xy=0,yy=0):
         return Conic(QuadraticEquation(ctt=ctt,x=x,y=y,z=0,xx=xx,xy=xy,xz=0,yy=yy,yz=0,zz=0),AffinePlaneWithEquation(Z,origin))
-    
+
+    def _ellipse_center_in_xy_plane(self):
+        A=self.xx;B=self.xy;C=self.yy; D=self.x;E=self.y;F =self.ctt
+        denom = 4 * A * C - B**2
+        return MassPoint((B * E - 2 * C * D) / denom,(B * D - 2 * A * E) / denom,0,1)
+    def _ellipse_large_radius_in_xy_plane(self):
+        A=self.xx;B=self.xy;C=self.yy; D=self.x;E=self.y;F =self.ctt
+        denom=4 * A * C - B**2
+        x_c,y_c=MassPoint((B * E - 2 * C * D) / denom,(B * D - 2 * A * E) / denom,0,1)
+        return  np.sqrt(2 * (A * x_c**2 + B * x_c * y_c + C * y_c**2 - F) / (A + C - np.sqrt((A - C)**2 + B**2)))        
+    def _ellipse_small_radius_in_xy_plane(self):
+        A=self.quadric[0,0];B=2*self.quadric[0,1];C=self.quadric[1,1]; D=2*self.quadric[0,3];E=2*self.quadric[1,3];F =self.quadric[3,3]
+        denom=4 * A * C - B**2
+        print("abc",A,B,C)
+        print("denom",denom)
+        print(self.quadric)
+        x_c,y_c=[(B * E - 2 * C * D) / denom,(B * D - 2 * A * E) / denom]
+        print("xc,yc",x_c,y_c)
+        retour=np.sqrt(2 * (A * x_c**2 + B * x_c * y_c + C * y_c**2 - F) / (A + C + np.sqrt((A - C)**2 + B**2)))
+        #print(A,denom,retour,x_c,y_c)
+        return retour
+    def _ellipse_angle_in_xy_plane(self):
+        A=self.xx;B=self.xy;C=self.yy; 
+        return 0.5 * np.arctan2(B, A - C) if B != 0 else 0
+    @property
+    def ellipse_center():
+        """
+        returns the center when the conic is an ellipse
+        """
+        b=self.plane.box().canonical
+        M=Map(b[0],b[1],b[2],b[3])
+        new_ellipse=self.move(M.inverse())
+        center=new_ellipse._ellipse_center_in_xy_plane().move(M)
+        return center
+    @property
+    def ellipse_large_radius(self):
+        """
+        returns the large radius when the conic is an ellipse
+        """
+        b=self.plane.box().canonical.copy.deepcopy()
+        v=orthonormalize( [b.vectors[0],b.vectors[1],b.vectors[2]])
+        M=Map.affine(v[0],v[1],v[2],self.plane.markedPoint-origin)
+        new_ellipse=self.move(M.inverse())
+        return new_ellipse._ellipse_large_radius_in_xy_plane()
+    @property
+    def ellipse_small_radius(self):
+        """
+        returns the small radius when the conic is an ellipse
+        It is implicitly assumed that the vectors in the base of self.plane form an orthonormal frame.  
+        """
+        #print("avant le move",self)
+        b=copy.deepcopy(self.plane.box("canonical"))
+        v=orthonormalize( [b.vectors[0],b.vectors[1],b.vectors[2]])
+        #print("les vecteurs",v)
+        M=Map.affine(v[1],v[2],v[0],self.plane.markedPoint-origin)
+        #print("la matrice M\n",M)
+        #M=Map.from_permutation(2,1,0)
+        #print("le M qui marche\n",M)
+        #N=Map.affine(v[1],v[2],v[0],self.plane.markedPoint-origin)
+        #print(self)
+        #print(M)
+        #print(N*N.T)
+        new_ellipse=self.clone().move(M.inverse())
+        #new_ellipse.move(N)
+        #print("l'ellipse deplacee",new_ellipse)
+        return new_ellipse._ellipse_small_radius_in_xy_plane()
+
