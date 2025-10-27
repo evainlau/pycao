@@ -31,7 +31,7 @@ sys.path.append(os.getcwd()) # pour une raison inconnue, le path de python ne co
 
 from uservariables import *
 from generic import *
-
+from scipy.special import ellipe,ellipeinc
 from  itertools import combinations
 
 
@@ -657,7 +657,15 @@ class ParametrizedCurve(Primitive):
         #     return f(g(t))
         # self.function=composition
         return self
-        
+
+    def reparametrize_to_segment(self,a,b):
+        """
+        Reparametrize so that newCurve(0)=OldCurva(a) and newCurve(1)=OldCurve(b)
+        """
+        def g(t):
+            return (b-a)*t+a
+        return self.reparametrize(g)
+    
     def speed(curve,t,epsilon=0.0001,mini=0,maxi=1):
         """
         The speed vector at time t for a function with parameters t in [mini,maxi]
@@ -674,7 +682,7 @@ class ParametrizedCurve(Primitive):
         self.mapFromOrigin=M*self.mapFromOrigin
         return self
 
-    def to_polyline(self,maxDistance=0.2,starttime=0,endtime=1,maxiterations=10000):
+    def to_polyline(self,maxDistance=0.2,starttime=0,endtime=1,maxiterations=1000):
         """
         discretizes the parametrized injective curve C([starttime,endtime]) in  a sequence of points 
         p_i   with distance(p_i,p_{i+1})<maxDistance
@@ -2365,7 +2373,7 @@ class EquationOfDegree2():
         """
         a=self.a;b=self.b;c=self.c
         Delta=b**2-4*a*c
-        print(Delta,"Delta")
+        #print(Delta,"Delta")
         if Delta<0: return []
         elif Delta==0 : return [-b/2/a]
         else:
@@ -2445,7 +2453,7 @@ class QuadraticEquation(np.ndarray,Primitive):
         return QuadraticEquation(ctt,x,y,z,xx,xy,xz,yy,yz,zz)
 
     @staticmethod
-    def from_conic_and_vector(conic,vec):
+    def from_conic_and_vector_extrusion(conic,vec):
         """
         Returns an equation with zero locus the extrusion of the conic along the vector 
         The vector must not be in the plane of the conic
@@ -2518,36 +2526,68 @@ class Conic(Primitive):
         return Conic(QuadraticEquation(ctt=ctt,x=x,y=y,z=0,xx=xx,xy=xy,xz=0,yy=yy,yz=0,zz=0),AffinePlaneWithEquation(Z,origin))
 
     def _ellipse_center_in_xy_plane(self):
-        A=self.xx;B=self.xy;C=self.yy; D=self.x;E=self.y;F =self.ctt
+        A=self.quadric[0,0];B=2*self.quadric[0,1];C=self.quadric[1,1]; D=2*self.quadric[0,3];E=2*self.quadric[1,3];F =self.quadric[3,3]
         denom = 4 * A * C - B**2
         return MassPoint((B * E - 2 * C * D) / denom,(B * D - 2 * A * E) / denom,0,1)
     def _ellipse_large_radius_in_xy_plane(self):
-        A=self.xx;B=self.xy;C=self.yy; D=self.x;E=self.y;F =self.ctt
+        A=self.quadric[0,0];B=2*self.quadric[0,1];C=self.quadric[1,1]; D=2*self.quadric[0,3];E=2*self.quadric[1,3];F =self.quadric[3,3]
         denom=4 * A * C - B**2
-        x_c,y_c=MassPoint((B * E - 2 * C * D) / denom,(B * D - 2 * A * E) / denom,0,1)
+        x_c,y_c=[(B * E - 2 * C * D) / denom,(B * D - 2 * A * E) / denom]
         return  np.sqrt(2 * (A * x_c**2 + B * x_c * y_c + C * y_c**2 - F) / (A + C - np.sqrt((A - C)**2 + B**2)))        
     def _ellipse_small_radius_in_xy_plane(self):
         A=self.quadric[0,0];B=2*self.quadric[0,1];C=self.quadric[1,1]; D=2*self.quadric[0,3];E=2*self.quadric[1,3];F =self.quadric[3,3]
         denom=4 * A * C - B**2
-        print("abc",A,B,C)
-        print("denom",denom)
-        print(self.quadric)
+        #print("abc",A,B,C)
+        #print("denom",denom)
+        #print(self.quadric)
         x_c,y_c=[(B * E - 2 * C * D) / denom,(B * D - 2 * A * E) / denom]
-        print("xc,yc",x_c,y_c)
+        #print("xc,yc",x_c,y_c)
         retour=np.sqrt(2 * (A * x_c**2 + B * x_c * y_c + C * y_c**2 - F) / (A + C + np.sqrt((A - C)**2 + B**2)))
         #print(A,denom,retour,x_c,y_c)
         return retour
-    def _ellipse_angle_in_xy_plane(self):
-        A=self.xx;B=self.xy;C=self.yy; 
-        return 0.5 * np.arctan2(B, A - C) if B != 0 else 0
+    def _ellipse_distance_in_xy_plane(self,p,q,shortest=False):
+        """
+        assuming that the conic is an ellipse
+        returns the curvilinear distance to go from p to q walking on the ellipse in the trigonometric direction. 
+        in particular, if p=q, the length of the ellipse is returned
+        If shortest==True, replaces the trigonometric direction by the shortest direction. 
+        """
+        A=self.quadric[0,0];B=2*self.quadric[0,1];C=self.quadric[1,1]; D=2*self.quadric[0,3];E=2*self.quadric[1,3];F =self.quadric[3,3]
+        # Paramètres de l'ellipse
+        denom = 4 * A * C - B**2
+        x_c, y_c = (B * E - 2 * C * D) / denom, (B * D - 2 * A * E) / denom
+        delta = np.sqrt((A - C)**2 + B**2)
+        a = np.sqrt(2 * (A * x_c**2 + B * x_c * y_c + C * y_c**2 - F) / (A + C + delta))
+        b = np.sqrt(2 * (A * x_c**2 + B * x_c * y_c + C * y_c**2 - F) / (A + C - delta))
+        theta = 0.5 * np.arctan2(B, A - C) if B else 0 # l'angle du grand axe avec l'axe des x
+        # si je transforme l'ellipse pour la transformer un cercle, les points p,q bougent et deviennent 
+        px = (p[0] - x_c) * np.cos(theta) + (p[1] - y_c) * np.sin(theta)
+        py = -(p[0] - x_c) * np.sin(theta) + (p[1] - y_c) * np.cos(theta)
+        angle_p = np.arctan2(py / b, px / a)
+        qx = (q[0] - x_c) * np.cos(theta) + (q[1] - y_c) * np.sin(theta)
+        qy = -(q[0] - x_c) * np.sin(theta) + (q[1] - y_c) * np.cos(theta)
+        angle_q = np.arctan2(qy / b, qx / a)
+        k2 = (a**2 - b**2) / a**2
+        if angle_q>angle_p:
+            arc = a * (ellipeinc(angle_q, k2) - ellipeinc(angle_p, k2))
+        else:
+            arc= a * (ellipeinc(angle_q+2*pi, k2) - ellipeinc(angle_p, k2))
+        #print("angles",angle_q,angle_p)
+        #print("arc should be >0",arc)
+        #print("lgr totale",a*ellipeinc(2*pi,k2))
+        return min(arc,a*ellipeinc(2*pi,k2)-arc) if shortest else  arc
+
+            
     @property
-    def ellipse_center():
+    def ellipse_center(self):
         """
         returns the center when the conic is an ellipse
         """
-        b=self.plane.box().canonical
-        M=Map(b[0],b[1],b[2],b[3])
-        new_ellipse=self.move(M.inverse())
+        b=copy.deepcopy(self.plane.box("canonical"))
+        v=orthonormalize( [b.vectors[0],b.vectors[1],b.vectors[2]])
+        M=Map.affine(v[1],v[2],v[0],self.plane.markedPoint-origin)
+        new_ellipse=self.clone().move(M.inverse())
+        #print("new ellipse, should be in xy",new_ellipse)
         center=new_ellipse._ellipse_center_in_xy_plane().move(M)
         return center
     @property
@@ -2555,16 +2595,15 @@ class Conic(Primitive):
         """
         returns the large radius when the conic is an ellipse
         """
-        b=self.plane.box().canonical.copy.deepcopy()
+        b=copy.deepcopy(self.plane.box("canonical"))
         v=orthonormalize( [b.vectors[0],b.vectors[1],b.vectors[2]])
-        M=Map.affine(v[0],v[1],v[2],self.plane.markedPoint-origin)
-        new_ellipse=self.move(M.inverse())
+        M=Map.affine(v[1],v[2],v[0],self.plane.markedPoint-origin)
+        new_ellipse=self.clone().move(M.inverse())
         return new_ellipse._ellipse_large_radius_in_xy_plane()
     @property
     def ellipse_small_radius(self):
         """
         returns the small radius when the conic is an ellipse
-        It is implicitly assumed that the vectors in the base of self.plane form an orthonormal frame.  
         """
         #print("avant le move",self)
         b=copy.deepcopy(self.plane.box("canonical"))
@@ -2582,4 +2621,16 @@ class Conic(Primitive):
         #new_ellipse.move(N)
         #print("l'ellipse deplacee",new_ellipse)
         return new_ellipse._ellipse_small_radius_in_xy_plane()
-
+    def ellipse_distance(self,p,q,shortest=True):
+        """
+        returns the distance between p and q
+        """
+        # I move the ellipse and the point in the xy-plane using orthogonal map to preserve distances
+        b=copy.deepcopy(self.plane.box("canonical"))
+        v=orthonormalize( [b.vectors[0],b.vectors[1],b.vectors[2]])
+        M=Map.affine(v[1],v[2],v[0],self.plane.markedPoint-origin).inverse()
+        new_ellipse=self.clone().move(M)
+        new_p=p.clone().move(M)
+        new_q=q.clone().move(M)
+        #print (p,q,new_p,new_q)
+        return new_ellipse._ellipse_distance_in_xy_plane(new_p,new_q,shortest)
