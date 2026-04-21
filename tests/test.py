@@ -18,16 +18,23 @@
 
 
 
-pycaoDir="/home/laurent/subversion/articlesEtRechercheEnCours/pycao/pycaogit/core/"
-#pycaoDir="/users/evain/subversion/articlesEtRechercheEnCours/pycao/pycaogit/core/"
-
-import sys
-sys.path.append(pycaoDir)
-
+pycaoDir="/home/laurent/subversion/evain/articlesEtRechercheEnCours/pycao/core"
+##pycaoDir="/users/evain/subversion/articlesEtRechercheEnCours/pycao/core"
+import os
+thisFileAbsName=os.path.abspath(__file__)
+pycaoDir=os.path.dirname(thisFileAbsName)+"/../core"
 
 """
                 MODULES IMPORT
 """
+
+
+import os 
+import sys
+from os.path import expanduser
+sys.path.append(pycaoDir)
+import math
+
 
 
 from uservariables import *
@@ -40,54 +47,102 @@ from compound import *
 import povrayshoot 
 from cameras import *
 from lights import *
-from material import *
+from bikelibrary import RearWheel
+from bikelibrary import FrontWheel
+
+
+
+class FronteWheel(Compound):
+    """
+    A class for Front wheels ie. with a rim, a hub, a tyre, and spokes, but no cassette 
+
+    Constructor
+    FrontWheel(tyreExteriorDiameter=0.70,tyreInternalRadius=0.02,wheelCenter=point(0,0,0)
+    ,tyreColor='Green',rimColor='Red',hubColor='White',hubWidth=0.1,hubInternalRadius=0.025
+    ,hubExternalRadius=0.05,numberOfSpokes=32,spokeRadius=0.0018,spokeColor='Black'
+    ,rimOuterRadius=0.345,rimInnerRadius=0.320, axisRadius=.005)
+    """
+    def __init__(self,tyreExteriorDiameter=0.70,tyreInternalRadius=0.02,wheelCenter=point(0,0,0)
+    ,tyreColor='Green',rimColor='Red',hubColor='White',hubWidth=0.1,hubInternalRadius=0.025
+    ,hubExternalRadius=0.05,numberOfSpokes=26,spokeRadius=0.0018,spokeColor='Black'
+                 ,rimOuterRadius=0.345,rimInnerRadius=0.320,axisRadius=.005):
+
+        
+        # tyre and rim
+        tyre=Torus(tyreExteriorDiameter/2,tyreInternalRadius,Y,origin)
+        rim=Washer(origin-0.015*Y,origin+0.015*Y,rimOuterRadius,rimInnerRadius)
+        tyre.colored(tyreColor)
+        rim.rgbed(1,0,0)
+
+        # the axis
+        wheelPhysicalAxis=Cylinder(tyre.center-(hubWidth*.5+.02)*Y,tyre.center+(hubWidth*.5+.02)*Y,axisRadius).colored("Red")
+        #hub
+        hub=Cylinder(origin-hubWidth/2*Y,origin+hubWidth/2*Y,hubInternalRadius)
+        hub.colored(hubColor)
+        plaque1=Cylinder(origin,origin+0.0002*Y,hubExternalRadius)
+        plaque1.colored(hubColor)
+        #print(plaque1.box())
+        #print(hub.box())
+        plaque1.against(hub,Y,Y,X,X)
+        plaque2=plaque1.clone()
+        plaque2.against(hub,-Y,-Y,X,X)
+        self.slaves=[["tyre",tyre],rim,plaque1,plaque2,["hub",hub],["axis",wheelPhysicalAxis]]
+        
+
+        # firstLeftSpoke
+        spokeInit=plaque1.point(0.5,0.5,0.01,"ppn")
+        spokeEnd=tyre.point(0.5,0.5,0.02,"ppn")
+        spokeEnd.rotate(tyre.axis(),math.pi*4/numberOfSpokes)
+        leftSpoke=Cylinder(spokeInit,spokeEnd,spokeRadius)
+        leftSpoke.colored(spokeColor)
+
+        # firstRightspoke
+        spokeInit=plaque2.point(0.5,0.5,.01,"ppn")
+        spokeEnd=tyre.point(0.5,0.5,0.02,"ppn")
+        spokeEnd.rotate(tyre.axis(),-math.pi*4/numberOfSpokes)
+        rightSpoke=Cylinder(spokeInit,spokeEnd,spokeRadius)
+        rightSpoke.colored(spokeColor)
+
+        # otherSpokes via rotation.
+        for i in range(int(numberOfSpokes/2)):
+            spoke1=leftSpoke.clone()
+            self.slaves.append(spoke1.rotate(tyre.axis(),4*math.pi/numberOfSpokes*i))
+            spoke2=rightSpoke.clone()
+            self.slaves.append(spoke2.rotate(tyre.axis(),4*math.pi/numberOfSpokes*(i+0.5)))
+        Compound.__init__(self,self.slaves)
+        b=FrameBox([tyre.point(0,0,0),tyre.point(1,1,1),hub.point(0,0,0),hub.point(1,1,1)])
+        self.add_box("wheel",b)
+        self.add_axis("wheelAxis",hub.axis())
 
 
 
 
-###############################
-# By default, lights you will append in the file  are appended to existing cameras. So probably 
-# you want to leave the first line defining the camera at the beginning of the file
+#w=RearWheel()
+#w.cassette.textured("Metal")
+#p=plane(Z,origin-(w.tyre.externalRadius+.02)*Z).colored("Bronze")
+#Washer(origin-0.015*Y,origin+0.015*Y,.6,.7)
 
-
-camera=Camera()
-
-#######################################
-
-"""
-                SCENE DESCRIPTION
-"""
-
-
-
-
-
-
-#################################################
-#  Now, what you see
-#################################################
 directory=os.path.dirname(os.path.realpath(__file__))
 base=os.path.basename(__file__)
+camera=Camera().hooked_on(origin-1.5*(-5*Y-5*X-5*Z))
+l=Light().hooked_on(origin+10*(-2*Y-0*X+6*Z))
+camera.file=directory+"/"+os.path.splitext(base)[0]+".scad"
 camera.file=directory+"/"+os.path.splitext(base)[0]+".pov"
-
-
-camera.file="watch.pov" # A name for the povray file that will be generated. Must end with .pov
-camera.zoom(1.45)
-camera.imageHeight=800 # in pixels
-camera.imageWidth=1200 
-camera.quality=9 # a number between 0 and 11,  Consider using a lower quality setting if you're just testing your scene
-
-
-camera.lookAt=origin 
-
-#camera.actors=[] # If you want to fill this list and use it, you should set camera.filmAllActors to False. 
-camera.filmAllActors=True # overrides the camera.actors list
-camera.actors=[w]
-
-
-camera.hooked_on(origin+0*X-1*Y+3*Z)  # the positive y are in front of us if the camera is located in negative Y and we look at  a point close to the origin
-light=Light().hooked_on(camera.hook()+1*X+1*Z) # a light located close to the camera
-
-camera.shoot # takes the photo, ie. creates the povray file, and stores it in camera.file
-camera.show # show the photo, ie calls povray. 
-#camera.show_without_viewer # if you want only the photo but not the graphical interface
+#camera.filmAllActors=True
+p=plane(Z,origin).rgbed(1,1,1)
+c=Cube(1,1,1).rgbed(1,0,0)
+d=Cube(1,1,1).rgbed(1,0,0)
+c.clone().translate(X).glued_on(d).rgbed(0,1,0)
+c.clone().translate(2*X).glued_on(d)
+c.clone().translate(3*X).glued_on(d)
+c.clone().translate(Y).glued_on(d)
+c.clone().translate(Z).glued_on(d).rgbed(0,0,1)
+q=QuadraticEquation(xx=1,yy=1)
+camera.actors=[p,d]
+camera.zoom(0.6)
+#camera.shoot.pov_to_png
+camera.technology="povray"
+#camera.technology="scad"
+camera.quality=2
+camera.shoot
+camera.show

@@ -682,7 +682,7 @@ class ParametrizedCurve(Primitive):
         self.mapFromOrigin=M*self.mapFromOrigin
         return self
 
-    def to_polyline(self,maxDistance=0.2,starttime=0,endtime=1,maxiterations=1000):
+    def to_polyline_old(self,maxDistance=0.2,starttime=0,endtime=1,maxiterations=10000):
         """
         discretizes the parametrized injective curve C([starttime,endtime]) in  a sequence of points 
         p_i   with distance(p_i,p_{i+1})<maxDistance
@@ -719,17 +719,61 @@ class ParametrizedCurve(Primitive):
         #print("je sors du poly")
         return Polyline(pointslist)
 
-    def to_polyline2(self,starttime=0,endtime=1,maxiterations=1000):
+
+    def to_polyline(self,maxDistance=0.2,starttime=0,endtime=1,maxiterations=1000):
         """
-        discretizes the parametrized injective curve C([starttime,endtime]) by dividing the time interval in maxiterations
+        Construit la liste de uplets (M, d, t, tsuivant) sur la courbe paramétrée self(t)
+        entre starttime et endtime, ordonnée par distances d décroissantes pendant la construction,
+        puis à la fin trie par t croissant et retourne uniquement la liste des points M.
         """
-        pointslist=[]
-        #print("dans le poly2")
-        for i in range(maxiterations):
-            pointslist.append(self(starttime+(endtime-starttime)*i/maxiterations) )
-            #print(type(pointslist[-1]))
-            #print(pointslist[-1])
-        return Polyline(pointslist)
+        # Initialisation avec les deux uplets de départ
+        p_start = self(starttime)
+        p_end = self(endtime)
+        d_init = (p_end - p_start).norm
+        triplets = [
+            (p_start, d_init, starttime, endtime),
+            (p_end, 0.0, endtime, 0)
+        ]
+
+        # Tri initial par d décroissant
+        triplets.sort(key=lambda x: x[1], reverse=True)
+
+        def _insert_descending(lst, item):
+            """Insère 'item' dans la liste 'lst' (triée par d décroissant) à la bonne place."""
+            lo = 0
+            hi = len(lst)
+            while lo < hi:
+                mid = (lo + hi) // 2
+                if lst[mid][1] >= item[1]:
+                    lo = mid + 1
+                else:
+                    hi = mid
+            lst.insert(lo, item)
+            
+        # Processus itératif de subdivision
+        while len(triplets) < maxiterations and triplets[0][1] >= maxDistance:
+            # On supprime le uplet du début (plus grande distance)
+            M, d, t, u = triplets.pop(0)
+            # Temps milieu
+            mid_t = (t + u) / 2
+            # Point au temps milieu
+            mid_point = self(mid_t)
+            # Premier nouvel uplet : segment [mid_t, u]
+            d1 = (mid_point - self(u)).norm
+            new1 = (mid_point, d1, mid_t, u)
+            # Second nouvel uplet : segment [t, mid_t]
+            d2 = (M - mid_point).norm
+            new2 = (M, d2, t, mid_t)
+            # Insertion directe à la bonne place (liste reste triée par d décroissant)
+            _insert_descending(triplets, new1)
+            _insert_descending(triplets, new2)
+        # === FIN DU PROCESSUS ===
+        # On trie la liste finale par t croissant (et non plus par d ou par u)
+        triplets.sort(key=lambda x: x[2])
+        # On ne conserve que les points M dans l'ordre de t croissant
+        liste_M = [M for M, d, t, u in triplets]
+        return Polyline(liste_M)
+
     
         
     # def __deepcopy__(self,memo):
