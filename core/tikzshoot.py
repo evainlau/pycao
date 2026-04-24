@@ -41,7 +41,7 @@ def name_comment_string(self):
     """
     try:
         #print("les suspects","\n//name: ",str(self.name),"\n")
-        string="\n//name: "+self.name+"\n"
+        string="\n%name: "+self.name+"\n"
     except AttributeError:
         string="\n%Unnamed Object\n"
     return string
@@ -76,7 +76,8 @@ def object_string_but_CSG(self,camera):
     """
     #print("sans csg")
     string=name_comment_string(self)
-    if isinstance(self,ParametrizedCurve) :
+    #print( string,type(self))
+    if isinstance(self,ParametrizedCurve):
         if isinstance(self,Polyline):
             myPolyline=self
         else:
@@ -88,7 +89,11 @@ def object_string_but_CSG(self,camera):
         string+="    \draw "+texture_string(self,camera)
         string += "--".join([point_to_tikz2d(p,0,1) for p in myPolyline.controlPoints()])
         string += ";"
-    #print("string finale")
+    if isinstance(self,Tikztext) :
+        print("dans tikztext")
+        string+="    \path [draw]"
+        string+= point_to_tikz2d(self,0,1) +"node [circle,fill=yellow!80!black,draw] {"+self.text+"}"
+        string += ";"
     return string   
 
 def object_string_CSG(self,camera):

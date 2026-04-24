@@ -90,7 +90,10 @@ class MassPoint(np.ndarray,Primitive):
         
     def __deepcopy__(self,memo):
         # I have to rewrite this because ndarray.deepcopy applies and forgets to copy the arguments
-        result=MassPoint(self[0],self[1],self[2],self[3])
+
+        # Création d'une nouvelle instance du même type que self (Tikztext ou autre sous-classe)
+        cls = self.__class__                    # ou type(self)
+        result = cls(*self)                     # Cela appelle __new__ + __init__ correctement
         memo[id(self)] = result
         for k, v in self.__dict__.items():
             setattr(result, k, copy.deepcopy(v, memo))
@@ -219,22 +222,25 @@ class MassPoint(np.ndarray,Primitive):
         return angle
     # other methods
 
-
     def move_alone(self,M):
         #print("selfInMA",self,M)
         self[:]=M*self
         return self
-
-
     def is_origin(self):
         return self[0]==0 and self[1]==0 and self[2]==0
-
-
     def projection_on_line(self,l):
         if self[3]==1:
             return Point.from_point_and_line(self,l)
         else: raise NameError('The projection is a applied to a point')
+    def to_tikz(self,text,name="Unnamed"):
+        ret = Tikztext(*self[0:4],text=text,name=name)
+        return ret
 
+
+class Tikztext( MassPoint):
+    def __init__(self,*args,**kwargs):
+        self.text=kwargs.get('text')
+        self.name=kwargs.get('name',"unNamed")
 
 class Point(object):
     """
@@ -286,7 +292,6 @@ class Point(object):
         pl=AffinePlaneWithEquation(l.vector,p)
         return Point.from_plane_and_line(pl,l)
 
-    
 def is_vector(self):
     return isinstance(self,MassPoint) and (self[3]==0)
 
